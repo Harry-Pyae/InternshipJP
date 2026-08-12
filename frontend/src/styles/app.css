@@ -1,0 +1,189 @@
+/* ---------------------------------------------------------------------------
+   InternshipJP - shared styling
+ 
+   Direction agreed for the project: a clean white dashboard, subtle blue and
+   teal accents, Bootstrap cards, generous consistent spacing, no decorative
+   animation. Bootstrap does the heavy lifting; this file only adds the few
+   tokens and helpers that keep every member's screens looking related.
+ 
+   Members 2, 3 and 4: use these variables and the .ijp-* helpers in your own
+   pages instead of inventing new colours, and the four modules will still look
+   like one product.
+   --------------------------------------------------------------------------- */
+
+:root {
+  --ijp-ink: #14293d;
+  --ijp-ink-soft: #5b6b7c;
+  --ijp-blue: #1b6ec2;
+  --ijp-blue-dark: #145394;
+  --ijp-teal: #0f8b84;
+  --ijp-page: #f5f7fa;
+  --ijp-surface: #ffffff;
+  --ijp-border: #e2e8ef;
+
+  --ijp-ok: #1c7c54;
+  --ijp-warn: #9a6b00;
+  --ijp-bad: #b3261e;
+
+  --ijp-radius: 10px;
+  --ijp-gap: 1.25rem;
+}
+
+body {
+  background-color: var(--ijp-page);
+  color: var(--ijp-ink);
+  font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* ----------------------------------------------------------------- structure */
+
+.ijp-navbar {
+  background-color: var(--ijp-surface);
+  border-bottom: 1px solid var(--ijp-border);
+}
+
+.ijp-brand {
+  color: var(--ijp-ink);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.ijp-brand-mark {
+  color: var(--ijp-blue);
+}
+
+.ijp-main {
+  padding-top: 2rem;
+  padding-bottom: 3rem;
+}
+
+.ijp-card {
+  background-color: var(--ijp-surface);
+  border: 1px solid var(--ijp-border);
+  border-radius: var(--ijp-radius);
+}
+
+.ijp-page-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.ijp-page-subtitle {
+  color: var(--ijp-ink-soft);
+  margin-bottom: 0;
+}
+
+.ijp-muted {
+  color: var(--ijp-ink-soft);
+}
+
+.ijp-mono {
+  font-family: "Cascadia Mono", Consolas, "Courier New", monospace;
+  font-size: 0.85rem;
+}
+
+/* --------------------------------------------------------------- status card */
+
+.ijp-status-card {
+  border-left: 4px solid var(--ijp-border);
+  height: 100%;
+}
+
+.ijp-status-card--ok {
+  border-left-color: var(--ijp-ok);
+}
+
+.ijp-status-card--warn {
+  border-left-color: var(--ijp-warn);
+}
+
+.ijp-status-card--bad {
+  border-left-color: var(--ijp-bad);
+}
+
+.ijp-status-card--unknown {
+  border-left-color: var(--ijp-border);
+}
+
+.ijp-status-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ijp-ink-soft);
+}
+
+.ijp-status-value {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.ijp-status-value--ok {
+  color: var(--ijp-ok);
+}
+
+.ijp-status-value--warn {
+  color: var(--ijp-warn);
+}
+
+.ijp-status-value--bad {
+  color: var(--ijp-bad);
+}
+
+/* ---------------------------------------------------------------- ai chat */
+
+.ijp-chat-scroll {
+  max-height: 55vh;
+  overflow-y: auto;
+}
+
+.ijp-bubble {
+  border-radius: var(--ijp-radius);
+  padding: 0.75rem 1rem;
+  max-width: 46rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.ijp-bubble--user {
+  background-color: var(--ijp-blue);
+  color: #ffffff;
+  margin-left: auto;
+}
+
+.ijp-bubble--assistant {
+  background-color: #f0f4f8;
+  border: 1px solid var(--ijp-border);
+}
+
+.ijp-bubble--notice {
+  background-color: #fdf7e8;
+  border: 1px solid #f0e0b8;
+}
+
+/* --------------------------------------------------------------- utilities */
+
+.ijp-accent-teal {
+  color: var(--ijp-teal);
+}
+
+.btn-ijp-primary {
+  background-color: var(--ijp-blue);
+  border-color: var(--ijp-blue);
+  color: #ffffff;
+}
+
+.btn-ijp-primary:hover:not(:disabled) {
+  background-color: var(--ijp-blue-dark);
+  border-color: var(--ijp-blue-dark);
+  color: #ffffff;
+}
+
+/* Respect a reader who has asked for less movement. */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}

@@ -1,0 +1,47 @@
+# ---------------------------------------------------------------
+# InternshipJP - repository ignore rules
+# ---------------------------------------------------------------
+
+# Local environment / secrets
+.env
+.env.*
+!.env.example
+backend/application-local.properties
+backend/src/main/resources/application-local.properties
+
+# Uploaded certificate / resume files (never commit user files)
+backend/uploads/
+uploads/
+
+# Java / Maven build output
+target/
+!.mvn/wrapper/maven-wrapper.properties
+*.jar
+!**/src/**/*.jar
+
+# Node / Vite build output
+node_modules/
+dist/
+dist-ssr/
+.vite/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.classpath
+.project
+.settings/
+.factorypath
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-error.log*
+
+# IMPORTANT: Flyway migrations are source code and MUST stay in Git.
+# Never add backend/src/main/resources/db/migration to this file.
