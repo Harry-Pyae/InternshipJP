@@ -4,6 +4,7 @@ import { describeApiError } from "../../api/axiosClient.js";
 import { appConfig } from "../../config/appConfig.js";
 import PageHeader from "../../components/shared/PageHeader.jsx";
 import StatusCard from "../../components/shared/StatusCard.jsx";
+import DevSessionPanel from "./DevSessionPanel.jsx";
 
 /**
  * Integration Status - Member 1's page.
@@ -112,10 +113,20 @@ export default function IntegrationStatusPage() {
         </div>
       </div>
 
-      <p className="ijp-muted small mt-4 mb-0">
+      <p className="ijp-muted small mt-4 mb-4">
         Backend: <span className="ijp-mono">{appConfig.apiBaseUrl}</span>
         {checkedAt ? <> &middot; last checked {checkedAt.toLocaleTimeString()}</> : null}
       </p>
+
+      {/*
+        Sign-in for integration testing. Removed from production builds, and
+        deleted entirely once Member 2 ships the real login screen.
+      */}
+      <div className="row g-4">
+        <div className="col-12 col-lg-5">
+          <DevSessionPanel />
+        </div>
+      </div>
     </>
   );
 }

@@ -29,6 +29,8 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
     boolean existsByStudentProfileIdAndInternship_Company_Id(Long studentProfileId, Long companyId);
 
     long countByInternshipId(Long internshipId);
+
+    long countByInternship_Company_Id(Long companyId);
     long countByInternship_Company_IdAndStatus(Long companyId, ApplicationStatus status);
 
 }

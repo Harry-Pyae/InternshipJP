@@ -115,6 +115,16 @@ app:
       timeout-seconds: 30
       max-output-tokens: 700
 
+  demo-data:
+    # Sample students, employers, vacancies and applications for testing the
+    # API. OFF by default and refused under the prod profile - see
+    # config/DemoDataSeeder.java.
+    enabled: ${DEMO_DATA_ENABLED:false}
+    reset: ${DEMO_DATA_RESET:false}
+    # Fills an account you already own with a realistic profile and skills, so
+    # you can test the assistants as yourself. Empty = leave every account alone.
+    attach-student: ${DEMO_DATA_ATTACH_STUDENT:}
+
   bootstrap-admin:
     # There is no public admin registration endpoint. To create the first
     # administrator, set these in application-local.properties, start the app

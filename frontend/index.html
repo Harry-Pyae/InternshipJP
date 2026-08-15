@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-bs-theme="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,6 +7,35 @@
     <meta
       name="description"
       content="InternshipJP - internship recruitment platform for students and employers."
+    />
+    <meta name="theme-color" content="#f4f6f9" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e1620" media="(prefers-color-scheme: dark)" />
+
+    <!--
+      Applied before the first paint so a dark-mode user never sees a white
+      flash. It has to be inline and before the stylesheet: a React effect runs
+      too late. Kept in sync with src/config/theme.js.
+    -->
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem("ijp-theme") || "system";
+          var prefersDark =
+            window.matchMedia &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches;
+          var dark = stored === "dark" || (stored === "system" && prefersDark);
+          document.documentElement.setAttribute("data-bs-theme", dark ? "dark" : "light");
+        } catch (error) {
+          /* Private browsing can block localStorage. Light is a fine default. */
+        }
+      })();
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
     />
   </head>
   <body>

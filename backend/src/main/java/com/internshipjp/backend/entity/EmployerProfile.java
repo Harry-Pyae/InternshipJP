@@ -28,6 +28,9 @@ public class EmployerProfile {
     @Column(name = "job_title", length = 120)
     private String jobTitle;
 
+    @Column(name = "department", length = 120)
+    private String department;
+
     @Column(name = "work_email", length = 190)
     private String workEmail;
 
@@ -84,6 +87,14 @@ public class EmployerProfile {
 
     public void setJobTitle(String jobTitle) {
         this.jobTitle = jobTitle;
+    }
+
+    public String getDepartment() {
+        return department;
+    }
+
+    public void setDepartment(String department) {
+        this.department = department;
     }
 
     public String getWorkEmail() {

@@ -110,6 +110,21 @@ public class AiConversationService {
                 .stream().map(aiMapper::toMessage).toList();
     }
 
+    /**
+     * Deletes one of the caller's own conversations, and its messages with it
+     * (the ai_messages foreign key cascades).
+     *
+     * Looking the row up by (id, ownerId) together is what makes this safe:
+     * passing someone else's conversation id gives a 404, not a deletion.
+     */
+    @Transactional
+    public void deleteConversation(Long ownerUserId, Long conversationId) {
+        AiConversation conversation = conversationRepository
+                .findByIdAndOwnerId(conversationId, ownerUserId)
+                .orElseThrow(() -> NotFoundException.of("Conversation", conversationId));
+        conversationRepository.delete(conversation);
+    }
+
     private String buildTitle(String firstMessage) {
         if (firstMessage == null || firstMessage.isBlank()) {
             return "New conversation";

@@ -28,7 +28,11 @@ backend/.../ai/**
 backend/.../service/PlatformStatusService.java
 backend/.../controller/TestController.java
 backend/.../controller/AiController.java
+backend/.../controller/AdminAiUsageController.java
 backend/.../controller/CertificateFileController.java
+backend/src/main/resources/application-prod.yml
+backend/src/test/java/**/integration/**
+scripts/**
 frontend/src/api/**
 frontend/src/config/**
 frontend/src/features/integration/**

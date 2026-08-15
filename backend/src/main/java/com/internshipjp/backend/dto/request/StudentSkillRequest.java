@@ -6,6 +6,9 @@ import jakarta.validation.constraints.Size;
 
 /**
  * Create or update one skill.
+ *
+ * PROGRAMMING_LANGUAGE is Java, PHP, TypeScript. TECHNICAL is a framework or
+ * tool. SPOKEN_LANGUAGE is English, Burmese, Japanese.
  */
 public class StudentSkillRequest {
     @NotBlank
@@ -13,7 +16,7 @@ public class StudentSkillRequest {
     private String name;
 
     @NotBlank
-    @Pattern(regexp = "TECHNICAL|SOFT", message = "skillType must be TECHNICAL or SOFT")
+    @Pattern(regexp = "PROGRAMMING_LANGUAGE|TECHNICAL|SOFT|SPOKEN_LANGUAGE", message = "skillType must be PROGRAMMING_LANGUAGE, TECHNICAL, SOFT or SPOKEN_LANGUAGE")
     private String skillType;
 
     @Pattern(regexp = "BEGINNER|INTERMEDIATE|ADVANCED", message = "proficiency must be BEGINNER, INTERMEDIATE or ADVANCED")

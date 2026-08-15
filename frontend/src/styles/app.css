@@ -1,42 +1,135 @@
-/* ---------------------------------------------------------------------------
-   InternshipJP - shared styling
- 
-   Direction agreed for the project: a clean white dashboard, subtle blue and
-   teal accents, Bootstrap cards, generous consistent spacing, no decorative
-   animation. Bootstrap does the heavy lifting; this file only adds the few
-   tokens and helpers that keep every member's screens looking related.
- 
-   Members 2, 3 and 4: use these variables and the .ijp-* helpers in your own
-   pages instead of inventing new colours, and the four modules will still look
-   like one product.
-   --------------------------------------------------------------------------- */
+/* ===========================================================================
+   InternshipJP - design tokens and shared styling
 
-:root {
-  --ijp-ink: #14293d;
-  --ijp-ink-soft: #5b6b7c;
-  --ijp-blue: #1b6ec2;
-  --ijp-blue-dark: #145394;
-  --ijp-teal: #0f8b84;
-  --ijp-page: #f5f7fa;
+   DIRECTION
+   This product is about states. A certificate goes PENDING -> VERIFIED, an
+   internship DRAFT -> OPEN -> CLOSED, an application through seven stages.
+   So the one visual device used everywhere is a STATE RAIL: a coloured left
+   edge whose colour means the same thing on every screen. Learn it once on the
+   integration page and it reads the same on a certificate queue.
+
+   The second device is TABULAR NUMERICS. Match scores, applicant counts, ids
+   and endpoints are this product's instruments, so they are set in a mono face
+   with aligned figures rather than in the body font.
+
+   Everything else stays quiet: no gradients, no shadows beyond a hairline, no
+   entrance animation. Members 2, 3 and 4 - use these tokens and the .ijp-*
+   helpers instead of new colours, and the four modules will look like one
+   product.
+   =========================================================================== */
+
+/* --- light (default) ---------------------------------------------------- */
+:root,
+[data-bs-theme="light"] {
+  --ijp-canvas: #f4f6f9;
   --ijp-surface: #ffffff;
-  --ijp-border: #e2e8ef;
+  --ijp-surface-sunken: #f8fafc;
+  --ijp-border: #dfe5ec;
+  --ijp-border-strong: #c6d0db;
 
-  --ijp-ok: #1c7c54;
-  --ijp-warn: #9a6b00;
-  --ijp-bad: #b3261e;
+  --ijp-ink: #0f1b2d;
+  --ijp-ink-soft: #5a6b80;
+  --ijp-ink-faint: #8496a9;
 
-  --ijp-radius: 10px;
-  --ijp-gap: 1.25rem;
+  --ijp-signal: #0b6bcb;
+  --ijp-signal-hover: #08529e;
+  --ijp-signal-soft: #e8f1fc;
+
+  --ijp-verified: #0e8a7d;
+  --ijp-verified-soft: #e4f4f2;
+  --ijp-pending: #b4730e;
+  --ijp-pending-soft: #fdf3e2;
+  --ijp-rejected: #c0392f;
+  --ijp-rejected-soft: #fdeceb;
+
+  --ijp-focus: rgba(11, 107, 203, 0.35);
+  color-scheme: light;
+}
+
+/* --- dark --------------------------------------------------------------- */
+[data-bs-theme="dark"] {
+  --ijp-canvas: #0e1620;
+  --ijp-surface: #16202d;
+  --ijp-surface-sunken: #111a25;
+  --ijp-border: #26333f;
+  --ijp-border-strong: #354553;
+
+  --ijp-ink: #e6edf5;
+  --ijp-ink-soft: #9db0c4;
+  --ijp-ink-faint: #7d92a8;
+
+  --ijp-signal: #5aa2f0;
+  --ijp-signal-hover: #7cb6f5;
+  --ijp-signal-soft: #12283f;
+
+  --ijp-verified: #3fbfae;
+  --ijp-verified-soft: #0f2c2a;
+  --ijp-pending: #e0a33c;
+  --ijp-pending-soft: #2e2412;
+  --ijp-rejected: #f0776b;
+  --ijp-rejected-soft: #331917;
+
+  --ijp-focus: rgba(90, 162, 240, 0.45);
+  color-scheme: dark;
+}
+
+/* --- type scale --------------------------------------------------------- */
+:root {
+  --ijp-font-ui: "Plus Jakarta Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --ijp-font-data: "IBM Plex Mono", "Cascadia Mono", Consolas, monospace;
+
+  --ijp-radius: 12px;
+  --ijp-radius-sm: 8px;
+}
+
+/* Nothing should ever be able to push the page sideways. A single overflowing
+   element used to shift the whole layout on a phone, which is what made the
+   AI screen unusable there. */
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 body {
-  background-color: var(--ijp-page);
+  background-color: var(--ijp-canvas);
   color: var(--ijp-ink);
-  font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--ijp-font-ui);
+  font-size: 0.95rem;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* ----------------------------------------------------------------- structure */
+h1,
+h2,
+h3,
+h4 {
+  letter-spacing: -0.02em;
+  font-weight: 600;
+}
 
+/* Numbers, ids and endpoints - aligned figures, never the body font. */
+.ijp-data,
+.ijp-mono {
+  font-family: var(--ijp-font-data);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.85em;
+}
+
+/* Small structural label. Used for card headings and section eyebrows. */
+.ijp-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ijp-ink-faint);
+}
+
+.ijp-muted {
+  color: var(--ijp-ink-soft);
+}
+
+/* --- structure ---------------------------------------------------------- */
 .ijp-navbar {
   background-color: var(--ijp-surface);
   border-bottom: 1px solid var(--ijp-border);
@@ -44,17 +137,38 @@ body {
 
 .ijp-brand {
   color: var(--ijp-ink);
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: -0.03em;
+}
+
+.ijp-brand:hover {
+  color: var(--ijp-ink);
 }
 
 .ijp-brand-mark {
-  color: var(--ijp-blue);
+  color: var(--ijp-signal);
 }
 
 .ijp-main {
-  padding-top: 2rem;
+  padding-top: 1.5rem;
   padding-bottom: 3rem;
+  min-height: 70vh;
+}
+
+@media (min-width: 768px) {
+  .ijp-main {
+    padding-top: 2.5rem;
+    padding-bottom: 4rem;
+  }
+}
+
+/* Long unbroken strings - a URL, a stored filename, a skill nobody spaced -
+   must wrap rather than widen their container. */
+.ijp-card,
+.ijp-card-sunken,
+.ijp-bubble {
+  overflow-wrap: anywhere;
 }
 
 .ijp-card {
@@ -63,126 +177,544 @@ body {
   border-radius: var(--ijp-radius);
 }
 
+.ijp-card-sunken {
+  background-color: var(--ijp-surface-sunken);
+  border: 1px solid var(--ijp-border);
+  border-radius: var(--ijp-radius-sm);
+}
+
 .ijp-page-title {
-  font-size: 1.5rem;
-  font-weight: 600;
+  font-size: 1.6rem;
+  font-weight: 700;
   margin-bottom: 0.25rem;
 }
 
 .ijp-page-subtitle {
   color: var(--ijp-ink-soft);
   margin-bottom: 0;
+  max-width: 62ch;
 }
 
-.ijp-muted {
-  color: var(--ijp-ink-soft);
+/* --- the state rail ----------------------------------------------------- */
+/* One colour language for every lifecycle state in the product. */
+.ijp-rail {
+  border-left: 3px solid var(--ijp-border-strong);
 }
 
-.ijp-mono {
-  font-family: "Cascadia Mono", Consolas, "Courier New", monospace;
-  font-size: 0.85rem;
+.ijp-rail--ok {
+  border-left-color: var(--ijp-verified);
 }
 
-/* --------------------------------------------------------------- status card */
-
-.ijp-status-card {
-  border-left: 4px solid var(--ijp-border);
-  height: 100%;
+.ijp-rail--warn {
+  border-left-color: var(--ijp-pending);
 }
 
-.ijp-status-card--ok {
-  border-left-color: var(--ijp-ok);
+.ijp-rail--bad {
+  border-left-color: var(--ijp-rejected);
 }
 
-.ijp-status-card--warn {
-  border-left-color: var(--ijp-warn);
+.ijp-rail--unknown {
+  border-left-color: var(--ijp-border-strong);
 }
 
-.ijp-status-card--bad {
-  border-left-color: var(--ijp-bad);
+.ijp-state--ok {
+  color: var(--ijp-verified);
 }
 
-.ijp-status-card--unknown {
-  border-left-color: var(--ijp-border);
+.ijp-state--warn {
+  color: var(--ijp-pending);
 }
 
-.ijp-status-label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--ijp-ink-soft);
+.ijp-state--bad {
+  color: var(--ijp-rejected);
+}
+
+.ijp-state--unknown {
+  color: var(--ijp-ink-faint);
+}
+
+/* Compact state pill, e.g. in the home page system strip. */
+.ijp-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid var(--ijp-border);
+  background-color: var(--ijp-surface);
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.ijp-pill--ok {
+  border-color: var(--ijp-verified);
+  background-color: var(--ijp-verified-soft);
+  color: var(--ijp-verified);
+}
+
+.ijp-pill--warn {
+  border-color: var(--ijp-pending);
+  background-color: var(--ijp-pending-soft);
+  color: var(--ijp-pending);
+}
+
+.ijp-pill--bad {
+  border-color: var(--ijp-rejected);
+  background-color: var(--ijp-rejected-soft);
+  color: var(--ijp-rejected);
 }
 
 .ijp-status-value {
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
-.ijp-status-value--ok {
-  color: var(--ijp-ok);
+/* --- the score, set as a real number ------------------------------------ */
+.ijp-score {
+  font-family: var(--ijp-font-data);
+  font-variant-numeric: tabular-nums;
+  font-size: 1.35rem;
+  font-weight: 500;
+  line-height: 1;
 }
 
-.ijp-status-value--warn {
-  color: var(--ijp-warn);
+.ijp-meter {
+  height: 3px;
+  border-radius: 999px;
+  background-color: var(--ijp-border);
+  overflow: hidden;
 }
 
-.ijp-status-value--bad {
-  color: var(--ijp-bad);
+.ijp-meter > span {
+  display: block;
+  height: 100%;
+  background-color: var(--ijp-signal);
 }
 
-/* ---------------------------------------------------------------- ai chat */
+/* --- controls ----------------------------------------------------------- */
+.btn-ijp-primary {
+  background-color: var(--ijp-signal);
+  border-color: var(--ijp-signal);
+  color: #ffffff;
+  font-weight: 500;
+}
 
+.btn-ijp-primary:hover:not(:disabled),
+.btn-ijp-primary:focus-visible {
+  background-color: var(--ijp-signal-hover);
+  border-color: var(--ijp-signal-hover);
+  color: #ffffff;
+}
+
+.btn-ijp-quiet {
+  background-color: transparent;
+  border-color: var(--ijp-border-strong);
+  color: var(--ijp-ink);
+  font-weight: 500;
+}
+
+.btn-ijp-quiet:hover:not(:disabled) {
+  background-color: var(--ijp-surface-sunken);
+  border-color: var(--ijp-ink-faint);
+  color: var(--ijp-ink);
+}
+
+/* Keyboard focus must always be visible - a quality floor, not a nice-to-have. */
+:focus-visible {
+  outline: 2px solid var(--ijp-signal);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px var(--ijp-focus);
+}
+
+.nav-link {
+  color: var(--ijp-ink-soft);
+  font-weight: 500;
+  border-radius: var(--ijp-radius-sm);
+}
+
+.nav-link:hover {
+  color: var(--ijp-ink);
+}
+
+.nav-link.ijp-nav-active {
+  color: var(--ijp-signal);
+  background-color: var(--ijp-signal-soft);
+}
+
+/* --- links that behave like cards --------------------------------------- */
+.ijp-tile {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 120ms ease, background-color 120ms ease;
+}
+
+.ijp-tile:hover {
+  border-color: var(--ijp-signal);
+  background-color: var(--ijp-surface-sunken);
+  color: inherit;
+}
+
+/* --- dashboard shell ---------------------------------------------------- */
+/* The layout every role dashboard uses. Sidebar on wide screens, slide-over
+   on phones - a fixed sidebar on a 380px screen leaves no room for content. */
+.ijp-dash-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (min-width: 992px) {
+  .ijp-dash-grid {
+    grid-template-columns: 15rem 1fr;
+  }
+}
+
+.ijp-dash-side {
+  background-color: var(--ijp-surface);
+  border: 1px solid var(--ijp-border);
+  border-radius: var(--ijp-radius);
+  padding: 1rem;
+}
+
+@media (max-width: 991.98px) {
+  .ijp-dash-side {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: min(17rem, 82vw);
+    z-index: 1050;
+    border-radius: 0;
+    transform: translateX(-100%);
+    transition: transform 160ms ease;
+    overflow-y: auto;
+  }
+
+  .ijp-dash-side--open {
+    transform: none;
+  }
+}
+
+.ijp-dash-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 1040;
+  border: 0;
+  background-color: rgba(15, 27, 45, 0.45);
+}
+
+.ijp-dash-body {
+  min-width: 0; /* lets a table shrink instead of widening the grid */
+}
+
+.ijp-dash-link {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.55rem 0.75rem;
+  border-radius: var(--ijp-radius-sm);
+  color: var(--ijp-ink-soft);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.ijp-dash-link:hover {
+  background-color: var(--ijp-surface-sunken);
+  color: var(--ijp-ink);
+}
+
+.ijp-dash-link--active {
+  background-color: var(--ijp-signal-soft);
+  color: var(--ijp-signal);
+}
+
+/* --- status badge ------------------------------------------------------- */
+.ijp-badge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid var(--ijp-border);
+  color: var(--ijp-ink-soft);
+  background-color: var(--ijp-surface-sunken);
+  white-space: nowrap;
+}
+
+.ijp-badge--ok {
+  color: var(--ijp-verified);
+  background-color: var(--ijp-verified-soft);
+  border-color: var(--ijp-verified);
+}
+
+.ijp-badge--warn {
+  color: var(--ijp-pending);
+  background-color: var(--ijp-pending-soft);
+  border-color: var(--ijp-pending);
+}
+
+.ijp-badge--bad {
+  color: var(--ijp-rejected);
+  background-color: var(--ijp-rejected-soft);
+  border-color: var(--ijp-rejected);
+}
+
+/* Tables follow the theme rather than Bootstrap's own light default. */
+.table {
+  --bs-table-color: var(--ijp-ink);
+  --bs-table-bg: transparent;
+  --bs-table-border-color: var(--ijp-border);
+  --bs-table-hover-color: var(--ijp-ink);
+  --bs-table-hover-bg: var(--ijp-surface-sunken);
+}
+
+/* --- THE GRID OVERFLOW FIX ----------------------------------------------
+   A CSS grid column defaults to `auto`, which sizes to its CONTENT. So a long
+   chat message widened the column past its container and pushed the page
+   sideways on a phone. minmax(0, 1fr) says "take the space available, and you
+   may shrink below your content" - which is what makes the text wrap.
+
+   Bootstrap's .d-grid only sets display:grid, and everywhere we use it we mean
+   a vertical stack, so this is the right default. Anything needing real
+   columns sets its own grid-template-columns on a different class. */
+.d-grid {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+/* --- ai chat ------------------------------------------------------------ */
+/* One centred column, not a chat card beside a tall rail. Two columns of very
+   different heights leave a dead corner, and the analysis panels are far
+   taller than the conversation - so the analysis moved into tabs instead. */
+.ijp-chat-shell {
+  max-width: 54rem;
+  margin-inline: auto;
+}
+
+.ijp-chat-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: min(34rem, 60vh);
+}
+
+.ijp-chat-log {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.85rem;
+  align-content: start;
+  max-height: 58vh;
+  padding-right: 0.25rem;
+}
+
+/* Quick starter questions above the composer. Real questions someone would
+   ask, not feature labels. */
+.ijp-chip {
+  border: 1px solid var(--ijp-border-strong);
+  background-color: var(--ijp-surface);
+  color: var(--ijp-ink-soft);
+  border-radius: 999px;
+  padding: 0.35rem 0.8rem;
+  font-size: 0.8rem;
+  line-height: 1.3;
+  text-align: left;
+  transition: border-color 120ms ease, color 120ms ease;
+}
+
+.ijp-chip:hover {
+  border-color: var(--ijp-signal);
+  color: var(--ijp-signal);
+}
+
+.ijp-tabs {
+  border-bottom: 1px solid var(--ijp-border);
+  gap: 0.25rem;
+}
+
+.ijp-tab {
+  border: 0;
+  background: none;
+  color: var(--ijp-ink-soft);
+  font-weight: 500;
+  font-size: 0.9rem;
+  padding: 0.6rem 0.9rem;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  white-space: nowrap;
+}
+
+.ijp-tab:hover {
+  color: var(--ijp-ink);
+}
+
+.ijp-tab--active {
+  color: var(--ijp-signal);
+  border-bottom-color: var(--ijp-signal);
+}
+
+.ijp-tab-count {
+  font-family: var(--ijp-font-data);
+  font-size: 0.7rem;
+  margin-left: 0.35rem;
+  opacity: 0.75;
+}
 .ijp-chat-scroll {
   max-height: 55vh;
   overflow-y: auto;
+  overflow-x: hidden;
+  /* Room for the scrollbar so text never sits under it. */
+  padding-right: 0.25rem;
+}
+
+@media (max-width: 575.98px) {
+  .ijp-chat-scroll {
+    max-height: 60vh;
+  }
 }
 
 .ijp-bubble {
   border-radius: var(--ijp-radius);
   padding: 0.75rem 1rem;
-  max-width: 46rem;
+  /* min() rather than a flat 46rem: on a narrow screen the bubble must not be
+     wider than the space it has. */
+  max-width: min(46rem, 100%);
   white-space: pre-wrap;
   word-break: break-word;
 }
 
+/* A user message reads better right-aligned, but not squeezed to a sliver on
+   a phone. */
 .ijp-bubble--user {
-  background-color: var(--ijp-blue);
+  max-width: min(38rem, 100%);
+}
+
+.ijp-bubble--user {
+  background-color: var(--ijp-signal);
   color: #ffffff;
   margin-left: auto;
 }
 
 .ijp-bubble--assistant {
-  background-color: #f0f4f8;
+  background-color: var(--ijp-surface-sunken);
   border: 1px solid var(--ijp-border);
 }
 
 .ijp-bubble--notice {
-  background-color: #fdf7e8;
-  border: 1px solid #f0e0b8;
+  background-color: var(--ijp-pending-soft);
+  border: 1px solid var(--ijp-pending);
 }
 
-/* --------------------------------------------------------------- utilities */
-
-.ijp-accent-teal {
-  color: var(--ijp-teal);
+/* --- the assistant thinking --------------------------------------------- */
+/* The only animation in the product. It is doing a job: a still grey block
+   reads as broken, a moving one reads as loading. */
+.ijp-skeleton {
+  display: block;
+  height: 0.7rem;
+  border-radius: 4px;
+  background-color: var(--ijp-border);
+  background-image: linear-gradient(
+    90deg,
+    var(--ijp-border) 0%,
+    var(--ijp-surface-sunken) 40%,
+    var(--ijp-border) 80%
+  );
+  background-size: 300% 100%;
+  animation: ijp-shimmer 1.6s ease-in-out infinite;
 }
 
-.btn-ijp-primary {
-  background-color: var(--ijp-blue);
-  border-color: var(--ijp-blue);
-  color: #ffffff;
+@keyframes ijp-shimmer {
+  0% {
+    background-position: 120% 0;
+  }
+  100% {
+    background-position: -40% 0;
+  }
 }
 
-.btn-ijp-primary:hover:not(:disabled) {
-  background-color: var(--ijp-blue-dark);
-  border-color: var(--ijp-blue-dark);
-  color: #ffffff;
+.ijp-thinking-dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background-color: var(--ijp-signal);
+  animation: ijp-pulse 1.2s ease-in-out infinite;
 }
 
-/* Respect a reader who has asked for less movement. */
+@keyframes ijp-pulse {
+  0%, 100% {
+    opacity: 0.35;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* A new answer arrives rather than snapping in - 160ms, just enough to read
+   as "this appeared" instead of "the page changed". */
+.ijp-bubble--fresh {
+  animation: ijp-arrive 160ms ease-out;
+}
+
+@keyframes ijp-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Writing caret, shown only while an answer is being revealed. */
+.ijp-caret {
+  display: inline-block;
+  width: 0.5rem;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  background-color: var(--ijp-signal);
+  animation: ijp-blink 900ms steps(2, start) infinite;
+}
+
+@keyframes ijp-blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+/* --- form controls follow the theme ------------------------------------- */
+.form-control,
+.form-select {
+  background-color: var(--ijp-surface);
+  border-color: var(--ijp-border-strong);
+  color: var(--ijp-ink);
+}
+
+.form-control:focus,
+.form-select:focus {
+  background-color: var(--ijp-surface);
+  border-color: var(--ijp-signal);
+  color: var(--ijp-ink);
+  box-shadow: 0 0 0 3px var(--ijp-focus);
+}
+
+.form-control::placeholder {
+  color: var(--ijp-ink-faint);
+}
+
+/* --- respect a reader who asked for less movement ----------------------- */
 @media (prefers-reduced-motion: reduce) {
-  * {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.001ms !important;
     transition-duration: 0.001ms !important;
   }
