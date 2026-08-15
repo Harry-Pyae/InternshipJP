@@ -33,6 +33,7 @@ public class UserMapper {
         dto.setEmail(user.getEmail());
         dto.setFullName(user.getFullName());
         dto.setPhone(user.getPhone());
+        dto.setPhotoPath(user.getPhotoPath());
         dto.setRole(user.getRole().name());
         dto.setAccountStatus(user.getAccountStatus().name());
         dto.setCreatedAt(Dates.format(user.getCreatedAt()));

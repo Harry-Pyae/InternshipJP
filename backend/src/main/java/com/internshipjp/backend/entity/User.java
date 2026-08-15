@@ -30,6 +30,10 @@ public class User {
     @Column(name = "phone", length = 30)
     private String phone;
 
+    // Path under UPLOAD_ROOT. The image itself is never in the database.
+    @Column(name = "photo_path", length = 500)
+    private String photoPath;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false, length = 20)
     private Role role;
@@ -99,6 +103,14 @@ public class User {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public String getPhotoPath() {
+        return photoPath;
+    }
+
+    public void setPhotoPath(String photoPath) {
+        this.photoPath = photoPath;
     }
 
     public Role getRole() {

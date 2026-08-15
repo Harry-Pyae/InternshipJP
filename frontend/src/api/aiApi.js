@@ -23,4 +23,29 @@ export const aiApi = {
 
   messages: (conversationId) =>
     api.get(`/api/ai/conversations/${conversationId}/messages`).then((response) => response.data),
+
+  deleteConversation: (conversationId) =>
+    api.delete(`/api/ai/conversations/${conversationId}`).then((response) => response.data),
+
+  /**
+   * Internship matches with the reasoning attached.
+   *
+   * This one makes no AI provider call - the backend calculates the score by
+   * comparing skills. It works with no API key, so it is the part of the AI
+   * area that is always available.
+   */
+  recommendations: (limit = 5) =>
+    api.get("/api/ai/recommendations", { params: { limit } }).then((response) => response.data),
+
+  /**
+   * Student: what to learn next and what is missing from the profile.
+   * Counted from the database - no provider call, so it always works.
+   */
+  skillGaps: () => api.get("/api/ai/skill-gaps").then((response) => response.data),
+
+  /**
+   * Employer: what this company is missing - weak listings, unreviewed
+   * applicants, and required skills almost no student has.
+   */
+  companyInsights: () => api.get("/api/ai/company-insights").then((response) => response.data),
 };

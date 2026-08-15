@@ -24,11 +24,38 @@ public class Company {
     @Column(name = "industry", length = 100)
     private String industry;
 
+    // Free text ("1-10", "11-50", "200+") so a new band needs no migration.
+    @Column(name = "company_size", length = 30)
+    private String companySize;
+
+    @Column(name = "founded_year")
+    private Integer foundedYear;
+
+    // What an administrator checks before approving the company.
+    @Column(name = "registration_number", length = 100)
+    private String registrationNumber;
+
     @Column(name = "website", length = 255)
     private String website;
 
+    @Column(name = "contact_email", length = 190)
+    private String contactEmail;
+
+    @Column(name = "contact_phone", length = 30)
+    private String contactPhone;
+
+    @Column(name = "linkedin_url", length = 255)
+    private String linkedinUrl;
+
+    // City. Paired with address and country below.
     @Column(name = "location", length = 150)
     private String location;
+
+    @Column(name = "address", length = 255)
+    private String address;
+
+    @Column(name = "country", length = 100)
+    private String country;
 
     @Column(name = "description", length = 1500)
     private String description;
@@ -94,6 +121,30 @@ public class Company {
         this.industry = industry;
     }
 
+    public String getCompanySize() {
+        return companySize;
+    }
+
+    public void setCompanySize(String companySize) {
+        this.companySize = companySize;
+    }
+
+    public Integer getFoundedYear() {
+        return foundedYear;
+    }
+
+    public void setFoundedYear(Integer foundedYear) {
+        this.foundedYear = foundedYear;
+    }
+
+    public String getRegistrationNumber() {
+        return registrationNumber;
+    }
+
+    public void setRegistrationNumber(String registrationNumber) {
+        this.registrationNumber = registrationNumber;
+    }
+
     public String getWebsite() {
         return website;
     }
@@ -102,12 +153,52 @@ public class Company {
         this.website = website;
     }
 
+    public String getContactEmail() {
+        return contactEmail;
+    }
+
+    public void setContactEmail(String contactEmail) {
+        this.contactEmail = contactEmail;
+    }
+
+    public String getContactPhone() {
+        return contactPhone;
+    }
+
+    public void setContactPhone(String contactPhone) {
+        this.contactPhone = contactPhone;
+    }
+
+    public String getLinkedinUrl() {
+        return linkedinUrl;
+    }
+
+    public void setLinkedinUrl(String linkedinUrl) {
+        this.linkedinUrl = linkedinUrl;
+    }
+
     public String getLocation() {
         return location;
     }
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
     }
 
     public String getDescription() {

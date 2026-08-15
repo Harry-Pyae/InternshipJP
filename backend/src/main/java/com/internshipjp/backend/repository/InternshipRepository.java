@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.internshipjp.backend.entity.InternshipStatus;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +24,11 @@ public interface InternshipRepository extends JpaRepository<Internship, Long> {
     Page<Internship> findByCompanyId(Long companyId, Pageable pageable);
     Optional<Internship> findByIdAndCompanyId(Long id, Long companyId);
     long countByCompanyIdAndStatus(Long companyId, InternshipStatus status);
+
+    /** All of one company's internships, for the employer insight report. */
+    List<Internship> findByCompanyId(Long companyId);
+
+    long countByStatus(InternshipStatus status);
 
     /**
      * Simple keyword search over the public list. Parameters are bound by JPA,

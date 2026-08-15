@@ -71,6 +71,7 @@ public class EmployerService {
     public EmployerProfileResponse updateOwnProfile(Long userId, UpdateEmployerProfileRequest request) {
         EmployerProfile profile = requireProfile(userId);
         profile.setJobTitle(request.getJobTitle());
+        profile.setDepartment(request.getDepartment());
         profile.setWorkEmail(request.getWorkEmail());
         profile.setContactPhone(request.getContactPhone());
         return companyMapper.toEmployerProfile(employerProfileRepository.save(profile));
@@ -93,8 +94,16 @@ public class EmployerService {
         Company company = requireProfile(userId).getCompany();
         company.setName(request.getName().trim());
         company.setIndustry(request.getIndustry());
+        company.setCompanySize(request.getCompanySize());
+        company.setFoundedYear(request.getFoundedYear());
+        company.setRegistrationNumber(request.getRegistrationNumber());
         company.setWebsite(request.getWebsite());
+        company.setContactEmail(request.getContactEmail());
+        company.setContactPhone(request.getContactPhone());
+        company.setLinkedinUrl(request.getLinkedinUrl());
         company.setLocation(request.getLocation());
+        company.setAddress(request.getAddress());
+        company.setCountry(request.getCountry());
         company.setDescription(request.getDescription());
         return companyMapper.toCompany(companyRepository.save(company));
     }

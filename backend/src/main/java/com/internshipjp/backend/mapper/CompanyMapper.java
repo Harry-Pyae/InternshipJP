@@ -16,8 +16,16 @@ public class CompanyMapper {
         dto.setId(company.getId());
         dto.setName(company.getName());
         dto.setIndustry(company.getIndustry());
+        dto.setCompanySize(company.getCompanySize());
+        dto.setFoundedYear(company.getFoundedYear());
+        dto.setRegistrationNumber(company.getRegistrationNumber());
         dto.setWebsite(company.getWebsite());
+        dto.setContactEmail(company.getContactEmail());
+        dto.setContactPhone(company.getContactPhone());
+        dto.setLinkedinUrl(company.getLinkedinUrl());
         dto.setLocation(company.getLocation());
+        dto.setAddress(company.getAddress());
+        dto.setCountry(company.getCountry());
         dto.setDescription(company.getDescription());
         dto.setApprovalStatus(company.getApprovalStatus().name());
         dto.setApprovalNote(company.getApprovalNote());
@@ -30,7 +38,9 @@ public class CompanyMapper {
         dto.setId(profile.getId());
         dto.setFullName(profile.getUser().getFullName());
         dto.setEmail(profile.getUser().getEmail());
+        dto.setPhotoPath(profile.getUser().getPhotoPath());
         dto.setJobTitle(profile.getJobTitle());
+        dto.setDepartment(profile.getDepartment());
         dto.setWorkEmail(profile.getWorkEmail());
         dto.setContactPhone(profile.getContactPhone());
         dto.setCompany(toCompany(profile.getCompany()));

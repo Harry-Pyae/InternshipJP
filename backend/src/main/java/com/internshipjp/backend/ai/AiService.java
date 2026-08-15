@@ -5,11 +5,13 @@ import com.internshipjp.backend.dto.response.AiChatResponse;
 import com.internshipjp.backend.dto.response.AiConversationResponse;
 import com.internshipjp.backend.dto.response.AiMessageResponse;
 import com.internshipjp.backend.dto.response.AiStatusResponse;
+import com.internshipjp.backend.dto.response.CompanyInsightResponse;
+import com.internshipjp.backend.dto.response.InternshipMatchResponse;
+import com.internshipjp.backend.dto.response.SkillGapResponse;
 import com.internshipjp.backend.entity.AiConversation;
 import com.internshipjp.backend.entity.AiConversationType;
 import com.internshipjp.backend.entity.AiMessageRole;
 import com.internshipjp.backend.entity.User;
-import com.internshipjp.backend.exception.BadRequestException;
 import com.internshipjp.backend.exception.ProviderUnavailableException;
 import org.springframework.stereotype.Service;
 
@@ -44,6 +46,9 @@ public class AiService {
     private final AiConversationService conversationService;
     private final StudentRecommendationService studentRecommendationService;
     private final CandidateComparisonService candidateComparisonService;
+    private final AiRecommendationService recommendationService;
+    private final StudentSkillGapService skillGapService;
+    private final CompanyInsightService companyInsightService;
     private final AiUsageRecorder usageRecorder;
 
     public AiService(AiProviderClient providerClient,
@@ -51,12 +56,18 @@ public class AiService {
                      AiConversationService conversationService,
                      StudentRecommendationService studentRecommendationService,
                      CandidateComparisonService candidateComparisonService,
+                     AiRecommendationService recommendationService,
+                     StudentSkillGapService skillGapService,
+                     CompanyInsightService companyInsightService,
                      AiUsageRecorder usageRecorder) {
         this.providerClient = providerClient;
         this.promptService = promptService;
         this.conversationService = conversationService;
         this.studentRecommendationService = studentRecommendationService;
         this.candidateComparisonService = candidateComparisonService;
+        this.recommendationService = recommendationService;
+        this.skillGapService = skillGapService;
+        this.companyInsightService = companyInsightService;
         this.usageRecorder = usageRecorder;
     }
 
@@ -76,34 +87,75 @@ public class AiService {
         return response;
     }
 
-    /** Career guidance for the signed-in student. */
+    /**
+     * Career guidance for the signed-in student.
+     *
+     * The context is two calculated blocks joined together: their profile with
+     * scored internship matches, and the skill gap analysis. Both are counted
+     * from the database, so the model is reasoning about real demand rather
+     * than guessing what is popular.
+     */
     public AiChatResponse studentChat(User user, AiChatRequest request) {
-        Optional<String> context = studentRecommendationService.buildContext(user.getId());
-        if (context.isEmpty()) {
+        Optional<String> profileContext = studentRecommendationService.buildContext(user.getId());
+        if (profileContext.isEmpty()) {
             return degraded(user, request, AiConversationType.STUDENT_GUIDANCE, null,
                     "Your profile does not have enough information yet. Add your field of "
-                            + "study and a few skills on the profile page, then ask me again.");
+                            + "study and a few skills on the profile page, then ask me again - "
+                            + "I need something to compare against the open internships.");
         }
+
+        SkillGapResponse gaps = skillGapService.analyse(user.getId());
+        String context = profileContext.get() + skillGapService.buildGapContext(gaps);
+
         return chat(user, request, AiConversationType.STUDENT_GUIDANCE, null,
-                promptService.studentSystemPrompt(), context.get(), "STUDENT_CHAT");
+                promptService.studentSystemPrompt(), context, "STUDENT_CHAT");
     }
 
-    /** Candidate comparison for one of the employer's own internships. */
+    /**
+     * The employer assistant, which has two genuinely different jobs.
+     *
+     *   internshipId present -> CANDIDATE MODE: read the applicants of that one
+     *                           vacancy against what it asked for
+     *   internshipId absent  -> COMPANY MODE: review the company's own listings,
+     *                           pipeline and requirements - "what are we missing
+     *                           as an employer?"
+     *
+     * The two use different prompts and different context, because "who is the
+     * strongest applicant?" and "why is nobody applying?" are not the same
+     * question and must not get the same generic answer.
+     */
     public AiChatResponse employerChat(User user, AiChatRequest request) {
-        if (request.getInternshipId() == null) {
-            throw new BadRequestException(
-                    "Choose which internship you want to discuss before asking a question.");
+        if (request.getInternshipId() != null) {
+            return employerCandidateChat(user, request);
         }
+        return employerCompanyChat(user, request);
+    }
+
+    private AiChatResponse employerCandidateChat(User user, AiChatRequest request) {
         Optional<String> context =
                 candidateComparisonService.buildContext(user.getId(), request.getInternshipId());
         if (context.isEmpty()) {
             return degraded(user, request, AiConversationType.EMPLOYER_COMPARISON,
                     request.getInternshipId(),
-                    "Nobody has applied to this internship yet, so there are no candidates "
-                            + "to compare. Ask me again once you have applicants.");
+                    "Nobody has applied to this internship yet, so there are no candidates to "
+                            + "compare. Ask without choosing an internship and I will review your "
+                            + "listings instead - that is usually why applications are not arriving.");
         }
         return chat(user, request, AiConversationType.EMPLOYER_COMPARISON, request.getInternshipId(),
-                promptService.employerSystemPrompt(), context.get(), "EMPLOYER_CHAT");
+                promptService.employerCandidatePrompt(), context.get(), "EMPLOYER_CANDIDATE_CHAT");
+    }
+
+    private AiChatResponse employerCompanyChat(User user, AiChatRequest request) {
+        CompanyInsightResponse insight = companyInsightService.analyse(user.getId());
+        if (insight.getTotalInternships() == 0) {
+            return degraded(user, request, AiConversationType.EMPLOYER_COMPANY_REVIEW, null,
+                    "You have not created any internships yet, so there is nothing to review. "
+                            + "Create one with a clear description and a list of required skills - "
+                            + "the required skills are what students are matched against.");
+        }
+        String context = companyInsightService.buildInsightContext(insight);
+        return chat(user, request, AiConversationType.EMPLOYER_COMPANY_REVIEW, null,
+                promptService.employerCompanyPrompt(), context, "EMPLOYER_COMPANY_CHAT");
     }
 
     public List<AiConversationResponse> conversations(Long userId) {
@@ -112,6 +164,28 @@ public class AiService {
 
     public List<AiMessageResponse> messages(Long userId, Long conversationId) {
         return conversationService.listMessages(userId, conversationId);
+    }
+
+    public void deleteConversation(Long userId, Long conversationId) {
+        conversationService.deleteConversation(userId, conversationId);
+    }
+
+    /**
+     * Internship recommendations calculated in Java, with no provider call.
+     * Works whether or not an API key is configured.
+     */
+    public List<InternshipMatchResponse> recommendations(Long userId, int limit) {
+        return recommendationService.recommend(userId, limit);
+    }
+
+    /** Skill gap analysis for a student. Calculated, no provider call. */
+    public SkillGapResponse skillGaps(Long userId) {
+        return skillGapService.analyse(userId);
+    }
+
+    /** Listing and pipeline review for an employer. Calculated, no provider call. */
+    public CompanyInsightResponse companyInsights(Long userId) {
+        return companyInsightService.analyse(userId);
     }
 
     // ---------------------------------------------------------------- internal
