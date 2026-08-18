@@ -24,6 +24,22 @@ export const api = axios.create({
   withCredentials: true,
   xsrfCookieName: "XSRF-TOKEN",
   xsrfHeaderName: "X-XSRF-TOKEN",
+  // REQUIRED, and easy to miss.
+  //
+  // Since Axios 1.6.2 the CSRF header is only attached automatically when the
+  // request is SAME-ORIGIN. withCredentials alone is not enough. The relevant
+  // line inside Axios is:
+  //
+  //   shouldSendXSRF = withXSRFToken === true
+  //                    || (withXSRFToken == null && isURLSameOrigin(url));
+  //
+  // In development React runs on :5173 and Spring Boot on :8080, which is
+  // cross-origin, so without this flag Axios drops the X-XSRF-TOKEN header and
+  // every POST/PUT/PATCH/DELETE comes back 403.
+  //
+  // Safe here because this instance has a fixed baseURL pointing at our own
+  // backend, so the token cannot be sent to a third party.
+  withXSRFToken: true,
   headers: {
     Accept: "application/json",
   },
@@ -58,7 +74,8 @@ export function describeApiError(error) {
     return "Your session has expired. Please sign in again.";
   }
   if (error?.response?.status === 403) {
-    return "You do not have permission to do that.";
+    return "You do not have permission to do that. If you just restarted the "
+      + "backend, reload the page to pick up a fresh security token.";
   }
   if (error?.code === "ECONNABORTED") {
     return "The backend took too long to answer.";

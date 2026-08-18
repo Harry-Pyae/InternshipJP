@@ -10,6 +10,9 @@ public class UpdateEmployerProfileRequest {
     @Size(max = 120)
     private String jobTitle;
 
+    @Size(max = 120)
+    private String department;
+
     @Email
     @Size(max = 190)
     private String workEmail;
@@ -23,6 +26,14 @@ public class UpdateEmployerProfileRequest {
 
     public void setJobTitle(String jobTitle) {
         this.jobTitle = jobTitle;
+    }
+
+    public String getDepartment() {
+        return department;
+    }
+
+    public void setDepartment(String department) {
+        this.department = department;
     }
 
     public String getWorkEmail() {

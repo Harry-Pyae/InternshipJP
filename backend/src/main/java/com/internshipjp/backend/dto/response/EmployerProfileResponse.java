@@ -11,7 +11,11 @@ public class EmployerProfileResponse {
 
     private String email;
 
+    private String photoPath;
+
     private String jobTitle;
+
+    private String department;
 
     private String workEmail;
 
@@ -43,12 +47,28 @@ public class EmployerProfileResponse {
         this.email = email;
     }
 
+    public String getPhotoPath() {
+        return photoPath;
+    }
+
+    public void setPhotoPath(String photoPath) {
+        this.photoPath = photoPath;
+    }
+
     public String getJobTitle() {
         return jobTitle;
     }
 
     public void setJobTitle(String jobTitle) {
         this.jobTitle = jobTitle;
+    }
+
+    public String getDepartment() {
+        return department;
+    }
+
+    public void setDepartment(String department) {
+        this.department = department;
     }
 
     public String getWorkEmail() {

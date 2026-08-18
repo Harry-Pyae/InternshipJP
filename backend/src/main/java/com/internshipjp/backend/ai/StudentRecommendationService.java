@@ -100,13 +100,18 @@ public class StudentRecommendationService {
         StringBuilder context = new StringBuilder();
         context.append("CONTEXT\n=======\n");
         context.append("Student: ").append(profile.getUser().getFullName()).append("\n");
+        appendIfPresent(context, "Headline", profile.getHeadline());
         appendIfPresent(context, "University", profile.getUniversity());
         appendIfPresent(context, "Degree", profile.getDegree());
         appendIfPresent(context, "Field of study", profile.getFieldOfStudy());
         appendIfPresent(context, "Location", profile.getLocation());
         appendIfPresent(context, "Availability", profile.getAvailability());
         if (profile.getGraduationYear() != null) {
-            context.append("Graduation year: ").append(profile.getGraduationYear()).append("\n");
+            context.append(profile.isCurrentlyAttending() ? "Expects to graduate: " : "Graduated: ")
+                    .append(profile.getGraduationYear()).append("\n");
+        }
+        if (profile.getPreferredWorkMode() != null) {
+            context.append("Prefers: ").append(profile.getPreferredWorkMode().name()).append("\n");
         }
 
         context.append("\nSkills: ").append(skills.isEmpty() ? "none listed yet"

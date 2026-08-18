@@ -2,13 +2,36 @@ package com.internshipjp.backend.dto.request;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import java.time.LocalDate;
 
 /**
  * Student profile edit.
+ *
+ * Note what is NOT here: age. The client sends dateOfBirth and the server
+ * derives the age, so it can never go stale.
  * TODO MEMBER_2: extend with education entries and richer validation.
  */
 public class UpdateStudentProfileRequest {
+    @Size(max = 150)
+    private String headline;
+
+    private LocalDate dateOfBirth;
+
+    private Boolean currentlyAttending;
+
+    @Size(max = 100)
+    private String country;
+
+    @Size(max = 255)
+    private String githubUrl;
+
+    @Pattern(regexp = "ONSITE|REMOTE|HYBRID", message = "preferredWorkMode must be ONSITE, REMOTE or HYBRID")
+    private String preferredWorkMode;
+
+    private LocalDate availableFrom;
+
     @Size(max = 150)
     private String university;
 
@@ -36,6 +59,62 @@ public class UpdateStudentProfileRequest {
 
     @Size(max = 255)
     private String linkedinUrl;
+
+    public String getHeadline() {
+        return headline;
+    }
+
+    public void setHeadline(String headline) {
+        this.headline = headline;
+    }
+
+    public LocalDate getDateOfBirth() {
+        return dateOfBirth;
+    }
+
+    public void setDateOfBirth(LocalDate dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
+    }
+
+    public Boolean getCurrentlyAttending() {
+        return currentlyAttending;
+    }
+
+    public void setCurrentlyAttending(Boolean currentlyAttending) {
+        this.currentlyAttending = currentlyAttending;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public String getGithubUrl() {
+        return githubUrl;
+    }
+
+    public void setGithubUrl(String githubUrl) {
+        this.githubUrl = githubUrl;
+    }
+
+    public String getPreferredWorkMode() {
+        return preferredWorkMode;
+    }
+
+    public void setPreferredWorkMode(String preferredWorkMode) {
+        this.preferredWorkMode = preferredWorkMode;
+    }
+
+    public LocalDate getAvailableFrom() {
+        return availableFrom;
+    }
+
+    public void setAvailableFrom(LocalDate availableFrom) {
+        this.availableFrom = availableFrom;
+    }
 
     public String getUniversity() {
         return university;

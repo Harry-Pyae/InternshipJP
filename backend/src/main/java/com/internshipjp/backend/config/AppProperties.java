@@ -28,6 +28,7 @@ public class AppProperties {
     private Otp otp = new Otp();
     private Ai ai = new Ai();
     private BootstrapAdmin bootstrapAdmin = new BootstrapAdmin();
+    private DemoData demoData = new DemoData();
 
     public static class Storage {
         /** Root folder for uploaded files. Relative paths resolve from backend/. */
@@ -213,6 +214,43 @@ public class AppProperties {
         }
     }
 
+    public static class DemoData {
+        /** Never true by default, and refused entirely under the prod profile. */
+        private boolean enabled = false;
+        /** Removes previously seeded demo rows before inserting fresh ones. */
+        private boolean reset = false;
+        /**
+         * An existing student account to fill in with a realistic profile and
+         * skills, so you can test the assistants signed in as yourself instead
+         * of as a demo account. Left empty, nothing is touched.
+         */
+        private String attachStudent = "";
+
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
+
+        public boolean isReset() {
+            return reset;
+        }
+
+        public void setReset(boolean reset) {
+            this.reset = reset;
+        }
+
+        public String getAttachStudent() {
+            return attachStudent;
+        }
+
+        public void setAttachStudent(String attachStudent) {
+            this.attachStudent = attachStudent;
+        }
+    }
+
     public static class BootstrapAdmin {
         private boolean enabled = false;
         private String email = "";
@@ -306,6 +344,14 @@ public class AppProperties {
 
     public void setAi(Ai ai) {
         this.ai = ai;
+    }
+
+    public DemoData getDemoData() {
+        return demoData;
+    }
+
+    public void setDemoData(DemoData demoData) {
+        this.demoData = demoData;
     }
 
     public BootstrapAdmin getBootstrapAdmin() {

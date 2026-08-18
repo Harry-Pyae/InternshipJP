@@ -23,6 +23,10 @@ public interface CertificateRepository extends JpaRepository<Certificate, Long> 
     Optional<Certificate> findByIdAndStudentProfileId(Long id, Long studentProfileId);
     Page<Certificate> findByVerificationStatus(VerificationStatus status, Pageable pageable);
 
+    /** Oldest waiting first - the top of this list is what has been ignored longest. */
+    Page<Certificate> findByVerificationStatusOrderByCreatedAtAsc(
+            VerificationStatus status, Pageable pageable);
+
     /** Employer-safe: verified certificates only. */
     List<Certificate> findByStudentProfileIdAndVerificationStatus(Long studentProfileId, VerificationStatus status);
 

@@ -13,6 +13,8 @@ public class AccountResponse {
 
     private String phone;
 
+    private String photoPath;
+
     private String role;
 
     private String accountStatus;
@@ -49,6 +51,14 @@ public class AccountResponse {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public String getPhotoPath() {
+        return photoPath;
+    }
+
+    public void setPhotoPath(String photoPath) {
+        this.photoPath = photoPath;
     }
 
     public String getRole() {

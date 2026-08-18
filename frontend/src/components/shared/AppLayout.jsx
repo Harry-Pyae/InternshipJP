@@ -1,59 +1,114 @@
 import { Link, NavLink } from "react-router-dom";
 import { appConfig } from "../../config/appConfig.js";
+import { useAuth, homeFor } from "../../config/authContext.jsx";
+import ThemeToggle from "./ThemeToggle.jsx";
 
 /**
- * The frame every page sits inside: a top bar and a centred container.
+ * The frame every page sits inside.
  *
- * Deliberately minimal. Member 4 owns the shared UI, so the role-aware
- * sidebar, the notification bell and the user menu belong to that work - this
- * is only enough structure to stop each of us inventing a different page frame.
+ * Deliberately restrained. Member 4 owns the shared UI, so the role-aware
+ * sidebar, notification bell and user menu belong to that work - this is only
+ * enough structure that four people do not each invent a different page frame.
  */
 export default function AppLayout({ children }) {
+  const { user, signOut } = useAuth();
+
   return (
     <>
+      <a className="visually-hidden-focusable btn btn-ijp-primary m-2" href="#main">
+        Skip to content
+      </a>
+
       <nav className="ijp-navbar navbar navbar-expand-lg sticky-top">
         <div className="container">
           <Link className="navbar-brand ijp-brand" to={appConfig.routes.home}>
             Internship<span className="ijp-brand-mark">JP</span>
           </Link>
 
-          <button
-            className="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#ijpNav"
-            aria-controls="ijpNav"
-            aria-expanded="false"
-            aria-label="Show navigation"
-          >
-            <span className="navbar-toggler-icon" />
-          </button>
+          <div className="d-flex align-items-center gap-2 order-lg-3">
+            {user ? (
+              <div className="dropdown">
+                <button
+                  className="btn btn-sm btn-ijp-quiet dropdown-toggle"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                >
+                  <i className="bi bi-person-circle" aria-hidden="true" />
+                  <span className="d-none d-sm-inline ms-2">{user.fullName}</span>
+                </button>
+                <ul className="dropdown-menu dropdown-menu-end">
+                  <li>
+                    <span className="dropdown-item-text small">
+                      <span className="d-block fw-semibold">{user.fullName}</span>
+                      <span className="ijp-muted ijp-data">{user.email}</span>
+                    </span>
+                  </li>
+                  <li>
+                    <hr className="dropdown-divider" />
+                  </li>
+                  <li>
+                    <Link className="dropdown-item" to={homeFor(user.role)}>
+                      <i className="bi bi-grid me-2" aria-hidden="true" />
+                      My dashboard
+                    </Link>
+                  </li>
+                  <li>
+                    <button className="dropdown-item" type="button" onClick={signOut}>
+                      <i className="bi bi-box-arrow-right me-2" aria-hidden="true" />
+                      Sign out
+                    </button>
+                  </li>
+                </ul>
+              </div>
+            ) : (
+              <Link className="btn btn-sm btn-ijp-primary" to="/auth/login">
+                Sign in
+              </Link>
+            )}
+            <ThemeToggle />
+            <button
+              className="navbar-toggler border-0"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#ijpNav"
+              aria-controls="ijpNav"
+              aria-expanded="false"
+              aria-label="Show navigation"
+            >
+              <span className="navbar-toggler-icon" />
+            </button>
+          </div>
 
-          <div className="collapse navbar-collapse" id="ijpNav">
-            <ul className="navbar-nav ms-auto">
+          <div className="collapse navbar-collapse order-lg-2" id="ijpNav">
+            <ul className="navbar-nav ms-auto me-lg-3 gap-lg-1">
+              {user ? (
+                <NavItem to={homeFor(user.role)} icon="bi-grid">
+                  My dashboard
+                </NavItem>
+              ) : null}
               <NavItem to={appConfig.routes.integrationStatus} icon="bi-activity">
                 Integration status
-              </NavItem>
-              <NavItem to={appConfig.routes.studentAi} icon="bi-mortarboard">
-                Student assistant
-              </NavItem>
-              <NavItem to={appConfig.routes.employerAi} icon="bi-briefcase">
-                Employer assistant
               </NavItem>
             </ul>
           </div>
         </div>
       </nav>
 
-      <main className="ijp-main">
+      <main className="ijp-main" id="main">
         <div className="container">{children}</div>
       </main>
 
       <footer className="container pb-4">
-        <p className="ijp-muted small mb-0">
-          InternshipJP shared foundation. Student, employer and administrator
-          screens are built by Members 2, 3 and 4.
-        </p>
+        <div className="border-top pt-3 d-flex flex-wrap justify-content-between gap-2">
+          <p className="ijp-muted small mb-0">
+            InternshipJP shared foundation. Student, employer and administrator
+            screens are built by Members 2, 3 and 4.
+          </p>
+          <p className="ijp-muted small mb-0">
+            <span className="ijp-data">{appConfig.apiBaseUrl}</span>
+          </p>
+        </div>
       </footer>
     </>
   );
@@ -64,9 +119,9 @@ function NavItem({ to, icon, children }) {
     <li className="nav-item">
       <NavLink
         to={to}
-        className={({ isActive }) => `nav-link${isActive ? " fw-semibold text-primary" : ""}`}
+        className={({ isActive }) => `nav-link px-3${isActive ? " ijp-nav-active" : ""}`}
       >
-        <i className={`bi ${icon} me-1`} aria-hidden="true" />
+        <i className={`bi ${icon} me-2`} aria-hidden="true" />
         {children}
       </NavLink>
     </li>

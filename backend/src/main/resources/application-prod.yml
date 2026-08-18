@@ -1,0 +1,81 @@
+# ---------------------------------------------------------------------------
+# Production profile - Member 1 (deployment)
+#
+# Activated with:  SPRING_PROFILES_ACTIVE=prod
+#
+# This file only contains the settings that must DIFFER from development.
+# Everything else is inherited from application.yml, so there is one place to
+# change a default and one place to see what production overrides.
+#
+# Nothing secret lives here. Every credential still comes from a real
+# environment variable on the server.
+# ---------------------------------------------------------------------------
+spring:
+  # No local override file in production - configuration comes from the
+  # environment, so a stray file on the server cannot silently change behaviour.
+  config:
+    import: ""
+
+  jpa:
+    hibernate:
+      # Flyway owns the schema. "update" would let a deployment quietly alter
+      # production tables, which is how data gets lost.
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: false
+
+  flyway:
+    # Makes `flyway clean` impossible. It drops every table, and there is no
+    # legitimate reason to run it against production.
+    clean-disabled: true
+    validate-on-migrate: true
+
+server:
+  error:
+    include-message: never
+    include-stacktrace: never
+    include-binding-errors: never
+  servlet:
+    session:
+      cookie:
+        # Requires HTTPS. The site must be served over TLS before this works.
+        secure: true
+        http-only: true
+        same-site: lax
+  # Do not advertise the server product in response headers.
+  tomcat:
+    remoteip:
+      # Behind Nginx or Apache, trust the forwarded headers so redirects and
+      # secure-cookie detection see the real scheme.
+      remote-ip-header: X-Forwarded-For
+      protocol-header: X-Forwarded-Proto
+
+logging:
+  level:
+    root: WARN
+    com.internshipjp.backend: INFO
+    # Never DEBUG in production: SQL logging can echo personal data into files.
+    org.hibernate.SQL: WARN
+
+app:
+  # Hard-coded false rather than an environment variable. The /api/test/**
+  # endpoints expose the database name and the AI provider state; a typo in a
+  # deployment script should not be able to switch them back on.
+  test-endpoints-enabled: false
+
+  mail:
+    # OtpMailService refuses console mode under the prod profile, so a
+    # misconfiguration fails loudly instead of printing one-time codes to a log.
+    mode: ${MAIL_MODE:smtp}
+
+  demo-data:
+    # Belt and braces. DemoDataSeeder also refuses to run under this profile,
+    # but a deployment should not even be able to ask.
+    enabled: false
+    reset: false
+
+  bootstrap-admin:
+    # The first administrator is created once, deliberately, by temporarily
+    # enabling this in the environment - never by a deployed default.
+    enabled: false

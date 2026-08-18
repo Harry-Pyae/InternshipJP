@@ -8,6 +8,7 @@ import com.internshipjp.backend.entity.ProficiencyLevel;
 import com.internshipjp.backend.entity.SkillType;
 import com.internshipjp.backend.entity.StudentProfile;
 import com.internshipjp.backend.entity.StudentSkill;
+import com.internshipjp.backend.entity.WorkMode;
 import com.internshipjp.backend.exception.ConflictException;
 import com.internshipjp.backend.exception.NotFoundException;
 import com.internshipjp.backend.mapper.StudentMapper;
@@ -65,6 +66,16 @@ public class StudentProfileService {
     @Transactional
     public StudentProfileResponse updateOwnProfile(Long userId, UpdateStudentProfileRequest request) {
         StudentProfile profile = requireProfileByUserId(userId);
+        profile.setHeadline(request.getHeadline());
+        profile.setDateOfBirth(request.getDateOfBirth());
+        if (request.getCurrentlyAttending() != null) {
+            profile.setCurrentlyAttending(request.getCurrentlyAttending());
+        }
+        profile.setCountry(request.getCountry());
+        profile.setGithubUrl(request.getGithubUrl());
+        profile.setPreferredWorkMode(StringUtils.hasText(request.getPreferredWorkMode())
+                ? WorkMode.valueOf(request.getPreferredWorkMode()) : null);
+        profile.setAvailableFrom(request.getAvailableFrom());
         profile.setUniversity(request.getUniversity());
         profile.setDegree(request.getDegree());
         profile.setFieldOfStudy(request.getFieldOfStudy());

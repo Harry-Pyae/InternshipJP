@@ -124,7 +124,10 @@ public class SecurityConfig {
                     .requestMatchers("/api/admin/**").hasRole("ADMIN")
                     .requestMatchers("/api/employer/**").hasRole("EMPLOYER")
                     .requestMatchers("/api/students/**", "/api/student/**").hasRole("STUDENT")
-                    .requestMatchers("/api/ai/**").hasAnyRole("STUDENT", "EMPLOYER")
+                    // All three roles have an assistant. Which one answers is
+                    // decided per endpoint with @PreAuthorize, so a student
+                    // cannot reach the admin triage report.
+                    .requestMatchers("/api/ai/**").hasAnyRole("STUDENT", "EMPLOYER", "ADMIN")
 
                     // --- everything else needs a signed-in user ---------------
                     .anyRequest().authenticated())

@@ -25,8 +25,15 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
     /** Ownership-safe lookup for employers. */
     Optional<Application> findByIdAndInternship_Company_Id(Long id, Long companyId);
 
-    /** Used by CertificateService to decide whether an employer may open a file. */
+    /** Applications sitting in one status, oldest first - the stalled queue. */
+    Page<Application> findByStatusOrderByCreatedAtAsc(ApplicationStatus status, Pageable pageable);
+
+    long countByStatus(ApplicationStatus status);
+
+    /** Ownership guard used by CertificateService before opening a file. */
     boolean existsByStudentProfileIdAndInternship_Company_Id(Long studentProfileId, Long companyId);
+
+    long countByInternship_Company_Id(Long companyId);
 
     long countByInternshipId(Long internshipId);
     long countByInternship_Company_IdAndStatus(Long companyId, ApplicationStatus status);

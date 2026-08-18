@@ -216,6 +216,8 @@ row and notifies the student.
 | PATCH | `/api/admin/certificates/{id}/verification` | ADMIN | `CertificateVerificationRequest` | `CertificateResponse` |
 | GET | `/api/admin/users?role=&status=&search=&page=&size=` | ADMIN | - | `PageResponse<AdminUserResponse>` |
 | PATCH | `/api/admin/users/{id}/status` | ADMIN | `UpdateUserStatusRequest` | `AdminUserResponse` |
+| GET | `/api/admin/ai/usage?page=&size=` | ADMIN | - | `PageResponse<AiUsageLogResponse>` |
+| GET | `/api/admin/ai/usage/summary` | ADMIN | - | `AiUsageSummaryResponse` |
 
 `{id}` in the approval path is the **company** id.
 
@@ -227,6 +229,22 @@ row and notifies the student.
 
 Approving a company also flips its recruiters from `PENDING` to `ACTIVE`.
 An administrator cannot change their own account status (`400`).
+
+### AI oversight (owned by Member 1, rendered by Member 4)
+
+`AiUsageSummaryResponse`: `totalCalls`, `successfulCalls`, `failedCalls`,
+`provider`, `configured` - suits a row of stat cards.
+
+`AiUsageLogResponse`: `id`, `userId`, `feature`, `provider`, `model`, `success`,
+`errorCode`, `totalTokens`, `durationMs`, `createdAt` - suits a table.
+
+**Neither endpoint can return conversation content.** The `ai_usage_logs` table
+stores no prompt text and no answers, so an administrator with full access to
+this screen still cannot read a student's chat. That is a property of the
+schema, not a rule the code chooses to follow.
+
+`/summary` makes no network call, so opening the admin dashboard never costs an
+AI request.
 
 ---
 
@@ -266,9 +284,24 @@ this endpoint is the only way in.
 | POST | `/api/ai/employer-chat` | EMPLOYER | `AiChatRequest` | `AiChatResponse` |
 | GET | `/api/ai/conversations` | STUDENT, EMPLOYER | - | `AiConversationResponse[]` |
 | GET | `/api/ai/conversations/{id}/messages` | STUDENT, EMPLOYER | - | `AiMessageResponse[]` |
+| DELETE | `/api/ai/conversations/{id}` | STUDENT, EMPLOYER | - | `ApiMessageResponse` |
+| GET | `/api/ai/recommendations?limit=5` | STUDENT | - | `InternshipMatchResponse[]` |
+| GET | `/api/ai/skill-gaps` | STUDENT | - | `SkillGapResponse` |
+| GET | `/api/ai/company-insights` | EMPLOYER | - | `CompanyInsightResponse` |
 
 `AiChatRequest`: `message` (max 2000), `conversationId?` (null starts a thread),
-`internshipId?` (required for employer chat)
+`internshipId?`
+
+**`internshipId` selects which employer assistant answers:**
+
+| internshipId | Mode | What it reads |
+| --- | --- | --- |
+| set | Candidate comparison | the applicants of that one vacancy, verified data only |
+| null | Company review | the company's own listings, pipeline and requirements |
+
+They use different system prompts and different context. "Who is the strongest
+applicant?" and "why is nobody applying?" are not the same question, so they do
+not get the same generic answer. `internshipId` is ignored by the student chat.
 
 `AiChatResponse`: `conversationId`, `answer`, `model`, `degraded`, `createdAt`
 
@@ -278,6 +311,74 @@ Show it as a notice. It is never an error response.
 
 The assistant only reads. It cannot change an application status, and it only
 ever sees data the signed-in user is allowed to see.
+
+Conversations are scoped by owner, so `DELETE` and both `GET`s return `404` for
+another user's conversation id rather than revealing that it exists.
+
+### The two calculated reports
+
+Both endpoints below make **no AI provider call**. They exist so the assistants
+have real numbers to reason about, and so the analysis still works with no API
+key configured.
+
+**`GET /api/ai/skill-gaps` (student)** - `SkillGapResponse`:
+
+| Field | Meaning |
+| --- | --- |
+| `profileCompleteness` | 0-100 across seven things an employer looks for |
+| `profileGaps` | what is still empty, in plain words |
+| `skillsToLearn` | `SkillDemandItem[]`, ranked by how many open internships require them |
+| `strengths` | their skills that employers are currently asking for |
+| `skillsNotInDemand` | skills they list that no open internship requests |
+| `openInternshipCount`, `verifiedCertificateCount`, `applicationCount` | context figures |
+| `summary` | one deterministic paragraph |
+
+`SkillDemandItem`: `skill`, `openInternshipsRequiring`, `demandSharePercent`,
+`studentsWithSkill`.
+
+**`GET /api/ai/company-insights` (employer)** - `CompanyInsightResponse`:
+
+| Field | Meaning |
+| --- | --- |
+| `companyName`, `approvalStatus` | |
+| `totalInternships`, `openInternships`, `draftInternships` | |
+| `totalApplications`, `awaitingReview`, `shortlisted`, `accepted`, `rejected` | pipeline |
+| `listingIssues` | per vacancy: missing description, no required skills, no stipend, expired deadline, still a draft, zero applicants |
+| `hardToFillSkills` | skills this company requires that two or fewer students on the platform have |
+| `recommendations` | ordered fixes, each traceable to a number above |
+| `summary` | one deterministic paragraph |
+
+`hardToFillSkills` is the figure an employer cannot get anywhere else: if a
+vacancy demands a skill almost nobody has, the requirement is the problem.
+
+This report is about the **company**, never about individuals. It counts
+applications but contains no applicant names and no certificate data.
+
+### Recommendations without the AI provider
+
+`GET /api/ai/recommendations` makes **no call to Groq**. The backend compares
+the student's skills with each open internship's required skills in plain Java,
+so this endpoint works with no API key, costs nothing and returns the same
+answer for the same data.
+
+`InternshipMatchResponse`:
+
+| Field | Meaning |
+| --- | --- |
+| `internshipId`, `title`, `companyName`, `location`, `workMode` | the vacancy |
+| `applicationDeadline` | `YYYY-MM-DD` or null |
+| `matchScore` | 0-100: the share of required skills the student lists |
+| `matchedSkills` | the required skills the student has |
+| `missingSkills` | the required skills the student does not have |
+| `alreadyApplied` | true if this student already applied |
+| `explanation` | plain-English reason for the number |
+
+`matchedSkills` and `missingSkills` exist so the score is never a mystery - a
+student who sees 40% can see exactly which two of five skills matched. An
+internship with no listed required skills scores 0 with an explanation saying
+the fit could not be assessed, which is different from a bad match.
+
+Sorted by score descending, then internships not yet applied to, then newest.
 
 ---
 

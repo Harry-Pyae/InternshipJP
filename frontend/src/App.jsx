@@ -1,24 +1,22 @@
-import { useEffect } from "react";
-import { ensureCsrfToken } from "./api/axiosClient.js";
-import AppLayout from "./components/shared/AppLayout.jsx";
 import AppRoutes from "./routes/router.jsx";
+import { AuthProvider } from "./config/authContext.jsx";
 
 /**
  * Application shell.
  *
- * The one thing it does on startup is ask the backend for a CSRF cookie. After
- * that every POST/PUT/PATCH/DELETE from Axios carries the matching header
- * automatically. Skipping this step is the usual reason a first login attempt
- * comes back as 403.
+ * AuthProvider asks the backend once who is signed in, and fetches the CSRF
+ * cookie on the way. Every page reads the answer from context rather than
+ * asking again.
+ *
+ * There is no global chrome here on purpose. Signed-in pages get the sidebar
+ * and header from RoleLayout; public pages (landing, login, register) bring
+ * their own. A single wrapper around both would mean a navbar above the
+ * sidebar, which is one navigation too many.
  */
 export default function App() {
-  useEffect(() => {
-    ensureCsrfToken();
-  }, []);
-
   return (
-    <AppLayout>
+    <AuthProvider>
       <AppRoutes />
-    </AppLayout>
+    </AuthProvider>
   );
 }

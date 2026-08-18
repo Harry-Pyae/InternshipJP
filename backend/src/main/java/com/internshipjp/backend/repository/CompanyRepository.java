@@ -8,6 +8,8 @@ import com.internshipjp.backend.entity.ApprovalStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 /**
  * Companies and their approval state. Owner: Member 3 / Member 4.
  */
@@ -15,6 +17,11 @@ import org.springframework.data.domain.Pageable;
 public interface CompanyRepository extends JpaRepository<Company, Long> {
 
     Page<Company> findByApprovalStatus(ApprovalStatus status, Pageable pageable);
+
+    Page<Company> findByApprovalStatusOrderByCreatedAtAsc(ApprovalStatus status, Pageable pageable);
     long countByApprovalStatus(ApprovalStatus status);
+
+    /** Used by the demo-data seeder to find and remove only its own rows. */
+    List<Company> findByNameStartingWith(String prefix);
 
 }

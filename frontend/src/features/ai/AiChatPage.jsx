@@ -1,45 +1,75 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { aiApi } from "../../api/aiApi.js";
 import { authApi } from "../../api/authApi.js";
+import { employerApi } from "../../api/employerApi.js";
 import { describeApiError } from "../../api/axiosClient.js";
 import PageHeader from "../../components/shared/PageHeader.jsx";
 import ErrorAlert from "../../components/shared/ErrorAlert.jsx";
 import EmptyState from "../../components/shared/EmptyState.jsx";
 import LoadingBlock from "../../components/shared/LoadingBlock.jsx";
+import RecommendationsPanel from "./RecommendationsPanel.jsx";
+import SkillGapPanel from "./SkillGapPanel.jsx";
+import CompanyInsightPanel from "./CompanyInsightPanel.jsx";
+import AdminWorkloadPanel from "./AdminWorkloadPanel.jsx";
+import ThinkingIndicator from "./ThinkingIndicator.jsx";
+import RevealingText from "./RevealingText.jsx";
 
 /**
  * The AI assistant - Member 1's vertical slice.
  *
- * One component serves both audiences because the shapes are identical; only
- * the endpoint and the copy differ:
- *   audience="student"   career guidance from the signed-in student's profile
- *   audience="employer"  candidate comparison for one internship they own
+ * LAYOUT, AND WHY IT CHANGED
+ *   This used to be a chat card beside a rail of analysis panels. The panels
+ *   are far taller than a short conversation, so the page formed an L: content
+ *   down the right, dead space bottom-left. It was also wrong on a phone,
+ *   where the rail came first and you scrolled past three panels to reach the
+ *   chat.
  *
- * WHAT THIS PAGE DOES NOT DO
- *   It never invents a reply. If the backend answers with degraded: true
- *   (no API key, provider unreachable, or not enough profile data), that exact
- *   explanation is shown as a notice. Nothing is presented as an AI answer
- *   unless the model produced it.
+ *   Now: one centred column, with the analysis in tabs beside the
+ *   conversation. Every tab is the same width, so there is no dead corner at
+ *   any screen size, and a phone gets the chat immediately.
+ *
+ * TWO AUDIENCES
+ *   audience="student"   what to learn, what is missing, which vacancies fit
+ *   audience="employer"  compare applicants, or review the company itself
+ *
+ * Nothing is invented. If the backend answers with degraded: true (no API key,
+ * provider unreachable, or not enough data), that explanation is shown as a
+ * notice rather than dressed up as an AI answer.
  */
-export default function AiChatPage({ audience }) {
+export default function AiChatPage({ audience, initialTab = "chat" }) {
   const isEmployer = audience === "employer";
+  const isAdmin = audience === "admin";
 
   const [user, setUser] = useState(null);
   const [checkingUser, setCheckingUser] = useState(true);
+  const [tab, setTab] = useState(initialTab);
+
   const [messages, setMessages] = useState([]);
   const [conversationId, setConversationId] = useState(null);
   const [conversations, setConversations] = useState([]);
   const [draft, setDraft] = useState("");
-  const [internshipId, setInternshipId] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState(null);
-  const scrollRef = useRef(null);
+
+  // Employers have two different jobs: read the applicants of one vacancy, or
+  // review their own listings. Leaving internshipId out selects the second.
+  const [employerMode, setEmployerMode] = useState("candidates");
+  const [internshipId, setInternshipId] = useState("");
+  const [internships, setInternships] = useState([]);
+
+  const logRef = useRef(null);
+
+  const scrollToBottom = useCallback(() => {
+    if (logRef.current) {
+      logRef.current.scrollTop = logRef.current.scrollHeight;
+    }
+  }, []);
 
   const loadConversations = useCallback(async () => {
     try {
       setConversations(await aiApi.conversations());
     } catch {
-      // History is a convenience; failing to load it must not block the chat.
+      // History is a convenience. Failing to load it must not block the chat.
       setConversations([]);
     }
   }, []);
@@ -68,14 +98,44 @@ export default function AiChatPage({ audience }) {
     };
   }, [loadConversations]);
 
+  // The dropdown only ever contains vacancies this employer's company owns -
+  // the backend cannot return anyone else's.
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    if (!isEmployer || !user || user.role !== "EMPLOYER") {
+      return undefined;
     }
-  }, [messages]);
+    let cancelled = false;
+    employerApi
+      .listInternships({ size: 50 })
+      .then((page) => {
+        if (!cancelled) {
+          setInternships(page.content ?? []);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setInternships([]);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [isEmployer, user]);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, scrollToBottom]);
+
+  function startNewConversation() {
+    setConversationId(null);
+    setMessages([]);
+    setError(null);
+    setTab("chat");
+  }
 
   async function openConversation(id) {
     setError(null);
+    setTab("chat");
     try {
       const history = await aiApi.messages(id);
       setConversationId(id);
@@ -91,10 +151,56 @@ export default function AiChatPage({ audience }) {
     }
   }
 
-  function startNewConversation() {
-    setConversationId(null);
-    setMessages([]);
-    setError(null);
+  async function removeConversation(id) {
+    try {
+      await aiApi.deleteConversation(id);
+      if (id === conversationId) {
+        startNewConversation();
+      }
+      loadConversations();
+    } catch (deleteError) {
+      setError(describeApiError(deleteError));
+    }
+  }
+
+  function askThis(question) {
+    setDraft(question);
+    setTab("chat");
+  }
+
+  /** From the skill gap tab: "how do I learn this?" */
+  function askAboutSkill(item) {
+    askThis(
+      `${item.skill} is required by ${item.openInternshipsRequiring} of the open internships ` +
+        `and I don't have it. How should I learn it, roughly how long will it take, and what ` +
+        `small project would prove it to an employer?`,
+    );
+  }
+
+  /** From the matches tab: "why this score?" */
+  function discussMatch(match) {
+    askThis(
+      `Tell me more about "${match.title}" at ${match.companyName}. ` +
+        `My match score is ${match.matchScore}%. What should I improve before applying?`,
+    );
+  }
+
+  /** From the admin "Today" tab. */
+  function askAboutWorkload() {
+    askThis(
+      "Looking at what is waiting for review, what should I do first in this session, " +
+        "and who is being held up by each delay?",
+    );
+  }
+
+  /** From the company tab. */
+  function askAboutCompany() {
+    setEmployerMode("company");
+    setInternshipId("");
+    askThis(
+      "Based on the review of our listings and pipeline, why are we not getting the " +
+        "applicants we want, and what should we change first?",
+    );
   }
 
   async function send(event) {
@@ -103,8 +209,8 @@ export default function AiChatPage({ audience }) {
     if (!question || sending) {
       return;
     }
-    if (isEmployer && !internshipId.trim()) {
-      setError("Enter the id of the internship you want to discuss.");
+    if (isEmployer && employerMode === "candidates" && !internshipId.trim()) {
+      setError('Choose which internship to discuss, or switch to "My company".');
       return;
     }
 
@@ -114,17 +220,25 @@ export default function AiChatPage({ audience }) {
     setDraft("");
 
     try {
-      const payload = isEmployer
-        ? { message: question, conversationId, internshipId: Number(internshipId) }
-        : { message: question, conversationId };
-      const response = isEmployer
-        ? await aiApi.employerChat(payload)
-        : await aiApi.studentChat(payload);
+      const payload =
+        isEmployer && employerMode === "candidates"
+          ? { message: question, conversationId, internshipId: Number(internshipId) }
+          : { message: question, conversationId };
+      const response = isAdmin
+        ? await aiApi.adminChat(payload)
+        : isEmployer
+          ? await aiApi.employerChat(payload)
+          : await aiApi.studentChat(payload);
 
       setConversationId(response.conversationId);
       setMessages((current) => [
         ...current,
-        { role: "assistant", text: response.answer, notice: Boolean(response.degraded) },
+        {
+          role: "assistant",
+          text: response.answer,
+          notice: Boolean(response.degraded),
+          fresh: true,
+        },
       ]);
       loadConversations();
     } catch (sendError) {
@@ -134,169 +248,356 @@ export default function AiChatPage({ audience }) {
     }
   }
 
+  // ---------------------------------------------------------------- guards
+
   if (checkingUser) {
     return <LoadingBlock label="Checking your session..." />;
   }
 
+  const title = isAdmin
+    ? "AI administrative assistant"
+    : isEmployer
+      ? "AI recruitment assistant"
+      : "AI career assistant";
+
   if (!user) {
     return (
-      <>
-        <PageHeader title={isEmployer ? "Employer assistant" : "Student assistant"} />
+      <div className="ijp-chat-shell">
+        <PageHeader title={title} />
         <div className="ijp-card p-4">
           <EmptyState
             icon="bi-person-lock"
             title="Sign in to use the assistant"
-            hint="The assistant only ever reads data belonging to the signed-in user, so it needs a session. The login screen is Member 2's work; until it exists you can sign in with POST /api/auth/login."
+            hint="It only ever reads data belonging to the signed-in user, so it needs a session. The real login screen is Member 2's work; until then, use the Session panel on the Integration status page."
           />
         </div>
-      </>
+      </div>
     );
   }
 
-  const wrongRole = isEmployer ? user.role !== "EMPLOYER" : user.role !== "STUDENT";
+  const expectedRole = isAdmin ? "ADMIN" : isEmployer ? "EMPLOYER" : "STUDENT";
+  const wrongRole = user.role !== expectedRole;
   if (wrongRole) {
     return (
-      <>
-        <PageHeader title={isEmployer ? "Employer assistant" : "Student assistant"} />
+      <div className="ijp-chat-shell">
+        <PageHeader title={title} />
         <div className="ijp-card p-4">
           <EmptyState
             icon="bi-shield-exclamation"
             title="This assistant is for a different role"
-            hint={`You are signed in as ${user.role}. ${
-              isEmployer ? "The employer assistant" : "The student assistant"
-            } is only available to ${isEmployer ? "employers" : "students"}.`}
+            hint={`You are signed in as ${user.role}. ${title} is only available to ${expectedRole.toLowerCase()} accounts.`}
           />
         </div>
-      </>
+      </div>
     );
   }
 
+  // ------------------------------------------------------------------ view
+
+  const tabs = isAdmin
+    ? [
+        { key: "chat", icon: "bi-chat-dots", label: "Chat" },
+        { key: "today", icon: "bi-list-check", label: "Today" },
+        { key: "history", icon: "bi-clock-history", label: "History", count: conversations.length },
+      ]
+    : isEmployer
+    ? [
+        { key: "chat", icon: "bi-chat-dots", label: "Chat" },
+        { key: "company", icon: "bi-building-gear", label: "My company" },
+        { key: "history", icon: "bi-clock-history", label: "History", count: conversations.length },
+      ]
+    : [
+        { key: "chat", icon: "bi-chat-dots", label: "Chat" },
+        { key: "learn", icon: "bi-lightbulb", label: "What to learn" },
+        { key: "matches", icon: "bi-ui-checks-grid", label: "Matches" },
+        { key: "history", icon: "bi-clock-history", label: "History", count: conversations.length },
+      ];
+
+  const starters = isAdmin
+    ? [
+        "What should I work on first today?",
+        "Which reviews have been waiting too long, and who is that holding up?",
+        "Is the certificate queue growing or shrinking?",
+      ]
+    : isEmployer
+    ? employerMode === "company"
+      ? [
+          "Why are we not getting applicants?",
+          "Which listing is weakest, and what should I rewrite?",
+          "Are we asking for skills students actually have?",
+        ]
+      : [
+          "Who matches this internship best?",
+          "Compare these candidates for me",
+          "What skill gaps should I review?",
+          "What should I ask them in an interview?",
+        ]
+    : [
+        "Which internships fit my profile?",
+        "What skills should I improve?",
+        "What is missing from my profile?",
+        "What should I learn next?",
+      ];
+
   return (
-    <>
+    <div>
       <PageHeader
-        title={isEmployer ? "Employer assistant" : "Student assistant"}
+        title={title}
         subtitle={
-          isEmployer
-            ? "Compare the people who applied to one of your internships, using verified information only."
-            : "Ask about internships that match your profile, and what to improve."
+          isAdmin
+            ? "What is waiting for review, what has waited too long, and who it is holding up."
+            : isEmployer
+            ? employerMode === "company"
+              ? "Why your listings are not attracting applicants, and what to change."
+              : "Compare applicants against what the vacancy asked for. Verified evidence only."
+            : "Internship suggestions, profile guidance and skill-development advice."
         }
         action={
-          <button type="button" className="btn btn-outline-secondary" onClick={startNewConversation}>
+          <button type="button" className="btn btn-ijp-quiet btn-sm" onClick={startNewConversation}>
             <i className="bi bi-plus-lg me-1" aria-hidden="true" />
             New conversation
           </button>
         }
       />
 
-      <div className="row g-4">
-        <div className="col-12 col-lg-4 order-lg-2">
-          <div className="ijp-card p-4">
-            <h2 className="ijp-status-label mb-3">Your conversations</h2>
-            {conversations.length === 0 ? (
-              <p className="ijp-muted small mb-0">Nothing yet. Ask a question to start one.</p>
-            ) : (
-              <ul className="list-unstyled d-grid gap-2 mb-0">
-                {conversations.map((conversation) => (
-                  <li key={conversation.id}>
-                    <button
-                      type="button"
-                      className={`btn btn-sm w-100 text-start ${
-                        conversation.id === conversationId ? "btn-ijp-primary" : "btn-outline-secondary"
-                      }`}
-                      onClick={() => openConversation(conversation.id)}
-                    >
-                      <span className="d-block text-truncate">
-                        {conversation.title ?? "Conversation"}
-                      </span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+      <div className="ijp-card overflow-hidden">
+        <div className="d-flex ijp-tabs px-2 overflow-auto" role="tablist">
+          {tabs.map((item) => (
+            <button
+              key={item.key}
+              type="button"
+              role="tab"
+              aria-selected={tab === item.key}
+              className={`ijp-tab${tab === item.key ? " ijp-tab--active" : ""}`}
+              onClick={() => setTab(item.key)}
+            >
+              <i className={`bi ${item.icon} me-2`} aria-hidden="true" />
+              {item.label}
+              {item.count ? <span className="ijp-tab-count">{item.count}</span> : null}
+            </button>
+          ))}
         </div>
 
-        <div className="col-12 col-lg-8 order-lg-1">
-          <div className="ijp-card p-4">
-            <ErrorAlert message={error} />
+        <div className="p-3 p-md-4">
+          {tab === "chat" ? (
+            <ChatTab
+              isEmployer={isEmployer && !isAdmin}
+              employerMode={employerMode}
+              setEmployerMode={setEmployerMode}
+              internships={internships}
+              internshipId={internshipId}
+              setInternshipId={setInternshipId}
+              messages={messages}
+              sending={sending}
+              error={error}
+              draft={draft}
+              setDraft={setDraft}
+              starters={starters}
+              onSend={send}
+              logRef={logRef}
+            />
+          ) : null}
 
-            <div className="ijp-chat-scroll d-grid gap-3 mb-3" ref={scrollRef}>
-              {messages.length === 0 ? (
-                <EmptyState
-                  icon="bi-chat-dots"
-                  title="Ask the assistant a question"
-                  hint={
-                    isEmployer
-                      ? "For example: which of these candidates best matches the required skills, and what should I ask them?"
-                      : "For example: which open internships suit my skills, and what should I learn next?"
-                  }
-                />
-              ) : (
-                messages.map((message, index) => (
-                  <div
-                    key={index}
-                    className={`ijp-bubble ${
-                      message.role === "user"
-                        ? "ijp-bubble--user"
-                        : message.notice
-                          ? "ijp-bubble--notice"
-                          : "ijp-bubble--assistant"
-                    }`}
-                  >
-                    {message.notice ? (
-                      <i className="bi bi-info-circle me-2" aria-hidden="true" />
-                    ) : null}
-                    {message.text}
-                  </div>
-                ))
-              )}
-              {sending ? <LoadingBlock label="The assistant is thinking..." /> : null}
-            </div>
-
-            <form onSubmit={send} className="d-grid gap-2">
-              {isEmployer ? (
-                <div>
-                  <label className="form-label small fw-semibold" htmlFor="internshipId">
-                    Internship id
-                  </label>
-                  <input
-                    id="internshipId"
-                    className="form-control"
-                    inputMode="numeric"
-                    value={internshipId}
-                    onChange={(event) => setInternshipId(event.target.value)}
-                    placeholder="e.g. 3"
-                  />
-                  <p className="ijp-muted small mb-0 mt-1">
-                    Only internships owned by your company can be discussed. The employer
-                    internship list is Member 3&apos;s screen; until it exists, take the id from
-                    GET /api/employer/internships.
-                  </p>
-                </div>
-              ) : null}
-
-              <div className="d-flex gap-2">
-                <input
-                  className="form-control"
-                  value={draft}
-                  onChange={(event) => setDraft(event.target.value)}
-                  placeholder="Type your question"
-                  aria-label="Your question"
-                />
-                <button className="btn btn-ijp-primary" type="submit" disabled={sending}>
-                  <i className="bi bi-send me-1" aria-hidden="true" />
-                  Send
-                </button>
-              </div>
-            </form>
-
-            <p className="ijp-muted small mb-0 mt-3">
-              The assistant gives advice only. It cannot accept or reject anyone, change an
-              application, or see unverified certificates.
-            </p>
-          </div>
+          {tab === "learn" ? <SkillGapPanel onAsk={askAboutSkill} /> : null}
+          {tab === "matches" ? <RecommendationsPanel onDiscuss={discussMatch} /> : null}
+          {tab === "company" ? <CompanyInsightPanel onAsk={askAboutCompany} /> : null}
+          {tab === "today" ? <AdminWorkloadPanel onAsk={askAboutWorkload} /> : null}
+          {tab === "history" ? (
+            <HistoryTab
+              conversations={conversations}
+              conversationId={conversationId}
+              onOpen={openConversation}
+              onDelete={removeConversation}
+            />
+          ) : null}
         </div>
       </div>
-    </>
+
+      <p className="ijp-muted small mt-3 mb-0">
+        The assistant gives advice only. It cannot accept or reject anyone, change an
+        application, or see unverified certificates.
+      </p>
+    </div>
+  );
+}
+
+function ChatTab({
+  isEmployer,
+  employerMode,
+  setEmployerMode,
+  internships,
+  internshipId,
+  setInternshipId,
+  messages,
+  sending,
+  error,
+  draft,
+  setDraft,
+  starters,
+  onSend,
+  logRef,
+}) {
+  const thinkingMode = !isEmployer
+    ? "student"
+    : employerMode === "company"
+      ? "employer-company"
+      : "employer-candidates";
+
+  function followScroll() {
+    if (logRef.current) {
+      logRef.current.scrollTop = logRef.current.scrollHeight;
+    }
+  }
+
+  return (
+    <div className="ijp-chat-panel">
+      {isEmployer ? (
+        <div className="d-flex flex-wrap gap-2 align-items-center mb-3">
+          <div className="btn-group btn-group-sm" role="group" aria-label="Assistant mode">
+            <button
+              type="button"
+              className={`btn ${
+                employerMode === "candidates" ? "btn-ijp-primary" : "btn-ijp-quiet"
+              }`}
+              onClick={() => setEmployerMode("candidates")}
+            >
+              <i className="bi bi-people me-1" aria-hidden="true" />
+              Applicants
+            </button>
+            <button
+              type="button"
+              className={`btn ${employerMode === "company" ? "btn-ijp-primary" : "btn-ijp-quiet"}`}
+              onClick={() => setEmployerMode("company")}
+            >
+              <i className="bi bi-building-gear me-1" aria-hidden="true" />
+              My company
+            </button>
+          </div>
+
+          {employerMode === "candidates" ? (
+            <select
+              className="form-select form-select-sm w-auto flex-grow-1"
+              value={internshipId}
+              onChange={(event) => setInternshipId(event.target.value)}
+              aria-label="Which internship"
+            >
+              <option value="">Choose an internship...</option>
+              {internships.map((internship) => (
+                <option key={internship.id} value={internship.id}>
+                  {internship.title} ({internship.status.toLowerCase()})
+                </option>
+              ))}
+            </select>
+          ) : null}
+        </div>
+      ) : null}
+
+      <ErrorAlert message={error} />
+
+      <div className="ijp-chat-log mb-3" ref={logRef}>
+        {messages.length === 0 && !sending ? (
+          <EmptyState
+            icon="bi-chat-dots"
+            title="Ask the assistant a question"
+            hint="Or pick one of the suggestions below to get started."
+          />
+        ) : (
+          messages.map((message, index) => (
+            <div
+              key={index}
+              className={`ijp-bubble ${
+                message.role === "user"
+                  ? "ijp-bubble--user"
+                  : message.notice
+                    ? "ijp-bubble--notice"
+                    : "ijp-bubble--assistant"
+              }${message.fresh ? " ijp-bubble--fresh" : ""}`}
+            >
+              {message.notice ? (
+                <i className="bi bi-info-circle me-2" aria-hidden="true" />
+              ) : null}
+              {message.role === "assistant" && message.fresh ? (
+                <RevealingText text={message.text} onProgress={followScroll} />
+              ) : (
+                message.text
+              )}
+            </div>
+          ))
+        )}
+        {sending ? <ThinkingIndicator mode={thinkingMode} /> : null}
+      </div>
+
+      {/* Suggestions sit directly above the composer, where someone looks when
+          they do not know what to type. They disappear once the conversation
+          has started - by then the question is in their head, not ours. */}
+      {messages.length === 0 ? (
+        <div className="d-flex flex-wrap gap-2 mb-2">
+          {starters.map((question) => (
+            <button
+              key={question}
+              type="button"
+              className="ijp-chip"
+              onClick={() => setDraft(question)}
+            >
+              {question}
+            </button>
+          ))}
+        </div>
+      ) : null}
+
+      <form onSubmit={onSend} className="d-flex gap-2">
+        <input
+          className="form-control"
+          value={draft}
+          onChange={(event) => setDraft(event.target.value)}
+          placeholder="Ask a question"
+          aria-label="Your question"
+          disabled={sending}
+        />
+        <button className="btn btn-ijp-primary flex-shrink-0" type="submit" disabled={sending}>
+          <i className="bi bi-send" aria-hidden="true" />
+          <span className="d-none d-sm-inline ms-2">Send</span>
+        </button>
+      </form>
+    </div>
+  );
+}
+
+function HistoryTab({ conversations, conversationId, onOpen, onDelete }) {
+  if (conversations.length === 0) {
+    return (
+      <EmptyState
+        icon="bi-clock-history"
+        title="No conversations yet"
+        hint="Ask a question and it will be saved here."
+      />
+    );
+  }
+
+  return (
+    <ul className="list-unstyled d-grid gap-2 mb-0">
+      {conversations.map((conversation) => (
+        <li key={conversation.id} className="d-flex gap-2">
+          <button
+            type="button"
+            className={`btn btn-sm flex-grow-1 text-start text-truncate ${
+              conversation.id === conversationId ? "btn-ijp-primary" : "btn-ijp-quiet"
+            }`}
+            onClick={() => onOpen(conversation.id)}
+          >
+            {conversation.title ?? "Conversation"}
+          </button>
+          <button
+            type="button"
+            className="btn btn-sm btn-ijp-quiet flex-shrink-0"
+            onClick={() => onDelete(conversation.id)}
+            aria-label={`Delete conversation: ${conversation.title ?? "Conversation"}`}
+            title="Delete this conversation"
+          >
+            <i className="bi bi-trash" aria-hidden="true" />
+          </button>
+        </li>
+      ))}
+    </ul>
   );
 }
