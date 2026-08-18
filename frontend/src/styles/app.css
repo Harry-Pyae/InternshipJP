@@ -103,13 +103,20 @@
   --ijp-radius-sm: 8px;
 }
 
-/* Nothing should ever be able to push the page sideways. A single overflowing
-   element used to shift the whole layout on a phone, which is what made the
-   AI screen unusable there. */
+/* The shell needs a real height to divide up, so these three form the chain
+   from the viewport down to the application.
+
+   NOTE: overflow-x is deliberately NOT set here any more. It used to be, to
+   stop a wide element shifting the page on a phone - but an ancestor with any
+   non-visible overflow silently disables position: sticky on every descendant,
+   and turns the document itself into the scroll container. That is what made
+   the sidebar scroll away with the page. Horizontal overflow is now contained
+   by the scroll regions themselves, where it belongs. */
 html,
-body {
+body,
+#root {
+  height: 100%;
   max-width: 100%;
-  overflow-x: hidden;
 }
 
 body {
@@ -444,200 +451,6 @@ h4 {
   }
 }
 
-/* --- dashboard shell ---------------------------------------------------- */
-/* The sidebar has three states:
-     wide     icon + label, the default
-     rail     icons only, 4.25rem, for when the content needs the room
-     drawer   slides over the page, on anything narrower than a laptop
-   The first two are remembered between visits, because a preference you have
-   to set on every page load is not a preference. */
-.ijp-dash-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 1.5rem;
-  align-items: start;
-}
-
-@media (min-width: 992px) {
-  .ijp-dash-grid {
-    grid-template-columns: var(--ijp-side-width, 15rem) minmax(0, 1fr);
-    transition: grid-template-columns 180ms ease;
-  }
-
-  .ijp-dash-grid--rail {
-    --ijp-side-width: 4.25rem;
-  }
-}
-
-.ijp-dash-side {
-  background-color: var(--ijp-surface);
-  border: 1px solid var(--ijp-border);
-  border-radius: var(--ijp-radius);
-  box-shadow: var(--ijp-shadow-sm);
-  padding: 0.75rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-@media (min-width: 992px) {
-  .ijp-dash-side {
-    position: sticky;
-    top: 5.25rem;
-    max-height: calc(100vh - 7rem);
-    overflow: hidden auto;
-  }
-}
-
-@media (max-width: 991.98px) {
-  .ijp-dash-side {
-    position: fixed;
-    inset: 0 auto 0 0;
-    width: min(17rem, 82vw);
-    z-index: 1050;
-    border-radius: 0;
-    box-shadow: var(--ijp-shadow-md);
-    transform: translateX(-100%);
-    transition: transform 180ms ease;
-  }
-
-  .ijp-dash-side--open {
-    transform: none;
-  }
-}
-
-.ijp-dash-scrim {
-  position: fixed;
-  inset: 0;
-  z-index: 1040;
-  border: 0;
-  background-color: rgba(15, 27, 45, 0.5);
-  backdrop-filter: blur(2px);
-}
-
-.ijp-dash-body {
-  min-width: 0;
-}
-
-.ijp-side-head {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.4rem 0.5rem 0.75rem;
-  border-bottom: 1px solid var(--ijp-border);
-  margin-bottom: 0.25rem;
-}
-
-.ijp-side-avatar {
-  flex-shrink: 0;
-  width: 2.1rem;
-  height: 2.1rem;
-  border-radius: 8px;
-  display: grid;
-  place-items: center;
-  background-color: var(--ijp-signal-soft);
-  color: var(--ijp-signal);
-  font-size: 1rem;
-}
-
-.ijp-dash-link {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.55rem 0.7rem;
-  border-radius: var(--ijp-radius-sm);
-  color: var(--ijp-ink-soft);
-  text-decoration: none;
-  font-weight: 500;
-  font-size: 0.9rem;
-  white-space: nowrap;
-  transition: background-color 120ms ease, color 120ms ease;
-}
-
-.ijp-dash-link > i {
-  font-size: 1.05rem;
-  flex-shrink: 0;
-  width: 1.35rem;
-  text-align: center;
-}
-
-.ijp-dash-link:hover {
-  background-color: var(--ijp-surface-sunken);
-  color: var(--ijp-ink);
-}
-
-.ijp-dash-link--active {
-  background-color: var(--ijp-signal-soft);
-  color: var(--ijp-signal);
-  font-weight: 600;
-}
-
-/* A short bar on the active item, matching the state rail used everywhere
-   else. One idea, reused, rather than a second visual language. */
-.ijp-dash-link--active::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 22%;
-  bottom: 22%;
-  width: 3px;
-  border-radius: 0 3px 3px 0;
-  background-color: var(--ijp-signal);
-}
-
-/* Rail mode: icons only, centred, labels removed from the flow so they cannot
-   affect width. */
-.ijp-dash-side--rail .ijp-dash-link {
-  justify-content: center;
-  padding-inline: 0.5rem;
-}
-
-.ijp-dash-side--rail .ijp-dash-link > span,
-.ijp-dash-side--rail .ijp-side-head-text,
-.ijp-dash-side--rail .ijp-side-section {
-  display: none;
-}
-
-.ijp-dash-side--rail .ijp-side-head {
-  justify-content: center;
-}
-
-.ijp-side-section {
-  font-size: 0.66rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--ijp-ink-faint);
-  padding: 0.75rem 0.7rem 0.25rem;
-}
-
-.ijp-side-toggle {
-  margin-top: auto;
-  border: 1px solid var(--ijp-border);
-  background: none;
-  color: var(--ijp-ink-soft);
-  border-radius: var(--ijp-radius-sm);
-  padding: 0.45rem;
-  font-size: 0.82rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-}
-
-.ijp-side-toggle:hover {
-  background-color: var(--ijp-surface-sunken);
-  color: var(--ijp-ink);
-}
-
-/* A page title band, so a dashboard opens with something other than a table. */
-.ijp-dash-head {
-  border-radius: var(--ijp-radius);
-  background-image: var(--ijp-accent-wash);
-  padding: 0.25rem 0 1.25rem;
-}
-
 /* --- status badge ------------------------------------------------------- */
 .ijp-badge {
   display: inline-block;
@@ -936,7 +749,17 @@ h4 {
 .ijp-shell {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  min-height: 100vh;
+  /* dvh, not vh: on mobile browsers vh is the height with the address bar
+     hidden, which leaves a strip of page cut off until you scroll. */
+  height: 100dvh;
+  overflow: hidden;
+}
+
+/* Older engines without dvh still get a sensible height. */
+@supports not (height: 100dvh) {
+  .ijp-shell {
+    height: 100vh;
+  }
 }
 
 @media (min-width: 992px) {
@@ -950,10 +773,13 @@ h4 {
   }
 }
 
+/* No position: sticky any more. The column is simply as tall as the shell,
+   and the shell is exactly the viewport - so there is nothing for it to
+   scroll away from. Sticky was always the weaker answer here: it depends on
+   ancestor overflow, which is exactly what broke. */
 .ijp-shell-side {
-  position: sticky;
-  top: 0;
-  height: 100vh;
+  height: 100%;
+  min-height: 0;
   overflow: hidden;
 }
 
@@ -961,10 +787,18 @@ h4 {
   display: flex;
   flex-direction: column;
   min-width: 0;
+  min-height: 0;
+  overflow: hidden;
 }
 
+/* This is the page scroll. min-height: 0 is required: a flex item defaults to
+   min-height: auto, which refuses to shrink below its content, so overflow-y
+   would never engage. */
 .ijp-shell-content {
   flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
   padding: 1rem;
 }
 
@@ -979,11 +813,14 @@ h4 {
   display: flex;
   flex-direction: column;
   height: 100%;
+  min-height: 0;
+  overflow: hidden;
   background-color: var(--ijp-sidebar);
   border-right: 1px solid var(--ijp-border);
 }
 
 .ijp-sidebar-head {
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1053,9 +890,13 @@ h4 {
   width: 100%;
 }
 
+/* Only this region scrolls, and only when the menu is taller than the space
+   left over. Everything above and below it stays put. */
 .ijp-sidebar-nav {
   flex: 1 1 auto;
+  min-height: 0;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 0.85rem 0.7rem;
 }
 
@@ -1137,9 +978,14 @@ h4 {
   white-space: nowrap;
 }
 
+/* Pinned by being the last non-growing child of a full-height flex column -
+   no fixed positioning, no magic offset. It cannot scroll away because it is
+   not inside the scrolling element. */
 .ijp-sidebar-foot {
+  flex: 0 0 auto;
   border-top: 1px solid var(--ijp-border);
   padding: 0.75rem;
+  background-color: var(--ijp-sidebar);
 }
 
 .ijp-identity {
@@ -1220,9 +1066,10 @@ h4 {
 }
 
 /* --- topbar -------------------------------------------------------------- */
+/* Was sticky when the document scrolled. Now it is simply a non-growing flex
+   child above the scroll region, which is one fewer thing to go wrong. */
 .ijp-topbar {
-  position: sticky;
-  top: 0;
+  flex: 0 0 auto;
   z-index: 1020;
   display: flex;
   align-items: center;
@@ -1299,6 +1146,11 @@ h4 {
 }
 
 /* --- public shell -------------------------------------------------------- */
+.ijp-public {
+  min-height: 100%;
+  overflow-x: hidden;
+}
+
 .ijp-public-bar {
   height: 4rem;
   display: flex;
@@ -1356,4 +1208,48 @@ h4 {
   background-color: var(--ijp-pending-soft);
   border: 1px solid var(--ijp-pending);
   color: var(--ijp-ink);
+}
+
+
+/* --- scrollbars ----------------------------------------------------------
+   Two independent scroll regions now exist, so their scrollbars should be
+   quiet enough not to draw a line down the middle of the interface. */
+.ijp-shell-content,
+.ijp-sidebar-nav,
+.ijp-chat-log {
+  scrollbar-width: thin;
+  scrollbar-color: var(--ijp-border-strong) transparent;
+}
+
+.ijp-shell-content::-webkit-scrollbar,
+.ijp-sidebar-nav::-webkit-scrollbar,
+.ijp-chat-log::-webkit-scrollbar {
+  width: 10px;
+}
+
+.ijp-shell-content::-webkit-scrollbar-track,
+.ijp-sidebar-nav::-webkit-scrollbar-track,
+.ijp-chat-log::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.ijp-shell-content::-webkit-scrollbar-thumb,
+.ijp-sidebar-nav::-webkit-scrollbar-thumb,
+.ijp-chat-log::-webkit-scrollbar-thumb {
+  background-color: var(--ijp-border-strong);
+  border-radius: 999px;
+  /* Padding-by-border, so the thumb reads as a thin line rather than a bar. */
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+
+.ijp-shell-content::-webkit-scrollbar-thumb:hover,
+.ijp-sidebar-nav::-webkit-scrollbar-thumb:hover,
+.ijp-chat-log::-webkit-scrollbar-thumb:hover {
+  background-color: var(--ijp-ink-faint);
+}
+
+/* The mobile drawer is its own full-height column with the same rules. */
+.ijp-drawer .ijp-sidebar {
+  height: 100%;
 }
