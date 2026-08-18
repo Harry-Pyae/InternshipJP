@@ -36,6 +36,7 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
     long countByInternship_Company_Id(Long companyId);
 
     long countByInternshipId(Long internshipId);
+
     long countByInternship_Company_IdAndStatus(Long companyId, ApplicationStatus status);
 
 }
