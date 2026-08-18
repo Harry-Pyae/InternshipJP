@@ -10,7 +10,24 @@
  *
  * Members 2, 3 and 4: add your pages here and in routes/router.jsx. Keep the
  * paths, or tell the group first - the login redirect depends on them.
+ *
+ * THE DEVELOPER SECTION
+ *   Integration status is a build-time tool, not a product feature, so it only
+ *   appears when import.meta.env.DEV is true. Vite compiles that to false for
+ *   `npm run build`, so the section is dropped from a production bundle rather
+ *   than merely hidden - no student will ever see a link to it.
  */
+function developerSection(path) {
+  if (!import.meta.env.DEV) {
+    return [];
+  }
+  return [
+    {
+      section: "Developer",
+      items: [{ to: path, icon: "bi-activity", label: "Integration status" }],
+    },
+  ];
+}
 export const STUDENT_NAV = [
   {
     section: null,
@@ -39,6 +56,7 @@ export const STUDENT_NAV = [
       { to: "/student/settings", icon: "bi-gear", label: "Settings" },
     ],
   },
+  ...developerSection("/student/integration"),
 ];
 
 export const EMPLOYER_NAV = [
@@ -69,6 +87,7 @@ export const EMPLOYER_NAV = [
       { to: "/employer/settings", icon: "bi-gear", label: "Settings" },
     ],
   },
+  ...developerSection("/employer/integration"),
 ];
 
 export const ADMIN_NAV = [
@@ -95,12 +114,10 @@ export const ADMIN_NAV = [
     items: [{ to: "/admin/ai", icon: "bi-stars", label: "AI assistant" }],
   },
   {
-    section: "Tools",
-    items: [
-      { to: "/admin/integration", icon: "bi-activity", label: "Integration status" },
-      { to: "/admin/settings", icon: "bi-gear", label: "Settings" },
-    ],
+    section: "Account",
+    items: [{ to: "/admin/settings", icon: "bi-gear", label: "Settings" }],
   },
+  ...developerSection("/admin/integration"),
 ];
 
 export const NAV_BY_ROLE = {

@@ -58,6 +58,7 @@ export default function AppRoutes() {
         <Route path="/student" element={<Navigate to="/student/dashboard" replace />} />
         <Route path="/student/dashboard" element={<StudentDashboardPage />} />
         <Route path="/student/ai" element={<AiChatPage audience="student" />} />
+        <Route path="/student/integration" element={<IntegrationStatusPage />} />
         {STUDENT_PAGES.map((page) => (
           <Route
             key={page.path}
@@ -78,6 +79,7 @@ export default function AppRoutes() {
         <Route path="/employer" element={<Navigate to="/employer/dashboard" replace />} />
         <Route path="/employer/dashboard" element={<EmployerDashboardPage />} />
         <Route path="/employer/ai" element={<AiChatPage audience="employer" />} />
+        <Route path="/employer/integration" element={<IntegrationStatusPage />} />
         {EMPLOYER_PAGES.map((page) => (
           <Route
             key={page.path}
