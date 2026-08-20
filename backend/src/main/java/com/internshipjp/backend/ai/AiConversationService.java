@@ -83,16 +83,40 @@ public class AiConversationService {
         return saved;
     }
 
-    /** The last few turns, so the assistant remembers the thread. */
+    /**
+     * The last few turns, so the assistant remembers the thread.
+     *
+     * WHY REPLAYED MESSAGES ARE SHORTENED
+     *   A chat API is stateless: every previous message is sent again with
+     *   every new question. An 8000-character answer replayed four times is
+     *   32000 characters of request, on top of the context block - which is
+     *   enough for a free-tier provider to refuse the request entirely.
+     *
+     *   What the thread needs from an old answer is the gist, not the whole
+     *   thing. The full text stays in the database and is still shown in the
+     *   UI; only the copy sent back to the provider is trimmed.
+     */
+    private static final int REPLAYED_MESSAGE_LIMIT = 1200;
+
     @Transactional(readOnly = true)
     public List<AiChatMessage> recentTurns(Long conversationId, int maxMessages) {
         List<AiMessage> stored = messageRepository.findByConversationIdOrderByCreatedAtAsc(conversationId);
         int from = Math.max(0, stored.size() - maxMessages);
         return stored.subList(from, stored.size()).stream()
-                .map(message -> message.getMessageRole() == AiMessageRole.USER
-                        ? AiChatMessage.user(message.getContent())
-                        : AiChatMessage.assistant(message.getContent()))
+                .map(message -> {
+                    String content = shorten(message.getContent());
+                    return message.getMessageRole() == AiMessageRole.USER
+                            ? AiChatMessage.user(content)
+                            : AiChatMessage.assistant(content);
+                })
                 .toList();
+    }
+
+    private String shorten(String content) {
+        if (content == null || content.length() <= REPLAYED_MESSAGE_LIMIT) {
+            return content == null ? "" : content;
+        }
+        return content.substring(0, REPLAYED_MESSAGE_LIMIT) + "\n[earlier answer shortened]";
     }
 
     @Transactional(readOnly = true)

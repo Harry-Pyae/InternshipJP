@@ -132,17 +132,39 @@ public class GroqClient implements AiProviderClient {
         long duration = System.currentTimeMillis() - startedAt;
 
         if (response.statusCode() / 100 != 2) {
-            // The body can echo request details, so it is logged but not returned.
-            log.warn("Groq returned HTTP {}", response.statusCode());
+            String reason = readErrorMessage(response.body());
+
+            // The reason is logged in full. An operator who cannot see WHY the
+            // provider refused has to guess, and the first version of this
+            // class logged only the status code - which cost an afternoon.
+            log.warn("Groq returned HTTP {}: {}", response.statusCode(), reason);
+
             if (response.statusCode() == 401 || response.statusCode() == 403) {
                 throw new ProviderUnavailableException(
-                        "The AI provider rejected the server's credentials.");
+                        "The AI provider rejected the server's credentials. Check GROQ_API_KEY.");
             }
             if (response.statusCode() == 429) {
                 throw new ProviderUnavailableException(
-                        "The AI assistant is busy right now. Please try again in a moment.");
+                        "The AI assistant has hit its rate limit. Wait a minute and try again. ("
+                                + reason + ")");
             }
-            throw new ProviderUnavailableException("The AI assistant could not answer right now.");
+            if (response.statusCode() == 413) {
+                // Groq returns this when a SINGLE request exceeds the
+                // tokens-per-minute allowance. It gets more likely as a
+                // conversation grows, which is why it appears after a few
+                // successful questions rather than immediately.
+                throw new ProviderUnavailableException(
+                        "This conversation has grown too large for the AI provider's limit. "
+                                + "Start a new conversation and ask again. (" + reason + ")");
+            }
+            if (response.statusCode() == 404 || response.statusCode() == 400) {
+                throw new ProviderUnavailableException(
+                        "The AI provider rejected the request. This usually means the configured "
+                                + "model no longer exists - check GROQ_MODEL. (" + reason + ")");
+            }
+            throw new ProviderUnavailableException(
+                    "The AI assistant could not answer (HTTP " + response.statusCode()
+                            + "): " + reason);
         }
 
         return parseCompletion(response.body(), duration);
@@ -164,6 +186,31 @@ public class GroqClient implements AiProviderClient {
             return objectMapper.writeValueAsString(root);
         } catch (Exception ex) {
             throw new IllegalStateException("Could not build the AI request body", ex);
+        }
+    }
+
+    /**
+     * Pulls the human-readable reason out of a provider error body.
+     *
+     * Groq answers with { "error": { "message": "...", "code": "..." } }. The
+     * message describes the REQUEST ("Request too large ... Limit 6000,
+     * Requested 12043"), never the API key, so it is safe to show. It is
+     * trimmed because an error body is not a place for a wall of text.
+     */
+    private String readErrorMessage(String body) {
+        if (!StringUtils.hasText(body)) {
+            return "no detail returned";
+        }
+        try {
+            JsonNode error = objectMapper.readTree(body).path("error");
+            String message = error.path("message").asText("");
+            if (!StringUtils.hasText(message)) {
+                message = body;
+            }
+            return message.length() > 200 ? message.substring(0, 197) + "..." : message;
+        } catch (Exception ex) {
+            String trimmed = body.strip();
+            return trimmed.length() > 200 ? trimmed.substring(0, 197) + "..." : trimmed;
         }
     }
 

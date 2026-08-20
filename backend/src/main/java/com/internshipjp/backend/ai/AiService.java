@@ -39,8 +39,16 @@ import java.util.Optional;
 @Service
 public class AiService {
 
-    /** How many previous messages are replayed so the thread has memory. */
-    private static final int HISTORY_TURNS = 6;
+    /**
+     * How many previous messages are replayed so the thread has memory.
+     *
+     * Four, not six. Every replayed message is sent again on every question,
+     * so the request grows with the conversation - and a free-tier
+     * tokens-per-minute allowance is measured per request. Six full-length
+     * answers plus the context block was enough to be refused outright after
+     * three or four questions.
+     */
+    private static final int HISTORY_TURNS = 4;
 
     private final AiProviderClient providerClient;
     private final AiPromptService promptService;
