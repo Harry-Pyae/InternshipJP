@@ -110,7 +110,12 @@ app:
     provider: groq
     groq:
       api-key: ${GROQ_API_KEY:}
-      model: ${GROQ_MODEL:llama-3.3-70b-versatile}
+      # Groq retires models regularly - llama-3.3-70b-versatile was
+      # decommissioned in 2026 and started returning HTTP 400. Keep this a
+      # setting, never a constant, so the fix stays a config change.
+      # Check what your key can use:
+      #   curl https://api.groq.com/openai/v1/models -H "Authorization: Bearer $GROQ_API_KEY"
+      model: ${GROQ_MODEL:openai/gpt-oss-120b}
       base-url: ${GROQ_BASE_URL:https://api.groq.com/openai/v1}
       timeout-seconds: 30
       max-output-tokens: 700

@@ -13,6 +13,7 @@ import CompanyInsightPanel from "./CompanyInsightPanel.jsx";
 import AdminWorkloadPanel from "./AdminWorkloadPanel.jsx";
 import ThinkingIndicator from "./ThinkingIndicator.jsx";
 import RevealingText from "./RevealingText.jsx";
+import AnswerBlocks from "./AnswerBlocks.jsx";
 
 /**
  * The AI assistant - Member 1's vertical slice.
@@ -516,10 +517,14 @@ function ChatTab({
               {message.notice ? (
                 <i className="bi bi-info-circle me-2" aria-hidden="true" />
               ) : null}
-              {message.role === "assistant" && message.fresh ? (
-                <RevealingText text={message.text} onProgress={followScroll} />
-              ) : (
+              {message.role !== "assistant" ? (
                 message.text
+              ) : message.fresh ? (
+                <RevealingText text={message.text} onProgress={followScroll}>
+                  {(shown, done) => <AnswerBlocks text={shown} typing={!done} />}
+                </RevealingText>
+              ) : (
+                <AnswerBlocks text={message.text} />
               )}
             </div>
           ))

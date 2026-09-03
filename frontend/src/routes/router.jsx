@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 
 import RoleLayout from "../layouts/RoleLayout.jsx";
 import PublicLayout from "../layouts/PublicLayout.jsx";
+import AuthLayout from "../layouts/AuthLayout.jsx";
 import RequireAuth from "../components/shared/RequireAuth.jsx";
 import FeaturePlaceholder from "../components/common/FeaturePlaceholder.jsx";
 import { STUDENT_NAV, EMPLOYER_NAV, ADMIN_NAV } from "../config/navigation.js";
@@ -42,9 +43,16 @@ export default function AppRoutes() {
       {/* Public shell: a thin header, no sidebar. */}
       <Route element={<PublicLayout />}>
         <Route path="/" element={<LandingRoute />} />
+        <Route path="/integration/status" element={<IntegrationStatusPage />} />
+      </Route>
+
+      {/*
+        Auth owns the whole screen. No navbar: it would offer "Theme" and
+        "Sign in" directly above a card that already does both.
+      */}
+      <Route element={<AuthLayout />}>
         <Route path="/auth/login" element={<LoginPage />} />
         <Route path="/auth/register" element={<RegisterPage />} />
-        <Route path="/integration/status" element={<IntegrationStatusPage />} />
       </Route>
 
       {/* ------------------------------------------------ STUDENT */}

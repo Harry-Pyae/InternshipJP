@@ -25,7 +25,7 @@ import { useEffect, useState } from "react";
 const TICK_MS = 24;
 const TARGET_TICKS = 60;
 
-export default function RevealingText({ text, animate = true, onProgress }) {
+export default function RevealingText({ text, animate = true, onProgress, children }) {
   const [shown, setShown] = useState(() => (animate ? "" : text));
 
   useEffect(() => {
@@ -58,10 +58,17 @@ export default function RevealingText({ text, animate = true, onProgress }) {
 
   const finished = shown.length >= (text ?? "").length;
 
+  // A render prop, so the caller decides how to display the partial text. The
+  // answer is re-parsed into sections on every tick, which means headings and
+  // list items appear as they are written rather than snapping into place at
+  // the end.
+  if (typeof children === "function") {
+    return children(shown, finished);
+  }
+
   return (
     <>
       {shown}
-      {/* A caret while writing, so a pause mid-answer looks deliberate. */}
       {finished ? null : <span className="ijp-caret" aria-hidden="true" />}
     </>
   );

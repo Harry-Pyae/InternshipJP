@@ -399,18 +399,66 @@ h4 {
 }
 
 /* --- sign in / sign up --------------------------------------------------- */
-/* Two panels on a wide screen: what this product is on the left, the form on
-   the right. On a phone the artwork is dropped entirely - it is decoration,
-   and decoration does not get to push the form below the fold. */
-.ijp-auth {
-  max-width: 62rem;
-  margin-inline: auto;
-  padding-block: 1rem 3rem;
+.ijp-auth-shell {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--ijp-canvas);
+}
+
+@supports not (height: 100dvh) {
+  .ijp-auth-shell {
+    min-height: 100vh;
+  }
+}
+
+/* Brand and theme only. No "Sign in" button - you are on the sign-in page. */
+.ijp-auth-bar {
+  flex: 0 0 auto;
+  height: 4rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0 1.25rem;
+  background-color: var(--ijp-surface);
+  border-bottom: 1px solid var(--ijp-border);
+}
+
+@media (min-width: 768px) {
+  .ijp-auth-bar {
+    padding: 0 2rem;
+  }
+}
+
+/* The card owns the screen. No navbar above it: a header offering "Theme" and
+   "Sign in" directly over a sign-in card is two controls for one job. */
+.ijp-auth-screen {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  padding: 1.25rem;
 }
 
 .ijp-auth-card {
+  width: 100%;
+  max-width: 60rem;
+  /* Capped to the viewport so the page never scrolls. Sign-in has three
+     fields and employer sign-up has six; letting the document grow leaves the
+     short form floating in emptiness and pushes the long form's submit button
+     off-screen. The form column scrolls internally instead. */
+  max-height: calc(100dvh - 8rem);
   display: grid;
   grid-template-columns: minmax(0, 1fr);
+  /* THE FIX. A grid row defaults to auto, which sizes to its content - so the
+     form column grew past the card and overflow-y never engaged. The card
+     clipped it instead, which is why the page looked frozen with the rest of
+     the form unreachable. minmax(0, 1fr) lets the row be bounded by the card,
+     which is what gives the column a height to scroll within.
+     Same mistake as the sidebar, one level down: columns were fixed, rows
+     were not. */
+  grid-template-rows: minmax(0, 1fr);
   overflow: hidden;
 }
 
@@ -422,9 +470,14 @@ h4 {
 
 .ijp-auth-aside {
   display: none;
-  padding: 2.5rem;
-  background-color: var(--ijp-surface-sunken);
+  min-height: 0;
+  padding: 2rem;
+  overflow-y: auto;
   border-right: 1px solid var(--ijp-border);
+  background-image:
+    radial-gradient(circle at 15% 0%, var(--ijp-signal-soft) 0%, transparent 55%),
+    radial-gradient(circle at 100% 100%, var(--ijp-verified-soft) 0%, transparent 50%);
+  background-color: var(--ijp-surface-sunken);
 }
 
 @media (min-width: 992px) {
@@ -435,19 +488,252 @@ h4 {
   }
 }
 
-.ijp-auth-art {
-  width: 100%;
-  height: auto;
-  max-height: 17rem;
+.ijp-auth-aside-head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.4rem;
+}
+
+.ijp-auth-tagline {
+  color: var(--ijp-ink-soft);
+  margin-bottom: 0.5rem;
+}
+
+/* The illustration gives up space before the text does - it is decoration,
+   the three points below it are information.
+ 
+   It SHRINKS rather than disappearing. The previous version hid it below
+   760px of viewport height, which sounds short but is not: on a 1080p screen,
+   Chrome's title bar, address bar and bookmarks bar plus the Windows taskbar
+   leave roughly 740px. The picture vanished on an ordinary maximised window.
+ 
+   min() ties it to the viewport instead of a breakpoint, so it scales down
+   smoothly and only disappears when the panel genuinely has no room. */
+.ijp-auth-aside .ijp-auth-art {
+  max-height: min(13rem, 24vh);
+  margin: 0.5rem 0;
+  /* Without this, flex would happily squash an height:auto SVG to nothing. */
+  flex: 0 0 auto;
+}
+
+@media (max-height: 560px) {
+  .ijp-auth-aside .ijp-auth-art {
+    display: none;
+  }
+}
+
+.ijp-auth-points {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 0;
+  display: grid;
+  gap: 0.85rem;
+}
+
+.ijp-auth-points li {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.ijp-auth-point-icon {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  flex: 0 0 2rem;
+  border-radius: 9px;
+  font-size: 0.9rem;
+}
+
+.ijp-auth-point-icon--signal {
+  background-color: var(--ijp-signal-soft);
+  color: var(--ijp-signal);
+}
+
+.ijp-auth-point-icon--verified {
+  background-color: var(--ijp-verified-soft);
+  color: var(--ijp-verified);
+}
+
+.ijp-auth-point-icon--accent {
+  background-color: var(--ijp-pending-soft);
+  color: var(--ijp-pending);
+}
+
+.ijp-auth-point-title {
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.ijp-auth-point-text {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--ijp-ink-soft);
+  line-height: 1.45;
+}
+
+/* --- the form side ------------------------------------------------------ */
+.ijp-auth-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ijp-signal);
+  background-color: var(--ijp-signal-soft);
+  border-radius: 999px;
+  padding: 0.26rem 0.65rem;
+  margin-bottom: 0.6rem;
+}
+
+.ijp-auth-title {
+  font-size: 1.45rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.25rem;
+}
+
+.ijp-auth-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  font-size: 0.87rem;
+  padding: 0.75rem 0.9rem;
+  margin-bottom: 1rem;
+  border-radius: var(--ijp-radius-sm);
+  background-color: var(--ijp-rejected-soft);
+  border: 1px solid var(--ijp-rejected);
+  color: var(--ijp-ink);
+}
+
+.ijp-auth-error i {
+  color: var(--ijp-rejected);
+  margin-top: 0.1rem;
+}
+
+.ijp-auth-submit {
+  height: 2.75rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ijp-auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1.25rem 0 0.75rem;
+  color: var(--ijp-ink-faint);
+  font-size: 0.8rem;
+}
+
+.ijp-auth-divider::before,
+.ijp-auth-divider::after {
+  content: "";
+  flex: 1 1 auto;
+  height: 1px;
+  background-color: var(--ijp-border);
+}
+
+/* --- fields with a leading icon ----------------------------------------- */
+.ijp-field-label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+
+.ijp-field-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.ijp-field-icon {
+  position: absolute;
+  left: 0.85rem;
+  color: var(--ijp-ink-faint);
+  pointer-events: none;
+  font-size: 0.95rem;
+}
+
+.ijp-field-input {
+  height: 2.6rem;
+}
+
+.ijp-field-input--icon {
+  padding-left: 2.5rem;
+}
+
+.ijp-field-input--action {
+  padding-right: 2.75rem;
+}
+
+/* The input owns the focus ring, so the icon must not steal it. */
+.ijp-field-wrap:focus-within .ijp-field-icon {
+  color: var(--ijp-signal);
+}
+
+.ijp-field-action {
+  position: absolute;
+  right: 0.4rem;
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border: 0;
+  border-radius: 7px;
+  background: none;
+  color: var(--ijp-ink-faint);
+}
+
+.ijp-field-action:hover {
+  background-color: var(--ijp-surface-sunken);
+  color: var(--ijp-ink);
+}
+
+.ijp-field-error {
+  font-size: 0.8rem;
+  color: var(--ijp-rejected);
+  margin: 0.35rem 0 0;
+}
+
+.ijp-field-hint {
+  font-size: 0.78rem;
+  color: var(--ijp-ink-soft);
+  margin: 0.35rem 0 0;
 }
 
 .ijp-auth-form {
-  padding: 2rem 1.5rem;
+  position: relative;
+  padding: 1.5rem 1.25rem;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 @media (min-width: 768px) {
   .ijp-auth-form {
-    padding: 2.75rem;
+    padding: 2rem 2.25rem;
+  }
+}
+
+/* Two short fields on one row - fewer rows to scroll past, and paired fields
+   read as related. Stacks below 576px. */
+.ijp-auth-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+}
+
+@media (min-width: 576px) {
+  .ijp-auth-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -709,6 +995,65 @@ h4 {
   50% {
     opacity: 0;
   }
+}
+
+/* --- structured AI answers ---------------------------------------------- */
+/* The bubble keeps pre-wrap for user messages, which are typed prose. An
+   assistant answer is a document, so it resets that and lays out real blocks. */
+.ijp-answer {
+  display: grid;
+  gap: 0.8rem;
+  white-space: normal;
+}
+
+/* Section titles reuse the small-caps label from the rest of the app, with a
+   rule above so the eye finds the boundaries without reading. */
+.ijp-answer-heading {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ijp-signal);
+  margin: 0.35rem 0 0;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--ijp-border);
+}
+
+/* No rule above the first section - it would sit against the bubble edge. */
+.ijp-answer > .ijp-answer-heading:first-child {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.ijp-answer-text {
+  margin: 0;
+  line-height: 1.6;
+}
+
+.ijp-answer-list {
+  margin: 0;
+  padding-left: 1.2rem;
+  display: grid;
+  gap: 0.45rem;
+  line-height: 1.55;
+}
+
+.ijp-answer-list li::marker {
+  color: var(--ijp-ink-faint);
+  font-weight: 600;
+}
+
+.ijp-answer code {
+  background-color: var(--ijp-surface-sunken);
+  border: 1px solid var(--ijp-border);
+  border-radius: 4px;
+  padding: 0.05rem 0.3rem;
+}
+
+/* An answer is a document, so give it room to breathe. */
+.ijp-bubble--assistant {
+  padding: 1rem 1.15rem;
 }
 
 /* --- form controls follow the theme ------------------------------------- */
@@ -1216,26 +1561,34 @@ h4 {
    quiet enough not to draw a line down the middle of the interface. */
 .ijp-shell-content,
 .ijp-sidebar-nav,
-.ijp-chat-log {
+.ijp-chat-log,
+.ijp-auth-form,
+.ijp-auth-aside {
   scrollbar-width: thin;
   scrollbar-color: var(--ijp-border-strong) transparent;
 }
 
 .ijp-shell-content::-webkit-scrollbar,
 .ijp-sidebar-nav::-webkit-scrollbar,
-.ijp-chat-log::-webkit-scrollbar {
+.ijp-chat-log::-webkit-scrollbar,
+.ijp-auth-form::-webkit-scrollbar,
+.ijp-auth-aside::-webkit-scrollbar {
   width: 10px;
 }
 
 .ijp-shell-content::-webkit-scrollbar-track,
 .ijp-sidebar-nav::-webkit-scrollbar-track,
-.ijp-chat-log::-webkit-scrollbar-track {
+.ijp-chat-log::-webkit-scrollbar-track,
+.ijp-auth-form::-webkit-scrollbar-track,
+.ijp-auth-aside::-webkit-scrollbar-track {
   background: transparent;
 }
 
 .ijp-shell-content::-webkit-scrollbar-thumb,
 .ijp-sidebar-nav::-webkit-scrollbar-thumb,
-.ijp-chat-log::-webkit-scrollbar-thumb {
+.ijp-chat-log::-webkit-scrollbar-thumb,
+.ijp-auth-form::-webkit-scrollbar-thumb,
+.ijp-auth-aside::-webkit-scrollbar-thumb {
   background-color: var(--ijp-border-strong);
   border-radius: 999px;
   /* Padding-by-border, so the thumb reads as a thin line rather than a bar. */

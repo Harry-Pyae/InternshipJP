@@ -4,7 +4,7 @@ import { authApi } from "../../api/authApi.js";
 import { useAuth, homeFor } from "../../config/authContext.jsx";
 import { describeApiError, fieldErrorsOf, ensureCsrfToken } from "../../api/axiosClient.js";
 import LoadingBlock from "../../components/shared/LoadingBlock.jsx";
-import AuthIllustration from "./AuthIllustration.jsx";
+import AuthField from "./AuthField.jsx";
 
 /**
  * Create an account, as a student or an employer.
@@ -93,18 +93,12 @@ export default function RegisterPage() {
   const isStudent = role === "STUDENT";
 
   return (
-    <div className="ijp-auth">
-      <div className="ijp-card ijp-auth-card">
-        <aside className="ijp-auth-aside">
-          <p className="ijp-brand mb-1" style={{ fontSize: "1.25rem" }}>
-            Internship<span className="ijp-brand-mark">JP</span>
-          </p>
-          <p className="ijp-muted mb-4">Find opportunities. Build your future.</p>
-          <AuthIllustration />
-        </aside>
-
-        <div className="ijp-auth-form">
-        <h1 className="ijp-page-title mb-1">Create your account</h1>
+    <>
+      <span className="ijp-auth-eyebrow">
+            <i className="bi bi-person-plus me-2" aria-hidden="true" />
+            Sign up
+          </span>
+          <h1 className="ijp-auth-title">Create your account</h1>
         <p className="ijp-muted mb-4">Find opportunities, or find people to hire.</p>
 
         <div className="btn-group w-100 mb-4" role="group" aria-label="Account type">
@@ -127,23 +121,26 @@ export default function RegisterPage() {
         </div>
 
         {error ? (
-          <div className="alert alert-danger py-2 px-3 small" role="alert">
-            {error}
-          </div>
-        ) : null}
+            <div className="ijp-auth-error" role="alert">
+              <i className="bi bi-exclamation-octagon" aria-hidden="true" />
+              <span>{error}</span>
+            </div>
+          ) : null}
 
         <form onSubmit={submit} className="d-grid gap-3">
-          <Field
+          <AuthField
             id="regFullName"
             label="Full name"
+            icon="bi-person"
             value={form.fullName}
             onChange={(value) => update("fullName", value)}
             error={fieldErrors?.fullName}
             required
           />
-          <Field
+          <AuthField
             id="regEmail"
             label="Email"
+            icon="bi-envelope"
             type="email"
             value={form.email}
             onChange={(value) => update("email", value)}
@@ -151,9 +148,10 @@ export default function RegisterPage() {
             autoComplete="username"
             required
           />
-          <Field
+          <AuthField
             id="regPassword"
             label="Password"
+            icon="bi-lock"
             type="password"
             value={form.password}
             onChange={(value) => update("password", value)}
@@ -164,46 +162,53 @@ export default function RegisterPage() {
           />
 
           {isStudent ? (
-            <>
-              <Field
+            <div className="ijp-auth-row">
+              <AuthField
                 id="regUniversity"
                 label="University"
+                icon="bi-mortarboard"
                 optional
                 value={form.university}
                 onChange={(value) => update("university", value)}
               />
-              <Field
+              <AuthField
                 id="regDegree"
                 label="Degree"
+                icon="bi-journal-text"
                 optional
                 value={form.degree}
                 onChange={(value) => update("degree", value)}
               />
-            </>
+            </div>
           ) : (
             <>
-              <Field
+              <AuthField
                 id="regCompany"
                 label="Company name"
+                icon="bi-building"
                 value={form.companyName}
                 onChange={(value) => update("companyName", value)}
                 error={fieldErrors?.companyName}
                 required
               />
-              <Field
-                id="regIndustry"
-                label="Industry"
-                optional
-                value={form.industry}
-                onChange={(value) => update("industry", value)}
-              />
-              <Field
-                id="regJobTitle"
-                label="Your job title"
-                optional
-                value={form.jobTitle}
-                onChange={(value) => update("jobTitle", value)}
-              />
+              <div className="ijp-auth-row">
+                <AuthField
+                  id="regIndustry"
+                  label="Industry"
+                  icon="bi-diagram-3"
+                  optional
+                  value={form.industry}
+                  onChange={(value) => update("industry", value)}
+                />
+                <AuthField
+                  id="regJobTitle"
+                  label="Your job title"
+                  icon="bi-briefcase"
+                  optional
+                  value={form.jobTitle}
+                  onChange={(value) => update("jobTitle", value)}
+                />
+              </div>
               <p className="ijp-muted small mb-0">
                 <i className="bi bi-info-circle me-1" aria-hidden="true" />
                 Employer accounts are reviewed by an administrator. You can sign in straight
@@ -212,37 +217,19 @@ export default function RegisterPage() {
             </>
           )}
 
-          <button className="btn btn-ijp-primary" type="submit" disabled={busy}>
+          <button className="btn btn-ijp-primary ijp-auth-submit" type="submit" disabled={busy}>
             {busy ? "Creating your account..." : "Create account"}
           </button>
         </form>
 
-        <p className="ijp-muted small mt-4 mb-0">
-          Already have an account? <Link to="/auth/login">Sign in</Link>
-        </p>
-        </div>
+      <div className="ijp-auth-divider">
+        <span>Already have an account?</span>
       </div>
-    </div>
-  );
-}
 
-function Field({ id, label, value, onChange, type = "text", error, hint, optional, ...rest }) {
-  return (
-    <div>
-      <label className="form-label small fw-semibold" htmlFor={id}>
-        {label}
-        {optional ? <span className="ijp-muted fw-normal"> (optional)</span> : null}
-      </label>
-      <input
-        id={id}
-        type={type}
-        className={`form-control${error ? " is-invalid" : ""}`}
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        {...rest}
-      />
-      {error ? <div className="invalid-feedback">{error}</div> : null}
-      {hint && !error ? <p className="ijp-muted small mb-0 mt-1">{hint}</p> : null}
-    </div>
+      <Link className="btn btn-ijp-quiet w-100" to="/auth/login">
+        <i className="bi bi-box-arrow-in-right me-2" aria-hidden="true" />
+        Sign in
+      </Link>
+    </>
   );
 }
