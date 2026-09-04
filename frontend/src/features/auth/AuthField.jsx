@@ -22,11 +22,19 @@ export default function AuthField({
   error,
   hint,
   optional,
+  onBlur,
   ...rest
 }) {
   const [revealed, setRevealed] = useState(false);
   const isPassword = type === "password";
   const inputType = isPassword && revealed ? "text" : type;
+
+  // A red message a screen reader never announces is not an error message.
+  // aria-invalid marks the field, aria-describedby points at the text, and
+  // role="alert" makes it announced the moment it appears.
+  const errorId = `${id}-error`;
+  const hintId = `${id}-hint`;
+  const describedBy = error ? errorId : hint ? hintId : undefined;
 
   return (
     <div className="ijp-field">
@@ -40,11 +48,14 @@ export default function AuthField({
         <input
           id={id}
           type={inputType}
+          aria-invalid={error ? "true" : undefined}
+          aria-describedby={describedBy}
           className={`form-control ijp-field-input${icon ? " ijp-field-input--icon" : ""}${
             isPassword ? " ijp-field-input--action" : ""
           }${error ? " is-invalid" : ""}`}
           value={value}
           onChange={(event) => onChange(event.target.value)}
+          onBlur={onBlur}
           {...rest}
         />
         {isPassword ? (
@@ -61,8 +72,17 @@ export default function AuthField({
         ) : null}
       </div>
 
-      {error ? <p className="ijp-field-error">{error}</p> : null}
-      {hint && !error ? <p className="ijp-field-hint">{hint}</p> : null}
+      {error ? (
+        <p className="ijp-field-error" id={errorId} role="alert">
+          <i className="bi bi-exclamation-circle me-1" aria-hidden="true" />
+          {error}
+        </p>
+      ) : null}
+      {hint && !error ? (
+        <p className="ijp-field-hint" id={hintId}>
+          {hint}
+        </p>
+      ) : null}
     </div>
   );
 }

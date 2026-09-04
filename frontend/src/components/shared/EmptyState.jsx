@@ -6,7 +6,7 @@
  */
 export default function EmptyState({ icon = "bi-inbox", title, hint }) {
   return (
-    <div className="text-center py-5">
+    <div className="text-center ijp-empty">
       <i className={`bi ${icon} fs-2 ijp-muted`} aria-hidden="true" />
       <p className="fw-semibold mt-2 mb-1">{title}</p>
       {hint ? <p className="ijp-muted small mb-0">{hint}</p> : null}

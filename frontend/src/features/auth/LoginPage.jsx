@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth, homeFor } from "../../config/authContext.jsx";
 import { describeApiError, fieldErrorsOf } from "../../api/axiosClient.js";
+import { rules, validate } from "../../api/validation.js";
 import LoadingBlock from "../../components/shared/LoadingBlock.jsx";
 import AuthField from "./AuthField.jsx";
 
@@ -32,6 +33,14 @@ export default function LoginPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
   const [fieldErrors, setFieldErrors] = useState(null);
+  // A field is only "touched" once you have left it. Validating while someone
+  // is still typing their email shouts "invalid" at every keystroke.
+  const [touched, setTouched] = useState({});
+
+  const FIELD_RULES = {
+    email: rules.email(),
+    password: rules.required("Password"),
+  };
 
   if (loading) {
     return <LoadingBlock label="Checking your session..." />;
@@ -44,10 +53,30 @@ export default function LoginPage() {
 
   function update(field, value) {
     setForm((current) => ({ ...current, [field]: value }));
+    // Clear a message as soon as the problem is fixed, but never introduce
+    // one mid-typing.
+    if (fieldErrors?.[field]) {
+      setFieldErrors((current) => ({ ...current, [field]: null }));
+    }
+  }
+
+  function blur(field) {
+    setTouched((current) => ({ ...current, [field]: true }));
+    const found = validate(form, FIELD_RULES);
+    setFieldErrors((current) => ({ ...current, [field]: found[field] ?? null }));
   }
 
   async function submit(event) {
     event.preventDefault();
+
+    // Check everything on submit, whether or not it has been touched.
+    const found = validate(form, FIELD_RULES);
+    if (Object.keys(found).length > 0) {
+      setFieldErrors(found);
+      setTouched({ email: true, password: true });
+      return;
+    }
+
     setBusy(true);
     setError(null);
     setFieldErrors(null);
@@ -87,7 +116,8 @@ export default function LoginPage() {
               type="email"
               value={form.email}
               onChange={(value) => update("email", value)}
-              error={fieldErrors?.email}
+              onBlur={() => blur("email")}
+              error={touched.email ? fieldErrors?.email : fieldErrors?.email}
               autoComplete="username"
               placeholder="you@example.com"
               required
@@ -101,6 +131,7 @@ export default function LoginPage() {
               type="password"
               value={form.password}
               onChange={(value) => update("password", value)}
+              onBlur={() => blur("password")}
               error={fieldErrors?.password}
               autoComplete="current-password"
               placeholder="Your password"

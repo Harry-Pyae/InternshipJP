@@ -14,6 +14,7 @@ import AdminWorkloadPanel from "./AdminWorkloadPanel.jsx";
 import ThinkingIndicator from "./ThinkingIndicator.jsx";
 import RevealingText from "./RevealingText.jsx";
 import AnswerBlocks from "./AnswerBlocks.jsx";
+import { timeAgo, exactTime } from "../../api/relativeTime.js";
 
 /**
  * The AI assistant - Member 1's vertical slice.
@@ -536,7 +537,7 @@ function ChatTab({
           they do not know what to type. They disappear once the conversation
           has started - by then the question is in their head, not ours. */}
       {messages.length === 0 ? (
-        <div className="d-flex flex-wrap gap-2 mb-2">
+        <div className="ijp-starters">
           {starters.map((question) => (
             <button
               key={question}
@@ -544,7 +545,8 @@ function ChatTab({
               className="ijp-chip"
               onClick={() => setDraft(question)}
             >
-              {question}
+              <i className="bi bi-arrow-return-right" aria-hidden="true" />
+              <span>{question}</span>
             </button>
           ))}
         </div>
@@ -552,7 +554,7 @@ function ChatTab({
 
       <form onSubmit={onSend} className="d-flex gap-2">
         <input
-          className="form-control"
+          className="form-control ijp-chat-input"
           value={draft}
           onChange={(event) => setDraft(event.target.value)}
           placeholder="Ask a question"
@@ -580,29 +582,49 @@ function HistoryTab({ conversations, conversationId, onOpen, onDelete }) {
   }
 
   return (
-    <ul className="list-unstyled d-grid gap-2 mb-0">
-      {conversations.map((conversation) => (
-        <li key={conversation.id} className="d-flex gap-2">
-          <button
-            type="button"
-            className={`btn btn-sm flex-grow-1 text-start text-truncate ${
-              conversation.id === conversationId ? "btn-ijp-primary" : "btn-ijp-quiet"
-            }`}
-            onClick={() => onOpen(conversation.id)}
+    <ul className="ijp-history">
+      {conversations.map((conversation) => {
+        const active = conversation.id === conversationId;
+        // updatedAt, not createdAt: what matters is when you last used a
+        // thread, which is also the order the list is sorted in.
+        const stamp = conversation.updatedAt ?? conversation.createdAt;
+
+        return (
+          <li
+            key={conversation.id}
+            className={`ijp-history-item${active ? " ijp-history-item--active" : ""}`}
           >
-            {conversation.title ?? "Conversation"}
-          </button>
-          <button
-            type="button"
-            className="btn btn-sm btn-ijp-quiet flex-shrink-0"
-            onClick={() => onDelete(conversation.id)}
-            aria-label={`Delete conversation: ${conversation.title ?? "Conversation"}`}
-            title="Delete this conversation"
-          >
-            <i className="bi bi-trash" aria-hidden="true" />
-          </button>
-        </li>
-      ))}
+            <button
+              type="button"
+              className="ijp-history-open"
+              onClick={() => onOpen(conversation.id)}
+            >
+              <span className="ijp-history-title">
+                {conversation.title ?? "Conversation"}
+              </span>
+              <span className="ijp-history-meta" title={exactTime(stamp)}>
+                <i className="bi bi-clock" aria-hidden="true" />
+                {timeAgo(stamp)}
+              </span>
+            </button>
+
+            {/*
+              A 2.5rem target rather than a bare icon. A delete control that is
+              hard to hit is a delete control that gets hit by accident, and
+              this one removes a whole thread.
+            */}
+            <button
+              type="button"
+              className="ijp-history-delete"
+              onClick={() => onDelete(conversation.id)}
+              aria-label={`Delete conversation: ${conversation.title ?? "Conversation"}`}
+              title="Delete this conversation"
+            >
+              <i className="bi bi-trash" aria-hidden="true" />
+            </button>
+          </li>
+        );
+      })}
     </ul>
   );
 }

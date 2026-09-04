@@ -47,6 +47,64 @@ export const api = axios.create({
 });
 
 /**
+ * Called when the backend says the session is gone. AuthProvider registers a
+ * handler; the interceptor below calls it. Done this way because an axios
+ * module cannot use a React router hook.
+ */
+let onSessionExpired = null;
+
+export function setSessionExpiredHandler(handler) {
+  onSessionExpired = handler;
+}
+
+/**
+ * One interceptor, and it is deliberately narrow.
+ *
+ * 401 means the session is gone: clear the client's idea of who is signed in
+ * and send them to the login screen.
+ *
+ * 403 does NOT get the same treatment, and that distinction matters. In this
+ * application a 403 is usually a legitimate answer to a signed-in user:
+ *   - an employer trying to publish before their company is approved
+ *   - an employer opening an application belonging to another company
+ *   - a student reaching an admin endpoint
+ * Signing someone out because they touched something they are not allowed to
+ * touch would be a bug, not a security measure. Those pass through so the page
+ * can show the message the backend sent.
+ *
+ * The one 403 worth acting on is a stale CSRF token, which the backend labels
+ * distinctly. That gets a single silent retry after refreshing the cookie.
+ */
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const status = error?.response?.status;
+    const body = error?.response?.data;
+    const config = error?.config;
+
+    if (status === 401) {
+      // Nothing to clear locally: the session lives in an HttpOnly cookie the
+      // browser drops on its own, and the only thing we keep in localStorage
+      // is the theme preference - which should survive signing out.
+      if (onSessionExpired) {
+        onSessionExpired();
+      }
+      return Promise.reject(error);
+    }
+
+    if (status === 403 && body?.error === "Invalid Security Token" && config && !config.__csrfRetried) {
+      config.__csrfRetried = true;
+      const refreshed = await ensureCsrfToken();
+      if (refreshed) {
+        return api.request(config);
+      }
+    }
+
+    return Promise.reject(error);
+  },
+);
+
+/**
  * Asks the backend for a CSRF cookie. Safe to call more than once.
  * Failure is not fatal - the integration page will report the backend as down.
  */

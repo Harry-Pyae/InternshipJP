@@ -92,27 +92,26 @@ export default function SkillGapPanel({ onAsk }) {
           <p className="small fw-semibold mb-2">
             Most requested skills you don&apos;t have yet
           </p>
-          <ul className="list-unstyled d-grid gap-2 mb-3">
-            {gaps.skillsToLearn.map((item) => (
-              <li key={item.skill} className="d-flex justify-content-between align-items-center gap-2">
-                <span className="small">
-                  <span className="fw-semibold">{item.skill}</span>
-                  <span className="ijp-muted">
-                    {" "}
-                    — {item.openInternshipsRequiring} of {gaps.openInternshipCount} open
-                    internships
+            <ul className="ijp-gap-list">
+              {gaps.skillsToLearn.map((item) => (
+                <li key={item.skill} className="ijp-gap-row">
+                  <span className="ijp-gap-text">
+                    <span className="ijp-gap-skill">{item.skill}</span>
+                    <span className="ijp-muted">
+                      required by {item.openInternshipsRequiring} of{" "}
+                      {gaps.openInternshipCount} open internships
+                    </span>
                   </span>
-                </span>
-                <button
-                  type="button"
-                  className="btn btn-sm btn-outline-secondary flex-shrink-0"
-                  onClick={() => onAsk(item)}
-                >
-                  How?
-                </button>
-              </li>
-            ))}
-          </ul>
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-ijp-quiet flex-shrink-0"
+                    onClick={() => onAsk(item)}
+                  >
+                    How?
+                  </button>
+                </li>
+              ))}
+            </ul>
         </>
       ) : (
         <p className="ijp-muted small mb-3">
@@ -125,13 +124,15 @@ export default function SkillGapPanel({ onAsk }) {
       {gaps.strengths.length > 0 ? (
         <>
           <p className="small fw-semibold mb-1">Employers are asking for what you have</p>
-          <p className="small mb-3">
-            {gaps.strengths.map((item) => (
-              <span className="badge text-bg-light border me-1" key={item.skill}>
-                {item.skill} · {item.openInternshipsRequiring}
-              </span>
-            ))}
-          </p>
+            <div className="ijp-pill-row mb-3">
+              {gaps.strengths.map((item) => (
+                <span className="ijp-pill-skill ijp-pill-skill--have" key={item.skill}>
+                  <i className="bi bi-check2" aria-hidden="true" />
+                  {item.skill}
+                  <span className="ijp-pill-count">{item.openInternshipsRequiring}</span>
+                </span>
+              ))}
+            </div>
         </>
       ) : null}
 

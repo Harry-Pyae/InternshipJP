@@ -43,8 +43,12 @@ export default function Sidebar({ nav, collapsed, onToggleCollapse, onNavigate, 
             aria-label={isCollapsed ? "Expand the sidebar" : "Collapse the sidebar"}
             title={isCollapsed ? "Expand" : "Collapse"}
           >
+            {/* One icon that rotates, not two that swap. Swapping snaps; a
+                rotation reads as the same control changing direction. */}
             <i
-              className={`bi ${isCollapsed ? "bi-chevron-right" : "bi-chevron-left"}`}
+              className={`bi bi-chevron-left ijp-toggle-icon${
+                isCollapsed ? " ijp-toggle-icon--flipped" : ""
+              }`}
               aria-hidden="true"
             />
           </button>
@@ -54,10 +58,12 @@ export default function Sidebar({ nav, collapsed, onToggleCollapse, onNavigate, 
       <nav className="ijp-sidebar-nav" aria-label="Main">
         {nav.map((group, index) => (
           <div className="ijp-nav-group" key={group.section ?? `group-${index}`}>
-            {group.section && !isCollapsed ? (
-              <p className="ijp-nav-section">{group.section}</p>
+            {group.section ? (
+              <>
+                <p className="ijp-nav-section">{group.section}</p>
+                <hr className="ijp-nav-divider" aria-hidden="true" />
+              </>
             ) : null}
-            {group.section && isCollapsed ? <hr className="ijp-nav-divider" /> : null}
             <ul className="list-unstyled mb-0 d-grid gap-1">
               {group.items.map((item) => (
                 <SidebarItem

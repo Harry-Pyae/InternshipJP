@@ -45,7 +45,7 @@ export default function AdminWorkloadPanel({ onAsk }) {
     <div>
       <p className="small mb-3">{workload.summary}</p>
 
-      <div className="row g-2 mb-4">
+      <div className="row g-3 ijp-workload-stats">
         <Stat label="Certificates" value={workload.certificatesPending} />
         <Stat label="Companies" value={workload.companiesPending} />
         <Stat label="Stalled" value={workload.applicationsStalled} />
@@ -98,11 +98,9 @@ export default function AdminWorkloadPanel({ onAsk }) {
 function Stat({ label, value }) {
   return (
     <div className="col-6 col-xl-3">
-      <div className="ijp-card-sunken p-2 text-center">
-        <div className="ijp-score">{value}</div>
-        <div className="ijp-muted" style={{ fontSize: "0.72rem" }}>
-          {label}
-        </div>
+      <div className="ijp-card-sunken ijp-stat">
+        <div className="ijp-stat-value">{value}</div>
+        <div className="ijp-stat-label">{label}</div>
       </div>
     </div>
   );
@@ -119,7 +117,7 @@ function Queue({ title, items, emptyText, note }) {
           {items.map((item) => (
             <li
               key={`${title}-${item.id}`}
-              className={`ijp-card-sunken ijp-rail ijp-rail--${item.urgency} p-2 ps-3`}
+              className={`ijp-card-sunken ijp-rail ijp-rail--${item.urgency} ijp-queue-item`}
             >
               <div className="d-flex justify-content-between align-items-start gap-2">
                 <div>
@@ -128,7 +126,7 @@ function Queue({ title, items, emptyText, note }) {
                     {item.detail}
                   </p>
                 </div>
-                <span className={`ijp-badge ijp-badge--${item.urgency} flex-shrink-0`}>
+                <span className={`ijp-badge ijp-badge--${item.urgency} ijp-days flex-shrink-0`}>
                   {item.daysWaiting}d
                 </span>
               </div>

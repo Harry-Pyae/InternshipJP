@@ -3,6 +3,7 @@ import { Link, Navigate, useNavigate } from "react-router-dom";
 import { authApi } from "../../api/authApi.js";
 import { useAuth, homeFor } from "../../config/authContext.jsx";
 import { describeApiError, fieldErrorsOf, ensureCsrfToken } from "../../api/axiosClient.js";
+import { rules, validate } from "../../api/validation.js";
 import LoadingBlock from "../../components/shared/LoadingBlock.jsx";
 import AuthField from "./AuthField.jsx";
 
@@ -33,12 +34,27 @@ export default function RegisterPage() {
     university: "",
     degree: "",
     companyName: "",
+    companyWebsite: "",
     industry: "",
     jobTitle: "",
   });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
   const [fieldErrors, setFieldErrors] = useState(null);
+
+  // Rules follow the selected role, so an employer is never asked for a
+  // university and a student is never asked for a company.
+  const fieldRules = {
+    fullName: rules.required("Full name"),
+    email: rules.email(),
+    password: rules.password(),
+    ...(role === "EMPLOYER"
+      ? {
+          companyName: rules.required("Company name"),
+          companyWebsite: rules.url("Company website"),
+        }
+      : {}),
+  };
 
   if (loading) {
     return <LoadingBlock label="Checking your session..." />;
@@ -49,10 +65,32 @@ export default function RegisterPage() {
 
   function update(field, value) {
     setForm((current) => ({ ...current, [field]: value }));
+    if (fieldErrors?.[field]) {
+      setFieldErrors((current) => ({ ...current, [field]: null }));
+    }
+  }
+
+  function blur(field) {
+    const found = validate(form, fieldRules);
+    setFieldErrors((current) => ({ ...current, [field]: found[field] ?? null }));
+  }
+
+  /** Switching role clears messages about fields that no longer exist. */
+  function pickRole(nextRole) {
+    setRole(nextRole);
+    setFieldErrors(null);
+    setError(null);
   }
 
   async function submit(event) {
     event.preventDefault();
+
+    const found = validate(form, fieldRules);
+    if (Object.keys(found).length > 0) {
+      setFieldErrors(found);
+      return;
+    }
+
     setBusy(true);
     setError(null);
     setFieldErrors(null);
@@ -73,6 +111,7 @@ export default function RegisterPage() {
           password: form.password,
           fullName: form.fullName,
           companyName: form.companyName,
+          website: form.companyWebsite || undefined,
           industry: form.industry || undefined,
           jobTitle: form.jobTitle || undefined,
         });
@@ -105,7 +144,7 @@ export default function RegisterPage() {
           <button
             type="button"
             className={`btn ${isStudent ? "btn-ijp-primary" : "btn-ijp-quiet"}`}
-            onClick={() => setRole("STUDENT")}
+            onClick={() => pickRole("STUDENT")}
           >
             <i className="bi bi-mortarboard me-2" aria-hidden="true" />
             I&apos;m a student
@@ -113,7 +152,7 @@ export default function RegisterPage() {
           <button
             type="button"
             className={`btn ${isStudent ? "btn-ijp-quiet" : "btn-ijp-primary"}`}
-            onClick={() => setRole("EMPLOYER")}
+            onClick={() => pickRole("EMPLOYER")}
           >
             <i className="bi bi-briefcase me-2" aria-hidden="true" />
             I&apos;m an employer
@@ -134,6 +173,7 @@ export default function RegisterPage() {
             icon="bi-person"
             value={form.fullName}
             onChange={(value) => update("fullName", value)}
+            onBlur={() => blur("fullName")}
             error={fieldErrors?.fullName}
             required
           />
@@ -144,6 +184,7 @@ export default function RegisterPage() {
             type="email"
             value={form.email}
             onChange={(value) => update("email", value)}
+            onBlur={() => blur("email")}
             error={fieldErrors?.email}
             autoComplete="username"
             required
@@ -155,6 +196,7 @@ export default function RegisterPage() {
             type="password"
             value={form.password}
             onChange={(value) => update("password", value)}
+            onBlur={() => blur("password")}
             error={fieldErrors?.password}
             hint="At least 8 characters."
             autoComplete="new-password"
@@ -188,8 +230,20 @@ export default function RegisterPage() {
                 icon="bi-building"
                 value={form.companyName}
                 onChange={(value) => update("companyName", value)}
+                onBlur={() => blur("companyName")}
                 error={fieldErrors?.companyName}
                 required
+              />
+              <AuthField
+                id="regWebsite"
+                label="Company website"
+                icon="bi-globe"
+                optional
+                placeholder="https://example.com"
+                value={form.companyWebsite}
+                onChange={(value) => update("companyWebsite", value)}
+                onBlur={() => blur("companyWebsite")}
+                error={fieldErrors?.companyWebsite}
               />
               <div className="ijp-auth-row">
                 <AuthField
@@ -218,7 +272,17 @@ export default function RegisterPage() {
           )}
 
           <button className="btn btn-ijp-primary ijp-auth-submit" type="submit" disabled={busy}>
-            {busy ? "Creating your account..." : "Create account"}
+            {busy ? (
+              <>
+                <span className="spinner-border spinner-border-sm me-2" aria-hidden="true" />
+                Creating your account...
+              </>
+            ) : (
+              <>
+                Create account
+                <i className="bi bi-arrow-right ms-2" aria-hidden="true" />
+              </>
+            )}
           </button>
         </form>
 

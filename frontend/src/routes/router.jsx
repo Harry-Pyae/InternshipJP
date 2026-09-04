@@ -8,11 +8,13 @@ import FeaturePlaceholder from "../components/common/FeaturePlaceholder.jsx";
 import { STUDENT_NAV, EMPLOYER_NAV, ADMIN_NAV } from "../config/navigation.js";
 import { STUDENT_PAGES, EMPLOYER_PAGES, ADMIN_PAGES } from "./placeholders.js";
 import { useAuth, homeFor } from "../config/authContext.jsx";
+import LoadingBlock from "../components/shared/LoadingBlock.jsx";
 
 import FoundationHomePage from "../features/integration/FoundationHomePage.jsx";
 import IntegrationStatusPage from "../features/integration/IntegrationStatusPage.jsx";
 import LoginPage from "../features/auth/LoginPage.jsx";
 import RegisterPage from "../features/auth/RegisterPage.jsx";
+import PendingApprovalPage from "../features/auth/PendingApprovalPage.jsx";
 import StudentDashboardPage from "../features/student/StudentDashboardPage.jsx";
 import EmployerDashboardPage from "../features/employer/EmployerDashboardPage.jsx";
 import AdminDashboardPage from "../features/admin/AdminDashboardPage.jsx";
@@ -43,6 +45,7 @@ export default function AppRoutes() {
       {/* Public shell: a thin header, no sidebar. */}
       <Route element={<PublicLayout />}>
         <Route path="/" element={<LandingRoute />} />
+        <Route path="/foundation" element={<FoundationHomePage />} />
         <Route path="/integration/status" element={<IntegrationStatusPage />} />
       </Route>
 
@@ -75,6 +78,19 @@ export default function AppRoutes() {
           />
         ))}
       </Route>
+
+      {/*
+        An employer waiting on approval. Outside the employer shell on purpose:
+        a sidebar full of links they cannot use yet would be misleading.
+      */}
+      <Route
+        path="/pending-approval"
+        element={
+          <RequireAuth role="EMPLOYER">
+            <PendingApprovalPage />
+          </RequireAuth>
+        }
+      />
 
       {/* ----------------------------------------------- EMPLOYER */}
       <Route
@@ -123,11 +139,27 @@ export default function AppRoutes() {
   );
 }
 
-/** Signed in? Straight to your dashboard. Otherwise, what this project is. */
+/**
+ * The root URL.
+ *
+ * A visitor goes to the login screen; the foundation overview now lives at
+ * /foundation.
+ *
+ * A signed-in user goes to their own dashboard rather than being bounced
+ * through the login page - LoginPage would immediately redirect them anyway,
+ * and two redirects is a visible flash for no gain.
+ *
+ * `loading` matters: until the session check comes back we do not know which
+ * they are, and guessing means a signed-in user briefly sees a login form.
+ */
 function LandingRoute() {
   const { user, loading } = useAuth();
-  if (!loading && user) {
+
+  if (loading) {
+    return <LoadingBlock label="Loading..." />;
+  }
+  if (user) {
     return <Navigate to={homeFor(user.role)} replace />;
   }
-  return <FoundationHomePage />;
+  return <Navigate to="/auth/login" replace />;
 }

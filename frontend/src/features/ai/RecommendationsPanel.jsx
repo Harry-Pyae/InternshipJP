@@ -89,67 +89,84 @@ function MatchRow({ match, onDiscuss }) {
   const tone = match.matchScore >= 67 ? "ok" : match.matchScore >= 34 ? "warn" : "bad";
 
   return (
-    <li className="border rounded p-3">
-      <div className="d-flex justify-content-between align-items-start gap-2">
-        <div>
-          <p className="fw-semibold mb-1">{match.title}</p>
+    <li className="ijp-match">
+      <div className="d-flex justify-content-between align-items-start gap-3">
+        <div style={{ minWidth: 0 }}>
+          <p className="ijp-match-title">{match.title}</p>
           <p className="ijp-muted small mb-0">
             {match.companyName}
             {match.location ? ` · ${match.location}` : ""} · {match.workMode.toLowerCase()}
           </p>
         </div>
-        <span className={`ijp-status-value ijp-status-value--${tone}`}>{match.matchScore}%</span>
+        <span className={`ijp-score ijp-state--${tone} flex-shrink-0`}>{match.matchScore}%</span>
       </div>
 
-      <div className="progress mt-2" style={{ height: "4px" }}>
-        <div
-          className="progress-bar"
-          style={{ width: `${match.matchScore}%` }}
-          role="progressbar"
-          aria-valuenow={match.matchScore}
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-label={`Match score for ${match.title}`}
-        />
+      {/* The bar carries the same colour as the number, so the two cannot
+          disagree about how good a match is. */}
+      <div
+        className={`ijp-meter ijp-meter--${tone} mt-3`}
+        role="progressbar"
+        aria-valuenow={match.matchScore}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label={`Match score for ${match.title}`}
+      >
+        <span style={{ width: `${match.matchScore}%` }} />
       </div>
 
-      <p className="small mb-2 mt-2">{match.explanation}</p>
+      <p className="ijp-match-explain">{match.explanation}</p>
 
+      {/* These two lists used identical styling, which hid the one thing the
+          card exists to say. Filled for what you have, dashed outline for
+          what you do not. */}
       {match.matchedSkills.length > 0 ? (
-        <p className="small mb-1">
-          <span className="ijp-muted">You have: </span>
-          {match.matchedSkills.map((skill) => (
-            <span className="badge text-bg-light border me-1" key={skill}>
-              {skill}
-            </span>
-          ))}
-        </p>
+        <div className="ijp-match-skills">
+          <span className="ijp-match-skills-label">You have</span>
+          <div className="ijp-pill-row">
+            {match.matchedSkills.map((skill) => (
+              <span className="ijp-pill-skill ijp-pill-skill--have" key={skill}>
+                <i className="bi bi-check2" aria-hidden="true" />
+                {skill}
+              </span>
+            ))}
+          </div>
+        </div>
       ) : null}
 
       {match.missingSkills.length > 0 ? (
-        <p className="small mb-2">
-          <span className="ijp-muted">To learn: </span>
-          {match.missingSkills.map((skill) => (
-            <span className="badge text-bg-light border me-1" key={skill}>
-              {skill}
-            </span>
-          ))}
-        </p>
+        <div className="ijp-match-skills">
+          <span className="ijp-match-skills-label">To learn</span>
+          <div className="ijp-pill-row">
+            {match.missingSkills.map((skill) => (
+              <span className="ijp-pill-skill ijp-pill-skill--learn" key={skill}>
+                <i className="bi bi-plus-lg" aria-hidden="true" />
+                {skill}
+              </span>
+            ))}
+          </div>
+        </div>
       ) : null}
 
-      <div className="d-flex flex-wrap align-items-center gap-2">
+      <div className="ijp-match-foot">
         {match.alreadyApplied ? (
-          <span className="badge text-bg-secondary">Applied</span>
+          <span className="ijp-badge ijp-badge--ok">
+            <i className="bi bi-check2-circle me-1" aria-hidden="true" />
+            Applied
+          </span>
         ) : null}
         {match.applicationDeadline ? (
-          <span className="ijp-muted small">Closes {match.applicationDeadline}</span>
+          <span className="ijp-muted small">
+            <i className="bi bi-calendar-event me-1" aria-hidden="true" />
+            Closes {match.applicationDeadline}
+          </span>
         ) : null}
         <button
           type="button"
-          className="btn btn-sm btn-outline-secondary ms-auto"
+          className="btn btn-sm btn-ijp-quiet ms-auto"
           onClick={() => onDiscuss(match)}
         >
           Ask about this
+          <i className="bi bi-arrow-right ms-1" aria-hidden="true" />
         </button>
       </div>
     </li>

@@ -22,6 +22,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * The employer assistant's second subject: not "who should I hire?" but
@@ -126,7 +127,10 @@ public class CompanyInsightService {
                 context.append("- \"").append(issue.getTitle()).append("\" (")
                         .append(issue.getStatus()).append(", ")
                         .append(issue.getApplicationCount()).append(" applicant(s)): ")
-                        .append(String.join("; ", issue.getIssues())).append("\n");
+                        .append(issue.getIssues().stream()
+                                .map(CompanyInsightResponse.Issue::getText)
+                                .collect(Collectors.joining("; ")))
+                        .append("\n");
             }
         }
 
@@ -157,35 +161,35 @@ public class CompanyInsightService {
             if (internship.getStatus() == InternshipStatus.ARCHIVED) {
                 continue;
             }
-            List<String> issues = new ArrayList<>();
+            List<CompanyInsightResponse.Issue> issues = new ArrayList<>();
             long applicants = applicationRepository.countByInternshipId(internship.getId());
 
             if (!StringUtils.hasText(internship.getDescription())) {
-                issues.add("no description");
+                issues.add(new CompanyInsightResponse.Issue("NO_DESCRIPTION", "No description"));
             }
             if (!StringUtils.hasText(internship.getRequirements())) {
-                issues.add("no requirements written");
+                issues.add(new CompanyInsightResponse.Issue("NO_REQUIREMENTS", "No requirements written"));
             }
             if (!StringUtils.hasText(internship.getResponsibilities())) {
-                issues.add("no responsibilities written");
+                issues.add(new CompanyInsightResponse.Issue("NO_RESPONSIBILITIES", "No responsibilities written"));
             }
             if (internshipSkillRepository.findByInternshipId(internship.getId()).isEmpty()) {
-                issues.add("no required skills listed, so students cannot be matched to it");
+                issues.add(new CompanyInsightResponse.Issue("NO_SKILLS", "No required skills, so students cannot be matched to it"));
             }
             if (internship.getStipendAmount() == null) {
-                issues.add("no stipend information, which reduces applications");
+                issues.add(new CompanyInsightResponse.Issue("NO_STIPEND", "No stipend information, which reduces applications"));
             }
             if (internship.getApplicationDeadline() == null) {
-                issues.add("no application deadline");
+                issues.add(new CompanyInsightResponse.Issue("NO_DEADLINE", "No application deadline"));
             } else if (internship.getStatus() == InternshipStatus.OPEN
                     && internship.getApplicationDeadline().isBefore(LocalDate.now())) {
-                issues.add("deadline has passed but the vacancy is still OPEN");
+                issues.add(new CompanyInsightResponse.Issue("DEADLINE_PASSED", "Deadline has passed but the vacancy is still open"));
             }
             if (internship.getStatus() == InternshipStatus.DRAFT) {
-                issues.add("still a draft, so no student can see it");
+                issues.add(new CompanyInsightResponse.Issue("DRAFT", "Still a draft, so no student can see it"));
             }
             if (internship.getStatus() == InternshipStatus.OPEN && applicants == 0) {
-                issues.add("open but has received no applications");
+                issues.add(new CompanyInsightResponse.Issue("NO_APPLICANTS", "Open but has received no applications"));
             }
 
             if (!issues.isEmpty()) {

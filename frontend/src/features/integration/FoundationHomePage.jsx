@@ -97,6 +97,17 @@ export default function FoundationHomePage() {
           still to be built.
         </p>
 
+        <div className="d-flex flex-wrap gap-2 mb-4">
+          <Link className="btn btn-ijp-primary" to="/auth/login">
+            <i className="bi bi-box-arrow-in-right me-2" aria-hidden="true" />
+            Sign in
+          </Link>
+          <Link className="btn btn-ijp-quiet" to="/auth/register">
+            <i className="bi bi-person-plus me-2" aria-hidden="true" />
+            Create an account
+          </Link>
+        </div>
+
         <div className="d-flex flex-wrap gap-2">
           <SystemPill state={system.backend} loadingText="Checking backend" icon="bi-hdd-network" />
           <SystemPill state={system.database} loadingText="Checking database" icon="bi-database" />

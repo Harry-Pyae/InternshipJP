@@ -33,6 +33,17 @@ export default function RequireAuth({ role, children }) {
     return <Navigate to="/auth/login" replace state={{ from: location.pathname }} />;
   }
 
+  // An employer whose company has not been approved cannot use the employer
+  // area yet. Sending them to a screen that explains why beats a dashboard
+  // where most things look available and publishing fails with a 403.
+  if (
+    user.role === "EMPLOYER" &&
+    user.accountStatus === "PENDING" &&
+    location.pathname !== "/pending-approval"
+  ) {
+    return <Navigate to="/pending-approval" replace />;
+  }
+
   if (role && user.role !== role) {
     // Signed in, wrong door. Send them to their own home rather than showing
     // a "forbidden" page they can do nothing about.

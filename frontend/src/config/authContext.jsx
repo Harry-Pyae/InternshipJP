@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { authApi } from "../api/authApi.js";
-import { ensureCsrfToken } from "../api/axiosClient.js";
+import { ensureCsrfToken, setSessionExpiredHandler } from "../api/axiosClient.js";
 
 /**
  * Who is signed in, for the whole application.
@@ -38,6 +38,14 @@ export function AuthProvider({ children }) {
     // means a page can POST as soon as it renders.
     ensureCsrfToken().then(refresh);
   }, [refresh]);
+
+  // When any request comes back 401, forget who we thought was signed in.
+  // RequireAuth then sends them to the login screen on the next render, which
+  // keeps the redirect in one place instead of scattered through the API layer.
+  useEffect(() => {
+    setSessionExpiredHandler(() => setUser(null));
+    return () => setSessionExpiredHandler(null);
+  }, []);
 
   const signIn = useCallback(async (credentials) => {
     await ensureCsrfToken();

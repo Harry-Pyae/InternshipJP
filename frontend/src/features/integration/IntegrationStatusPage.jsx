@@ -119,7 +119,10 @@ export default function IntegrationStatusPage() {
             onClick={runChecks}
             disabled={running}
           >
-            <i className="bi bi-arrow-clockwise me-1" aria-hidden="true" />
+            <i
+              className={`bi bi-arrow-clockwise me-1${running ? " ijp-spin" : ""}`}
+              aria-hidden="true"
+            />
             {running ? "Checking..." : "Refresh checks"}
           </button>
         }
@@ -171,7 +174,7 @@ function initialState() {
 
 function FrontendCard({ check }) {
   if (check.state !== "ok") {
-    return <StatusCard label="Frontend" icon="bi-window" value="Starting..." />;
+    return <StatusCard label="Frontend" icon="bi-window" loading />;
   }
   return (
     <StatusCard
@@ -191,7 +194,7 @@ function FrontendCard({ check }) {
 
 function BackendCard({ check }) {
   if (check.state === "loading") {
-    return <StatusCard label="Backend API" icon="bi-hdd-network" value="Checking..." />;
+    return <StatusCard label="Backend API" icon="bi-hdd-network" loading />;
   }
   if (check.state === "error") {
     return (
@@ -221,7 +224,7 @@ function BackendCard({ check }) {
 
 function DatabaseCard({ check }) {
   if (check.state === "loading") {
-    return <StatusCard label="MariaDB" icon="bi-database" value="Checking..." />;
+    return <StatusCard label="MariaDB" icon="bi-database" loading />;
   }
   if (check.state === "skipped") {
     return (
@@ -272,7 +275,7 @@ function DatabaseCard({ check }) {
 
 function AiCard({ check }) {
   if (check.state === "loading") {
-    return <StatusCard label="Groq AI" icon="bi-stars" value="Checking..." />;
+    return <StatusCard label="Groq AI" icon="bi-stars" loading />;
   }
   if (check.state === "skipped") {
     return (
@@ -331,18 +334,46 @@ function AiCard({ check }) {
       tone="ok"
       value="Connected"
       detail="The backend reached the provider and the key was accepted."
+      badge={<LatencyBadge ms={latencyMs} />}
       rows={[
         { label: "Provider", value: provider },
         { label: "Model", value: model ?? "-" },
-        { label: "Latency", value: latencyMs != null ? `${latencyMs} ms` : "-" },
       ]}
     />
   );
 }
 
+/**
+ * The round-trip time to the AI provider, graded.
+ *
+ * A bare "412 ms" means nothing unless you already know what good looks like.
+ * The thresholds say so:
+ *
+ *   under 300ms   fast      the assistant will feel responsive
+ *   300-800ms     usable    noticeable, still fine for a chat turn
+ *   over 800ms    slow      the wait becomes the experience
+ *
+ * These describe the STATUS CHECK, which is a tiny request. A real chat
+ * completion takes seconds regardless - so a red badge here means the network
+ * path is bad, not that the model is slow to think.
+ */
+function LatencyBadge({ ms }) {
+  if (ms == null) {
+    return null;
+  }
+  const tone = ms < 300 ? "ok" : ms <= 800 ? "warn" : "bad";
+  const word = tone === "ok" ? "fast" : tone === "warn" ? "usable" : "slow";
+
+  return (
+    <span className={`ijp-badge ijp-badge--${tone}`} title={`Status check round trip: ${word}`}>
+      {ms} ms
+    </span>
+  );
+}
+
 function SessionCard({ check }) {
   if (check.state === "loading") {
-    return <StatusCard label="Session" icon="bi-person-badge" value="Checking..." />;
+    return <StatusCard label="Session" icon="bi-person-badge" loading />;
   }
   if (check.state === "skipped") {
     return (

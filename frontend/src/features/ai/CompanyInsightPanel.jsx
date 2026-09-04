@@ -79,13 +79,12 @@ export default function CompanyInsightPanel({ onAsk }) {
       {insight.hardToFillSkills.length > 0 ? (
         <>
           <p className="small fw-semibold mb-1">Skills you require that students rarely have</p>
-          <ul className="small ps-3 mb-3">
+          <ul className="ijp-scarce-list">
             {insight.hardToFillSkills.map((item) => (
               <li key={item.skill}>
-                <span className="fw-semibold">{item.skill}</span>
+                <span className="ijp-scarce-skill">{item.skill}</span>
                 <span className="ijp-muted">
-                  {" "}
-                  — only {item.studentsWithSkill} student
+                  only {item.studentsWithSkill} student
                   {item.studentsWithSkill === 1 ? "" : "s"} on the platform list this
                 </span>
               </li>
@@ -99,7 +98,7 @@ export default function CompanyInsightPanel({ onAsk }) {
           <p className="small fw-semibold mb-2">Listings that need attention</p>
           <ul className="list-unstyled d-grid gap-2 mb-3">
             {insight.listingIssues.map((issue) => (
-              <li key={issue.internshipId} className="border rounded p-2">
+              <li key={issue.internshipId} className="ijp-listing-issue">
                 <div className="d-flex justify-content-between align-items-start gap-2">
                   <span className="small fw-semibold">{issue.title}</span>
                   <span className="badge text-bg-light border flex-shrink-0">
@@ -107,11 +106,11 @@ export default function CompanyInsightPanel({ onAsk }) {
                     {issue.applicationCount === 1 ? "" : "s"}
                   </span>
                 </div>
-                <ul className="small ijp-muted ps-3 mb-0 mt-1">
-                  {issue.issues.map((text) => (
-                    <li key={text}>{text}</li>
+                <div className="ijp-issue-list">
+                  {issue.issues.map((item) => (
+                    <IssueBadge key={item.code ?? item.text} issue={item} />
                   ))}
-                </ul>
+                </div>
               </li>
             ))}
           </ul>
@@ -139,12 +138,42 @@ export default function CompanyInsightPanel({ onAsk }) {
 function Stat({ label, value, tone }) {
   return (
     <div className="col-6 col-xl-3">
-      <div className="border rounded py-2">
-        <div className={`fw-semibold ${tone ? `ijp-status-value--${tone}` : ""}`}>{value}</div>
-        <div className="ijp-muted" style={{ fontSize: "0.75rem" }}>
-          {label}
-        </div>
+      <div className="ijp-card-sunken ijp-stat">
+        <div className={`ijp-stat-value ${tone ? `ijp-state--${tone}` : ""}`}>{value}</div>
+        <div className="ijp-stat-label">{label}</div>
       </div>
     </div>
+  );
+}
+
+/**
+ * One problem with a listing, as a badge.
+ *
+ * The icon and colour come from the backend's `code`, never from reading the
+ * sentence. Matching on prose works until somebody rewords a message, and then
+ * the icons quietly go wrong with nothing failing - the worst kind of bug.
+ *
+ * An unknown code still renders, in the neutral style. A new backend check
+ * must never produce a blank row in an older frontend.
+ */
+const ISSUE_STYLES = {
+  NO_SKILLS: { icon: "bi-ui-checks-grid", tone: "bad" },
+  NO_APPLICANTS: { icon: "bi-person-x", tone: "bad" },
+  DEADLINE_PASSED: { icon: "bi-calendar-x", tone: "bad" },
+  DRAFT: { icon: "bi-eye-slash", tone: "warn" },
+  NO_DESCRIPTION: { icon: "bi-file-text", tone: "warn" },
+  NO_REQUIREMENTS: { icon: "bi-list-check", tone: "warn" },
+  NO_RESPONSIBILITIES: { icon: "bi-list-task", tone: "warn" },
+  NO_STIPEND: { icon: "bi-cash-coin", tone: "warn" },
+  NO_DEADLINE: { icon: "bi-calendar-event", tone: "warn" },
+};
+
+function IssueBadge({ issue }) {
+  const style = ISSUE_STYLES[issue.code] ?? { icon: "bi-dash-circle", tone: "unknown" };
+  return (
+    <span className={`ijp-issue ijp-issue--${style.tone}`}>
+      <i className={`bi ${style.icon}`} aria-hidden="true" />
+      {issue.text}
+    </span>
   );
 }

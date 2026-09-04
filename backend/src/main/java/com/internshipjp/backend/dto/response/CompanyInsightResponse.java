@@ -39,6 +39,46 @@ public class CompanyInsightResponse {
 
     private String summary;
 
+    /**
+     * One thing wrong with a listing, as a code plus readable text.
+     *
+     * WHY BOTH
+     *   The text is for the language model and for anyone reading the JSON.
+     *   The code is for the UI, so it can pick an icon and a colour without
+     *   pattern-matching English. Matching on prose works right up until
+     *   somebody rewords a sentence, and then the icons silently go wrong with
+     *   nothing failing - the worst kind of bug.
+     */
+    public static class Issue {
+
+        private String code;
+        private String text;
+
+        public Issue() {
+        }
+
+        public Issue(String code, String text) {
+            this.code = code;
+            this.text = text;
+        }
+
+        public String getCode() {
+            return code;
+        }
+
+        public void setCode(String code) {
+            this.code = code;
+        }
+
+        public String getText() {
+            return text;
+        }
+
+        public void setText(String text) {
+            this.text = text;
+        }
+    }
+
     /** One vacancy and everything that is weak about it. */
     public static class ListingIssue {
 
@@ -46,13 +86,13 @@ public class CompanyInsightResponse {
         private String title;
         private String status;
         private long applicationCount;
-        private List<String> issues;
+        private List<Issue> issues;
 
         public ListingIssue() {
         }
 
         public ListingIssue(Long internshipId, String title, String status,
-                            long applicationCount, List<String> issues) {
+                            long applicationCount, List<Issue> issues) {
             this.internshipId = internshipId;
             this.title = title;
             this.status = status;
@@ -92,11 +132,11 @@ public class CompanyInsightResponse {
             this.applicationCount = applicationCount;
         }
 
-        public List<String> getIssues() {
+        public List<Issue> getIssues() {
             return issues;
         }
 
-        public void setIssues(List<String> issues) {
+        public void setIssues(List<Issue> issues) {
             this.issues = issues;
         }
     }

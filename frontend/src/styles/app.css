@@ -321,7 +321,7 @@ h4 {
 }
 
 .ijp-meter {
-  height: 3px;
+  height: 8px;
   border-radius: 999px;
   background-color: var(--ijp-border);
   overflow: hidden;
@@ -819,20 +819,50 @@ h4 {
 
 /* Quick starter questions above the composer. Real questions someone would
    ask, not feature labels. */
+/* A grid, not a wrapping flex row. These questions are full sentences: as
+   pills they wrapped into ragged, uneven rows that were hard to scan. Two
+   equal columns give each one room and a predictable shape. */
+.ijp-starters {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.6rem;
+  margin-bottom: 0.75rem;
+}
+
+@media (min-width: 768px) {
+  .ijp-starters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 .ijp-chip {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
   border: 1px solid var(--ijp-border-strong);
   background-color: var(--ijp-surface);
   color: var(--ijp-ink-soft);
-  border-radius: 999px;
-  padding: 0.35rem 0.8rem;
-  font-size: 0.8rem;
-  line-height: 1.3;
+  border-radius: var(--ijp-radius-sm);
+  padding: 0.6rem 0.8rem;
+  font-size: 0.87rem;
+  line-height: 1.4;
   text-align: left;
-  transition: border-color 120ms ease, color 120ms ease;
+  transition: border-color 120ms ease, color 120ms ease, background-color 120ms ease;
+}
+
+.ijp-chip i {
+  color: var(--ijp-ink-faint);
+  margin-top: 0.12rem;
+  flex: 0 0 auto;
 }
 
 .ijp-chip:hover {
   border-color: var(--ijp-signal);
+  background-color: var(--ijp-signal-soft);
+  color: var(--ijp-signal);
+}
+
+.ijp-chip:hover i {
   color: var(--ijp-signal);
 }
 
@@ -882,9 +912,14 @@ h4 {
   }
 }
 
+/* An answer is prose to be read, not a label to be scanned, so it steps up
+   from the interface size. 1.02rem with a 1.65 line height is the difference
+   between skimming a wall and actually reading it. */
 .ijp-bubble {
-  border-radius: var(--ijp-radius);
-  padding: 0.75rem 1rem;
+  border-radius: 14px;
+  padding: 1rem 1.15rem;
+  font-size: 1.02rem;
+  line-height: 1.65;
   /* min() rather than a flat 46rem: on a narrow screen the bubble must not be
      wider than the space it has. */
   max-width: min(46rem, 100%);
@@ -907,6 +942,7 @@ h4 {
 .ijp-bubble--assistant {
   background-color: var(--ijp-surface-sunken);
   border: 1px solid var(--ijp-border);
+  box-shadow: var(--ijp-shadow);
 }
 
 .ijp-bubble--notice {
@@ -1002,14 +1038,15 @@ h4 {
    assistant answer is a document, so it resets that and lays out real blocks. */
 .ijp-answer {
   display: grid;
-  gap: 0.8rem;
+  gap: 0.9rem;
   white-space: normal;
+  font-size: 1.02rem;
 }
 
 /* Section titles reuse the small-caps label from the rest of the app, with a
    rule above so the eye finds the boundaries without reading. */
 .ijp-answer-heading {
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.09em;
   text-transform: uppercase;
@@ -1033,10 +1070,10 @@ h4 {
 
 .ijp-answer-list {
   margin: 0;
-  padding-left: 1.2rem;
+  padding-left: 1.25rem;
   display: grid;
-  gap: 0.45rem;
-  line-height: 1.55;
+  gap: 0.55rem;
+  line-height: 1.65;
 }
 
 .ijp-answer-list li::marker {
@@ -1110,7 +1147,8 @@ h4 {
 @media (min-width: 992px) {
   .ijp-shell {
     grid-template-columns: 16rem minmax(0, 1fr);
-    transition: grid-template-columns 200ms ease;
+    /* Matched to the label fade so the column and its text settle together. */
+    transition: grid-template-columns 260ms ease;
   }
 
   .ijp-shell--collapsed {
@@ -1198,6 +1236,16 @@ h4 {
   background-color: var(--ijp-signal);
   color: #fff;
   font-size: 0.95rem;
+}
+
+/* One chevron, rotated - not two icons swapped. */
+.ijp-toggle-icon {
+  display: inline-block;
+  transition: transform 260ms ease;
+}
+
+.ijp-toggle-icon--flipped {
+  transform: rotate(180deg);
 }
 
 .ijp-sidebar-toggle,
@@ -1316,11 +1364,62 @@ h4 {
   text-align: center;
 }
 
+/* nowrap is what makes the collapse safe: the label can shrink to zero width
+   without ever re-flowing into a two-line smear mid-animation. Opacity leads
+   slightly so the text is gone before the column finishes closing. */
 .ijp-nav-label {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  opacity: 1;
+  max-width: 12rem;
+  transition: opacity 140ms ease, max-width 260ms ease;
+}
+
+.ijp-nav-item--collapsed .ijp-nav-label {
+  opacity: 0;
+  max-width: 0;
+}
+
+.ijp-nav-badge {
+  margin-left: auto;
+  transition: opacity 140ms ease;
+}
+
+.ijp-nav-item--collapsed .ijp-nav-badge {
+  opacity: 0;
+  width: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+/* The section headings fade with their labels. The divider stays, so the
+   grouping is still readable as an icon rail. */
+.ijp-nav-section {
+  transition: opacity 140ms ease, height 220ms ease, margin 220ms ease;
+}
+
+.ijp-sidebar--collapsed .ijp-nav-section {
+  opacity: 0;
+  height: 0;
+  margin: 0;
+  overflow: hidden;
+}
+
+.ijp-nav-divider {
+  opacity: 0;
+  height: 0;
+  margin: 0;
+  border: 0;
+  transition: opacity 140ms ease, margin 220ms ease;
+}
+
+.ijp-sidebar--collapsed .ijp-nav-divider {
+  opacity: 1;
+  height: auto;
+  margin: 0.5rem 0.6rem;
+  border-top: 1px solid var(--ijp-border);
 }
 
 /* Pinned by being the last non-growing child of a full-height flex column -
@@ -1605,4 +1704,419 @@ h4 {
 /* The mobile drawer is its own full-height column with the same rules. */
 .ijp-drawer .ijp-sidebar {
   height: 100%;
+}
+
+
+/* --- employer waiting for approval --------------------------------------- */
+.ijp-pending {
+  width: 100%;
+  max-width: 34rem;
+  padding: 2.5rem 2rem;
+  text-align: center;
+}
+
+.ijp-pending-icon--pending {
+  background-color: var(--ijp-pending-soft);
+  color: var(--ijp-pending);
+}
+
+.ijp-pending-icon--warn {
+  background-color: var(--ijp-pending-soft);
+  color: var(--ijp-pending);
+}
+
+.ijp-pending-icon--bad {
+  background-color: var(--ijp-rejected-soft);
+  color: var(--ijp-rejected);
+}
+
+.ijp-pending-note {
+  text-align: left;
+  font-size: 0.87rem;
+  padding: 0.85rem 1rem;
+  margin-top: 1rem;
+  border-radius: var(--ijp-radius-sm);
+  background-color: var(--ijp-surface-sunken);
+  border: 1px solid var(--ijp-border);
+}
+
+.ijp-pending-facts {
+  display: grid;
+  gap: 0.5rem;
+  margin: 1.5rem 0 0;
+  text-align: left;
+  font-size: 0.87rem;
+}
+
+.ijp-pending-facts > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--ijp-border);
+}
+
+.ijp-pending-facts dt {
+  color: var(--ijp-ink-soft);
+  font-weight: 400;
+}
+
+.ijp-pending-facts dd {
+  margin: 0;
+  text-align: right;
+}
+
+
+/* --- conversation history ------------------------------------------------ */
+.ijp-history {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.ijp-history-item {
+  display: flex;
+  align-items: stretch;
+  gap: 0.25rem;
+  border: 1px solid var(--ijp-border);
+  border-radius: var(--ijp-radius-sm);
+  background-color: var(--ijp-surface-sunken);
+  transition: border-color 150ms ease, background-color 150ms ease;
+}
+
+.ijp-history-item:hover {
+  border-color: var(--ijp-border-strong);
+  background-color: var(--ijp-surface);
+}
+
+.ijp-history-item--active {
+  border-color: var(--ijp-signal);
+  background-color: var(--ijp-signal-soft);
+}
+
+.ijp-history-open {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  align-items: flex-start;
+  padding: 0.75rem 0.9rem;
+  border: 0;
+  background: none;
+  color: inherit;
+  text-align: left;
+  border-radius: var(--ijp-radius-sm);
+}
+
+.ijp-history-title {
+  font-size: 0.92rem;
+  font-weight: 500;
+  line-height: 1.4;
+  /* Two lines, then ellipsis. One line truncates most questions to
+     uselessness; unlimited lines make the list impossible to scan. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.ijp-history-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.75rem;
+  color: var(--ijp-ink-faint);
+}
+
+/* A real target, not a bare icon. This button deletes a whole thread, so it
+   should be hard to hit by accident and obvious once you are on it. */
+.ijp-history-delete {
+  flex: 0 0 auto;
+  width: 2.75rem;
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: none;
+  color: var(--ijp-ink-faint);
+  border-radius: var(--ijp-radius-sm);
+  transition: color 150ms ease, background-color 150ms ease;
+}
+
+.ijp-history-delete:hover {
+  color: var(--ijp-rejected);
+  background-color: var(--ijp-rejected-soft);
+}
+
+/* --- admin workload ------------------------------------------------------ */
+.ijp-workload-stats {
+  margin-bottom: 2rem;
+}
+
+.ijp-stat {
+  padding: 1rem 0.75rem;
+  text-align: center;
+}
+
+.ijp-stat-value {
+  font-family: var(--ijp-font-data);
+  font-variant-numeric: tabular-nums;
+  font-size: 1.75rem;
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+.ijp-stat-label {
+  font-size: 0.75rem;
+  color: var(--ijp-ink-soft);
+  margin-top: 0.2rem;
+}
+
+.ijp-queue-item {
+  padding: 0.8rem 0.9rem 0.8rem 1rem;
+}
+
+/* The waiting time is the point of the whole report, so it is allowed to be
+   the loudest thing in the row. */
+.ijp-days {
+  font-family: var(--ijp-font-data);
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 0.3rem 0.6rem;
+}
+
+
+/* A spinning icon for an in-flight action. */
+.ijp-spin {
+  display: inline-block;
+  animation: ijp-rotate 900ms linear infinite;
+}
+
+@keyframes ijp-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+/* --- company insight ------------------------------------------------------ */
+/* The scarce-skill list is the most consequential thing on this tab - it is
+   the difference between "nobody good applied" and "we asked for something
+   nobody has" - so it gets read-able size rather than caption size. */
+.ijp-scarce-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.25rem;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.ijp-scarce-list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  padding-left: 0.85rem;
+  border-left: 2px solid var(--ijp-rejected);
+}
+
+.ijp-scarce-skill {
+  font-weight: 600;
+}
+
+.ijp-listing-issue {
+  border: 1px solid var(--ijp-border);
+  border-radius: var(--ijp-radius-sm);
+  background-color: var(--ijp-surface-sunken);
+  padding: 0.85rem 0.95rem;
+}
+
+/* Badges rather than bullets: a listing usually has three or four problems at
+   once, and a bulleted list of them reads as a paragraph of complaints. Badges
+   let the eye count them. */
+.ijp-issue-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.6rem;
+}
+
+.ijp-issue {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  padding: 0.28rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid var(--ijp-border);
+  background-color: var(--ijp-surface);
+  color: var(--ijp-ink-soft);
+}
+
+.ijp-issue--warn {
+  border-color: var(--ijp-pending);
+  background-color: var(--ijp-pending-soft);
+  color: var(--ijp-pending);
+}
+
+.ijp-issue--bad {
+  border-color: var(--ijp-rejected);
+  background-color: var(--ijp-rejected-soft);
+  color: var(--ijp-rejected);
+}
+
+
+/* --- student assistant panels --------------------------------------------- */
+/* Skill gap rows as cards, so the "How?" buttons form a clean right edge
+   instead of floating at whatever width each sentence happens to end. */
+.ijp-gap-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.25rem;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.ijp-gap-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--ijp-border);
+  border-radius: var(--ijp-radius-sm);
+  background-color: var(--ijp-surface-sunken);
+}
+
+.ijp-gap-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+  font-size: 0.87rem;
+  line-height: 1.45;
+}
+
+.ijp-gap-skill {
+  font-weight: 600;
+}
+
+/* --- skill pills ---------------------------------------------------------- */
+.ijp-pill-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.ijp-pill-skill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+  line-height: 1.3;
+  padding: 0.28rem 0.65rem;
+  border-radius: 999px;
+}
+
+/* Filled: something you already have. */
+.ijp-pill-skill--have {
+  background-color: var(--ijp-verified-soft);
+  border: 1px solid var(--ijp-verified);
+  color: var(--ijp-verified);
+}
+
+/* Dashed outline: something not yet yours. The border style carries the
+   meaning as well as the colour, so the difference survives greyscale and
+   colour blindness. */
+.ijp-pill-skill--learn {
+  background-color: transparent;
+  border: 1px dashed var(--ijp-pending);
+  color: var(--ijp-pending);
+}
+
+.ijp-pill-count {
+  font-family: var(--ijp-font-data);
+  font-size: 0.7rem;
+  opacity: 0.8;
+  margin-left: 0.1rem;
+}
+
+/* --- match cards ---------------------------------------------------------- */
+.ijp-match {
+  border: 1px solid var(--ijp-border);
+  border-radius: var(--ijp-radius);
+  background-color: var(--ijp-surface-sunken);
+  padding: 1.1rem;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.ijp-match-title {
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.35;
+  margin: 0 0 0.15rem;
+}
+
+.ijp-match-explain {
+  font-size: 0.87rem;
+  line-height: 1.55;
+  margin: 0;
+  color: var(--ijp-ink-soft);
+}
+
+.ijp-match-skills {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ijp-match-skills-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--ijp-ink-faint);
+  flex: 0 0 4.5rem;
+}
+
+.ijp-match-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding-top: 0.65rem;
+  border-top: 1px solid var(--ijp-border);
+}
+
+/* --- chat input ----------------------------------------------------------- */
+.ijp-chat-input {
+  padding: 0.7rem 0.95rem;
+  font-size: 0.95rem;
+}
+
+/* --- empty states --------------------------------------------------------- */
+/* An empty tab is a whole screen of nothing, so the message sits in the middle
+   of it rather than clinging to the top edge. */
+.ijp-empty {
+  padding: 3.5rem 1.5rem;
+}
+
+.ijp-meter--ok > span {
+  background-color: var(--ijp-verified);
+}
+
+.ijp-meter--warn > span {
+  background-color: var(--ijp-pending);
+}
+
+.ijp-meter--bad > span {
+  background-color: var(--ijp-rejected);
 }
