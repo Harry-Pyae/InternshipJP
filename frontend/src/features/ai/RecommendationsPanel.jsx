@@ -69,7 +69,7 @@ export default function RecommendationsPanel({ onDiscuss }) {
           hint="Once employers publish vacancies, they will be scored against the skills on your profile."
         />
       ) : (
-        <ul className="list-unstyled d-grid gap-3 mb-0">
+        <ul className="ijp-match-grid">
           {matches.map((match) => (
             <MatchRow key={match.internshipId} match={match} onDiscuss={onDiscuss} />
           ))}

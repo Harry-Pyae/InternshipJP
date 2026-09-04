@@ -2048,7 +2048,37 @@ h4 {
 }
 
 /* --- match cards ---------------------------------------------------------- */
+/* Cards flow into as many columns as will fit at a readable width, rather
+   than switching at a viewport breakpoint.
+ 
+   The reason is the sidebar: the space these cards live in changes by 11rem
+   when it collapses. A viewport-based `lg:grid-cols-2` would be right in one
+   state and wrong in the other - two cramped columns with the sidebar open, or
+   a wasted half-screen with it closed. auto-fill measures the actual container,
+   so it is correct in both.
+ 
+   23rem is the floor because below that the skill rows start wrapping badly. */
+.ijp-match-grid {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(23rem, 1fr));
+  /* Capped at two columns' worth. Without this, a 1080p screen fits four,
+     which turns a shortlist of five internships into a tile wall - and each
+     card holds a paragraph, so beyond ~30rem the text stops being comfortable
+     to read anyway. */
+  max-width: 64rem;
+  gap: 1rem;
+  align-items: start;
+}
+
 .ijp-match {
+  /* Lets the card style itself by its OWN width, not the window's - so a card
+     in a two-column layout can lay out differently from the same card at full
+     width, with no breakpoint guessing. */
+  container-type: inline-size;
+  height: 100%;
   border: 1px solid var(--ijp-border);
   border-radius: var(--ijp-radius);
   background-color: var(--ijp-surface-sunken);
@@ -2093,7 +2123,24 @@ h4 {
   align-items: center;
   gap: 0.5rem;
   padding-top: 0.65rem;
+  /* Pushed to the bottom, so footers line up across a row of cards even when
+     the explanations above them are different lengths. */
+  margin-top: auto;
   border-top: 1px solid var(--ijp-border);
+}
+
+/* In a narrow card the label sits above its pills instead of stealing 4.5rem
+   of the row. */
+@container (max-width: 26rem) {
+  .ijp-match-skills-label {
+    flex: 0 0 100%;
+  }
+
+  .ijp-match-foot .btn {
+    margin-left: 0 !important;
+    width: 100%;
+    justify-content: center;
+  }
 }
 
 /* --- chat input ----------------------------------------------------------- */
