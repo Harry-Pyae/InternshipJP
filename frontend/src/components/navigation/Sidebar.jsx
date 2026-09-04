@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import SidebarItem from "./SidebarItem.jsx";
+import Avatar from "../shared/Avatar.jsx";
 import { ROLE_LABEL } from "../../config/navigation.js";
 import { useAuth } from "../../config/authContext.jsx";
 
@@ -81,9 +82,7 @@ export default function Sidebar({ nav, collapsed, onToggleCollapse, onNavigate, 
       {user ? (
         <div className="ijp-sidebar-foot">
           <div className={`ijp-identity${isCollapsed ? " ijp-identity--collapsed" : ""}`}>
-            <span className="ijp-avatar" aria-hidden="true">
-              {initials(user.fullName)}
-            </span>
+            <Avatar name={user.fullName} />
             {isCollapsed ? null : (
               <span className="ijp-identity-text">
                 <span className="ijp-identity-name">{user.fullName}</span>
@@ -95,12 +94,4 @@ export default function Sidebar({ nav, collapsed, onToggleCollapse, onNavigate, 
       ) : null}
     </div>
   );
-}
-
-function initials(name) {
-  if (!name) {
-    return "?";
-  }
-  const parts = name.trim().split(/\s+/);
-  return (parts[0][0] + (parts.length > 1 ? parts[parts.length - 1][0] : "")).toUpperCase();
 }

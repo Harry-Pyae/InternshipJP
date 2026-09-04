@@ -1101,6 +1101,42 @@ h4 {
   color: var(--ijp-ink);
 }
 
+/* --- the dropdown popup ---------------------------------------------------
+   The list a <select> opens is drawn by the operating system, not by this
+   page, so CSS reaches it barely at all. The thing that actually works is
+   `color-scheme` on :root - already set to light/dark alongside the theme
+   variables - which tells the browser to render native widgets, popups and
+   scrollbars in the matching mode.
+
+   These option rules are a supplement, not the mechanism. Chrome on Windows
+   honours them; Safari largely ignores them. That is fine, because
+   color-scheme has already done the important part on both. */
+.form-select option,
+.form-control option {
+  background-color: var(--ijp-surface);
+  color: var(--ijp-ink);
+}
+
+.form-select option:checked {
+  background-color: var(--ijp-signal-soft);
+  color: var(--ijp-signal);
+}
+
+/* A disabled placeholder ("Choose an internship...") should read as a prompt
+   rather than as a real choice. */
+.form-select option[value=""] {
+  color: var(--ijp-ink-faint);
+}
+
+/* Group headings in a picker. Chrome on Windows renders these itself and
+   ignores most of this; it is here so the styling is right anywhere that
+   does honour it. */
+.form-select optgroup {
+  background-color: var(--ijp-surface);
+  color: var(--ijp-ink-faint);
+  font-weight: 600;
+}
+
 .form-control:focus,
 .form-select:focus {
   background-color: var(--ijp-surface);
@@ -2166,4 +2202,384 @@ h4 {
 
 .ijp-meter--bad > span {
   background-color: var(--ijp-rejected);
+}
+
+
+/* ===========================================================================
+   ONE FOCUS RING, EVERYWHERE
+   Every interactive surface previously relied on whatever Bootstrap or the
+   browser happened to do, so a keyboard user got a blue glow on inputs, a
+   faint outline on some buttons and nothing at all on the tabs and nav items
+   we built ourselves.
+
+   :focus-visible rather than :focus, so a mouse click does not leave a ring
+   behind - only keyboard navigation shows it, which is who it is for.
+   =========================================================================== */
+.btn:focus-visible,
+.ijp-tab:focus-visible,
+.ijp-chip:focus-visible,
+.ijp-icon-btn:focus-visible,
+.ijp-sidebar-toggle:focus-visible,
+.ijp-nav-item:focus-visible,
+.ijp-usermenu:focus-visible,
+.ijp-history-open:focus-visible,
+.ijp-history-delete:focus-visible,
+.ijp-field-action:focus-visible,
+.dropdown-item:focus-visible,
+.form-control:focus-visible,
+.form-select:focus-visible {
+  outline: 2px solid var(--ijp-signal);
+  outline-offset: 2px;
+  box-shadow: none;
+}
+
+/* Destructive controls get the ring in their own colour, so the warning is
+   consistent whether you arrived by mouse or by keyboard. */
+.ijp-history-delete:focus-visible,
+.dropdown-item.text-danger:focus-visible {
+  outline-color: var(--ijp-rejected);
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--ijp-signal);
+  box-shadow: 0 0 0 3px var(--ijp-signal-soft);
+}
+
+/* --- consistent hover and active across secondary controls --------------- */
+.ijp-tab,
+.ijp-icon-btn,
+.ijp-sidebar-toggle,
+.ijp-usermenu,
+.ijp-history-delete,
+.ijp-field-action {
+  transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
+}
+
+/* A pressed control should visibly give, so a tap on a phone - where there is
+   no hover to confirm the target - still feels like it registered. */
+.btn:active,
+.ijp-tab:active,
+.ijp-icon-btn:active,
+.ijp-sidebar-toggle:active,
+.ijp-chip:active {
+  transform: translateY(1px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn:active,
+  .ijp-tab:active,
+  .ijp-icon-btn:active,
+  .ijp-sidebar-toggle:active,
+  .ijp-chip:active {
+    transform: none;
+  }
+}
+
+
+/* ===========================================================================
+   CUSTOM SELECT
+   A native <select> popup is drawn by the operating system and ignores CSS -
+   no radius, no padding, no dividers between groups. This is our own listbox,
+   so it gets the same surface as every other panel in the app.
+   =========================================================================== */
+.ijp-select {
+  position: relative;
+  min-width: 0;
+}
+
+.ijp-select-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  min-height: 2.4rem;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.9rem;
+  text-align: left;
+  color: var(--ijp-ink);
+  background-color: var(--ijp-surface);
+  border: 1px solid var(--ijp-border-strong);
+  border-radius: var(--ijp-radius-sm);
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.ijp-select-trigger:hover:not(:disabled) {
+  border-color: var(--ijp-signal);
+}
+
+.ijp-select-trigger--open {
+  border-color: var(--ijp-signal);
+  box-shadow: 0 0 0 3px var(--ijp-signal-soft);
+}
+
+.ijp-select-trigger:disabled {
+  opacity: 0.6;
+}
+
+.ijp-select-placeholder {
+  color: var(--ijp-ink-faint);
+}
+
+.ijp-select-caret {
+  flex: 0 0 auto;
+  font-size: 0.75rem;
+  color: var(--ijp-ink-faint);
+  transition: transform 200ms ease;
+}
+
+.ijp-select-trigger--open .ijp-select-caret {
+  transform: rotate(180deg);
+}
+
+.ijp-select-list {
+  position: absolute;
+  z-index: 1060;
+  top: calc(100% + 0.35rem);
+  left: 0;
+  right: 0;
+  max-height: 18rem;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0.35rem;
+  list-style: none;
+  background-color: var(--ijp-surface);
+  border: 1px solid var(--ijp-border);
+  border-radius: var(--ijp-radius);
+  box-shadow: var(--ijp-shadow);
+  animation: ijp-select-in 120ms ease-out;
+}
+
+.ijp-select-list ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+@keyframes ijp-select-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+/* The divider you asked for. Only between groups, never above the first -
+   a rule at the very top of a popup reads as a stray edge. */
+.ijp-select-group {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ijp-ink-faint);
+  margin: 0;
+  padding: 0.45rem 0.6rem 0.3rem;
+}
+
+.ijp-select-group--divided {
+  margin-top: 0.35rem;
+  padding-top: 0.65rem;
+  border-top: 1px solid var(--ijp-border);
+}
+
+.ijp-select-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.5rem 0.6rem;
+  border-radius: var(--ijp-radius-sm);
+  font-size: 0.9rem;
+  color: var(--ijp-ink);
+  cursor: pointer;
+}
+
+/* One highlight, driven by the keyboard index and mirrored on hover - so
+   arrowing and pointing cannot disagree about which row is current. */
+.ijp-select-option--active {
+  background-color: var(--ijp-surface-sunken);
+}
+
+.ijp-select-option--selected {
+  color: var(--ijp-signal);
+  font-weight: 600;
+}
+
+.ijp-select-option--selected.ijp-select-option--active {
+  background-color: var(--ijp-signal-soft);
+}
+
+
+/* --- scarce skills -------------------------------------------------------- */
+/* A grid, not a tall column. These are usually three to six short skill names,
+   and stacking them made a list far taller than the information in it. */
+.ijp-scarce-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  gap: 0.6rem;
+  margin-bottom: 1.25rem;
+}
+
+.ijp-scarce-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--ijp-border);
+  border-left: 3px solid var(--ijp-rejected);
+  border-radius: var(--ijp-radius-sm);
+  background-color: var(--ijp-surface-sunken);
+}
+
+.ijp-scarce-skill {
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+/* The number is the finding. "0 students" is the reason a vacancy is not
+   filling, so it carries the weight and the warning colour rather than
+   trailing after the skill name in grey. */
+.ijp-scarce-count {
+  font-family: var(--ijp-font-data);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--ijp-rejected);
+}
+
+/* --- suggested fixes ------------------------------------------------------ */
+.ijp-fix-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.25rem;
+  display: grid;
+  gap: 0.5rem;
+  counter-reset: fix;
+}
+
+.ijp-fix {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--ijp-border);
+  border-radius: var(--ijp-radius-sm);
+  background-color: var(--ijp-surface-sunken);
+}
+
+.ijp-fix-number {
+  flex: 0 0 1.5rem;
+  height: 1.5rem;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background-color: var(--ijp-signal-soft);
+  color: var(--ijp-signal);
+  font-family: var(--ijp-font-data);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.ijp-fix-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 0.87rem;
+  line-height: 1.5;
+}
+
+.ijp-fix-action {
+  flex: 0 0 auto;
+  align-self: center;
+}
+
+/* On a narrow card the button drops to its own row rather than squeezing the
+   text into a two-word column. */
+@container (max-width: 30rem) {
+  .ijp-fix {
+    flex-wrap: wrap;
+  }
+
+  .ijp-fix-action {
+    margin-left: 2.2rem;
+  }
+}
+
+
+/* --- callout banner ------------------------------------------------------- */
+/* Used for the summary line at the top of the learn and Today tabs. It was a
+   bare paragraph, which made the one sentence that frames everything below it
+   look like a caption. */
+.ijp-callout {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  padding: 0.9rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  border-radius: var(--ijp-radius);
+  border: 1px solid var(--ijp-signal);
+  background-color: var(--ijp-signal-soft);
+}
+
+.ijp-callout-icon {
+  flex: 0 0 auto;
+  margin-top: 0.15rem;
+  color: var(--ijp-signal);
+}
+
+.ijp-callout--warn {
+  border-color: var(--ijp-pending);
+  background-color: var(--ijp-pending-soft);
+}
+
+.ijp-callout--warn .ijp-callout-icon {
+  color: var(--ijp-pending);
+}
+
+/* --- two-column lists ----------------------------------------------------- */
+/* Short rows in one tall column waste the width these panels have. Both fall
+   back to a single column below their minimum. */
+.ijp-gap-grid,
+.ijp-queue-grid {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.25rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(19rem, 1fr));
+  gap: 0.6rem;
+}
+
+.ijp-queue-grid > li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.ijp-queue-action {
+  align-self: flex-start;
+}
+
+.ijp-gap-action:hover {
+  border-color: var(--ijp-signal);
+  background-color: var(--ijp-signal-soft);
+  color: var(--ijp-signal);
+}
+
+/* --- a skill badge you can press ------------------------------------------ */
+.ijp-pill-skill--action {
+  cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease, border-style 150ms ease;
+}
+
+.ijp-pill-skill--action:hover,
+.ijp-pill-skill--action:focus-visible {
+  border-style: solid;
+  background-color: var(--ijp-pending-soft);
+}
+
+/* --- theme button --------------------------------------------------------- */
+/* Square, like the other icon controls in the header, and without Bootstrap's
+   dropdown caret - the icon is the whole label. */
+.ijp-theme-btn::after {
+  display: none;
 }

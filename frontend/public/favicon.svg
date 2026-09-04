@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="InternshipJP">
+  <!--
+    The sidebar's mark: a white mortarboard on brand blue.
+
+    No prefers-color-scheme rule any more. The previous version inverted the
+    glyph to dark on a light-blue square for dark browser themes, which read as
+    a muddy blob at 16px - at favicon size there is not enough area for a
+    two-tone idea to survive. White on blue is legible on any tab strip.
+  -->
+  <rect width="64" height="64" rx="14" fill="#1668d6" />
+  <g fill="#ffffff">
+    <path d="M32 15 L56 25 L32 35 L8 25 Z" />
+    <path d="M19 31 L19 41 C19 45.7 24.8 49 32 49 C39.2 49 45 45.7 45 41 L45 31 L32 36.5 Z" />
+    <path d="M52.5 26.6 L54.5 26.6 L54.5 38 A1 1 0 0 1 52.5 38 Z" />
+  </g>
+</svg>

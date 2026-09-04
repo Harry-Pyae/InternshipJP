@@ -14,6 +14,7 @@ import AdminWorkloadPanel from "./AdminWorkloadPanel.jsx";
 import ThinkingIndicator from "./ThinkingIndicator.jsx";
 import RevealingText from "./RevealingText.jsx";
 import AnswerBlocks from "./AnswerBlocks.jsx";
+import Select from "../../components/shared/Select.jsx";
 import { timeAgo, exactTime } from "../../api/relativeTime.js";
 
 /**
@@ -179,11 +180,29 @@ export default function AiChatPage({ audience, initialTab = "chat" }) {
     );
   }
 
+  /** From a "to learn" badge on a match card. */
+  function askAboutMissingSkill(skill, match) {
+    askThis(
+      `"${match.title}" at ${match.companyName} asks for ${skill} and I do not have it yet. ` +
+        `How do I learn it, roughly how long will it take, and what small project would ` +
+        `prove it to that employer?`,
+    );
+  }
+
   /** From the matches tab: "why this score?" */
   function discussMatch(match) {
     askThis(
       `Tell me more about "${match.title}" at ${match.companyName}. ` +
         `My match score is ${match.matchScore}%. What should I improve before applying?`,
+    );
+  }
+
+  /** From one row of an admin queue. */
+  function askAboutQueueItem(queue, item) {
+    askThis(
+      `Under "${queue}": "${item.label}" (${item.detail}) has been waiting ` +
+        `${item.daysWaiting} days. Who is being held up by this, and what should ` +
+        `I do about it?`,
     );
   }
 
@@ -195,13 +214,20 @@ export default function AiChatPage({ audience, initialTab = "chat" }) {
     );
   }
 
-  /** From the company tab. */
-  function askAboutCompany() {
+  /**
+   * From the company tab. A specific suggested fix can be passed in, so
+   * "Ask AI" on one row asks about that row rather than repeating the same
+   * general question every time.
+   */
+  function askAboutCompany(recommendation) {
     setEmployerMode("company");
     setInternshipId("");
     askThis(
-      "Based on the review of our listings and pipeline, why are we not getting the " +
-        "applicants we want, and what should we change first?",
+      typeof recommendation === "string" && recommendation.trim()
+        ? `About this suggestion: "${recommendation}" - why does it matter, and ` +
+            `what exactly should I change?`
+        : "Based on the review of our listings and pipeline, why are we not getting the " +
+            "applicants we want, and what should we change first?",
     );
   }
 
@@ -401,9 +427,13 @@ export default function AiChatPage({ audience, initialTab = "chat" }) {
           ) : null}
 
           {tab === "learn" ? <SkillGapPanel onAsk={askAboutSkill} /> : null}
-          {tab === "matches" ? <RecommendationsPanel onDiscuss={discussMatch} /> : null}
+          {tab === "matches" ? (
+            <RecommendationsPanel onDiscuss={discussMatch} onLearnSkill={askAboutMissingSkill} />
+          ) : null}
           {tab === "company" ? <CompanyInsightPanel onAsk={askAboutCompany} /> : null}
-          {tab === "today" ? <AdminWorkloadPanel onAsk={askAboutWorkload} /> : null}
+          {tab === "today" ? (
+            <AdminWorkloadPanel onAsk={askAboutWorkload} onAskItem={askAboutQueueItem} />
+          ) : null}
           {tab === "history" ? (
             <HistoryTab
               conversations={conversations}
@@ -477,19 +507,14 @@ function ChatTab({
           </div>
 
           {employerMode === "candidates" ? (
-            <select
-              className="form-select form-select-sm w-auto flex-grow-1"
+            <Select
+              className="flex-grow-1"
               value={internshipId}
-              onChange={(event) => setInternshipId(event.target.value)}
-              aria-label="Which internship"
-            >
-              <option value="">Choose an internship...</option>
-              {internships.map((internship) => (
-                <option key={internship.id} value={internship.id}>
-                  {internship.title} ({internship.status.toLowerCase()})
-                </option>
-              ))}
-            </select>
+              onChange={setInternshipId}
+              groups={groupByStatus(internships)}
+              placeholder="Choose an internship..."
+              ariaLabel="Which internship"
+            />
           ) : null}
         </div>
       ) : null}
@@ -627,4 +652,40 @@ function HistoryTab({ conversations, conversationId, onOpen, onDelete }) {
       })}
     </ul>
   );
+}
+
+/**
+ * Splits vacancies into labelled groups for the picker.
+ *
+ * Open first, because that is what an employer almost always wants to discuss.
+ * A status the backend adds later still appears, under its own heading, rather
+ * than vanishing from the list.
+ */
+const STATUS_ORDER = ["OPEN", "DRAFT", "CLOSED", "FILLED"];
+
+function groupByStatus(internships) {
+  const buckets = new Map();
+  for (const internship of internships) {
+    const status = internship.status ?? "OTHER";
+    if (!buckets.has(status)) {
+      buckets.set(status, []);
+    }
+    buckets.get(status).push(internship);
+  }
+
+  return [...buckets.entries()]
+    .sort((a, b) => {
+      const ai = STATUS_ORDER.indexOf(a[0]);
+      const bi = STATUS_ORDER.indexOf(b[0]);
+      // Unknown statuses sort last rather than first.
+      return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
+    })
+    .map(([status, items]) => ({
+      status,
+      label: status.charAt(0) + status.slice(1).toLowerCase(),
+      items: items.map((internship) => ({
+        value: internship.id,
+        label: internship.title,
+      })),
+    }));
 }

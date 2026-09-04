@@ -7,10 +7,14 @@ import {
   watchSystemTheme,
 } from "../../config/theme.js";
 
+/*
+ * System first, because it is the sensible default and the one most people
+ * want - a theme that follows the machine they are already using.
+ */
 const OPTIONS = [
+  { value: "system", icon: "bi-laptop", label: "System", hint: "Follows your device" },
   { value: "light", icon: "bi-sun", label: "Light" },
   { value: "dark", icon: "bi-moon-stars", label: "Dark" },
-  { value: "system", icon: "bi-circle-half", label: "Match my device" },
 ];
 
 /**
@@ -41,20 +45,23 @@ export default function ThemeToggle() {
     storeTheme(value);
   }
 
-  const active = OPTIONS.find((option) => option.value === choice) ?? OPTIONS[2];
+  const active = OPTIONS.find((option) => option.value === choice) ?? OPTIONS[0];
   const showing = resolveTheme(choice);
 
   return (
     <div className="dropdown">
       <button
-        className="btn btn-sm btn-ijp-quiet dropdown-toggle"
+        className="ijp-icon-btn ijp-theme-btn"
         type="button"
         data-bs-toggle="dropdown"
         aria-expanded="false"
         aria-label={`Theme: ${active.label}. Change theme`}
       >
+        {/* Icon only. The word "Theme" beside a sun told you nothing the sun
+            did not, and the pair sat awkwardly next to the account control -
+            one labelled, one not. The icon already says which mode is on, and
+            aria-label carries the name for anyone who needs it. */}
         <i className={`bi ${active.icon}`} aria-hidden="true" />
-        <span className="d-none d-sm-inline ms-2">Theme</span>
       </button>
 
       <ul className="dropdown-menu dropdown-menu-end">
@@ -68,7 +75,14 @@ export default function ThemeToggle() {
               onClick={() => pick(option.value)}
             >
               <i className={`bi ${option.icon}`} aria-hidden="true" />
-              <span className="flex-grow-1 text-start">{option.label}</span>
+              <span className="flex-grow-1 text-start">
+                {option.label}
+                {option.hint ? (
+                  <span className="d-block ijp-muted" style={{ fontSize: "0.72rem" }}>
+                    {option.hint}
+                  </span>
+                ) : null}
+              </span>
               {option.value === choice ? (
                 <i className="bi bi-check2" aria-hidden="true" />
               ) : null}

@@ -17,7 +17,7 @@ import ErrorAlert from "../../components/shared/ErrorAlert.jsx";
  *
  * Owner: Member 1 (AI). Member 4 owns the admin screens that use it.
  */
-export default function AdminWorkloadPanel({ onAsk }) {
+export default function AdminWorkloadPanel({ onAsk, onAskItem }) {
   const [workload, setWorkload] = useState(null);
   const [error, setError] = useState(null);
 
@@ -41,9 +41,23 @@ export default function AdminWorkloadPanel({ onAsk }) {
     return <LoadingBlock label="Checking what is waiting for you..." />;
   }
 
+  // Amber only when something has actually crossed the overdue threshold. A
+  // banner that is permanently yellow stops being a signal.
+  const overdue = [
+    ...workload.oldestCertificates,
+    ...workload.oldestCompanies,
+    ...workload.stalledApplications,
+  ].some((item) => item.urgency === "bad");
+
   return (
     <div>
-      <p className="small mb-3">{workload.summary}</p>
+      <div className={`ijp-callout${overdue ? " ijp-callout--warn" : ""}`}>
+        <i
+          className={`bi ${overdue ? "bi-clock-history" : "bi-info-circle"} ijp-callout-icon`}
+          aria-hidden="true"
+        />
+        <p className="mb-0">{workload.summary}</p>
+      </div>
 
       <div className="row g-3 ijp-workload-stats">
         <Stat label="Certificates" value={workload.certificatesPending} />
@@ -54,16 +68,19 @@ export default function AdminWorkloadPanel({ onAsk }) {
 
       <Queue
         title="Certificates waiting longest"
+        onAskItem={onAskItem}
         items={workload.oldestCertificates}
         emptyText="Nothing waiting. The verification queue is clear."
       />
       <Queue
         title="Companies waiting for approval"
+        onAskItem={onAskItem}
         items={workload.oldestCompanies}
         emptyText="Nothing waiting. No company is blocked from publishing."
       />
       <Queue
         title="Applications no employer has opened"
+        onAskItem={onAskItem}
         items={workload.stalledApplications}
         emptyText="None. Employers are responding to applicants."
         note="You cannot decide these - only the employer can. Worth a reminder."
@@ -106,14 +123,14 @@ function Stat({ label, value }) {
   );
 }
 
-function Queue({ title, items, emptyText, note }) {
+function Queue({ title, items, emptyText, note, onAskItem }) {
   return (
     <div className="mb-4">
       <p className="ijp-label mb-2">{title}</p>
       {items.length === 0 ? (
         <p className="ijp-muted small mb-0">{emptyText}</p>
       ) : (
-        <ul className="list-unstyled d-grid gap-2 mb-0">
+        <ul className="ijp-queue-grid">
           {items.map((item) => (
             <li
               key={`${title}-${item.id}`}
@@ -130,6 +147,16 @@ function Queue({ title, items, emptyText, note }) {
                   {item.daysWaiting}d
                 </span>
               </div>
+              {onAskItem ? (
+                <button
+                  type="button"
+                  className="btn btn-sm btn-ijp-quiet ijp-queue-action"
+                  onClick={() => onAskItem(title, item)}
+                >
+                  <i className="bi bi-stars me-1" aria-hidden="true" />
+                  Ask AI
+                </button>
+              ) : null}
             </li>
           ))}
         </ul>

@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth, homeFor } from "../../config/authContext.jsx";
 import { ROLE_LABEL } from "../../config/navigation.js";
+import Avatar from "../shared/Avatar.jsx";
 
 /**
  * The account control in the top-right.
@@ -35,9 +36,7 @@ export default function UserMenu({ settingsPath }) {
         aria-expanded="false"
         aria-label="Account menu"
       >
-        <span className="ijp-avatar ijp-avatar--sm" aria-hidden="true">
-          {initials(user.fullName)}
-        </span>
+        <Avatar name={user.fullName} size="sm" />
         <span className="ijp-usermenu-text d-none d-md-flex">
           <span className="ijp-usermenu-name">{user.fullName}</span>
           <span className="ijp-usermenu-role">{ROLE_LABEL[user.role] ?? user.role}</span>
@@ -83,12 +82,4 @@ export default function UserMenu({ settingsPath }) {
       </ul>
     </div>
   );
-}
-
-function initials(name) {
-  if (!name) {
-    return "?";
-  }
-  const parts = name.trim().split(/\s+/);
-  return (parts[0][0] + (parts.length > 1 ? parts[parts.length - 1][0] : "")).toUpperCase();
 }

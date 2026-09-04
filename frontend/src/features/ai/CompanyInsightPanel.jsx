@@ -79,17 +79,16 @@ export default function CompanyInsightPanel({ onAsk }) {
       {insight.hardToFillSkills.length > 0 ? (
         <>
           <p className="small fw-semibold mb-1">Skills you require that students rarely have</p>
-          <ul className="ijp-scarce-list">
+          <div className="ijp-scarce-grid">
             {insight.hardToFillSkills.map((item) => (
-              <li key={item.skill}>
+              <div className="ijp-scarce-card" key={item.skill}>
                 <span className="ijp-scarce-skill">{item.skill}</span>
-                <span className="ijp-muted">
-                  only {item.studentsWithSkill} student
-                  {item.studentsWithSkill === 1 ? "" : "s"} on the platform list this
+                <span className="ijp-scarce-count">
+                  {item.studentsWithSkill} student{item.studentsWithSkill === 1 ? "" : "s"}
                 </span>
-              </li>
+              </div>
             ))}
-          </ul>
+          </div>
         </>
       ) : null}
 
@@ -119,10 +118,21 @@ export default function CompanyInsightPanel({ onAsk }) {
 
       {insight.recommendations.length > 0 ? (
         <>
-          <p className="small fw-semibold mb-1">Suggested fixes</p>
-          <ol className="small ps-3 mb-3">
-            {insight.recommendations.map((text) => (
-              <li key={text}>{text}</li>
+          <p className="small fw-semibold mb-2">Suggested fixes</p>
+          <ol className="ijp-fix-list">
+            {insight.recommendations.map((text, index) => (
+              <li className="ijp-fix" key={text}>
+                <span className="ijp-fix-number">{index + 1}</span>
+                <span className="ijp-fix-text">{text}</span>
+                <button
+                  type="button"
+                  className="btn btn-sm btn-ijp-quiet ijp-fix-action"
+                  onClick={() => onAsk(text)}
+                >
+                  <i className="bi bi-stars me-1" aria-hidden="true" />
+                  Ask AI
+                </button>
+              </li>
             ))}
           </ol>
         </>

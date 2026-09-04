@@ -56,7 +56,10 @@ export default function SkillGapPanel({ onAsk }) {
     <div>
       <h2 className="ijp-label mb-3">What to learn next</h2>
 
-      <p className="small mb-3">{gaps.summary}</p>
+      <div className="ijp-callout">
+        <i className="bi bi-lightbulb ijp-callout-icon" aria-hidden="true" />
+        <p className="mb-0">{gaps.summary}</p>
+      </div>
 
       <div className="d-flex justify-content-between align-items-center mb-1">
         <span className="small fw-semibold">Profile completeness</span>
@@ -92,7 +95,7 @@ export default function SkillGapPanel({ onAsk }) {
           <p className="small fw-semibold mb-2">
             Most requested skills you don&apos;t have yet
           </p>
-            <ul className="ijp-gap-list">
+            <ul className="ijp-gap-grid">
               {gaps.skillsToLearn.map((item) => (
                 <li key={item.skill} className="ijp-gap-row">
                   <span className="ijp-gap-text">
@@ -104,10 +107,11 @@ export default function SkillGapPanel({ onAsk }) {
                   </span>
                   <button
                     type="button"
-                    className="btn btn-sm btn-ijp-quiet flex-shrink-0"
+                    className="btn btn-sm btn-ijp-quiet ijp-gap-action flex-shrink-0"
                     onClick={() => onAsk(item)}
                   >
-                    How?
+                    Learn how
+                    <i className="bi bi-arrow-right ms-1" aria-hidden="true" />
                   </button>
                 </li>
               ))}

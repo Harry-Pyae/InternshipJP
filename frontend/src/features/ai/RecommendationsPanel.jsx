@@ -19,7 +19,7 @@ import EmptyState from "../../components/shared/EmptyState.jsx";
  *
  * Owner: Member 1.
  */
-export default function RecommendationsPanel({ onDiscuss }) {
+export default function RecommendationsPanel({ onDiscuss, onLearnSkill }) {
   const [matches, setMatches] = useState(null);
   const [error, setError] = useState(null);
 
@@ -71,7 +71,12 @@ export default function RecommendationsPanel({ onDiscuss }) {
       ) : (
         <ul className="ijp-match-grid">
           {matches.map((match) => (
-            <MatchRow key={match.internshipId} match={match} onDiscuss={onDiscuss} />
+            <MatchRow
+              key={match.internshipId}
+              match={match}
+              onDiscuss={onDiscuss}
+              onLearnSkill={onLearnSkill}
+            />
           ))}
         </ul>
       )}
@@ -84,7 +89,7 @@ export default function RecommendationsPanel({ onDiscuss }) {
   );
 }
 
-function MatchRow({ match, onDiscuss }) {
+function MatchRow({ match, onDiscuss, onLearnSkill }) {
   // Colour follows the number, and the number follows the data.
   const tone = match.matchScore >= 67 ? "ok" : match.matchScore >= 34 ? "warn" : "bad";
 
@@ -137,11 +142,20 @@ function MatchRow({ match, onDiscuss }) {
         <div className="ijp-match-skills">
           <span className="ijp-match-skills-label">To learn</span>
           <div className="ijp-pill-row">
+            {/* Clickable: the gap is the thing a student wants to act on, so
+                the badge naming it is the shortest path to asking about it.
+                A button, not a span, so it is reachable by keyboard. */}
             {match.missingSkills.map((skill) => (
-              <span className="ijp-pill-skill ijp-pill-skill--learn" key={skill}>
+              <button
+                type="button"
+                className="ijp-pill-skill ijp-pill-skill--learn ijp-pill-skill--action"
+                key={skill}
+                onClick={() => onLearnSkill(skill, match)}
+                title={`Ask how to learn ${skill}`}
+              >
                 <i className="bi bi-plus-lg" aria-hidden="true" />
                 {skill}
-              </span>
+              </button>
             ))}
           </div>
         </div>
