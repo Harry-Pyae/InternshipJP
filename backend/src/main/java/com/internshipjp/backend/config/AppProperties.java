@@ -147,6 +147,7 @@ public class AppProperties {
     public static class Ai {
         private String provider = "groq";
         private Groq groq = new Groq();
+        private Gemini gemini = new Gemini();
 
         public String getProvider() {
             return provider;
@@ -158,6 +159,14 @@ public class AppProperties {
 
         public Groq getGroq() {
             return groq;
+        }
+
+        public Gemini getGemini() {
+            return gemini;
+        }
+
+        public void setGemini(Gemini gemini) {
+            this.gemini = gemini;
         }
 
         public void setGroq(Groq groq) {
@@ -213,6 +222,64 @@ public class AppProperties {
             this.maxOutputTokens = maxOutputTokens;
         }
     }
+
+        public static class Gemini {
+        /** Never log this value and never send it to the browser. */
+        private String apiKey = "";
+        private String model = "llama-3.3-70b-versatile";
+        private String baseUrl = "https://api.groq.com/openai/v1";
+        private int timeoutSeconds = 30;
+        private int maxOutputTokens = 700;
+            private int thinkingBudget = 0;
+
+        public String getApiKey() {
+            return apiKey;
+        }
+
+        public void setApiKey(String apiKey) {
+            this.apiKey = apiKey;
+        }
+
+        public String getModel() {
+            return model;
+        }
+
+        public void setModel(String model) {
+            this.model = model;
+        }
+
+        public String getBaseUrl() {
+            return baseUrl;
+        }
+
+        public void setBaseUrl(String baseUrl) {
+            this.baseUrl = baseUrl;
+        }
+
+        public int getTimeoutSeconds() {
+            return timeoutSeconds;
+        }
+
+        public void setTimeoutSeconds(int timeoutSeconds) {
+            this.timeoutSeconds = timeoutSeconds;
+        }
+
+        public int getMaxOutputTokens() {
+            return maxOutputTokens;
+        }
+
+        public void setMaxOutputTokens(int maxOutputTokens) {
+            this.maxOutputTokens = maxOutputTokens;
+        }
+    
+            public int getThinkingBudget() {
+                return thinkingBudget;
+            }
+
+            public void setThinkingBudget(int thinkingBudget) {
+                this.thinkingBudget = thinkingBudget;
+            }
+        }
 
     public static class DemoData {
         /** Never true by default, and refused entirely under the prod profile. */

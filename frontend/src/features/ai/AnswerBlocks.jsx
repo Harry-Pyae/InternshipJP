@@ -19,11 +19,22 @@
  *   dangerouslySetInnerHTML anywhere here, so model output cannot inject
  *   markup no matter what it returns.
  */
+/**
+ * Myanmar script, U+1000 to U+109F.
+ *
+ * Burmese stacks diacritics above and below the baseline, so at the size and
+ * line-height that suit Latin text the marks collide and the small-caps
+ * headings become unreadable. Detecting the script lets the CSS give it the
+ * room it needs, rather than forcing one set of measurements onto both.
+ */
+const MYANMAR = /[\u1000-\u109F]/;
+
 export default function AnswerBlocks({ text, typing = false }) {
   const blocks = parse(text ?? "");
+  const burmese = MYANMAR.test(text ?? "");
 
   return (
-    <div className="ijp-answer">
+    <div className={`ijp-answer${burmese ? " ijp-answer--mm" : ""}`}>
       {blocks.map((block, index) => {
         if (block.type === "heading") {
           return (
@@ -36,7 +47,11 @@ export default function AnswerBlocks({ text, typing = false }) {
           return (
             <ol className="ijp-answer-list" key={index}>
               {block.items.map((item, i) => (
-                <li key={i}>{inline(item)}</li>
+                // value= keeps the model's numbering across a list that was
+                // interrupted, instead of silently restarting at 1.
+                <li key={i} value={item.number}>
+                  {inline(item.text)}
+                </li>
               ))}
             </ol>
           );
@@ -108,7 +123,19 @@ function parse(text) {
         flushList();
         list = { type: "ordered", items: [] };
       }
-      list.items.push(ordered[2]);
+      // Keep the number the model wrote. A list interrupted by a bullet or a
+      // heading starts a NEW <ol>, and a fresh <ol> restarts at 1 - which is
+      // why three separate steps all rendered as "1.".
+      list.items.push({ number: Number(ordered[1]), text: ordered[2] });
+      continue;
+    }
+
+    // A line of only dashes or underscores is a divider the model drew to
+    // separate sections. We already separate sections with a rule, so it is
+    // noise - and rendered literally it looks like a mistake.
+    if (/^([-_*]\s*){3,}$/.test(line)) {
+      flushParagraph();
+      flushList();
       continue;
     }
 
@@ -126,7 +153,12 @@ function parse(text) {
     // A plain line directly under a list item is a continuation of it -
     // wrapped text, not a new paragraph.
     if (list) {
-      list.items[list.items.length - 1] += " " + line;
+      const last = list.items[list.items.length - 1];
+      if (typeof last === "string") {
+        list.items[list.items.length - 1] = last + " " + line;
+      } else {
+        last.text += " " + line;
+      }
       continue;
     }
 
@@ -140,10 +172,15 @@ function parse(text) {
 
 /** Inline **bold** and `code`, as React nodes. */
 function inline(text) {
-  const parts = String(text).split(/(\*\*[^*]+\*\*|`[^`]+`)/g);
+  // Bold before italic: **x** must be matched first or the single-asterisk
+  // pattern eats its markers and leaves a stray one behind.
+  const parts = String(text).split(/(\*\*[^*]+\*\*|\*[^*\n]+\*|`[^`]+`)/g);
   return parts.map((part, index) => {
     if (part.startsWith("**") && part.endsWith("**") && part.length > 4) {
       return <strong key={index}>{part.slice(2, -2)}</strong>;
+    }
+    if (part.startsWith("*") && part.endsWith("*") && part.length > 2) {
+      return <em key={index}>{part.slice(1, -1)}</em>;
     }
     if (part.startsWith("`") && part.endsWith("`") && part.length > 2) {
       return (

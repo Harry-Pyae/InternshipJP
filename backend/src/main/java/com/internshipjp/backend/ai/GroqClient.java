@@ -8,6 +8,7 @@ import com.internshipjp.backend.config.AppProperties;
 import com.internshipjp.backend.exception.ProviderUnavailableException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -31,7 +32,13 @@ import java.util.List;
  *   - Every failure is converted into ProviderUnavailableException so callers
  *     can degrade gracefully instead of returning a 500.
  */
+/*
+ * Registered only when app.ai.provider is groq - matchIfMissing keeps it the
+ * default. Exactly one AiProviderClient bean exists at a time, so nothing
+ * above this class ever has to choose between two.
+ */
 @Component
+@ConditionalOnProperty(name = "app.ai.provider", havingValue = "groq", matchIfMissing = true)
 public class GroqClient implements AiProviderClient {
 
     private static final Logger log = LoggerFactory.getLogger(GroqClient.class);

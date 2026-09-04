@@ -275,12 +275,12 @@ function DatabaseCard({ check }) {
 
 function AiCard({ check }) {
   if (check.state === "loading") {
-    return <StatusCard label="Groq AI" icon="bi-stars" loading />;
+    return <StatusCard label="AI provider" icon="bi-stars" loading />;
   }
   if (check.state === "skipped") {
     return (
       <StatusCard
-        label="Groq AI"
+        label="AI provider"
         icon="bi-stars"
         value="Not checked"
         detail="The backend could not be reached, so this was never tested."
@@ -290,7 +290,7 @@ function AiCard({ check }) {
   if (check.state === "error") {
     return (
       <StatusCard
-        label="Groq AI"
+        label="AI provider"
         icon="bi-stars"
         tone="bad"
         value="Check failed"
@@ -306,11 +306,11 @@ function AiCard({ check }) {
   if (!configured) {
     return (
       <StatusCard
-        label="Groq AI"
+        label="AI provider"
         icon="bi-stars"
         tone="warn"
         value="API key not configured"
-        detail="Set GROQ_API_KEY in backend/application-local.properties. The calculated reports work without it."
+        detail="Set the key for the selected provider in backend/application-local.properties. The calculated reports work without it."
         rows={[{ label: "Provider", value: provider }]}
       />
     );
@@ -318,7 +318,7 @@ function AiCard({ check }) {
   if (!reachable) {
     return (
       <StatusCard
-        label="Groq AI"
+        label="AI provider"
         icon="bi-stars"
         tone="bad"
         value="Configured but unreachable"
@@ -329,7 +329,7 @@ function AiCard({ check }) {
   }
   return (
     <StatusCard
-      label="Groq AI"
+      label="AI provider"
       icon="bi-stars"
       tone="ok"
       value="Connected"

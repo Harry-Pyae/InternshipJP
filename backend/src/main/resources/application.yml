@@ -107,7 +107,16 @@ app:
     resend-cooldown-seconds: 60
 
   ai:
-    provider: groq
+    # Which provider answers. One of: groq, gemini.
+    #
+    # Both implement AiProviderClient, so AiService, the prompts and the whole
+    # frontend are identical either way - only this line changes.
+    #
+    # On a machine in Myanmar the two are mutually exclusive: Groq is blocked
+    # once a VPN is on, Gemini is blocked without one. So this is a single
+    # choice, not a fallback chain. Deployed outside Myanmar, either works
+    # with no VPN at all.
+    provider: ${AI_PROVIDER:groq}
     groq:
       api-key: ${GROQ_API_KEY:}
       # Groq retires models regularly - llama-3.3-70b-versatile was
@@ -119,6 +128,32 @@ app:
       base-url: ${GROQ_BASE_URL:https://api.groq.com/openai/v1}
       timeout-seconds: 30
       max-output-tokens: 700
+    gemini:
+      api-key: ${GEMINI_API_KEY:}
+      # Google retires models too. Ask your own key what it can use:
+      #   https://generativelanguage.googleapis.com/v1beta/models?key=YOUR_KEY
+      model: ${GEMINI_MODEL:gemini-3.6-flash}
+      base-url: ${GEMINI_BASE_URL:https://generativelanguage.googleapis.com/v1beta}
+      timeout-seconds: 45
+      # Far higher than Groq's 700, for two reasons that compound:
+      #
+      # 1. BURMESE COSTS MORE TOKENS. Tokenizers are trained mostly on Latin
+      #    script; Burmese syllables often take several tokens each. The same
+      #    answer can cost three to five times what it costs in English, so a
+      #    budget that is generous in English truncates Burmese mid-sentence.
+      #
+      # 2. GEMINI 2.5+ MODELS THINK FIRST, and those thinking tokens are
+      #    charged against this same budget. With 700 the model could spend
+      #    most of it reasoning and have almost nothing left to say.
+      max-output-tokens: ${GEMINI_MAX_OUTPUT_TOKENS:3000}
+      # -1 (the default) does not send the field at all, which is the only
+      # setting every model accepts. gemini-3.6-flash rejects the whole
+      # request with HTTP 400 if it is present.
+      #
+      # 0 asks the model not to reason before answering, leaving the whole
+      # token budget for the reply. Try it if answers come back truncated;
+      # if the model refuses, the client drops the field and retries once.
+      thinking-budget: ${GEMINI_THINKING_BUDGET:-1}
 
   demo-data:
     # Sample students, employers, vacancies and applications for testing the

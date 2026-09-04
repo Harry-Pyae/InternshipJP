@@ -2583,3 +2583,39 @@ h4 {
 .ijp-theme-btn::after {
   display: none;
 }
+
+
+/* --- Burmese answers ------------------------------------------------------
+   Burmese stacks diacritics above and below the baseline, so measurements
+   tuned for Latin text crowd them. Two specific problems this fixes:
+
+   1. The section headings were 0.75rem SMALL CAPS. text-transform does
+      nothing to Burmese, so all it left was tiny text - smaller than the body
+      it was meant to introduce, which is what made the headings look wrong.
+   2. A 1.65 line-height that is comfortable in English is tight in Burmese
+      once the stacked marks are drawn.
+
+   Applied only when Myanmar characters are present, so English is untouched. */
+.ijp-answer--mm {
+  font-size: 1.06rem;
+  line-height: 1.95;
+}
+
+.ijp-answer--mm .ijp-answer-heading {
+  /* Bigger than the body it introduces, and no uppercase or letter-spacing -
+     neither does anything useful to Burmese, and letter-spacing actively
+     separates marks from the letters they belong to. */
+  font-size: 1.1rem;
+  letter-spacing: normal;
+  text-transform: none;
+  line-height: 1.7;
+}
+
+.ijp-answer--mm .ijp-answer-text,
+.ijp-answer--mm .ijp-answer-list {
+  line-height: 1.95;
+}
+
+.ijp-answer--mm .ijp-answer-list {
+  gap: 0.7rem;
+}

@@ -37,7 +37,7 @@ public class AiPromptService {
             + "person would have to add.\n"
             + "- You advise. You never decide. You cannot accept or reject anyone, change any "
             + "status, or promise an outcome.\n"
-            + "- Be specific and short. Prefer a numbered list of actions over paragraphs of "
+            + "- Be specific. Prefer a numbered list of actions over paragraphs of "
             + "encouragement.\n"
             + "- Write in the same language the person writes to you in.\n";
 
@@ -138,29 +138,33 @@ public class AiPromptService {
      *
      * Its job is triage: what is waiting, what has waited too long, and what
      * order to work through it in.
+     *
+     * KEPT DELIBERATELY SHORT
+     *   The first version asked for four labelled sections - triage,
+     *   consequence, patterns, plan. The model obliged, and the answer to
+     *   "what should I do first" arrived as a page of headings with horizontal
+     *   rules between them. An admin opening a queue at the start of the day
+     *   wants the order of work, not an essay about it.
      */
     public String adminPrompt() {
         return "You are helping an administrator of InternshipJP decide what to work on "
                 + "today. The context contains their real review queues with how long each "
                 + "item has been waiting.\n\n"
-                + "What you are for:\n"
-                + "1. TRIAGE - say what to do first and why, using the waiting times. Oldest "
-                + "is usually first, but say so explicitly rather than just listing things.\n"
-                + "2. CONSEQUENCE - explain who is blocked by each delay. A certificate "
-                + "pending eleven days means a student has been unable to show that "
-                + "qualification to any employer for eleven days. Make the cost concrete.\n"
-                + "3. PATTERNS - if the same employer keeps leaving applicants unopened, or "
-                + "the queue is growing rather than shrinking, point it out.\n"
-                + "4. A SHORT PLAN - end with an ordered list of what to do in this session.\n\n"
-                + "What you must not do:\n"
-                + "- Never tell them how to decide a case. You do not know whether a "
-                + "certificate is genuine or a company is legitimate; you only know how long "
-                + "it has been waiting. Recommend reviewing it, never approving or rejecting it.\n"
+                + "Answer in this shape and nothing more:\n"
+                + "- one sentence saying what is most urgent and why\n"
+                + "- then a numbered list, in the order they should be done. For each: what "
+                + "to review, how long it has waited, and one short clause naming who is "
+                + "blocked by the delay.\n\n"
+                + "Rules:\n"
+                + "- No section headings, no horizontal rules, no restating the question.\n"
+                + "- Oldest usually goes first, but say so rather than only listing.\n"
+                + "- Never advise HOW to decide a case. You know how long something has "
+                + "waited, not whether a certificate is genuine or a company legitimate. "
+                + "Recommend reviewing, never approving or rejecting.\n"
                 + "- Stalled applications are not the administrator's to decide. Only the "
-                + "employer can move those. Suggest a reminder, never a decision.\n"
-                + "- Do not speculate about a student or a company beyond what the context "
-                + "says. You can see titles and waiting times, not evidence.\n"
-                + "- If the queues are empty, say so plainly and stop. Do not invent work.\n"
+                + "employer can move those, so suggest a reminder, never a decision.\n"
+                + "- Do not speculate about a student or a company beyond the context.\n"
+                + "- If the queues are empty, say so in one line and stop. Do not invent work.\n"
                 + SHARED_RULES;
     }
 
