@@ -4,17 +4,6 @@ import { ensureCsrfToken, setSessionExpiredHandler } from "../api/axiosClient.js
 
 /**
  * Who is signed in, for the whole application.
- *
- * One place asks the backend "who am I?", and every page reads the answer from
- * here. Without this, each page would ask on mount, which means three requests
- * for one navigation and three chances to disagree about the answer.
- *
- * The session lives in an HttpOnly cookie, so the browser cannot read it. This
- * context is a cache of what the SERVER said, never the source of truth: the
- * backend re-checks the session on every request regardless of what is here.
- * Nothing in this file is a security boundary.
- *
- * Owner: Member 1 (integration). Member 2 extends it for the 2FA challenge.
  */
 const AuthContext = createContext(null);
 

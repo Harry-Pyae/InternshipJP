@@ -1,11 +1,5 @@
 /**
  * One connection or one lifecycle state, shown with the state rail.
- *
- * The tone always comes from a measured result, never from an assumption:
- *   ok      the call succeeded
- *   warn    it succeeded but the feature is not configured
- *   bad     it failed
- *   unknown not checked yet
  */
 export default function StatusCard({
   label,

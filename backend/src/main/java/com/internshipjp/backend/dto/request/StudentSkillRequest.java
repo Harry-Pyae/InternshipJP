@@ -19,8 +19,7 @@ public class StudentSkillRequest {
     @Pattern(regexp = "PROGRAMMING_LANGUAGE|TECHNICAL|SOFT|SPOKEN_LANGUAGE", message = "skillType must be PROGRAMMING_LANGUAGE, TECHNICAL, SOFT or SPOKEN_LANGUAGE")
     private String skillType;
 
-    @Pattern(regexp = "BEGINNER|INTERMEDIATE|ADVANCED", message = "proficiency must be BEGINNER, INTERMEDIATE or ADVANCED")
-    private String proficiency;
+    
 
     public String getName() {
         return name;
@@ -36,13 +35,5 @@ public class StudentSkillRequest {
 
     public void setSkillType(String skillType) {
         this.skillType = skillType;
-    }
-
-    public String getProficiency() {
-        return proficiency;
-    }
-
-    public void setProficiency(String proficiency) {
-        this.proficiency = proficiency;
     }
 }

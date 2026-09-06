@@ -1,3 +1,5 @@
+import { useLanguage } from "../../config/languageContext.jsx";
+
 /**
  * Turns any status string in this product into a consistent coloured badge.
  *
@@ -34,6 +36,7 @@ const TONES = {
 };
 
 export default function StatusBadge({ value }) {
+  const { t } = useLanguage();
   if (!value) {
     return null;
   }
@@ -42,7 +45,7 @@ export default function StatusBadge({ value }) {
 
   return (
     <span className={`ijp-badge ijp-badge--${tone}`}>
-      {label.charAt(0).toUpperCase() + label.slice(1)}
+      {t(label.charAt(0).toUpperCase() + label.slice(1))}
     </span>
   );
 }

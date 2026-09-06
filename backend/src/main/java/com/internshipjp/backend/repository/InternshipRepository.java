@@ -42,4 +42,21 @@ public interface InternshipRepository extends JpaRepository<Internship, Long> {
                                 @Param("keyword") String keyword,
                                 Pageable pageable);
 
+         /** Admin search: one status, plus a keyword across title/company/location. */
+         
+    @Query("SELECT i FROM Internship i WHERE i.status = :status AND ("
+            + "LOWER(i.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR "
+            + "LOWER(i.company.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR "
+            + "LOWER(i.location) LIKE LOWER(CONCAT('%', :keyword, '%')))")
+    Page<Internship> findByStatusAndKeyword(@Param("status") InternshipStatus status,
+                                            @Param("keyword") String keyword,
+                                            Pageable pageable);
+
+    /** Admin search: keyword across title/company/location, any status. */
+    @Query("SELECT i FROM Internship i WHERE "
+            + "LOWER(i.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR "
+            + "LOWER(i.company.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR "
+            + "LOWER(i.location) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+    Page<Internship> searchAll(@Param("keyword") String keyword, Pageable pageable);
+
 }

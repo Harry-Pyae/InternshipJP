@@ -68,8 +68,20 @@ public class AdminWorkloadService {
         this.userRepository = userRepository;
     }
 
-    @Transactional(readOnly = true)
     public AdminWorkloadResponse analyse() {
+        return analyse("en");
+    }
+
+    /**
+     * @param language "my" for Burmese, anything else for English.
+     *
+     * These sentences are templates with numbers slotted in, not user text,
+     * so they can be written twice. The AI context path keeps English on
+     * purpose: the model reasons better in it, and its own answer is
+     * translated separately by the instruction in AiService.
+     */
+    @Transactional(readOnly = true)
+    public AdminWorkloadResponse analyse(String language) {
         LocalDateTime now = LocalDateTime.now();
         AdminWorkloadResponse response = new AdminWorkloadResponse();
         response.setGeneratedAt(now.toString());
@@ -109,8 +121,12 @@ public class AdminWorkloadService {
                     company.getId(),
                     company.getName(),
                     company.getRegistrationNumber() == null
-                            ? "No registration number given"
-                            : "Registration " + company.getRegistrationNumber(),
+                            ? (isBurmese(language)
+                                    ? "မှတ်ပုံတင်အမှတ် မပေးထားပါ"
+                                    : "No registration number given")
+                            : (isBurmese(language)
+                                    ? "မှတ်ပုံတင်အမှတ် " + company.getRegistrationNumber()
+                                    : "Registration " + company.getRegistrationNumber()),
                     days, urgency(days)));
         }
         response.setOldestCompanies(companyItems);
@@ -130,8 +146,11 @@ public class AdminWorkloadService {
             stalled.add(new AdminWorkloadResponse.WorkItem(
                     application.getId(),
                     application.getInternship().getTitle(),
-                    application.getInternship().getCompany().getName()
-                            + " has not opened this application",
+                    isBurmese(language)
+                            ? application.getInternship().getCompany().getName()
+                                    + " သည် ဤလျှောက်လွှာကို မဖွင့်ရသေးပါ"
+                            : application.getInternship().getCompany().getName()
+                                    + " has not opened this application",
                     days, urgency(days)));
             if (stalled.size() >= MAX_ITEMS) {
                 break;
@@ -144,8 +163,8 @@ public class AdminWorkloadService {
         response.setTotalEmployers(userRepository.countByRole(Role.EMPLOYER));
         response.setSuspendedAccounts(userRepository.countByAccountStatus(AccountStatus.SUSPENDED));
 
-        response.setPriorities(buildPriorities(response));
-        response.setSummary(buildSummary(response));
+        response.setPriorities(buildPriorities(response, language));
+        response.setSummary(buildSummary(response, language));
         return response;
     }
 
@@ -198,6 +217,11 @@ public class AdminWorkloadService {
         }
     }
 
+    /** Whether the caller asked for Burmese. */
+    private boolean isBurmese(String language) {
+        return "my".equalsIgnoreCase(language);
+    }
+
     private int daysSince(LocalDateTime moment, LocalDateTime now) {
         if (moment == null) {
             return 0;
@@ -215,40 +239,65 @@ public class AdminWorkloadService {
         return "ok";
     }
 
-    private List<String> buildPriorities(AdminWorkloadResponse workload) {
+    private List<String> buildPriorities(AdminWorkloadResponse workload, String language) {
+        boolean my = "my".equalsIgnoreCase(language);
         List<String> priorities = new ArrayList<>();
 
         int oldestCertificate = oldestAge(workload.getOldestCertificates());
         int oldestCompany = oldestAge(workload.getOldestCompanies());
 
         if (oldestCertificate >= URGENT_AFTER_DAYS) {
-            priorities.add("A certificate has been waiting " + oldestCertificate
-                    + " days. Until it is reviewed, that student cannot show the qualification "
-                    + "to any employer. Start here.");
+            priorities.add(my
+                    ? "လက်မှတ်တစ်ခု " + oldestCertificate + " ရက် စောင့်ဆိုင်းနေပါပြီ။ "
+                            + "မစိစစ်မချင်း ထိုကျောင်းသားသည် အရည်အချင်းကို မည်သည့်အလုပ်ရှင်ကိုမျှ "
+                            + "ပြသနိုင်မည် မဟုတ်ပါ။ ဤနေရာမှ စတင်ပါ။"
+                    : "A certificate has been waiting " + oldestCertificate
+                            + " days. Until it is reviewed, that student cannot show the "
+                            + "qualification to any employer. Start here.");
         } else if (workload.getCertificatesPending() > 0) {
-            priorities.add("Review the " + workload.getCertificatesPending()
-                    + " pending certificate(s). Verifying one is what makes it visible to "
-                    + "employers - nothing else in the system can.");
+            priorities.add(my
+                    ? "စောင့်ဆိုင်းနေသော လက်မှတ် " + workload.getCertificatesPending()
+                            + " ခုကို စိစစ်ပါ။ စိစစ်ခြင်းသည်သာ ၎င်းကို အလုပ်ရှင်များ "
+                            + "မြင်နိုင်စေပါသည်။"
+                    : "Review the " + workload.getCertificatesPending()
+                            + " pending certificate(s). Verifying one is what makes it visible "
+                            + "to employers - nothing else in the system can.");
         }
 
         if (oldestCompany >= URGENT_AFTER_DAYS) {
-            priorities.add("A company has been waiting " + oldestCompany
-                    + " days for approval. Its recruiters cannot publish anything until then, "
-                    + "so no student is seeing their vacancies.");
+            priorities.add(my
+                    ? "ကုမ္ပဏီတစ်ခု အတည်ပြုချက်အတွက် " + oldestCompany + " ရက် စောင့်ဆိုင်းနေပါပြီ။ "
+                            + "ထိုအချိန်အထိ ၎င်းတို့၏ အလုပ်ခေါ်ယူသူများ မည်သည့်နေရာမျှ "
+                            + "ကြေညာနိုင်မည် မဟုတ်သဖြင့် ကျောင်းသားများ မမြင်ရပါ။"
+                    : "A company has been waiting " + oldestCompany
+                            + " days for approval. Its recruiters cannot publish anything until "
+                            + "then, so no student is seeing their vacancies.");
         } else if (workload.getCompaniesPending() > 0) {
-            priorities.add("Approve or reject the " + workload.getCompaniesPending()
-                    + " pending company registration(s).");
+            priorities.add(my
+                    ? "စောင့်ဆိုင်းနေသော ကုမ္ပဏီ မှတ်ပုံတင်မှု " + workload.getCompaniesPending()
+                            + " ခုကို အတည်ပြုရန် သို့မဟုတ် ငြင်းပယ်ရန် လိုအပ်ပါသည်။"
+                    : "Approve or reject the " + workload.getCompaniesPending()
+                            + " pending company registration(s).");
         }
 
         if (workload.getApplicationsStalled() > 0) {
-            priorities.add(workload.getApplicationsStalled()
-                    + " application(s) have sat unopened for over " + STALLED_APPLICATION_DAYS
-                    + " days. You cannot decide these, but the employers can be reminded.");
+            priorities.add(my
+                    ? "လျှောက်လွှာ " + workload.getApplicationsStalled() + " ခုသည် "
+                            + STALLED_APPLICATION_DAYS + " ရက်ကျော် မဖွင့်ဘဲ ကျန်ရှိနေပါသည်။ "
+                            + "၎င်းတို့ကို သင် ဆုံးဖြတ်၍ မရသော်လည်း အလုပ်ရှင်များကို "
+                            + "သတိပေးနိုင်ပါသည်။"
+                    : workload.getApplicationsStalled()
+                            + " application(s) have sat unopened for over "
+                            + STALLED_APPLICATION_DAYS
+                            + " days. You cannot decide these, but the employers can be reminded.");
         }
 
         if (priorities.isEmpty()) {
-            priorities.add("Nothing is waiting. Both queues are clear and employers are "
-                    + "responding to applicants.");
+            priorities.add(my
+                    ? "စောင့်ဆိုင်းနေသည် မရှိပါ။ စာရင်းနှစ်ခုစလုံး ရှင်းလင်းပြီး အလုပ်ရှင်များကလည်း "
+                            + "လျှောက်ထားသူများကို တုံ့ပြန်နေပါသည်။"
+                    : "Nothing is waiting. Both queues are clear and employers are "
+                            + "responding to applicants.");
         }
         return priorities;
     }
@@ -257,25 +306,44 @@ public class AdminWorkloadService {
         return items.isEmpty() ? 0 : items.get(0).getDaysWaiting();
     }
 
-    private String buildSummary(AdminWorkloadResponse workload) {
+    private String buildSummary(AdminWorkloadResponse workload, String language) {
+        boolean my = "my".equalsIgnoreCase(language);
         long waiting = workload.getCertificatesPending() + workload.getCompaniesPending();
         if (waiting == 0 && workload.getApplicationsStalled() == 0) {
-            return "Nothing needs your decision today. Both review queues are empty and no "
-                    + "applicant has been left waiting.";
+            return my
+                    ? "ယနေ့ သင့်ဆုံးဖြတ်ချက် လိုအပ်သည် မရှိပါ။ စိစစ်ရန် စာရင်းနှစ်ခုစလုံး "
+                            + "ဗလာဖြစ်ပြီး စောင့်ဆိုင်းနေရသော လျှောက်ထားသူလည်း မရှိပါ။"
+                    : "Nothing needs your decision today. Both review queues are empty and no "
+                            + "applicant has been left waiting.";
         }
         StringBuilder summary = new StringBuilder();
-        summary.append(waiting).append(" item(s) are waiting for you: ")
-                .append(workload.getCertificatesPending()).append(" certificate(s) and ")
-                .append(workload.getCompaniesPending()).append(" company registration(s). ");
+        if (my) {
+            summary.append("သင့်အတွက် စောင့်ဆိုင်းနေသည် ").append(waiting).append(" ခု ရှိပါသည်— ")
+                    .append("လက်မှတ် ").append(workload.getCertificatesPending()).append(" ခုနှင့် ")
+                    .append("ကုမ္ပဏီ မှတ်ပုံတင်မှု ").append(workload.getCompaniesPending())
+                    .append(" ခု။ ");
+        } else {
+            summary.append(waiting).append(" item(s) are waiting for you: ")
+                    .append(workload.getCertificatesPending()).append(" certificate(s) and ")
+                    .append(workload.getCompaniesPending()).append(" company registration(s). ");
+        }
         int oldest = Math.max(oldestAge(workload.getOldestCertificates()),
                 oldestAge(workload.getOldestCompanies()));
         if (oldest >= URGENT_AFTER_DAYS) {
-            summary.append("The oldest has been waiting ").append(oldest)
-                    .append(" days, which is past the point where it is holding someone up. ");
+            summary.append(my
+                    ? "အကြာဆုံးမှာ " + oldest + " ရက် စောင့်ဆိုင်းနေပြီး တစ်စုံတစ်ဦးကို "
+                            + "ထိခိုက်စေသည့် အဆင့်သို့ ရောက်နေပါပြီ။ "
+                    : "The oldest has been waiting " + oldest
+                            + " days, which is past the point where it is holding someone up. ");
         }
         if (workload.getApplicationsStalled() > 0) {
-            summary.append(workload.getApplicationsStalled())
-                    .append(" applicant(s) are still waiting on an employer to open their application.");
+            summary.append(my
+                    ? "လျှောက်ထားသူ " + workload.getApplicationsStalled()
+                            + " ဦးမှာ အလုပ်ရှင်က ၎င်းတို့၏ လျှောက်လွှာကို ဖွင့်ရန် "
+                            + "စောင့်ဆိုင်းနေဆဲ ဖြစ်ပါသည်။"
+                    : workload.getApplicationsStalled()
+                            + " applicant(s) are still waiting on an employer to open their "
+                            + "application.");
         }
         return summary.toString().trim();
     }

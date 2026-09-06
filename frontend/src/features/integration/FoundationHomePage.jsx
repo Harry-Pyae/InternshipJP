@@ -5,17 +5,6 @@ import { appConfig } from "../../config/appConfig.js";
 
 /**
  * Landing page for the shared foundation.
- *
- * Its one job: someone who just cloned this repository should see, without
- * clicking anything, whether the system is actually running and what is theirs
- * to build.
- *
- * The hero is a live system strip rather than a marketing headline, because
- * this is an integration foundation - the most characteristic thing about it
- * is whether the three connections are up. Those pills are real API calls. If
- * the backend is down, the page says so instead of looking healthy.
- *
- * Owner: Member 1. Whoever designs the public product site can replace this.
  */
 export default function FoundationHomePage() {
   const [system, setSystem] = useState({ backend: null, database: null, ai: null });

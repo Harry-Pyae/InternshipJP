@@ -5,27 +5,6 @@ import ErrorAlert from "../../components/shared/ErrorAlert.jsx";
 
 /**
  * Developer session tool - Member 1 (integration).
- *
- * WHY THIS EXISTS
- *   The AI pages, the account endpoints and every protected route need a
- *   signed-in user. The real login screen belongs to Member 2 and does not
- *   exist yet, which left the rest of us unable to exercise our own work
- *   without pasting fetch() calls into the browser console. This panel closes
- *   that gap so integration testing can happen today.
- *
- * WHAT IT IS NOT
- *   It is not the product login screen and must not become one. There is no
- *   branding, no 2FA challenge, no password reset, no "remember me" and no
- *   validation beyond what the backend returns. Member 2 builds the real thing
- *   under /auth/login.
- *
- * WHY IT CANNOT REACH PRODUCTION
- *   The whole component is wrapped in import.meta.env.DEV, which Vite compiles
- *   to false for `npm run build`. In a production bundle this code is removed
- *   entirely - it is not merely hidden.
- *
- * TODO MEMBER_2: delete this file once /auth/login works, and remove its use
- * from IntegrationStatusPage.
  */
 export default function DevSessionPanel() {
   // Vite replaces this with a literal at build time, so the bundler drops the

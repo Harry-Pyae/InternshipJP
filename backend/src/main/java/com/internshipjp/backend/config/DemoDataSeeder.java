@@ -52,6 +52,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -165,7 +166,23 @@ public class DemoDataSeeder implements ApplicationRunner {
         //   enabled only          seed, unless demo rows already exist
         //   reset + enabled       rebuild from scratch
         if (config.isReset()) {
-            removeDemoData();
+            try {
+                removeDemoData();
+            } catch (RuntimeException removalFailed) {
+                // Deleting through JPA asks Hibernate to reconcile every managed
+                // entity in this transaction, and a stale reference there brings
+                // the whole application down on startup - which is a very high
+                // price for a convenience flag.
+                //
+                // The PowerShell script does the same job in plain SQL and is
+                // not subject to this, so point at it and carry on rather than
+                // refusing to boot.
+                log.error("Demo data: RESET failed ({}). The application is starting anyway. "
+                        + "Clear the demo rows with scripts\\remove-demo-data.ps1, which does "
+                        + "this in SQL, then start again with DEMO_DATA_ENABLED=true and "
+                        + "DEMO_DATA_RESET=false.", removalFailed.getMessage());
+                return;
+            }
         }
         if (!config.isEnabled()) {
             log.info("Demo data: removal finished. DEMO_DATA_ENABLED is false, so nothing "
@@ -280,6 +297,11 @@ public class DemoDataSeeder implements ApplicationRunner {
         Company pending = company("Demo Sakura Systems", "Consulting", null, "Mandalay",
                 null, ApprovalStatus.PENDING, null);
 
+        // Backdated so the approval queue shows a realistic wait rather than
+        // a company that registered the instant the demo data was created.
+        pending.setCreatedAt(LocalDateTime.now().minusDays(6));
+        companyRepository.save(pending);
+
         User employerOne = user("employer1", "Aung Kyaw", Role.EMPLOYER, AccountStatus.ACTIVE);
         employerProfile(employerOne, approved, "Engineering Manager");
         User employerTwo = user("employer2", "Hnin Wai", Role.EMPLOYER, AccountStatus.PENDING);
@@ -364,22 +386,22 @@ public class DemoDataSeeder implements ApplicationRunner {
 
         // --- applications across several states ------------------------------
         apply(thida, backend, ApplicationStatus.SHORTLISTED,
-                "I have used Java and SQL in coursework and would like to learn Spring Boot.");
+                "I have used Java and SQL in coursework and would like to learn Spring Boot.", 11);
         apply(min, backend, ApplicationStatus.APPLIED,
-                "My strongest areas are Python and SQL.");
+                "My strongest areas are Python and SQL.", 2);
         apply(su, frontend, ApplicationStatus.UNDER_REVIEW,
-                "I have built two React projects at university.");
+                "I have built two React projects at university.", 5);
         apply(thida, frontend, ApplicationStatus.REJECTED,
-                "I would like to try frontend work as well.");
-        apply(min, vague, ApplicationStatus.APPLIED, "Happy to hear more about the role.");
+                "I would like to try frontend work as well.", 17);
+        apply(min, vague, ApplicationStatus.APPLIED, "Happy to hear more about the role.", 12);
 
         // --- certificates: one verified, one still waiting -------------------
         certificate(thida, "Oracle Java Foundations", "Oracle",
-                LocalDate.now().minusMonths(8), VerificationStatus.VERIFIED, admin.getId());
+                LocalDate.now().minusMonths(8), VerificationStatus.VERIFIED, admin.getId(), 24);
         certificate(thida, "Intro to Databases", "Coursera",
-                LocalDate.now().minusMonths(3), VerificationStatus.PENDING, null);
+                LocalDate.now().minusMonths(3), VerificationStatus.PENDING, null, 9);
         certificate(min, "Python for Data Science", "DataCamp",
-                LocalDate.now().minusMonths(5), VerificationStatus.VERIFIED, admin.getId());
+                LocalDate.now().minusMonths(5), VerificationStatus.VERIFIED, admin.getId(), 31);
 
         notify(admin, "CERTIFICATE_VERIFICATION_REQUESTED",
                 "Certificate waiting for verification",
@@ -588,17 +610,46 @@ public class DemoDataSeeder implements ApplicationRunner {
 
     private void apply(StudentProfile student, Internship internship,
                        ApplicationStatus status, String coverLetter) {
+        apply(student, internship, status, coverLetter, 1);
+    }
+
+    /**
+     * @param daysAgo how long ago this application was made.
+     *
+     * Ages are staggered on purpose. Seeded all at one instant, every queue
+     * item reads the same number of days and every urgency badge is the same
+     * colour - which makes the administrator screens look broken rather than
+     * busy. Spread out, the same screens show green, amber and red together,
+     * which is what they were designed to distinguish.
+     */
+    private void apply(StudentProfile student, Internship internship,
+                       ApplicationStatus status, String coverLetter, int daysAgo) {
         Application application = new Application();
         application.setInternship(internship);
         application.setStudentProfile(student);
         application.setCoverLetter(coverLetter);
         application.setStatus(status);
         Application saved = applicationRepository.save(application);
+        backdate(saved, daysAgo);
 
         history(saved, null, ApplicationStatus.APPLIED, "Application submitted");
         if (status != ApplicationStatus.APPLIED) {
             history(saved, ApplicationStatus.APPLIED, status, "Reviewed by the hiring team");
         }
+    }
+
+    /**
+     * Moves a saved row back in time.
+     *
+     * The entity sets createdAt on persist, so it has to be saved first and
+     * corrected afterwards - there is no way to persist it already old.
+     */
+    private void backdate(Application application, int daysAgo) {
+        if (daysAgo <= 0) {
+            return;
+        }
+        application.setCreatedAt(LocalDateTime.now().minusDays(daysAgo));
+        applicationRepository.save(application);
     }
 
     private void history(Application application, ApplicationStatus from,
@@ -617,6 +668,12 @@ public class DemoDataSeeder implements ApplicationRunner {
      */
     private void certificate(StudentProfile student, String title, String issuer,
                              LocalDate issueDate, VerificationStatus status, Long verifiedBy) {
+        certificate(student, title, issuer, issueDate, status, verifiedBy, 1);
+    }
+
+    private void certificate(StudentProfile student, String title, String issuer,
+                             LocalDate issueDate, VerificationStatus status, Long verifiedBy,
+                             int daysAgo) {
         String storedName = UUID.randomUUID() + ".pdf";
         String relativePath = "certificates/" + student.getId() + "/" + storedName;
         long size = writePlaceholderPdf(relativePath, title);
@@ -634,10 +691,14 @@ public class DemoDataSeeder implements ApplicationRunner {
         certificate.setVerificationStatus(status);
         certificate.setVerifiedBy(verifiedBy);
         if (status == VerificationStatus.VERIFIED) {
-            certificate.setVerifiedAt(java.time.LocalDateTime.now());
+            certificate.setVerifiedAt(LocalDateTime.now());
             certificate.setVerificationNote("Checked against the issuer's records.");
         }
-        certificateRepository.save(certificate);
+        Certificate savedCertificate = certificateRepository.save(certificate);
+        if (daysAgo > 0) {
+            savedCertificate.setCreatedAt(LocalDateTime.now().minusDays(daysAgo));
+            certificateRepository.save(savedCertificate);
+        }
     }
 
     private long writePlaceholderPdf(String relativePath, String title) {

@@ -10,28 +10,6 @@ import DevSessionPanel from "./DevSessionPanel.jsx";
 
 /**
  * Integration status - Member 1's development utility.
- *
- * It answers one question per card, in the order the connections actually
- * chain together:
- *
- *   Frontend  is React running, and in which mode      (local, no request)
- *   Backend   can React reach Spring Boot              GET /api/test/health
- *   Database  can Spring Boot reach MariaDB            GET /api/test/database
- *   AI        is Groq configured, and does it answer   GET /api/test/ai
- *   Session   does the session cookie round-trip       GET /api/auth/me
- *
- * TWO RULES THIS PAGE EXISTS TO KEEP
- *
- *   Nothing is ever assumed. A card turns green because a request came back,
- *   never because the code hoped it would. If the backend is down, the three
- *   checks behind it report "not checked" rather than "failed" - saying a
- *   database is broken when you never reached it is a lie that costs an hour.
- *
- *   Each check owns its own state, so one failure cannot blank the page. A
- *   thrown error in the AI check must still leave the database card readable.
- *
- * No secret is ever displayed. The AI card shows the provider and model; the
- * key is never sent to the browser in the first place.
  */
 export default function IntegrationStatusPage() {
   const [checks, setChecks] = useState(initialState);
@@ -345,17 +323,6 @@ function AiCard({ check }) {
 
 /**
  * The round-trip time to the AI provider, graded.
- *
- * A bare "412 ms" means nothing unless you already know what good looks like.
- * The thresholds say so:
- *
- *   under 300ms   fast      the assistant will feel responsive
- *   300-800ms     usable    noticeable, still fine for a chat turn
- *   over 800ms    slow      the wait becomes the experience
- *
- * These describe the STATUS CHECK, which is a tiny request. A real chat
- * completion takes seconds regardless - so a red badge here means the network
- * path is bad, not that the model is slow to think.
  */
 function LatencyBadge({ ms }) {
   if (ms == null) {

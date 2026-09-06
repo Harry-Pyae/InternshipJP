@@ -290,10 +290,29 @@ public class GeminiClient implements AiProviderClient {
             // MAX_TOKENS means the answer was cut off, not finished. Without
             // this the reader sees a sentence stopping halfway with no way to
             // tell the model was interrupted rather than being unhelpful.
-            boolean truncated = "MAX_TOKENS".equals(candidate.path("finishReason").asText(""));
+            String finishReason = candidate.path("finishReason").asText("");
+            boolean truncated = "MAX_TOKENS".equals(finishReason);
+
+            // Every call logs why it stopped and where the tokens went. Without
+            // this, a short answer is indistinguishable from a truncated one -
+            // and the two need opposite fixes.
+            //
+            // thoughtsTokenCount is the one that matters on 2.5+ models: the
+            // reasoning step is charged against the SAME budget as the reply,
+            // so a large number here explains a short answer even when the
+            // limit was never formally reached.
+            JsonNode usageNode = root.path("usageMetadata");
+            log.info("Gemini finishReason={} prompt={} answer={} thoughts={} total={} cap={}",
+                    finishReason.isEmpty() ? "(none)" : finishReason,
+                    usageNode.path("promptTokenCount").asInt(0),
+                    usageNode.path("candidatesTokenCount").asInt(0),
+                    usageNode.path("thoughtsTokenCount").asInt(0),
+                    usageNode.path("totalTokenCount").asInt(0),
+                    gemini().getMaxOutputTokens());
+
             if (truncated) {
-                log.warn("Gemini hit maxOutputTokens ({}) - the answer was truncated. "
-                        + "Raise GEMINI_MAX_OUTPUT_TOKENS.", gemini().getMaxOutputTokens());
+                log.warn("Gemini hit maxOutputTokens ({}). Raise GEMINI_MAX_OUTPUT_TOKENS.",
+                        gemini().getMaxOutputTokens());
             }
 
             JsonNode parts = candidate.path("content").path("parts");
@@ -306,20 +325,35 @@ public class GeminiClient implements AiProviderClient {
             }
 
             String answer = text.toString().strip();
+
+            // The subtler case: the model stopped without saying MAX_TOKENS,
+            // yet reply plus reasoning consumed nearly the whole allowance. It
+            // looks like a complete answer and is not, so it is reported too.
+            int spent = usageNode.path("candidatesTokenCount").asInt(0)
+                    + usageNode.path("thoughtsTokenCount").asInt(0);
+            boolean nearlyFull = !truncated && spent > 0
+                    && spent >= (int) (gemini().getMaxOutputTokens() * 0.9);
+            if (nearlyFull) {
+                log.warn("Gemini stopped with finishReason={} after {} of {} tokens "
+                        + "({} of them reasoning). The answer is probably incomplete.",
+                        finishReason, spent, gemini().getMaxOutputTokens(),
+                        usageNode.path("thoughtsTokenCount").asInt(0));
+                answer += "\n\n[This answer used almost the whole length allowance and may be "
+                        + "incomplete. Ask a narrower question, or raise GEMINI_MAX_OUTPUT_TOKENS.]";
+            }
+
             if (truncated) {
                 answer += "\n\n[This answer reached the length limit and was cut off. "
                         + "Ask a narrower question, or raise GEMINI_MAX_OUTPUT_TOKENS.]";
             }
-
-            JsonNode usage = root.path("usageMetadata");
             // Gemini reports totalTokenCount directly; Groq's client sums the
             // two. Either way the usage log stores the same three numbers.
             return new AiCompletion(
                     answer,
                     gemini().getModel(),
-                    usage.path("promptTokenCount").asInt(0),
-                    usage.path("candidatesTokenCount").asInt(0),
-                    usage.path("totalTokenCount").asInt(0),
+                    usageNode.path("promptTokenCount").asInt(0),
+                    usageNode.path("candidatesTokenCount").asInt(0),
+                    usageNode.path("totalTokenCount").asInt(0),
                     durationMs);
         } catch (ProviderUnavailableException ex) {
             throw ex;

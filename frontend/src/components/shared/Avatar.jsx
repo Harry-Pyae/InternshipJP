@@ -1,18 +1,8 @@
 /**
  * The signed-in user's avatar.
  *
- * WHY THIS IS ONE COMPONENT
- *   The initials were computed twice - once in the sidebar footer, once in the
- *   top-right menu - by two separate copies of the same function. Two copies
- *   of one rule is one bug waiting: change how a two-word name is abbreviated
- *   in one place and the same person shows "HW" in the corner and "HT" at the
- *   bottom of the sidebar, with nothing failing to tell you.
- *
- *   There is now one implementation, and both places call it.
- *
- * A photo goes here when profile photos work. The column (users.photo_path)
- * exists, but nothing uploads to it yet, and a broken image is worse than
- * initials - so this deliberately renders text until Member 2 wires uploads.
+ * One component because the initials used to be computed twice - sidebar and
+ * top-right menu - so the same person could show different letters in each.
  */
 export default function Avatar({ name, size = "md", className = "" }) {
   return (

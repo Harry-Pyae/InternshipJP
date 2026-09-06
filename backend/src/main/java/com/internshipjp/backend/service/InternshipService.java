@@ -13,6 +13,7 @@ import com.internshipjp.backend.exception.NotFoundException;
 import com.internshipjp.backend.mapper.InternshipMapper;
 import com.internshipjp.backend.repository.InternshipRepository;
 import com.internshipjp.backend.repository.InternshipSkillRepository;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Internship listing (public) and internship management (employer).
@@ -33,6 +35,8 @@ import java.util.List;
  */
 @Service
 public class InternshipService {
+
+
 
     /** Statuses a student is allowed to open by direct link. */
     private static final List<InternshipStatus> PUBLICLY_VISIBLE =
@@ -53,6 +57,60 @@ public class InternshipService {
         this.internshipMapper = internshipMapper;
     }
 
+    @Transactional(readOnly = true)
+public PageResponse<InternshipSummaryResponse> listForAdmin(
+        String keyword,
+        String status,
+        Pageable pageable) {
+
+    Page<Internship> page;
+
+    InternshipStatus internshipStatus = null;
+
+    if (StringUtils.hasText(status)) {
+        try {
+            internshipStatus = InternshipStatus.valueOf(
+                    status.trim().toUpperCase()
+            );
+        } catch (IllegalArgumentException ex) {
+            throw new IllegalArgumentException(
+                    "Invalid internship status: " + status
+            );
+        }
+    }
+
+    if (internshipStatus != null && StringUtils.hasText(keyword)) {
+
+        String search = keyword.trim();
+
+        page = internshipRepository.findByStatusAndKeyword(
+                internshipStatus,
+                search,
+                pageable
+        );
+
+    } else if (internshipStatus != null) {
+
+        page = internshipRepository.findByStatus(
+                internshipStatus,
+                pageable
+        );
+
+    } else if (StringUtils.hasText(keyword)) {
+
+        page = internshipRepository.searchAll(
+                keyword.trim(),
+                pageable
+        );
+
+    } else {
+
+        page = internshipRepository.findAll(pageable);
+    }
+
+    return PageResponse.from(page, internshipMapper::toSummary);
+}
+
     // ----------------------------------------------------------------- public
 
     /** Only OPEN internships appear in the public list. */
@@ -65,12 +123,26 @@ public class InternshipService {
     }
 
     @Transactional(readOnly = true)
+    public PageResponse<InternshipSummaryResponse> listForAdmin(Pageable pageable) {
+        Page<Internship> page = internshipRepository.findAll(pageable);
+        return PageResponse.from(page, internshipMapper::toSummary);
+    }
+
+    @Transactional(readOnly = true)
     public InternshipDetailResponse getPublicDetail(Long internshipId) {
         Internship internship = requireInternship(internshipId);
         if (!PUBLICLY_VISIBLE.contains(internship.getStatus())) {
             // A draft belongs to the employer only - do not confirm it exists.
             throw NotFoundException.of("Internship", internshipId);
         }
+        return internshipMapper.toDetail(internship,
+                internshipSkillRepository.findByInternshipId(internshipId));
+    }
+
+        /** Admin detail view - unlike getPublicDetail, this can open a DRAFT too. */
+    @Transactional(readOnly = true)
+    public InternshipDetailResponse getAdminDetail(Long internshipId) {
+        Internship internship = requireInternship(internshipId);
         return internshipMapper.toDetail(internship,
                 internshipSkillRepository.findByInternshipId(internshipId));
     }
@@ -165,3 +237,5 @@ public class InternshipService {
         return StringUtils.hasText(value) ? InternshipStatus.valueOf(value) : fallback;
     }
 }
+
+

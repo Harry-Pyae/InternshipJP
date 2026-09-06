@@ -26,6 +26,7 @@ public class InternshipMapper {
         dto.setCompanyName(internship.getCompany().getName());
         dto.setLocation(internship.getLocation());
         dto.setWorkMode(internship.getWorkMode().name());
+        dto.setDurationMonths(internship.getDurationMonths());
         dto.setStatus(internship.getStatus().name());
         dto.setApplicationDeadline(Dates.format(internship.getApplicationDeadline()));
         dto.setAvailablePositions(internship.getAvailablePositions());

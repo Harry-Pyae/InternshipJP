@@ -3,21 +3,6 @@ import { appConfig } from "../config/appConfig.js";
 
 /**
  * The single Axios instance the whole application uses.
- *
- * Import this - never call axios directly in a component. Everything that has
- * to be true of every request (session cookie, CSRF header, error shape) is
- * configured once, here.
- *
- * SESSIONS
- *   withCredentials: true sends the INTERNSHIPJP_SESSION cookie. Without it
- *   the backend treats every request as anonymous and returns 401.
- *
- * CSRF
- *   The backend puts a token in the XSRF-TOKEN cookie. Axios reads that cookie
- *   and copies it into the X-XSRF-TOKEN header on POST/PUT/PATCH/DELETE, which
- *   is exactly what Spring Security expects. The cookie only exists after one
- *   GET, so call ensureCsrfToken() before the first write - App.jsx does this
- *   on startup.
  */
 export const api = axios.create({
   baseURL: appConfig.apiBaseUrl,
@@ -59,21 +44,6 @@ export function setSessionExpiredHandler(handler) {
 
 /**
  * One interceptor, and it is deliberately narrow.
- *
- * 401 means the session is gone: clear the client's idea of who is signed in
- * and send them to the login screen.
- *
- * 403 does NOT get the same treatment, and that distinction matters. In this
- * application a 403 is usually a legitimate answer to a signed-in user:
- *   - an employer trying to publish before their company is approved
- *   - an employer opening an application belonging to another company
- *   - a student reaching an admin endpoint
- * Signing someone out because they touched something they are not allowed to
- * touch would be a bug, not a security measure. Those pass through so the page
- * can show the message the backend sent.
- *
- * The one 403 worth acting on is a stale CSRF token, which the backend labels
- * distinctly. That gets a single silent retry after refreshing the cookie.
  */
 api.interceptors.response.use(
   (response) => response,

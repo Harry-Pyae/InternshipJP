@@ -1,23 +1,5 @@
 /**
  * Renders an assistant answer as real sections instead of raw text.
- *
- * WHY THIS EXISTS
- *   The model replies in light markdown - "**TRIAGE**" on its own line,
- *   numbered steps, the odd bold phrase. We were printing that verbatim inside
- *   a pre-wrap bubble, so the reader saw literal asterisks and one unbroken
- *   wall of prose. The information was all there; finding it took effort.
- *
- * WHY NOT A MARKDOWN LIBRARY
- *   We control the prompt, so the output shape is narrow: headings, ordered
- *   and unordered lists, paragraphs, inline bold and inline code. That is
- *   about sixty lines to handle, against a dependency that also brings HTML
- *   parsing and sanitising decisions we would then own. If answers ever need
- *   tables or links, swap this for react-markdown - the seam is one component.
- *
- * SAFETY
- *   Everything is rendered as React text nodes. There is no
- *   dangerouslySetInnerHTML anywhere here, so model output cannot inject
- *   markup no matter what it returns.
  */
 /**
  * Myanmar script, U+1000 to U+109F.

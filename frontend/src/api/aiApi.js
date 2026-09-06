@@ -41,13 +41,17 @@ export const aiApi = {
    * Student: what to learn next and what is missing from the profile.
    * Counted from the database - no provider call, so it always works.
    */
-  skillGaps: () => api.get("/api/ai/skill-gaps").then((response) => response.data),
+  skillGaps: (language = "en") =>
+    api.get("/api/ai/skill-gaps", { params: { language } }).then((response) => response.data),
 
   /**
    * Employer: what this company is missing - weak listings, unreviewed
    * applicants, and required skills almost no student has.
    */
-  companyInsights: () => api.get("/api/ai/company-insights").then((response) => response.data),
+  companyInsights: (language = "en") =>
+    api
+      .get("/api/ai/company-insights", { params: { language } })
+      .then((response) => response.data),
 
   adminChat: ({ message, conversationId }) =>
     api.post("/api/ai/admin-chat", { message, conversationId }).then((response) => response.data),
@@ -56,5 +60,8 @@ export const aiApi = {
    * Admin: what is waiting for review, and how long it has waited.
    * Calculated - no provider call.
    */
-  adminWorkload: () => api.get("/api/ai/admin-workload").then((response) => response.data),
+  adminWorkload: (language = "en") =>
+    api
+      .get("/api/ai/admin-workload", { params: { language } })
+      .then((response) => response.data),
 };

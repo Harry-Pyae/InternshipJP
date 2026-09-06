@@ -16,29 +16,75 @@ import LoginPage from "../features/auth/LoginPage.jsx";
 import RegisterPage from "../features/auth/RegisterPage.jsx";
 import PendingApprovalPage from "../features/auth/PendingApprovalPage.jsx";
 import StudentDashboardPage from "../features/student/StudentDashboardPage.jsx";
+import StudentProfilePage from "../features/student/StudentProfilePage.jsx";
+import EditStudentProfilePage from "../features/student/EditStudentProfilePage.jsx";
+import EditStudentSkillsPage from "../features/student/EditStudentSkillsPage.jsx";
+import EditStudentEducationPage from "../features/student/EditStudentEducationPage.jsx";
+import StudentCertificatesPage from "../features/student/StudentCertificatesPage.jsx";
+import StudentApplicationsPage from "../features/student/StudentApplicationsPage.jsx";
 import EmployerDashboardPage from "../features/employer/EmployerDashboardPage.jsx";
+import ManageInternshipsPage from "../features/employer/ManageInternshipsPage.jsx";
+import PostInternshipPage from "../features/employer/PostInternshipPage.jsx";
+import ApplicantsPage from "../features/employer/ApplicantsPage.jsx";
+import EmployerApplicantDetailPage from "../features/employer/EmployerApplicantDetailPage.jsx";
+import CompanyProfilePage from "../features/employer/CompanyProfilePage.jsx";
+import EmployerProfilePage from "../features/employer/EmployerProfilePage.jsx";
+import BrowseInternshipsPage from "../features/student/BrowseInternshipsPage.jsx";
+import StudentInternshipDetailPage from "../features/student/StudentInternshipDetailPage.jsx";
+import NotificationsPage from "../features/shared/NotificationsPage.jsx";
+import AccountSettingsPage from "../features/shared/AccountSettingsPage.jsx";
 import AdminDashboardPage from "../features/admin/AdminDashboardPage.jsx";
+import AdminCertificatesPage from "../features/admin/AdminCertificatesPage.jsx";
+import AdminCertificateReviewPage from "../features/admin/AdminCertificateReviewPage.jsx";
+import AdminUsersPage from "../features/admin/AdminUsersPage.jsx";
+import AdminSettingsPage from "../features/admin/AdminSettingsPage.jsx";
+import AdminInternshipsPage from "../features/admin/AdminInternshipsPage.jsx";
+import AdminNotificationsPage from "../features/admin/AdminNotificationsPage.jsx";
+import AdminEmployersPage from "../features/admin/AdminEmployersPage.jsx";
+import AdminEmployerReviewPage from "../features/admin/AdminEmployerReviewPage.jsx";
+import AdminReportsPage from "../features/admin/AdminReportsPage.jsx";
 import AiChatPage from "../features/ai/AiChatPage.jsx";
 
 /**
  * Every route in the application.
- *
- * ================== HOW THIS IS STRUCTURED, AND WHY ==================
- * Each role has a LAYOUT route with CHILD routes. The layout renders the
- * sidebar, the header and <Outlet />; the children render the pages.
- *
- * Previously /student was a single leaf route whose component rendered the
- * shell *and* the AI assistant, and no child routes existed. Clicking
- * "My profile" matched nothing, fell through to the catch-all, and came back
- * to that same page - which is why the AI appeared on every screen.
- *
- * The AI now renders at exactly three URLs: /student/ai, /employer/ai and
- * /admin/ai. Nowhere else.
- * =====================================================================
- *
- * TO ADD A PAGE: build it under features/<area>/, import it above, and replace
- * the matching <FeaturePlaceholder> with your component. Keep the path.
  */
+/** Employer paths Member 3 has built. */
+const EMPLOYER_BUILT = new Set([
+  "/employer/applications/:id",
+  "/employer/internships/:id/edit",
+  "/employer/notifications",
+  "/employer/settings",
+  "/employer/internships/new",
+  "/employer/internships",
+  "/employer/applications",
+  "/employer/company",
+  "/employer/profile",
+]);
+
+/** Student paths built by Member 3 (browsing vacancies is their module). */
+const STUDENT_BUILT = new Set([
+  "/student/internships",
+  "/student/profile",
+  "/student/profile/edit",
+  "/student/skills/edit",
+  "/student/education/edit",
+  "/student/certificates",
+  "/student/applications",
+  "/student/notifications",
+  "/student/settings",
+]);
+
+/** Admin paths that now have a real page, so no placeholder is needed. */
+const ADMIN_BUILT = new Set([
+  "/admin/users",
+  "/admin/certificates",
+  "/admin/employers",
+  "/admin/internships",
+  "/admin/notifications",
+  "/admin/reports",
+  "/admin/settings",
+]);
+
 export default function AppRoutes() {
   return (
     <Routes>
@@ -70,7 +116,18 @@ export default function AppRoutes() {
         <Route path="/student/dashboard" element={<StudentDashboardPage />} />
         <Route path="/student/ai" element={<AiChatPage audience="student" />} />
         <Route path="/student/integration" element={<IntegrationStatusPage />} />
-        {STUDENT_PAGES.map((page) => (
+        <Route path="/student/internships" element={<BrowseInternshipsPage />} />
+        <Route path="/student/internships/:id" element={<StudentInternshipDetailPage />} />
+        <Route path="/student/profile" element={<StudentProfilePage />} />
+        <Route path="/student/profile/edit" element={<EditStudentProfilePage />} />
+        <Route path="/student/skills/edit" element={<EditStudentSkillsPage />} />
+        <Route path="/student/education/edit" element={<EditStudentEducationPage />} />
+        <Route path="/student/certificates" element={<StudentCertificatesPage />} />
+        <Route path="/student/applications" element={<StudentApplicationsPage />} />
+        <Route path="/student/notifications" element={<NotificationsPage />} />
+        <Route path="/student/settings" element={<AccountSettingsPage />} />
+
+        {STUDENT_PAGES.filter((page) => !STUDENT_BUILT.has(page.path)).map((page) => (
           <Route
             key={page.path}
             path={page.path}
@@ -104,7 +161,25 @@ export default function AppRoutes() {
         <Route path="/employer/dashboard" element={<EmployerDashboardPage />} />
         <Route path="/employer/ai" element={<AiChatPage audience="employer" />} />
         <Route path="/employer/integration" element={<IntegrationStatusPage />} />
-        {EMPLOYER_PAGES.map((page) => (
+        <Route path="/employer/internships/new" element={<PostInternshipPage />} />
+        {/*
+          Edit reuses the create page - same form, same validation, one place
+          to fix a bug. The :id is what switches it into edit mode.
+        */}
+        <Route path="/employer/internships/:id/edit" element={<PostInternshipPage />} />
+        <Route path="/employer/internships" element={<ManageInternshipsPage />} />
+        <Route path="/employer/applications" element={<ApplicantsPage />} />
+        <Route path="/employer/applications/:id" element={<EmployerApplicantDetailPage />} />
+        <Route path="/employer/company" element={<CompanyProfilePage />} />
+        {/*
+          Not in EMPLOYER_NAV - reachable by URL only. Member 3 built the page
+          but did not add a sidebar link; left as they had it.
+        */}
+        <Route path="/employer/profile" element={<EmployerProfilePage />} />
+        <Route path="/employer/notifications" element={<NotificationsPage />} />
+        <Route path="/employer/settings" element={<AccountSettingsPage />} />
+
+        {EMPLOYER_PAGES.filter((page) => !EMPLOYER_BUILT.has(page.path)).map((page) => (
           <Route
             key={page.path}
             path={page.path}
@@ -125,7 +200,24 @@ export default function AppRoutes() {
         <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
         <Route path="/admin/ai" element={<AiChatPage audience="admin" />} />
         <Route path="/admin/integration" element={<IntegrationStatusPage />} />
-        {ADMIN_PAGES.map((page) => (
+        <Route path="/admin/users" element={<AdminUsersPage />} />
+        <Route path="/admin/certificates" element={<AdminCertificatesPage />} />
+        <Route path="/admin/certificates/:id" element={<AdminCertificateReviewPage />} />
+        <Route path="/admin/employers" element={<AdminEmployersPage />} />
+        <Route path="/admin/employers/:id" element={<AdminEmployerReviewPage />} />
+        <Route path="/admin/internships" element={<AdminInternshipsPage />} />
+        <Route path="/admin/notifications" element={<AdminNotificationsPage />} />
+        <Route path="/admin/reports" element={<AdminReportsPage />} />
+        <Route path="/admin/settings" element={<AdminSettingsPage />} />
+
+        {/*
+          Member 4 built every admin screen except Messages, which has no
+          backend at all. Anything in ADMIN_PAGES without a real page above
+          keeps its placeholder - without this, the Messages link in the
+          sidebar would match no route, fall through to the catch-all and
+          bounce the admin back to the landing page.
+        */}
+        {ADMIN_PAGES.filter((page) => !ADMIN_BUILT.has(page.path)).map((page) => (
           <Route
             key={page.path}
             path={page.path}
@@ -141,16 +233,6 @@ export default function AppRoutes() {
 
 /**
  * The root URL.
- *
- * A visitor goes to the login screen; the foundation overview now lives at
- * /foundation.
- *
- * A signed-in user goes to their own dashboard rather than being bounced
- * through the login page - LoginPage would immediately redirect them anyway,
- * and two redirects is a visible flash for no gain.
- *
- * `loading` matters: until the session check comes back we do not know which
- * they are, and guessing means a signed-in user briefly sees a login form.
  */
 function LandingRoute() {
   const { user, loading } = useAuth();

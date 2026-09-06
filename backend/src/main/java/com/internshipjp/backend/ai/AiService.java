@@ -183,8 +183,8 @@ public class AiService {
     }
 
     /** The calculated report on its own. No provider call. */
-    public AdminWorkloadResponse adminWorkload() {
-        return adminWorkloadService.analyse();
+    public AdminWorkloadResponse adminWorkload(String language) {
+        return adminWorkloadService.analyse(language);
     }
 
     public List<AiConversationResponse> conversations(Long userId) {
@@ -208,13 +208,13 @@ public class AiService {
     }
 
     /** Skill gap analysis for a student. Calculated, no provider call. */
-    public SkillGapResponse skillGaps(Long userId) {
-        return skillGapService.analyse(userId);
+    public SkillGapResponse skillGaps(Long userId, String language) {
+        return skillGapService.analyse(userId, language);
     }
 
     /** Listing and pipeline review for an employer. Calculated, no provider call. */
-    public CompanyInsightResponse companyInsights(Long userId) {
-        return companyInsightService.analyse(userId);
+    public CompanyInsightResponse companyInsights(Long userId, String language) {
+        return companyInsightService.analyse(userId, language);
     }
 
     // ---------------------------------------------------------------- internal
@@ -230,6 +230,22 @@ public class AiService {
         List<AiChatMessage> messages = new ArrayList<>();
         messages.add(AiChatMessage.system(systemPrompt));
         messages.add(AiChatMessage.system(context));
+
+        // The language instruction goes LAST, after the role prompt and the
+        // context. Models weight later instructions more heavily, and the role
+        // prompts are long - put this first and it gets buried.
+        //
+        // Only added when Burmese is asked for. Telling a model to "answer in
+        // English" when it would have anyway is a wasted instruction, and the
+        // prompts are already at the edge of the token budget.
+        if ("my".equalsIgnoreCase(request.getLanguage())) {
+            messages.add(AiChatMessage.system(
+                    "Write your entire answer in Burmese (Myanmar). Keep technical terms, "
+                            + "job titles, company names and skill names in English, because that "
+                            + "is how they are written in Myanmar workplaces. Use Unicode, not "
+                            + "Zawgyi. Be brief: Burmese costs several times more tokens than "
+                            + "English, so a long answer will be cut off."));
+        }
         messages.addAll(conversationService.recentTurns(conversation.getId(), HISTORY_TURNS));
 
         try {

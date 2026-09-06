@@ -4,22 +4,13 @@ import { describeApiError } from "../../api/axiosClient.js";
 import LoadingBlock from "../../components/shared/LoadingBlock.jsx";
 import ErrorAlert from "../../components/shared/ErrorAlert.jsx";
 import EmptyState from "../../components/shared/EmptyState.jsx";
+import { useLanguage } from "../../config/languageContext.jsx";
 
 /**
  * Internship matches for the signed-in student, with the reasoning shown.
- *
- * WHY THIS SITS NEXT TO THE CHAT
- *   The score comes from the backend's plain-Java comparison of skills, not
- *   from the language model. So this panel works with no API key, costs
- *   nothing, and gives the same answer twice. The chat is for the follow-up
- *   question - "why is this one only 40%, and what should I learn first?"
- *
- *   Every number is accompanied by which skills matched and which did not, so
- *   a student is never shown a percentage they cannot interrogate.
- *
- * Owner: Member 1.
  */
 export default function RecommendationsPanel({ onDiscuss, onLearnSkill }) {
+  const { t } = useLanguage();
   const [matches, setMatches] = useState(null);
   const [error, setError] = useState(null);
 
@@ -55,17 +46,17 @@ export default function RecommendationsPanel({ onDiscuss, onLearnSkill }) {
   return (
     <div>
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <h2 className="ijp-label mb-0">Matched to your skills</h2>
+        <h2 className="ijp-label mb-0">{t("Matched to your skills")}</h2>
         <button type="button" className="btn btn-sm btn-outline-secondary" onClick={load}>
           <i className="bi bi-arrow-clockwise" aria-hidden="true" />
-          <span className="visually-hidden">Refresh recommendations</span>
+          <span className="visually-hidden">{t("Refresh recommendations")}</span>
         </button>
       </div>
 
       {matches.length === 0 ? (
         <EmptyState
           icon="bi-search"
-          title="No open internships to match yet"
+          title={t("No open internships to match yet")}
           hint="Once employers publish vacancies, they will be scored against the skills on your profile."
         />
       ) : (
@@ -90,6 +81,7 @@ export default function RecommendationsPanel({ onDiscuss, onLearnSkill }) {
 }
 
 function MatchRow({ match, onDiscuss, onLearnSkill }) {
+  const { t } = useLanguage();
   // Colour follows the number, and the number follows the data.
   const tone = match.matchScore >= 67 ? "ok" : match.matchScore >= 34 ? "warn" : "bad";
 
@@ -126,7 +118,7 @@ function MatchRow({ match, onDiscuss, onLearnSkill }) {
           what you do not. */}
       {match.matchedSkills.length > 0 ? (
         <div className="ijp-match-skills">
-          <span className="ijp-match-skills-label">You have</span>
+          <span className="ijp-match-skills-label">{t("You have")}</span>
           <div className="ijp-pill-row">
             {match.matchedSkills.map((skill) => (
               <span className="ijp-pill-skill ijp-pill-skill--have" key={skill}>
@@ -140,7 +132,7 @@ function MatchRow({ match, onDiscuss, onLearnSkill }) {
 
       {match.missingSkills.length > 0 ? (
         <div className="ijp-match-skills">
-          <span className="ijp-match-skills-label">To learn</span>
+          <span className="ijp-match-skills-label">{t("To learn")}</span>
           <div className="ijp-pill-row">
             {/* Clickable: the gap is the thing a student wants to act on, so
                 the badge naming it is the shortest path to asking about it.
@@ -178,9 +170,7 @@ function MatchRow({ match, onDiscuss, onLearnSkill }) {
           type="button"
           className="btn btn-sm btn-ijp-quiet ms-auto"
           onClick={() => onDiscuss(match)}
-        >
-          Ask about this
-          <i className="bi bi-arrow-right ms-1" aria-hidden="true" />
+        >{t("Ask about this")}<i className="bi bi-arrow-right ms-1" aria-hidden="true" />
         </button>
       </div>
     </li>

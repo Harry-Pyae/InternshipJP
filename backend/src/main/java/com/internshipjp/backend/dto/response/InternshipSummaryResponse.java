@@ -15,6 +15,15 @@ public class InternshipSummaryResponse {
 
     private String workMode;
 
+    /**
+     * How long the internship lasts.
+     *
+     * Added because the browse cards show it and the summary did not carry it -
+     * the pill was guarded by a null check, so it silently never appeared
+     * rather than failing visibly.
+     */
+    private Integer durationMonths;
+
     private String status;
 
     private String applicationDeadline;
@@ -61,6 +70,14 @@ public class InternshipSummaryResponse {
 
     public void setWorkMode(String workMode) {
         this.workMode = workMode;
+    }
+
+    public Integer getDurationMonths() {
+        return durationMonths;
+    }
+
+    public void setDurationMonths(Integer durationMonths) {
+        this.durationMonths = durationMonths;
     }
 
     public String getStatus() {

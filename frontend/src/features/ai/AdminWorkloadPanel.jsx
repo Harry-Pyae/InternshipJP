@@ -3,32 +3,27 @@ import { aiApi } from "../../api/aiApi.js";
 import { describeApiError } from "../../api/axiosClient.js";
 import LoadingBlock from "../../components/shared/LoadingBlock.jsx";
 import ErrorAlert from "../../components/shared/ErrorAlert.jsx";
+import { useLanguage } from "../../config/languageContext.jsx";
 
 /**
  * "What should I work on today?" - the administrator's calculated report.
- *
- * WHY EVERY ROW SHOWS AN AGE
- *   A queue length tells you almost nothing. Five pending certificates could
- *   be five minutes old. What matters is that one has been waiting eleven
- *   days - because for eleven days a student has been unable to show that
- *   qualification to any employer. The delay is ours; the cost is theirs.
- *
- * No AI provider call. This works with no API key.
- *
- * Owner: Member 1 (AI). Member 4 owns the admin screens that use it.
  */
 export default function AdminWorkloadPanel({ onAsk, onAskItem }) {
+  const { t, language } = useLanguage();
   const [workload, setWorkload] = useState(null);
   const [error, setError] = useState(null);
 
   const load = useCallback(async () => {
     setError(null);
     try {
-      setWorkload(await aiApi.adminWorkload());
+      setWorkload(await aiApi.adminWorkload(language));
     } catch (loadError) {
       setError(describeApiError(loadError));
     }
-  }, []);
+    // language is a dependency: the sentences are built on the server, so
+    // switching the toggle has to refetch or the panel keeps the old
+    // language until the page is reloaded.
+  }, [language]);
 
   useEffect(() => {
     load();
@@ -38,7 +33,7 @@ export default function AdminWorkloadPanel({ onAsk, onAskItem }) {
     return <ErrorAlert message={error} onRetry={load} />;
   }
   if (workload === null) {
-    return <LoadingBlock label="Checking what is waiting for you..." />;
+    return <LoadingBlock label={t("Checking what is waiting for you...")} />;
   }
 
   // Amber only when something has actually crossed the overdue threshold. A
@@ -67,19 +62,19 @@ export default function AdminWorkloadPanel({ onAsk, onAskItem }) {
       </div>
 
       <Queue
-        title="Certificates waiting longest"
+        title={t("Certificates waiting longest")}
         onAskItem={onAskItem}
         items={workload.oldestCertificates}
         emptyText="Nothing waiting. The verification queue is clear."
       />
       <Queue
-        title="Companies waiting for approval"
+        title={t("Companies waiting for approval")}
         onAskItem={onAskItem}
         items={workload.oldestCompanies}
         emptyText="Nothing waiting. No company is blocked from publishing."
       />
       <Queue
-        title="Applications no employer has opened"
+        title={t("Applications no employer has opened")}
         onAskItem={onAskItem}
         items={workload.stalledApplications}
         emptyText="None. Employers are responding to applicants."
@@ -88,7 +83,7 @@ export default function AdminWorkloadPanel({ onAsk, onAskItem }) {
 
       {workload.priorities.length > 0 ? (
         <>
-          <p className="ijp-label mb-2">Suggested order</p>
+          <p className="ijp-label mb-2">{t("Suggested order")}</p>
           <ol className="small ps-3 mb-3">
             {workload.priorities.map((item) => (
               <li key={item} className="mb-1">
@@ -101,12 +96,8 @@ export default function AdminWorkloadPanel({ onAsk, onAskItem }) {
 
       <div className="d-flex flex-wrap gap-2">
         <button type="button" className="btn btn-sm btn-ijp-quiet" onClick={load}>
-          <i className="bi bi-arrow-clockwise me-1" aria-hidden="true" />
-          Refresh
-        </button>
-        <button type="button" className="btn btn-sm btn-ijp-quiet" onClick={onAsk}>
-          Ask the assistant to plan my session
-        </button>
+          <i className="bi bi-arrow-clockwise me-1" aria-hidden="true" />{t("Refresh")}</button>
+        <button type="button" className="btn btn-sm btn-ijp-quiet" onClick={onAsk}>{t("Ask the assistant to plan my session")}</button>
       </div>
     </div>
   );
@@ -124,6 +115,7 @@ function Stat({ label, value }) {
 }
 
 function Queue({ title, items, emptyText, note, onAskItem }) {
+  const { t } = useLanguage();
   return (
     <div className="mb-4">
       <p className="ijp-label mb-2">{title}</p>
@@ -153,9 +145,7 @@ function Queue({ title, items, emptyText, note, onAskItem }) {
                   className="btn btn-sm btn-ijp-quiet ijp-queue-action"
                   onClick={() => onAskItem(title, item)}
                 >
-                  <i className="bi bi-stars me-1" aria-hidden="true" />
-                  Ask AI
-                </button>
+                  <i className="bi bi-stars me-1" aria-hidden="true" />{t("Ask AI")}</button>
               ) : null}
             </li>
           ))}

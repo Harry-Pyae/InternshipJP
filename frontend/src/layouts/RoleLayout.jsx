@@ -6,22 +6,6 @@ import Topbar from "../components/navigation/Topbar.jsx";
 /**
  * The shell every signed-in page sits inside: sidebar, header, and the page
  * itself rendered through <Outlet />.
- *
- * ===================== THE IMPORTANT PART =====================
- * This layout renders <Outlet />. It does NOT render any feature component.
- *
- * Before this existed, the role "home page" rendered the shell AND the AI
- * assistant as its content, and no child routes were declared - so every
- * sidebar link fell through to the catch-all and came back to that same page.
- * That is why the AI appeared everywhere.
- *
- * The rule that keeps it fixed: nothing feature-specific goes in here. If a
- * component belongs to one page, it belongs in that page's file.
- * ==============================================================
- *
- * Sidebar state:
- *   desktop  expanded or collapsed, remembered in localStorage
- *   mobile   an off-canvas drawer that closes when a link is tapped
  */
 const STORAGE_KEY = "internshipjp-sidebar-collapsed";
 
@@ -101,6 +85,7 @@ export default function RoleLayout({ nav, title, settingsPath }) {
         <Topbar
           title={activeLabel}
           settingsPath={settingsPath}
+          basePath={settingsPath.replace(/\/settings$/, "")}
           onOpenDrawer={() => setDrawerOpen(true)}
         />
         <main className="ijp-shell-content" id="main">

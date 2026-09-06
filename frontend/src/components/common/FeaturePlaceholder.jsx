@@ -3,19 +3,6 @@ import PageHeader from "../shared/PageHeader.jsx";
 /**
  * A page that exists and routes correctly, but whose feature belongs to
  * another member.
- *
- * WHY THESE EXIST
- *   Every sidebar link must load its own page. Without a real component per
- *   route, an unmatched path falls through to the catch-all and lands
- *   somewhere else entirely - which is how the AI assistant ended up
- *   rendering on every screen.
- *
- *   They are also a handover: each one names the owner and lists which backend
- *   endpoints are already waiting, so whoever picks it up starts from a brief
- *   rather than a blank file.
- *
- * DELIBERATELY NO FAKE DATA. No invented counts, no sample rows. An honest
- * empty page beats a convincing lie.
  */
 export default function FeaturePlaceholder({ title, description, icon, owner, endpoints = [], note }) {
   return (

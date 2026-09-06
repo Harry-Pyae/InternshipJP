@@ -2,6 +2,11 @@ package com.internshipjp.backend.service;
 
 import com.internshipjp.backend.dto.request.UpdateCompanyRequest;
 import com.internshipjp.backend.dto.request.UpdateEmployerProfileRequest;
+import com.internshipjp.backend.dto.response.EmployerDashboardResponse;
+import com.internshipjp.backend.entity.ApplicationStatus;
+import com.internshipjp.backend.entity.InternshipStatus;
+import com.internshipjp.backend.repository.ApplicationRepository;
+import com.internshipjp.backend.repository.InternshipRepository;
 import com.internshipjp.backend.dto.response.CompanyResponse;
 import com.internshipjp.backend.dto.response.EmployerProfileResponse;
 import com.internshipjp.backend.entity.ApprovalStatus;
@@ -28,15 +33,20 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class EmployerService {
 
-    private final EmployerProfileRepository employerProfileRepository;
-    private final CompanyRepository companyRepository;
-    private final CompanyMapper companyMapper;
-
+private final EmployerProfileRepository employerProfileRepository;
+private final CompanyRepository companyRepository;
+private final InternshipRepository internshipRepository;
+private final ApplicationRepository applicationRepository;
+private final CompanyMapper companyMapper;
     public EmployerService(EmployerProfileRepository employerProfileRepository,
-                           CompanyRepository companyRepository,
-                           CompanyMapper companyMapper) {
+                       CompanyRepository companyRepository,
+                       InternshipRepository internshipRepository,
+                       ApplicationRepository applicationRepository,
+                       CompanyMapper companyMapper) {
         this.employerProfileRepository = employerProfileRepository;
         this.companyRepository = companyRepository;
+	this.internshipRepository = internshipRepository;
+	this.applicationRepository = applicationRepository;
         this.companyMapper = companyMapper;
     }
 
@@ -107,4 +117,32 @@ public class EmployerService {
         company.setDescription(request.getDescription());
         return companyMapper.toCompany(companyRepository.save(company));
     }
+@Transactional(readOnly = true)
+public EmployerDashboardResponse getDashboard(Long userId) {
+    Company company = requireProfile(userId).getCompany();
+    Long companyId = company.getId();
+
+    long openVacancies =
+            internshipRepository.countByCompanyIdAndStatus(
+                    companyId, InternshipStatus.OPEN);
+
+    long totalApplicants =
+            applicationRepository.countByInternship_Company_Id(companyId);
+
+    long acceptedApplicants =
+            applicationRepository.countByInternship_Company_IdAndStatus(
+                    companyId, ApplicationStatus.ACCEPTED);
+
+    double conversionRate = totalApplicants == 0
+            ? 0.0
+            : ((double) acceptedApplicants / totalApplicants) * 100.0;
+
+    EmployerDashboardResponse response = new EmployerDashboardResponse();
+    response.setOpenVacancies(openVacancies);
+    response.setTotalApplicants(totalApplicants);
+    response.setAcceptedApplicants(acceptedApplicants);
+    response.setConversionRate(conversionRate);
+
+    return response;
+}
 }

@@ -75,8 +75,9 @@ public class AiController {
      */
     @GetMapping("/admin-workload")
     @PreAuthorize("hasRole('ADMIN')")
-    public AdminWorkloadResponse adminWorkload() {
-        return aiService.adminWorkload();
+    public AdminWorkloadResponse adminWorkload(
+            @RequestParam(required = false, defaultValue = "en") String language) {
+        return aiService.adminWorkload(language);
     }
 
     @GetMapping("/conversations")
@@ -124,8 +125,9 @@ public class AiController {
      */
     @GetMapping("/skill-gaps")
     @PreAuthorize("hasRole('STUDENT')")
-    public SkillGapResponse skillGaps() {
-        return aiService.skillGaps(currentUserService.requireUserId());
+    public SkillGapResponse skillGaps(
+            @RequestParam(required = false, defaultValue = "en") String language) {
+        return aiService.skillGaps(currentUserService.requireUserId(), language);
     }
 
     /**
@@ -138,7 +140,8 @@ public class AiController {
      */
     @GetMapping("/company-insights")
     @PreAuthorize("hasRole('EMPLOYER')")
-    public CompanyInsightResponse companyInsights() {
-        return aiService.companyInsights(currentUserService.requireUserId());
+    public CompanyInsightResponse companyInsights(
+            @RequestParam(required = false, defaultValue = "en") String language) {
+        return aiService.companyInsights(currentUserService.requireUserId(), language);
     }
 }

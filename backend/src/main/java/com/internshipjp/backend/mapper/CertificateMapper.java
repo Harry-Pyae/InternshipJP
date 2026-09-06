@@ -19,6 +19,7 @@ public class CertificateMapper {
         CertificateResponse dto = new CertificateResponse();
         dto.setId(certificate.getId());
         dto.setTitle(certificate.getTitle());
+        dto.setStudentName(certificate.getStudentProfile().getUser().getFullName());
         dto.setIssuingOrganization(certificate.getIssuingOrganization());
         dto.setIssueDate(Dates.format(certificate.getIssueDate()));
         dto.setOriginalFileName(certificate.getOriginalFileName());

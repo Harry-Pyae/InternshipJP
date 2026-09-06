@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.internshipjp.backend.dto.response.EmployerDashboardResponse;
 
 /**
  * The signed-in employer's recruiter profile and company details.
@@ -53,4 +54,9 @@ public class EmployerController {
     public CompanyResponse updateCompany(@Valid @RequestBody UpdateCompanyRequest request) {
         return employerService.updateOwnCompany(currentUserService.requireUserId(), request);
     }
+@GetMapping("/dashboard")
+public EmployerDashboardResponse getDashboard() {
+    return employerService.getDashboard(
+            currentUserService.requireUserId());
+}
 }

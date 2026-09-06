@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import com.internshipjp.backend.dto.request.ApplicantMessageRequest;
+import com.internshipjp.backend.dto.response.ApiMessageResponse;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -56,6 +59,18 @@ public class EmployerApplicationController {
     @GetMapping("/applications/{id}")
     public ApplicationDetailResponse get(@PathVariable Long id) {
         return applicationService.getForOwnCompany(currentUserService.requireUserId(), id);
+    }
+
+    /**
+     * Ask the applicant for something. Delivered as a notification, which the
+     * student already has a page for.
+     */
+    @PostMapping("/applications/{id}/message")
+    public ApiMessageResponse message(@PathVariable Long id,
+                                      @Valid @RequestBody ApplicantMessageRequest request) {
+        applicationService.messageApplicant(currentUserService.requireUserId(), id,
+                request.getMessage().trim());
+        return new ApiMessageResponse("Your message was sent to the applicant.");
     }
 
     @PatchMapping("/applications/{id}/status")

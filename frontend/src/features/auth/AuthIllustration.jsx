@@ -1,18 +1,5 @@
 /**
  * The artwork beside the sign-in form.
- *
- * WHY IT IS AN INLINE SVG AND NOT A PNG
- *   - it uses our CSS variables, so it works in dark mode instead of being a
- *     white rectangle stuck to a dark page
- *   - it is sharp on any screen and weighs about 2 KB
- *   - there is no asset file for anyone to lose, and no licence to check
- *
- * The scene is on-subject rather than generic: a vacancy list being searched,
- * a match score, and a verified badge - the three ideas this platform is
- * actually about.
- *
- * Members 2, 3 and 4: reuse or replace freely. Keep it decorative
- * (aria-hidden), because it says nothing a screen-reader user needs.
  */
 export default function AuthIllustration() {
   return (

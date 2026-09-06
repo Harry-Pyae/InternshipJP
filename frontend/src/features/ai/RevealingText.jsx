@@ -2,24 +2,6 @@ import { useEffect, useState } from "react";
 
 /**
  * Reveals an answer a few words at a time instead of dropping it in whole.
- *
- * WHY
- *   The backend returns the finished answer in one response, so without this
- *   the text appears in a single frame - which reads as the page reloading
- *   rather than the assistant replying. Revealing it restores the sense that
- *   something is being written to you.
- *
- * HONEST ABOUT WHAT THIS IS
- *   This is a reveal, not token streaming. The whole answer is already in the
- *   browser; we are pacing how it is shown. Real streaming would need the
- *   backend to forward Groq's server-sent events - worth doing later, and the
- *   change would be invisible here because this component would simply receive
- *   a growing string.
- *
- *   The pace adapts to length, so a long answer does not take a minute to
- *   appear: roughly 1.5 seconds whatever the size.
- *
- *   Anyone with reduced motion turned on gets the full text immediately.
  */
 
 const TICK_MS = 24;

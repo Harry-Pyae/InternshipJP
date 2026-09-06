@@ -62,8 +62,12 @@ public class StudentSkillGapService {
         this.skillMarketService = skillMarketService;
     }
 
-    @Transactional(readOnly = true)
     public SkillGapResponse analyse(Long userId) {
+        return analyse(userId, "en");
+    }
+
+    @Transactional(readOnly = true)
+    public SkillGapResponse analyse(Long userId, String language) {
         StudentProfile profile = studentProfileRepository.findByUserId(userId)
                 .orElseThrow(() -> new NotFoundException(
                         "No student profile is attached to this account."));
@@ -131,7 +135,7 @@ public class StudentSkillGapService {
         response.setOpenInternshipCount(market.getOpenInternshipsWithSkills());
         response.setVerifiedCertificateCount(verifiedCertificates);
         response.setApplicationCount((int) applications);
-        response.setSummary(buildSummary(response, ownSkills.size()));
+        response.setSummary(buildSummary(response, ownSkills.size(), language));
         return response;
     }
 
@@ -221,29 +225,48 @@ public class StudentSkillGapService {
         return (int) Math.round(((checks - missing) * 100.0) / checks);
     }
 
-    private String buildSummary(SkillGapResponse response, int skillCount) {
+    private String buildSummary(SkillGapResponse response, int skillCount, String language) {
+        boolean my = "my".equalsIgnoreCase(language);
         if (response.getOpenInternshipCount() == 0) {
-            return "No employer has published an internship with required skills yet, so there is "
-                    + "nothing to measure your profile against. Filling in your profile now means "
-                    + "you are ready the moment vacancies appear.";
+            return my
+                    ? "လိုအပ်သော ကျွမ်းကျင်မှုများ ဖော်ပြထားသည့် အလုပ်သင်နေရာ မည်သည့် အလုပ်ရှင်မျှ "
+                            + "မကြေညာရသေးသဖြင့် သင့်ပရိုဖိုင်ကို နှိုင်းယှဉ်စရာ မရှိသေးပါ။ ယခုပင် "
+                            + "ပရိုဖိုင် ဖြည့်ထားလျှင် နေရာများ ပေါ်လာသည်နှင့် အဆင်သင့် ဖြစ်နေပါမည်။"
+                    : "No employer has published an internship with required skills yet, so there is "
+                            + "nothing to measure your profile against. Filling in your profile now "
+                            + "means you are ready the moment vacancies appear.";
         }
         StringBuilder summary = new StringBuilder();
-        summary.append("Your profile is ").append(response.getProfileCompleteness())
-                .append("% complete and lists ").append(skillCount).append(" skill(s). ");
+        if (my) {
+            summary.append("သင့်ပရိုဖိုင်သည် ").append(response.getProfileCompleteness())
+                    .append("% ပြည့်စုံပြီး ကျွမ်းကျင်မှု ").append(skillCount)
+                    .append(" ခု ဖော်ပြထားပါသည်။ ");
+        } else {
+            summary.append("Your profile is ").append(response.getProfileCompleteness())
+                    .append("% complete and lists ").append(skillCount).append(" skill(s). ");
+        }
         if (!response.getStrengths().isEmpty()) {
-            summary.append("Employers are asking for ")
-                    .append(response.getStrengths().get(0).getSkill())
-                    .append(", which you already have. ");
+            summary.append(my
+                    ? "အလုပ်ရှင်များ တောင်းဆိုနေသော " + response.getStrengths().get(0).getSkill()
+                            + " ကို သင့်တွင် ရှိပြီးသား ဖြစ်ပါသည်။ "
+                    : "Employers are asking for " + response.getStrengths().get(0).getSkill()
+                            + ", which you already have. ");
         }
         if (!response.getSkillsToLearn().isEmpty()) {
             SkillDemandItem top = response.getSkillsToLearn().get(0);
-            summary.append("The single most useful thing to learn next is ").append(top.getSkill())
-                    .append(", required by ").append(top.getOpenInternshipsRequiring())
-                    .append(" of the ").append(response.getOpenInternshipCount())
-                    .append(" open internships. ");
+            summary.append(my
+                    ? "နောက်တစ်ဆင့် သင်ယူရန် အသုံးဝင်ဆုံးမှာ " + top.getSkill() + " ဖြစ်ပြီး "
+                            + "ဖွင့်ထားသော နေရာ " + response.getOpenInternshipCount() + " ခုအနက် "
+                            + top.getOpenInternshipsRequiring() + " ခုက တောင်းဆိုပါသည်။ "
+                    : "The single most useful thing to learn next is " + top.getSkill()
+                            + ", required by " + top.getOpenInternshipsRequiring()
+                            + " of the " + response.getOpenInternshipCount()
+                            + " open internships. ");
         }
         if (response.getVerifiedCertificateCount() == 0) {
-            summary.append("You have no verified certificates yet - employers only ever see verified ones.");
+            summary.append(my
+                    ? "စိစစ်ပြီး လက်မှတ် မရှိသေးပါ — အလုပ်ရှင်များသည် စိစစ်ပြီးသည်များကိုသာ မြင်ရပါသည်။"
+                    : "You have no verified certificates yet - employers only ever see verified ones.");
         }
         return summary.toString().trim();
     }

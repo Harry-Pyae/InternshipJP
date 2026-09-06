@@ -1,16 +1,8 @@
 import { useState } from "react";
+import { useLanguage } from "../../config/languageContext.jsx";
 
 /**
  * A labelled input with a leading icon, and a reveal button on passwords.
- *
- * THE PASSWORD TOGGLE IS NOT DECORATION
- *   People mistype passwords constantly, and a form that only says "email or
- *   password is incorrect" gives them no way to tell which. Letting someone
- *   check what they typed removes a whole category of failed sign-in - it is
- *   the single highest-value control on this page.
- *
- * The icon is aria-hidden: it repeats what the label already says, so a screen
- * reader announcing it twice would be noise.
  */
 export default function AuthField({
   id,
@@ -25,6 +17,7 @@ export default function AuthField({
   onBlur,
   ...rest
 }) {
+  const { t } = useLanguage();
   const [revealed, setRevealed] = useState(false);
   const isPassword = type === "password";
   const inputType = isPassword && revealed ? "text" : type;
@@ -39,8 +32,8 @@ export default function AuthField({
   return (
     <div className="ijp-field">
       <label className="ijp-field-label" htmlFor={id}>
-        {label}
-        {optional ? <span className="ijp-muted fw-normal"> (optional)</span> : null}
+        {t(label)}
+        {optional ? <span className="ijp-muted fw-normal"> {t("(optional)")}</span> : null}
       </label>
 
       <div className="ijp-field-wrap">

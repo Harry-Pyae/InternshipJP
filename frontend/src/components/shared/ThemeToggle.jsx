@@ -19,14 +19,6 @@ const OPTIONS = [
 
 /**
  * Light / dark / device theme, as a single dropdown.
- *
- * One control rather than three side-by-side buttons: three buttons take the
- * width of a whole menu item to express one setting, and it is never obvious
- * that they are alternatives rather than three separate actions. A dropdown
- * shows the current choice and hides the rest until asked.
- *
- * "Match my device" keeps following the operating system - change Windows to
- * dark at sunset and the app follows, with no reload.
  */
 export default function ThemeToggle() {
   const [choice, setChoice] = useState(readStoredTheme);

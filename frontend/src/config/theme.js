@@ -1,13 +1,5 @@
 /**
  * Light / dark / system theme.
- *
- * Bootstrap 5.3 does the heavy lifting: setting data-bs-theme="dark" on <html>
- * reskins every Bootstrap component. Our own tokens in styles/app.css hang off
- * the same attribute, so there is one switch for the whole interface rather
- * than two systems that can disagree.
- *
- * "system" follows the operating system and keeps following it - if you change
- * Windows to dark at sunset, the app changes with it.
  */
 
 const STORAGE_KEY = "ijp-theme";

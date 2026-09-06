@@ -1,13 +1,5 @@
 /**
  * "2 hours ago" from an ISO timestamp.
- *
- * Uses Intl.RelativeTimeFormat rather than a hand-written ladder of if
- * statements, so the wording is correct in whatever language the browser is
- * set to, and singular/plural is handled for us ("1 hour ago", not
- * "1 hours ago").
- *
- * Falls back to an absolute date beyond a month - "5 weeks ago" is a worse
- * answer than the date itself.
  */
 const UNITS = [
   { unit: "second", ms: 1000 },

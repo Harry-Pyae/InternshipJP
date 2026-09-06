@@ -6,23 +6,13 @@ import { describeApiError, fieldErrorsOf, ensureCsrfToken } from "../../api/axio
 import { rules, validate } from "../../api/validation.js";
 import LoadingBlock from "../../components/shared/LoadingBlock.jsx";
 import AuthField from "./AuthField.jsx";
+import { useLanguage } from "../../config/languageContext.jsx";
 
 /**
  * Create an account, as a student or an employer.
- *
- * There is deliberately no administrator option. Admins are created once by
- * the bootstrap runner - a public "register as admin" form would be an open
- * door to the whole platform.
- *
- * An employer account starts PENDING and its company starts PENDING: they can
- * sign in, but cannot publish a vacancy until an administrator approves the
- * company. The form says so rather than letting them find out later.
- *
- * TODO MEMBER_2: yours to finish - email confirmation, a password strength
- * meter, and any extra fields you want at sign-up. The registration payloads
- * are in documentation/API_CONTRACT.md.
  */
 export default function RegisterPage() {
+  const { t } = useLanguage();
   const { user, loading, signIn } = useAuth();
   const navigate = useNavigate();
 
@@ -57,7 +47,7 @@ export default function RegisterPage() {
   };
 
   if (loading) {
-    return <LoadingBlock label="Checking your session..." />;
+    return <LoadingBlock label={t("Checking your session...")} />;
   }
   if (user) {
     return <Navigate to={homeFor(user.role)} replace />;
@@ -134,13 +124,11 @@ export default function RegisterPage() {
   return (
     <>
       <span className="ijp-auth-eyebrow">
-            <i className="bi bi-person-plus me-2" aria-hidden="true" />
-            Sign up
-          </span>
-          <h1 className="ijp-auth-title">Create your account</h1>
-        <p className="ijp-muted mb-4">Find opportunities, or find people to hire.</p>
+            <i className="bi bi-person-plus me-2" aria-hidden="true" />{t("Sign up")}</span>
+          <h1 className="ijp-auth-title">{t("Create your account")}</h1>
+        <p className="ijp-muted mb-4">{t("Find opportunities, or find people to hire.")}</p>
 
-        <div className="btn-group w-100 mb-4" role="group" aria-label="Account type">
+        <div className="btn-group w-100 mb-4" role="group" aria-label={t("Account type")}>
           <button
             type="button"
             className={`btn ${isStudent ? "btn-ijp-primary" : "btn-ijp-quiet"}`}
@@ -169,7 +157,7 @@ export default function RegisterPage() {
         <form onSubmit={submit} className="d-grid gap-3">
           <AuthField
             id="regFullName"
-            label="Full name"
+            label={t("Full name")}
             icon="bi-person"
             value={form.fullName}
             onChange={(value) => update("fullName", value)}
@@ -179,7 +167,7 @@ export default function RegisterPage() {
           />
           <AuthField
             id="regEmail"
-            label="Email"
+            label={t("Email")}
             icon="bi-envelope"
             type="email"
             value={form.email}
@@ -191,7 +179,7 @@ export default function RegisterPage() {
           />
           <AuthField
             id="regPassword"
-            label="Password"
+            label={t("Password")}
             icon="bi-lock"
             type="password"
             value={form.password}
@@ -207,7 +195,7 @@ export default function RegisterPage() {
             <div className="ijp-auth-row">
               <AuthField
                 id="regUniversity"
-                label="University"
+                label={t("University")}
                 icon="bi-mortarboard"
                 optional
                 value={form.university}
@@ -215,7 +203,7 @@ export default function RegisterPage() {
               />
               <AuthField
                 id="regDegree"
-                label="Degree"
+                label={t("Degree")}
                 icon="bi-journal-text"
                 optional
                 value={form.degree}
@@ -226,7 +214,7 @@ export default function RegisterPage() {
             <>
               <AuthField
                 id="regCompany"
-                label="Company name"
+                label={t("Company name")}
                 icon="bi-building"
                 value={form.companyName}
                 onChange={(value) => update("companyName", value)}
@@ -236,7 +224,7 @@ export default function RegisterPage() {
               />
               <AuthField
                 id="regWebsite"
-                label="Company website"
+                label={t("Company website")}
                 icon="bi-globe"
                 optional
                 placeholder="https://example.com"
@@ -248,7 +236,7 @@ export default function RegisterPage() {
               <div className="ijp-auth-row">
                 <AuthField
                   id="regIndustry"
-                  label="Industry"
+                  label={t("Industry")}
                   icon="bi-diagram-3"
                   optional
                   value={form.industry}
@@ -256,7 +244,7 @@ export default function RegisterPage() {
                 />
                 <AuthField
                   id="regJobTitle"
-                  label="Your job title"
+                  label={t("Your job title")}
                   icon="bi-briefcase"
                   optional
                   value={form.jobTitle}
@@ -274,26 +262,20 @@ export default function RegisterPage() {
           <button className="btn btn-ijp-primary ijp-auth-submit" type="submit" disabled={busy}>
             {busy ? (
               <>
-                <span className="spinner-border spinner-border-sm me-2" aria-hidden="true" />
-                Creating your account...
-              </>
+                <span className="spinner-border spinner-border-sm me-2" aria-hidden="true" />{t("Creating your account...")}</>
             ) : (
-              <>
-                Create account
-                <i className="bi bi-arrow-right ms-2" aria-hidden="true" />
+              <>{t("Create account")}<i className="bi bi-arrow-right ms-2" aria-hidden="true" />
               </>
             )}
           </button>
         </form>
 
       <div className="ijp-auth-divider">
-        <span>Already have an account?</span>
+        <span>{t("Already have an account?")}</span>
       </div>
 
       <Link className="btn btn-ijp-quiet w-100" to="/auth/login">
-        <i className="bi bi-box-arrow-in-right me-2" aria-hidden="true" />
-        Sign in
-      </Link>
+        <i className="bi bi-box-arrow-in-right me-2" aria-hidden="true" />{t("Sign in")}</Link>
     </>
   );
 }

@@ -24,6 +24,16 @@ public class AiChatRequest {
 
     private Long internshipId;
 
+    /**
+     * Which language the answer should be written in - "en" or "my".
+     *
+     * Sent by the interface rather than guessed from the message, because a
+     * student writing English words inside a Burmese sentence is normal and
+     * detecting the language from the text would flip the answer around
+     * unpredictably. The toggle is an explicit choice; this carries it.
+     */
+    private String language;
+
     public String getMessage() {
         return message;
     }
@@ -46,5 +56,13 @@ public class AiChatRequest {
 
     public void setInternshipId(Long internshipId) {
         this.internshipId = internshipId;
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
     }
 }

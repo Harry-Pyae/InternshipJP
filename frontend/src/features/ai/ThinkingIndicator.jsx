@@ -2,23 +2,6 @@ import { useEffect, useState } from "react";
 
 /**
  * What the assistant shows while it is working.
- *
- * WHY THIS EXISTS
- *   A real answer takes two to six seconds. With nothing on screen the page
- *   looks frozen, and when the text does arrive it appears all at once - which
- *   reads as a page refresh rather than a reply. Showing the work makes the
- *   wait feel like progress instead of a stall.
- *
- * TWO PARTS
- *   1. A status line that changes as the work moves on. The stages are real:
- *      the backend really does read the profile, score the vacancies, then
- *      call the provider. It is not a fake progress bar.
- *   2. Skeleton lines where the answer will appear, at the width text will
- *      actually be, so the layout does not jump when it arrives.
- *
- * The shimmer is the only animation in the product, and it is doing a job:
- * a still grey block reads as broken, a moving one reads as loading. It stops
- * entirely for anyone with reduced motion turned on.
  */
 
 const STUDENT_STAGES = [

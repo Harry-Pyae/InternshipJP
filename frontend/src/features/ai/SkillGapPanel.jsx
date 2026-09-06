@@ -3,32 +3,24 @@ import { aiApi } from "../../api/aiApi.js";
 import { describeApiError } from "../../api/axiosClient.js";
 import LoadingBlock from "../../components/shared/LoadingBlock.jsx";
 import ErrorAlert from "../../components/shared/ErrorAlert.jsx";
+import { useLanguage } from "../../config/languageContext.jsx";
 
 /**
  * "What should I learn to get hired?" - the student assistant's core answer.
- *
- * Every number here is counted from the platform: how many open internships
- * require each skill, and which of those this student has. No AI provider is
- * involved, so this panel works with no API key and shows the same answer
- * every time.
- *
- * The chat sits next to it for the follow-up: how to learn it, in what order,
- * and what a first project would look like.
- *
- * Owner: Member 1.
  */
 export default function SkillGapPanel({ onAsk }) {
+  const { t, language } = useLanguage();
   const [gaps, setGaps] = useState(null);
   const [error, setError] = useState(null);
 
   const load = useCallback(async () => {
     setError(null);
     try {
-      setGaps(await aiApi.skillGaps());
+      setGaps(await aiApi.skillGaps(language));
     } catch (loadError) {
       setError(describeApiError(loadError));
     }
-  }, []);
+  }, [language]);
 
   useEffect(() => {
     load();
@@ -54,7 +46,7 @@ export default function SkillGapPanel({ onAsk }) {
 
   return (
     <div>
-      <h2 className="ijp-label mb-3">What to learn next</h2>
+      <h2 className="ijp-label mb-3">{t("What to learn next")}</h2>
 
       <div className="ijp-callout">
         <i className="bi bi-lightbulb ijp-callout-icon" aria-hidden="true" />
@@ -62,7 +54,7 @@ export default function SkillGapPanel({ onAsk }) {
       </div>
 
       <div className="d-flex justify-content-between align-items-center mb-1">
-        <span className="small fw-semibold">Profile completeness</span>
+        <span className="small fw-semibold">{t("Profile completeness")}</span>
         <span className={`ijp-status-value--${completenessTone} fw-semibold`}>
           {gaps.profileCompleteness}%
         </span>
@@ -81,7 +73,7 @@ export default function SkillGapPanel({ onAsk }) {
 
       {gaps.profileGaps.length > 0 ? (
         <>
-          <p className="small fw-semibold mb-1">Fix these first</p>
+          <p className="small fw-semibold mb-1">{t("Fix these first")}</p>
           <ul className="small ijp-muted ps-3 mb-3">
             {gaps.profileGaps.map((gap) => (
               <li key={gap}>{gap}</li>
@@ -101,17 +93,17 @@ export default function SkillGapPanel({ onAsk }) {
                   <span className="ijp-gap-text">
                     <span className="ijp-gap-skill">{item.skill}</span>
                     <span className="ijp-muted">
-                      required by {item.openInternshipsRequiring} of{" "}
-                      {gaps.openInternshipCount} open internships
+                      {t("required by {n} of {total} open internships", {
+                        n: item.openInternshipsRequiring,
+                        total: gaps.openInternshipCount,
+                      })}
                     </span>
                   </span>
                   <button
                     type="button"
                     className="btn btn-sm btn-ijp-quiet ijp-gap-action flex-shrink-0"
                     onClick={() => onAsk(item)}
-                  >
-                    Learn how
-                    <i className="bi bi-arrow-right ms-1" aria-hidden="true" />
+                  >{t("Learn how")}<i className="bi bi-arrow-right ms-1" aria-hidden="true" />
                   </button>
                 </li>
               ))}
@@ -127,7 +119,7 @@ export default function SkillGapPanel({ onAsk }) {
 
       {gaps.strengths.length > 0 ? (
         <>
-          <p className="small fw-semibold mb-1">Employers are asking for what you have</p>
+          <p className="small fw-semibold mb-1">{t("Employers are asking for what you have")}</p>
             <div className="ijp-pill-row mb-3">
               {gaps.strengths.map((item) => (
                 <span className="ijp-pill-skill ijp-pill-skill--have" key={item.skill}>

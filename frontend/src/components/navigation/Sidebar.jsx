@@ -1,22 +1,15 @@
 import { Link } from "react-router-dom";
 import SidebarItem from "./SidebarItem.jsx";
 import Avatar from "../shared/Avatar.jsx";
+import { useLanguage } from "../../config/languageContext.jsx";
 import { ROLE_LABEL } from "../../config/navigation.js";
 import { useAuth } from "../../config/authContext.jsx";
 
 /**
  * The application sidebar.
- *
- * Three states, one component:
- *   expanded   ~254px, icon + label
- *   collapsed  ~72px, icons only with tooltips
- *   drawer     off-canvas on phones and small tablets
- *
- * The collapse toggle sits next to the logo. On a phone the whole thing slides
- * over the content and closes as soon as a link is tapped - a permanently
- * visible rail on a 380px screen leaves no room for the page itself.
  */
 export default function Sidebar({ nav, collapsed, onToggleCollapse, onNavigate, inDrawer }) {
+  const { t } = useLanguage();
   const { user } = useAuth();
   // Inside the mobile drawer the sidebar is always full width - a collapsed
   // rail inside a slide-over would be pointless.
@@ -61,7 +54,7 @@ export default function Sidebar({ nav, collapsed, onToggleCollapse, onNavigate, 
           <div className="ijp-nav-group" key={group.section ?? `group-${index}`}>
             {group.section ? (
               <>
-                <p className="ijp-nav-section">{group.section}</p>
+                <p className="ijp-nav-section">{group.sectionKey ? t(group.sectionKey) : group.section}</p>
                 <hr className="ijp-nav-divider" aria-hidden="true" />
               </>
             ) : null}

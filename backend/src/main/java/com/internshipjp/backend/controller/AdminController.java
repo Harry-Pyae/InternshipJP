@@ -1,5 +1,8 @@
 package com.internshipjp.backend.controller;
 
+import com.internshipjp.backend.dto.response.InternshipSummaryResponse;
+import com.internshipjp.backend.dto.response.InternshipDetailResponse;
+import com.internshipjp.backend.service.InternshipService;
 import com.internshipjp.backend.dto.request.CompanyApprovalRequest;
 import com.internshipjp.backend.dto.request.UpdateUserStatusRequest;
 import com.internshipjp.backend.dto.response.AdminUserResponse;
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+
 /**
  * Administrator operations. The whole /api/admin/** tree is ADMIN-only in
  * SecurityConfig, so no method here needs its own role check.
@@ -30,6 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * Owner: Member 4.
  */
+
 @RestController
 @RequestMapping("/api/admin")
 public class AdminController {
@@ -38,10 +43,12 @@ public class AdminController {
 
     private final AdminService adminService;
     private final CurrentUserService currentUserService;
+    private final InternshipService internshipService;
 
-    public AdminController(AdminService adminService, CurrentUserService currentUserService) {
+    public AdminController(AdminService adminService, CurrentUserService currentUserService, InternshipService internshipService) {
         this.adminService = adminService;
         this.currentUserService = currentUserService;
+        this.internshipService = internshipService;
     }
 
     @GetMapping("/employers/pending")
@@ -76,6 +83,22 @@ public class AdminController {
     public AdminUserResponse updateUserStatus(@PathVariable Long id,
                                               @Valid @RequestBody UpdateUserStatusRequest request) {
         return adminService.updateUserStatus(currentUserService.requireUserId(), id, request);
+    }
+
+    @GetMapping("/internships")
+    public PageResponse<InternshipSummaryResponse> internships(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        return internshipService.listForAdmin(keyword, status,
+                PageRequest.of(Math.max(page, 0), safeSize(size),
+                        Sort.by(Sort.Direction.DESC, "createdAt")));
+    }
+
+    @GetMapping("/internships/{id}")
+    public InternshipDetailResponse internship(@PathVariable Long id) {
+        return internshipService.getAdminDetail(id);
     }
 
     private int safeSize(int size) {

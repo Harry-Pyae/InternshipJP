@@ -2,33 +2,6 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react"
 
 /**
  * A dropdown we actually control.
- *
- * WHY NOT A NATIVE <select>
- *   The popup a native select opens is drawn by the operating system, not by
- *   the page. `color-scheme` gets it into the right light/dark mode - which is
- *   real and worth having - but that is where CSS stops. Rounded corners,
- *   padding, dividers between groups, hover styling: none of it is reachable.
- *   Chrome ignores it, and there is no flag that changes that.
- *
- *   So this renders its own listbox. That is the only way to get the same
- *   surface as the rest of the application.
- *
- * WHAT THAT COSTS, AND WHAT IT MUST THEREFORE DO
- *   A native select is accessible for free. Replacing it means re-implementing
- *   what the browser was giving us, or the component is a downgrade for anyone
- *   not using a mouse:
- *
- *     - full keyboard control: arrows, Home, End, Enter, Space, Escape
- *     - type-ahead: press "b" to jump to "Backend Intern", as a real select does
- *     - focus returns to the trigger on close, so Tab order is not lost
- *     - role="listbox"/"option" with aria-activedescendant, so a screen reader
- *       announces the highlighted option without focus actually moving
- *     - closes on outside click and on Escape
- *
- *   If you extend this, keep those. A prettier dropdown that cannot be used
- *   from a keyboard is not an improvement.
- *
- * Owner: Member 4 (shared UI). Use it for filter menus too.
  */
 export default function Select({
   value,

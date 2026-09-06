@@ -1,15 +1,6 @@
 /**
  * Client-side validation for the auth forms.
- *
- * WHAT THIS IS FOR, AND WHAT IT IS NOT
- *   It is for telling someone their email is missing an "@" before they wait
- *   on a round trip. It is NOT a security boundary. Every rule here is also
- *   enforced by Bean Validation on the server, because anyone can skip the
- *   browser entirely - and the server's answer always wins.
- *
- *   The rules deliberately mirror the backend DTOs (@Email, @NotBlank,
- *   @Size(min = 8)). If you change one, change the other, or the form will
- *   accept something the API then rejects.
+ * @Size(min = 8)). If you change one, change the other, or the form will
  */
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;

@@ -2619,3 +2619,1039 @@ h4 {
 .ijp-answer--mm .ijp-answer-list {
   gap: 0.7rem;
 }
+
+
+/* --- quick actions -------------------------------------------------------- */
+/* Cards rather than buttons: a large target for a phone, and room to say where
+   each one leads instead of relying on a two-word label. */
+.ijp-quick-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.ijp-quick {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 1.15rem;
+  border: 1px solid var(--ijp-border);
+  border-radius: var(--ijp-radius);
+  background-color: var(--ijp-surface);
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 150ms ease, background-color 150ms ease, transform 150ms ease;
+}
+
+.ijp-quick:hover {
+  border-color: var(--ijp-signal);
+  background-color: var(--ijp-signal-soft);
+  color: inherit;
+}
+
+.ijp-quick-icon {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex: 0 0 2.5rem;
+  border-radius: 11px;
+  background-color: var(--ijp-signal-soft);
+  color: var(--ijp-signal);
+  font-size: 1.1rem;
+}
+
+.ijp-quick:hover .ijp-quick-icon {
+  background-color: var(--ijp-signal);
+  color: #fff;
+}
+
+.ijp-quick-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.ijp-quick-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.ijp-quick-text {
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--ijp-ink-soft);
+}
+
+.ijp-quick-go {
+  margin-left: auto;
+  align-self: center;
+  color: var(--ijp-ink-faint);
+  transition: transform 150ms ease, color 150ms ease;
+}
+
+.ijp-quick:hover .ijp-quick-go {
+  color: var(--ijp-signal);
+  transform: translateX(3px);
+}
+
+/* --- notification feed ---------------------------------------------------- */
+.ijp-notif-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.ijp-notif {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--ijp-border);
+  border-radius: var(--ijp-radius-sm);
+  background-color: var(--ijp-surface-sunken);
+}
+
+/* Unread carries a left rail and a dot - two signals, so it survives
+   greyscale. */
+.ijp-notif--unread {
+  border-left: 3px solid var(--ijp-signal);
+  background-color: var(--ijp-surface);
+}
+
+.ijp-notif-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  flex: 0 0 0.5rem;
+  margin-top: 0.45rem;
+  border-radius: 50%;
+  background-color: transparent;
+}
+
+.ijp-notif--unread .ijp-notif-dot {
+  background-color: var(--ijp-signal);
+}
+
+.ijp-notif-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.ijp-notif-title {
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+
+.ijp-notif-text {
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--ijp-ink-soft);
+}
+
+.ijp-notif--unread .ijp-notif-text {
+  color: var(--ijp-ink);
+}
+
+.ijp-notif-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  color: var(--ijp-ink-faint);
+  margin-top: 0.15rem;
+}
+
+.ijp-notif-type {
+  font-family: var(--ijp-font-data);
+  font-size: 0.68rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  background-color: var(--ijp-surface-sunken);
+  border: 1px solid var(--ijp-border);
+}
+
+/* --- read-only profile grid ----------------------------------------------- */
+.ijp-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 1.25rem;
+}
+
+.ijp-detail dt {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ijp-ink-faint);
+  margin-bottom: 0.2rem;
+}
+
+.ijp-detail dd {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.ijp-detail dd:empty::after,
+.ijp-detail dd.ijp-detail--empty::after {
+  content: "Not set";
+  color: var(--ijp-ink-faint);
+  font-style: italic;
+}
+
+
+/* --- dashboard hero ------------------------------------------------------- */
+/* The greeting, once. It sat under a second "EMPLOYER DASHBOARD" label on a
+   page whose header already said Dashboard - three titles for one page. */
+.ijp-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--ijp-border);
+  border-radius: var(--ijp-radius);
+  background-image: linear-gradient(
+    100deg,
+    var(--ijp-signal-soft) 0%,
+    var(--ijp-surface) 60%
+  );
+}
+
+.ijp-hero-title {
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin: 0 0 0.15rem;
+}
+
+.ijp-hero-text {
+  font-size: 0.9rem;
+  color: var(--ijp-ink-soft);
+  margin: 0;
+}
+
+.ijp-hero-art {
+  font-size: 1.75rem;
+  color: var(--ijp-signal);
+  opacity: 0.55;
+}
+
+/* --- form pages ----------------------------------------------------------- */
+/* One padded card around a whole form, so fields are not flush against the
+   page edge and the form reads as a single object. */
+.ijp-form-card {
+  padding: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .ijp-form-card {
+    padding: 2rem;
+  }
+}
+
+.ijp-form-card .mb-3 {
+  margin-bottom: 1.25rem !important;
+}
+
+.ijp-form-card label,
+.ijp-form-card .form-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+
+.ijp-form-card .form-control,
+.ijp-form-card .form-select,
+.ijp-form-card .ijp-select-trigger {
+  padding: 0.6rem 0.85rem;
+  min-height: 2.6rem;
+}
+
+.ijp-form-card textarea.form-control {
+  min-height: 6rem;
+}
+
+/* The native date input keeps the browser's own picker - it is keyboard
+   accessible, localised, and follows color-scheme. Only the field is styled;
+   a hand-built calendar would be a large component to get right and a worse
+   one for anyone using a screen reader. */
+.ijp-form-card input[type="date"] {
+  color-scheme: inherit;
+}
+
+
+/* --- calendar ------------------------------------------------------------- */
+.ijp-datepicker {
+  position: relative;
+}
+
+.ijp-cal {
+  position: absolute;
+  z-index: 1060;
+  top: calc(100% + 0.35rem);
+  left: 0;
+  min-width: 19rem;
+  padding: 0.75rem;
+  background-color: var(--ijp-surface);
+  border: 1px solid var(--ijp-border);
+  border-radius: var(--ijp-radius);
+  box-shadow: var(--ijp-shadow);
+  animation: ijp-select-in 120ms ease-out;
+}
+
+/* On a narrow screen the popup would otherwise run off the right edge. */
+@media (max-width: 480px) {
+  .ijp-cal {
+    left: 50%;
+    transform: translateX(-50%);
+    min-width: 17rem;
+  }
+}
+
+.ijp-cal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.ijp-cal-month {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.ijp-cal-grid {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.ijp-cal-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.15rem;
+}
+
+.ijp-cal-weekday {
+  display: grid;
+  place-items: center;
+  height: 1.9rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ijp-ink-faint);
+  text-decoration: none;
+  cursor: default;
+}
+
+.ijp-cal-day {
+  display: grid;
+  place-items: center;
+  height: 2.1rem;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: none;
+  color: var(--ijp-ink);
+  font-family: var(--ijp-font-data);
+  font-size: 0.85rem;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.ijp-cal-day:hover:not(:disabled) {
+  background-color: var(--ijp-surface-sunken);
+}
+
+/* Days from the neighbouring month stay visible but recede - removing them
+   would leave holes and make the week rows harder to scan. */
+.ijp-cal-day--outside {
+  color: var(--ijp-ink-faint);
+}
+
+.ijp-cal-day:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* Today gets an outline, the selection gets a fill - so both can show at once
+   without either being ambiguous. */
+.ijp-cal-day--today {
+  border-color: var(--ijp-border-strong);
+  font-weight: 700;
+}
+
+.ijp-cal-day--selected,
+.ijp-cal-day--selected:hover {
+  background-color: var(--ijp-signal);
+  border-color: var(--ijp-signal);
+  color: #fff;
+  font-weight: 700;
+}
+
+.ijp-cal-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--ijp-border);
+}
+
+
+/* --- cards in a grid stretch, cards on their own do not --------------------
+   SectionCard used to carry h-100 unconditionally. Inside a Bootstrap column
+   that is right - two cards side by side should line up. Standing alone it
+   resolved against the full-height content area instead, leaving a card
+   stretched to the bottom of the window with a large empty space under the
+   text.
+
+   Scoping it to a grid column gets both behaviours with no prop to remember
+   and no change to pages that already relied on it. */
+.row > [class*="col-"] > .ijp-card,
+.row > [class*="col"] > .ijp-card {
+  height: 100%;
+}
+
+
+/* --- dashboard metric cards ------------------------------------------------
+   The important part here is the difference between a card that navigates and
+   one that does not. They used to look identical, so the only way to discover
+   a link was to click it.
+
+   A linked card lifts, gains an accent border, and reveals a "View" arrow. A
+   plain card does none of that and keeps the default cursor. */
+.ijp-metric {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 9.5rem;
+  padding: 1.15rem 1.25rem;
+  border: 1px solid var(--ijp-border);
+  border-radius: var(--ijp-radius);
+  background-color: var(--ijp-surface);
+  color: inherit;
+  text-decoration: none;
+}
+
+.ijp-metric--link {
+  cursor: pointer;
+  transition: transform 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.ijp-metric--link:hover {
+  transform: translateY(-2px);
+  border-color: var(--ijp-signal);
+  box-shadow: var(--ijp-shadow);
+  color: inherit;
+}
+
+.ijp-metric-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.ijp-metric-icon {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex: 0 0 2.5rem;
+  border-radius: 11px;
+  background-color: var(--ijp-signal-soft);
+  color: var(--ijp-signal);
+  font-size: 1.1rem;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+
+/* A figure that needs attention colours its icon too, so the card reads at a
+   glance rather than only once the number is parsed. */
+.ijp-metric-icon--warning {
+  background-color: var(--ijp-pending-soft);
+  color: var(--ijp-pending);
+}
+
+.ijp-metric-icon--danger {
+  background-color: var(--ijp-rejected-soft);
+  color: var(--ijp-rejected);
+}
+
+.ijp-metric--link:hover .ijp-metric-icon {
+  background-color: var(--ijp-signal);
+  color: #fff;
+}
+
+.ijp-metric-value {
+  font-family: var(--ijp-font-data);
+  font-variant-numeric: tabular-nums;
+  font-size: 2rem;
+  font-weight: 600;
+  line-height: 1.1;
+  margin: 0.65rem 0 0;
+}
+
+.ijp-metric-desc {
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--ijp-ink-soft);
+  margin: 0.4rem 0 0;
+}
+
+/* Present but quiet until hover, so the card is not shouting at rest while
+   still telling you it goes somewhere. */
+.ijp-metric-go {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: auto;
+  padding-top: 0.85rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--ijp-ink-faint);
+  transition: color 150ms ease;
+}
+
+.ijp-metric-go i {
+  transition: transform 150ms ease;
+}
+
+.ijp-metric--link:hover .ijp-metric-go {
+  color: var(--ijp-signal);
+}
+
+.ijp-metric--link:hover .ijp-metric-go i {
+  transform: translateX(3px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ijp-metric--link:hover {
+    transform: none;
+  }
+  .ijp-metric--link:hover .ijp-metric-go i {
+    transform: none;
+  }
+}
+
+
+/* A quiet button that turns destructive on hover, for actions that should not
+   look inviting at rest but must be unmistakable once you are on them. */
+.ijp-btn-danger:hover,
+.ijp-btn-danger:focus-visible {
+  border-color: var(--ijp-rejected);
+  background-color: var(--ijp-rejected-soft);
+  color: var(--ijp-rejected);
+}
+
+
+/* --- report sections -------------------------------------------------------
+   The reports page ran four unrelated subjects together in one column with
+   nothing but spacing between them. A labelled band per subject means you can
+   find "AI activity" without reading the workload text above it first. */
+.ijp-report-section {
+  margin-bottom: 2.5rem;
+}
+
+.ijp-report-section:last-child {
+  margin-bottom: 0;
+}
+
+.ijp-section-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  padding-bottom: 0.6rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--ijp-border);
+}
+
+.ijp-section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.ijp-section-note {
+  font-size: 0.82rem;
+  color: var(--ijp-ink-soft);
+  margin: 0;
+}
+
+
+/* --- a whole card that is one link -----------------------------------------
+   Wrapping a card in <a> makes the browser underline every piece of text
+   inside it - the title, the company, the badge, the pills. It looked like a
+   page of hyperlinks rather than a set of cards.
+
+   Resetting decoration and colour on the anchor and its descendants puts that
+   back, while keeping the hover and focus affordances that say it is a link. */
+.ijp-card-link,
+.ijp-card-link:hover,
+.ijp-card-link:focus {
+  text-decoration: none;
+  color: inherit;
+}
+
+.ijp-card-link * {
+  text-decoration: none;
+}
+
+.ijp-card-link {
+  cursor: pointer;
+  transition: transform 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.ijp-card-link:hover {
+  transform: translateY(-2px);
+  border-color: var(--ijp-signal);
+  box-shadow: var(--ijp-shadow);
+}
+
+.ijp-card-link:hover .ijp-match-title {
+  color: var(--ijp-signal);
+}
+
+.ijp-card-link .ijp-metric-go {
+  padding-top: 0;
+}
+
+.ijp-card-link:hover .ijp-metric-go {
+  color: var(--ijp-signal);
+}
+
+.ijp-card-link:hover .ijp-metric-go i {
+  transform: translateX(3px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ijp-card-link:hover {
+    transform: none;
+  }
+}
+
+/* --- pagination ------------------------------------------------------------ */
+.ijp-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--ijp-border);
+}
+
+.ijp-pagination-count {
+  font-size: 0.8rem;
+  color: var(--ijp-ink-soft);
+  text-align: center;
+}
+
+
+/* --- certificate file viewing ---------------------------------------------- */
+.ijp-file-frame {
+  width: 100%;
+  height: 70vh;
+  min-height: 26rem;
+  border: 1px solid var(--ijp-border);
+  border-radius: var(--ijp-radius-sm);
+  background-color: var(--ijp-surface-sunken);
+}
+
+.ijp-file-image {
+  width: 100%;
+  max-height: 70vh;
+  object-fit: contain;
+  border: 1px solid var(--ijp-border);
+  border-radius: var(--ijp-radius-sm);
+  background-color: var(--ijp-surface-sunken);
+}
+
+/* A failed preview gets a small card, not the full-height frame. An empty
+   box the size of a document reads as "broken"; this reads as "here is why". */
+.ijp-file-fallback {
+  display: grid;
+  place-items: center;
+  gap: 0.35rem;
+  text-align: center;
+  padding: 2.5rem 1.5rem;
+  border: 1px dashed var(--ijp-border-strong);
+  border-radius: var(--ijp-radius-sm);
+  background-color: var(--ijp-surface-sunken);
+}
+
+.ijp-file-fallback > i {
+  font-size: 1.75rem;
+  color: var(--ijp-ink-faint);
+}
+
+/* --- modal ------------------------------------------------------------------ */
+.ijp-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1070;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  background-color: rgba(0, 0, 0, 0.6);
+  animation: ijp-select-in 140ms ease-out;
+}
+
+.ijp-modal-card {
+  width: min(60rem, 100%);
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 1.25rem;
+  background-color: var(--ijp-surface);
+  border: 1px solid var(--ijp-border);
+  border-radius: var(--ijp-radius);
+  box-shadow: var(--ijp-shadow);
+}
+
+
+/* --- certificate review layout ---------------------------------------------
+   The document is the page. The facts sit in one strip above it, and the
+   decision follows you down as you read - previously it lived under a
+   full-height frame, so deciding meant scrolling away from the evidence. */
+.ijp-fact-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: 1rem 1.5rem;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+  border: 1px solid var(--ijp-border);
+  border-radius: var(--ijp-radius);
+  background-color: var(--ijp-surface);
+}
+
+.ijp-fact {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.ijp-fact-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--ijp-ink-faint);
+}
+
+.ijp-fact-value {
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+}
+
+.ijp-review-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+@media (min-width: 1200px) {
+  .ijp-review-layout {
+    /* The document gets the room; the decision panel takes a fixed column so
+       it does not stretch to match a tall frame. */
+    grid-template-columns: minmax(0, 1fr) 22rem;
+  }
+
+  .ijp-review-side {
+    position: sticky;
+    top: 1rem;
+  }
+}
+
+
+/* --- language toggle -------------------------------------------------------
+   Two states, so a segmented control rather than a menu: a dropdown would cost
+   a click to reveal what it could simply show. */
+.ijp-lang-toggle {
+  display: inline-flex;
+  padding: 2px;
+  border: 1px solid var(--ijp-border-strong);
+  border-radius: 999px;
+  background-color: var(--ijp-surface-sunken);
+}
+
+.ijp-lang-option {
+  border: 0;
+  background: none;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--ijp-ink-faint);
+  transition: background-color 150ms ease, color 150ms ease;
+}
+
+.ijp-lang-option:hover {
+  color: var(--ijp-ink);
+}
+
+.ijp-lang-option--on {
+  background-color: var(--ijp-signal);
+  color: #fff;
+}
+
+/* --- notification bell ------------------------------------------------------ */
+.ijp-bell {
+  position: relative;
+}
+
+.ijp-bell-btn {
+  position: relative;
+}
+
+/* The count sits ON the bell, and the icon also switches to its filled
+   variant. Two signals, so it survives greyscale and colour blindness -
+   a red dot alone would not. */
+.ijp-bell-dot {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  min-width: 1.05rem;
+  height: 1.05rem;
+  padding: 0 0.25rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background-color: var(--ijp-rejected);
+  color: #fff;
+  font-family: var(--ijp-font-data);
+  font-size: 0.66rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.ijp-bell-panel {
+  position: absolute;
+  z-index: 1060;
+  top: calc(100% + 0.4rem);
+  right: 0;
+  width: min(22rem, calc(100vw - 2rem));
+  background-color: var(--ijp-surface);
+  border: 1px solid var(--ijp-border);
+  border-radius: var(--ijp-radius);
+  box-shadow: var(--ijp-shadow);
+  overflow: hidden;
+  animation: ijp-select-in 120ms ease-out;
+}
+
+.ijp-bell-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.75rem 0.9rem;
+  border-bottom: 1px solid var(--ijp-border);
+}
+
+.ijp-bell-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 18rem;
+  overflow-y: auto;
+}
+
+.ijp-bell-list > li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.65rem 0.9rem;
+  border-bottom: 1px solid var(--ijp-border);
+  font-size: 0.85rem;
+}
+
+.ijp-bell-item--unread {
+  border-left: 3px solid var(--ijp-signal);
+  background-color: var(--ijp-surface-sunken);
+}
+
+.ijp-bell-text {
+  line-height: 1.4;
+}
+
+.ijp-bell-time {
+  font-size: 0.72rem;
+  color: var(--ijp-ink-faint);
+}
+
+.ijp-bell-foot {
+  display: block;
+  padding: 0.7rem 0.9rem;
+  text-align: center;
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: var(--ijp-signal);
+  text-decoration: none;
+}
+
+.ijp-bell-foot:hover {
+  background-color: var(--ijp-signal-soft);
+}
+
+/* Burmese needs more leading than Latin wherever it appears in the shell. */
+[data-lang="my"] .ijp-nav-label,
+[data-lang="my"] .ijp-nav-section,
+[data-lang="my"] .ijp-bell-text {
+  line-height: 1.8;
+}
+
+
+/* --- narrow stat rows -------------------------------------------------------
+   The AI usage card sits in a narrow right-hand column, where a full StatCard
+   stacks label over value over hint and turns four figures into a tall ladder.
+   Side by side is denser and easier to compare down the column. */
+.ijp-mini-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--ijp-border);
+}
+
+.ijp-mini-row:last-child {
+  border-bottom: 0;
+}
+
+.ijp-mini-label {
+  font-size: 0.8rem;
+  color: var(--ijp-ink-soft);
+}
+
+.ijp-mini-value {
+  font-family: var(--ijp-font-data);
+  font-size: 1.05rem;
+  font-weight: 600;
+  text-align: right;
+}
+
+
+/* --- notification rows as controls ----------------------------------------
+   The whole row is the hit target when there is somewhere to go. A row with no
+   destination stays a plain block, so nothing looks clickable and then does
+   nothing when clicked. */
+.ijp-notif-hit {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: left;
+  color: inherit;
+}
+
+.ijp-notif-hit--link {
+  cursor: pointer;
+}
+
+.ijp-notif:has(.ijp-notif-hit--link):hover {
+  border-color: var(--ijp-signal);
+}
+
+.ijp-notif-hit:disabled {
+  cursor: default;
+}
+
+.ijp-notif-icon {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  flex: 0 0 2rem;
+  border-radius: 9px;
+  font-size: 0.9rem;
+  background-color: var(--ijp-surface-sunken);
+  color: var(--ijp-ink-faint);
+}
+
+.ijp-notif-icon--ok {
+  background-color: var(--ijp-verified-soft);
+  color: var(--ijp-verified);
+}
+
+.ijp-notif-icon--signal {
+  background-color: var(--ijp-signal-soft);
+  color: var(--ijp-signal);
+}
+
+.ijp-notif-icon--warn {
+  background-color: var(--ijp-pending-soft);
+  color: var(--ijp-pending);
+}
+
+.ijp-notif-go {
+  align-self: center;
+  color: var(--ijp-ink-faint);
+  transition: transform 150ms ease, color 150ms ease;
+}
+
+.ijp-notif:hover .ijp-notif-go {
+  color: var(--ijp-signal);
+  transform: translateX(3px);
+}
+
+
+/* --- skill chips -----------------------------------------------------------
+   Each skill used to be a full-width bordered block with a heading and two
+   outline buttons, so six skills filled a screen for twelve words of content.
+   The chip is the control: the name edits, the x removes. */
+.ijp-skill-chip {
+  display: inline-flex;
+  align-items: stretch;
+  border: 1px solid var(--ijp-verified);
+  background-color: var(--ijp-verified-soft);
+  border-radius: 999px;
+  overflow: hidden;
+  transition: border-color 150ms ease, background-color 150ms ease;
+}
+
+.ijp-skill-chip--editing {
+  border-color: var(--ijp-signal);
+  background-color: var(--ijp-signal-soft);
+}
+
+.ijp-skill-chip-name {
+  border: 0;
+  background: none;
+  padding: 0.3rem 0.3rem 0.3rem 0.75rem;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--ijp-verified);
+}
+
+.ijp-skill-chip--editing .ijp-skill-chip-name {
+  color: var(--ijp-signal);
+}
+
+.ijp-skill-chip-name:hover {
+  text-decoration: underline;
+}
+
+.ijp-skill-chip-x {
+  border: 0;
+  background: none;
+  padding: 0 0.55rem 0 0.35rem;
+  font-size: 0.9rem;
+  line-height: 1;
+  color: var(--ijp-ink-faint);
+}
+
+.ijp-skill-chip-x:hover {
+  color: var(--ijp-rejected);
+}

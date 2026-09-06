@@ -11,8 +11,6 @@ public class StudentSkillResponse {
 
     private String skillType;
 
-    private String proficiency;
-
     public Long getId() {
         return id;
     }
@@ -35,13 +33,5 @@ public class StudentSkillResponse {
 
     public void setSkillType(String skillType) {
         this.skillType = skillType;
-    }
-
-    public String getProficiency() {
-        return proficiency;
-    }
-
-    public void setProficiency(String proficiency) {
-        this.proficiency = proficiency;
     }
 }

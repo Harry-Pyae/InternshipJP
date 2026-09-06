@@ -1,4 +1,6 @@
 import ThemeToggle from "../shared/ThemeToggle.jsx";
+import LanguageToggle from "../shared/LanguageToggle.jsx";
+import NotificationBell from "../shared/NotificationBell.jsx";
 import UserMenu from "./UserMenu.jsx";
 
 /**
@@ -8,7 +10,7 @@ import UserMenu from "./UserMenu.jsx";
  * here would be two controls for one job. What is left is what genuinely
  * belongs at the top: where you are, and who you are.
  */
-export default function Topbar({ title, onOpenDrawer, settingsPath }) {
+export default function Topbar({ title, onOpenDrawer, settingsPath, basePath }) {
   return (
     <header className="ijp-topbar">
       <div className="d-flex align-items-center gap-2 min-w-0">
@@ -24,6 +26,8 @@ export default function Topbar({ title, onOpenDrawer, settingsPath }) {
       </div>
 
       <div className="d-flex align-items-center gap-2">
+        <LanguageToggle />
+        <NotificationBell basePath={basePath} />
         <ThemeToggle />
         <UserMenu settingsPath={settingsPath} />
       </div>

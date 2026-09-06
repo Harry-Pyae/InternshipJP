@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { aiApi } from "../../api/aiApi.js";
+import { useLanguage } from "../../config/languageContext.jsx";
 import { authApi } from "../../api/authApi.js";
 import { employerApi } from "../../api/employerApi.js";
 import { describeApiError } from "../../api/axiosClient.js";
@@ -19,27 +20,10 @@ import { timeAgo, exactTime } from "../../api/relativeTime.js";
 
 /**
  * The AI assistant - Member 1's vertical slice.
- *
- * LAYOUT, AND WHY IT CHANGED
- *   This used to be a chat card beside a rail of analysis panels. The panels
- *   are far taller than a short conversation, so the page formed an L: content
- *   down the right, dead space bottom-left. It was also wrong on a phone,
- *   where the rail came first and you scrolled past three panels to reach the
- *   chat.
- *
- *   Now: one centred column, with the analysis in tabs beside the
- *   conversation. Every tab is the same width, so there is no dead corner at
- *   any screen size, and a phone gets the chat immediately.
- *
- * TWO AUDIENCES
- *   audience="student"   what to learn, what is missing, which vacancies fit
- *   audience="employer"  compare applicants, or review the company itself
- *
- * Nothing is invented. If the backend answers with degraded: true (no API key,
- * provider unreachable, or not enough data), that explanation is shown as a
- * notice rather than dressed up as an AI answer.
  */
 export default function AiChatPage({ audience, initialTab = "chat" }) {
+  const { t } = useLanguage();
+  const { language } = useLanguage();
   const isEmployer = audience === "employer";
   const isAdmin = audience === "admin";
 
@@ -248,10 +232,19 @@ export default function AiChatPage({ audience, initialTab = "chat" }) {
     setDraft("");
 
     try {
+      // The interface language rides along with every message, so the
+      // assistant follows the EN / မြန်မာ toggle instead of needing
+      // "in burmese please" typed each time. The backend appends the
+      // instruction only when this is "my".
       const payload =
         isEmployer && employerMode === "candidates"
-          ? { message: question, conversationId, internshipId: Number(internshipId) }
-          : { message: question, conversationId };
+          ? {
+              message: question,
+              conversationId,
+              internshipId: Number(internshipId),
+              language,
+            }
+          : { message: question, conversationId, language };
       const response = isAdmin
         ? await aiApi.adminChat(payload)
         : isEmployer
@@ -295,7 +288,7 @@ export default function AiChatPage({ audience, initialTab = "chat" }) {
         <div className="ijp-card p-4">
           <EmptyState
             icon="bi-person-lock"
-            title="Sign in to use the assistant"
+            title={t("Sign in to use the assistant")}
             hint="It only ever reads data belonging to the signed-in user, so it needs a session. The real login screen is Member 2's work; until then, use the Session panel on the Integration status page."
           />
         </div>
@@ -312,7 +305,7 @@ export default function AiChatPage({ audience, initialTab = "chat" }) {
         <div className="ijp-card p-4">
           <EmptyState
             icon="bi-shield-exclamation"
-            title="This assistant is for a different role"
+            title={t("This assistant is for a different role")}
             hint={`You are signed in as ${user.role}. ${title} is only available to ${expectedRole.toLowerCase()} accounts.`}
           />
         </div>
@@ -324,21 +317,21 @@ export default function AiChatPage({ audience, initialTab = "chat" }) {
 
   const tabs = isAdmin
     ? [
-        { key: "chat", icon: "bi-chat-dots", label: "Chat" },
-        { key: "today", icon: "bi-list-check", label: "Today" },
-        { key: "history", icon: "bi-clock-history", label: "History", count: conversations.length },
+        { key: "chat", icon: "bi-chat-dots", label: t("Chat") },
+        { key: "today", icon: "bi-list-check", label: t("Today") },
+        { key: "history", icon: "bi-clock-history", label: t("History"), count: conversations.length },
       ]
     : isEmployer
     ? [
-        { key: "chat", icon: "bi-chat-dots", label: "Chat" },
-        { key: "company", icon: "bi-building-gear", label: "My company" },
-        { key: "history", icon: "bi-clock-history", label: "History", count: conversations.length },
+        { key: "chat", icon: "bi-chat-dots", label: t("Chat") },
+        { key: "company", icon: "bi-building-gear", label: t("My company") },
+        { key: "history", icon: "bi-clock-history", label: t("History"), count: conversations.length },
       ]
     : [
-        { key: "chat", icon: "bi-chat-dots", label: "Chat" },
-        { key: "learn", icon: "bi-lightbulb", label: "What to learn" },
-        { key: "matches", icon: "bi-ui-checks-grid", label: "Matches" },
-        { key: "history", icon: "bi-clock-history", label: "History", count: conversations.length },
+        { key: "chat", icon: "bi-chat-dots", label: t("Chat") },
+        { key: "learn", icon: "bi-lightbulb", label: t("What to learn") },
+        { key: "matches", icon: "bi-ui-checks-grid", label: t("Matches") },
+        { key: "history", icon: "bi-clock-history", label: t("History"), count: conversations.length },
       ];
 
   const starters = isAdmin
@@ -382,9 +375,7 @@ export default function AiChatPage({ audience, initialTab = "chat" }) {
         }
         action={
           <button type="button" className="btn btn-ijp-quiet btn-sm" onClick={startNewConversation}>
-            <i className="bi bi-plus-lg me-1" aria-hidden="true" />
-            New conversation
-          </button>
+            <i className="bi bi-plus-lg me-1" aria-hidden="true" />{t("New conversation")}</button>
         }
       />
 
@@ -446,8 +437,7 @@ export default function AiChatPage({ audience, initialTab = "chat" }) {
       </div>
 
       <p className="ijp-muted small mt-3 mb-0">
-        The assistant gives advice only. It cannot accept or reject anyone, change an
-        application, or see unverified certificates.
+        {t("The assistant gives advice only. It cannot accept or reject anyone, change an application, or see unverified certificates.")}
       </p>
     </div>
   );
@@ -469,6 +459,7 @@ function ChatTab({
   onSend,
   logRef,
 }) {
+  const { t } = useLanguage();
   const thinkingMode = !isEmployer
     ? "student"
     : employerMode === "company"
@@ -501,9 +492,7 @@ function ChatTab({
               className={`btn ${employerMode === "company" ? "btn-ijp-primary" : "btn-ijp-quiet"}`}
               onClick={() => setEmployerMode("company")}
             >
-              <i className="bi bi-building-gear me-1" aria-hidden="true" />
-              My company
-            </button>
+              <i className="bi bi-building-gear me-1" aria-hidden="true" />{t("My company")}</button>
           </div>
 
           {employerMode === "candidates" ? (
@@ -588,7 +577,7 @@ function ChatTab({
         />
         <button className="btn btn-ijp-primary flex-shrink-0" type="submit" disabled={sending}>
           <i className="bi bi-send" aria-hidden="true" />
-          <span className="d-none d-sm-inline ms-2">Send</span>
+          <span className="d-none d-sm-inline ms-2">{t("Send")}</span>
         </button>
       </form>
     </div>
@@ -596,11 +585,12 @@ function ChatTab({
 }
 
 function HistoryTab({ conversations, conversationId, onOpen, onDelete }) {
+  const { t } = useLanguage();
   if (conversations.length === 0) {
     return (
       <EmptyState
         icon="bi-clock-history"
-        title="No conversations yet"
+        title={t("No conversations yet")}
         hint="Ask a question and it will be saved here."
       />
     );
@@ -643,7 +633,7 @@ function HistoryTab({ conversations, conversationId, onOpen, onDelete }) {
               className="ijp-history-delete"
               onClick={() => onDelete(conversation.id)}
               aria-label={`Delete conversation: ${conversation.title ?? "Conversation"}`}
-              title="Delete this conversation"
+              title={t("Delete this conversation")}
             >
               <i className="bi bi-trash" aria-hidden="true" />
             </button>

@@ -6,6 +6,7 @@ import com.internshipjp.backend.dto.response.ApplicationDetailResponse;
 import com.internshipjp.backend.dto.response.ApplicationSummaryResponse;
 import com.internshipjp.backend.dto.response.PageResponse;
 import com.internshipjp.backend.entity.Application;
+import com.internshipjp.backend.entity.User;
 import com.internshipjp.backend.entity.ApplicationStatus;
 import com.internshipjp.backend.entity.ApplicationStatusHistory;
 import com.internshipjp.backend.entity.EmployerProfile;
@@ -209,6 +210,30 @@ public class ApplicationService {
     }
 
     // ---------------------------------------------------------------- helpers
+
+    /**
+     * Sends a note from the employer to the applicant.
+     *
+     * requireOwnApplication is what makes this safe: an employer can only
+     * message someone who applied to their own company's vacancy. Without it,
+     * any application id would reach any student.
+     *
+     * The vacancy title is put in the notification because a student may have
+     * applied to several, and "please send your transcript" means nothing
+     * without knowing which role is asking.
+     */
+    @Transactional
+    public void messageApplicant(Long userId, Long applicationId, String message) {
+        Application application = requireOwnApplication(userId, applicationId);
+        User student = application.getStudentProfile().getUser();
+        String company = application.getInternship().getCompany().getName();
+
+        notificationService.create(
+                student,
+                "APPLICATION_MESSAGE",
+                company + " asked about your application",
+                "Regarding \"" + application.getInternship().getTitle() + "\": " + message);
+    }
 
     private Application requireOwnApplication(Long userId, Long applicationId) {
         EmployerProfile profile = employerService.requireProfile(userId);

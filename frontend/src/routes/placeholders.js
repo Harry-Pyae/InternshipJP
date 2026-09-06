@@ -1,13 +1,5 @@
 /**
  * The pages that route correctly but whose feature belongs to a teammate.
- *
- * Kept as data rather than 20 near-identical JSX blocks: adding a page is one
- * object, and it is obvious at a glance who owns what and which endpoints are
- * already waiting.
- *
- * `endpoints: []` means the backend does not exist yet. That is stated on the
- * page rather than implied, so nobody starts building a screen against an API
- * that was never written.
  */
 const ACCOUNT_ENDPOINTS = [
   "GET  /api/account/me",
@@ -22,19 +14,6 @@ const NOTIFICATION_ENDPOINTS = [
   "PATCH /api/notifications/read-all",
 ];
 
-/** Messaging was never designed. Saying so is the point. */
-const MESSAGES = {
-  title: "Messages",
-  description: "Direct conversations between students and employers.",
-  icon: "bi-chat-left-text",
-  owner: "Not assigned - needs a group decision first",
-  endpoints: [],
-  note:
-    "There is no messaging feature in the backend: no table, no entity, no endpoints. " +
-    "Building this means a new migration and a new module, so agree it with the group " +
-    "before starting. Until then, employers reach applicants through the application " +
-    "status flow, which does send notifications.",
-};
 
 export const STUDENT_PAGES = [
   {
@@ -78,7 +57,6 @@ export const STUDENT_PAGES = [
     owner: "Member 4",
     endpoints: NOTIFICATION_ENDPOINTS,
   },
-  { path: "/student/messages", ...MESSAGES },
   {
     path: "/student/profile",
     title: "My profile",
@@ -143,7 +121,6 @@ export const EMPLOYER_PAGES = [
     owner: "Member 4",
     endpoints: NOTIFICATION_ENDPOINTS,
   },
-  { path: "/employer/messages", ...MESSAGES },
   {
     path: "/employer/company",
     title: "Company profile",
@@ -230,7 +207,6 @@ export const ADMIN_PAGES = [
     owner: "Member 4",
     endpoints: NOTIFICATION_ENDPOINTS,
   },
-  { path: "/admin/messages", ...MESSAGES },
   {
     path: "/admin/settings",
     title: "Settings",

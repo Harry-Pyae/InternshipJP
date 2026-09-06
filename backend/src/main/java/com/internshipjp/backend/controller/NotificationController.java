@@ -2,6 +2,7 @@ package com.internshipjp.backend.controller;
 
 import com.internshipjp.backend.dto.response.ApiMessageResponse;
 import com.internshipjp.backend.dto.response.NotificationResponse;
+import com.internshipjp.backend.dto.response.UnreadCountResponse;
 import com.internshipjp.backend.dto.response.PageResponse;
 import com.internshipjp.backend.security.CurrentUserService;
 import com.internshipjp.backend.service.NotificationService;
@@ -47,6 +48,19 @@ public class NotificationController {
         int safeSize = Math.min(Math.max(size, 1), MAX_PAGE_SIZE);
         return notificationService.list(currentUserService.requireUserId(),
                 PageRequest.of(Math.max(page, 0), safeSize));
+    }
+
+    /**
+     * Just the number, for the bell.
+     *
+     * NotificationService.unreadCount() already existed and nothing called it.
+     * The bell polls, so it matters that this counts in the database rather
+     * than fetching a page of thirty rows to count them in Java.
+     */
+    @GetMapping("/unread-count")
+    public UnreadCountResponse unreadCount() {
+        return new UnreadCountResponse(
+                notificationService.unreadCount(currentUserService.requireUserId()));
     }
 
     @PatchMapping("/{id}/read")

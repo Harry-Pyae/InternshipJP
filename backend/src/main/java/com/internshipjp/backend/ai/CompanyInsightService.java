@@ -69,8 +69,12 @@ public class CompanyInsightService {
         this.skillMarketService = skillMarketService;
     }
 
-    @Transactional(readOnly = true)
     public CompanyInsightResponse analyse(Long employerUserId) {
+        return analyse(employerUserId, "en");
+    }
+
+    @Transactional(readOnly = true)
+    public CompanyInsightResponse analyse(Long employerUserId, String language) {
         Company company = employerService.requireProfile(employerUserId).getCompany();
         Long companyId = company.getId();
 
@@ -98,8 +102,8 @@ public class CompanyInsightService {
 
         response.setListingIssues(findListingIssues(internships));
         response.setHardToFillSkills(findHardToFillSkills(companyId, market));
-        response.setRecommendations(buildRecommendations(company, response));
-        response.setSummary(buildSummary(response));
+        response.setRecommendations(buildRecommendations(company, response, language));
+        response.setSummary(buildSummary(response, language));
         return response;
     }
 
@@ -228,46 +232,79 @@ public class CompanyInsightService {
         return scarce;
     }
 
-    private List<String> buildRecommendations(Company company, CompanyInsightResponse insight) {
+    private List<String> buildRecommendations(Company company, CompanyInsightResponse insight, String language) {
+        boolean my = "my".equalsIgnoreCase(language);
         List<String> recommendations = new ArrayList<>();
 
         if (company.getApprovalStatus() != ApprovalStatus.APPROVED) {
-            recommendations.add("Your company is " + company.getApprovalStatus().name()
-                    + ", so nothing you publish is visible to students. This is the first thing to fix.");
+            recommendations.add(my
+                    ? "သင့်ကုမ္ပဏီမှာ " + company.getApprovalStatus().name() + " ဖြစ်နေသဖြင့် "
+                            + "သင်ကြေညာသမျှကို ကျောင်းသားများ မမြင်ရပါ။ ဤအရာကို ဦးစွာ ဖြေရှင်းပါ။"
+                    : "Your company is " + company.getApprovalStatus().name()
+                            + ", so nothing you publish is visible to students. This is the first "
+                            + "thing to fix.");
         }
         if (insight.getTotalInternships() == 0) {
-            recommendations.add("You have not created any internships yet.");
+            recommendations.add(my
+                    ? "အလုပ်သင်နေရာ တစ်ခုမျှ မဖန်တီးရသေးပါ။"
+                    : "You have not created any internships yet.");
             return recommendations;
         }
         if (insight.getOpenInternships() == 0 && insight.getDraftInternships() > 0) {
-            recommendations.add("All " + insight.getDraftInternships()
-                    + " of your internships are still drafts. Students only ever see OPEN ones.");
+            recommendations.add(my
+                    ? "သင့် အလုပ်သင်နေရာ " + insight.getDraftInternships()
+                            + " ခုလုံး မူကြမ်း အဆင့်တွင်သာ ရှိပါသေးသည်။ ဖွင့်ထားသည်များကိုသာ "
+                            + "ကျောင်းသားများ မြင်ရပါသည်။"
+                    : "All " + insight.getDraftInternships()
+                            + " of your internships are still drafts. Students only ever see "
+                            + "OPEN ones.");
         }
         if (insight.getAwaitingReview() > 0) {
-            recommendations.add(insight.getAwaitingReview()
-                    + " applicant(s) are still in APPLIED and have never been reviewed. "
-                    + "Slow responses are the most common reason good candidates go elsewhere.");
+            recommendations.add(my
+                    ? "လျှောက်ထားသူ " + insight.getAwaitingReview()
+                            + " ဦးမှာ တစ်ကြိမ်မျှ မစိစစ်ရသေးပါ။ တုံ့ပြန်မှု နှေးကွေးခြင်းသည် "
+                            + "ကောင်းသော လျှောက်ထားသူများ အခြားသို့ ရွှေ့သွားရသည့် အဓိက အကြောင်းရင်း ဖြစ်သည်။"
+                    : insight.getAwaitingReview()
+                            + " applicant(s) are still in APPLIED and have never been reviewed. "
+                            + "Slow responses are the most common reason good candidates go "
+                            + "elsewhere.");
         }
         if (!insight.getHardToFillSkills().isEmpty()) {
             SkillDemandItem scarcest = insight.getHardToFillSkills().get(0);
-            recommendations.add("Very few students list " + scarcest.getSkill()
-                    + " (" + scarcest.getStudentsWithSkill() + " on the whole platform). "
-                    + "Consider marking it as nice-to-have rather than required, or accepting a "
-                    + "related skill, otherwise this vacancy will keep attracting nobody.");
+            recommendations.add(my
+                    ? scarcest.getSkill() + " ကို ဖော်ပြထားသော ကျောင်းသား အလွန်နည်းပါသည် "
+                            + "(စနစ်တစ်ခုလုံးတွင် " + scarcest.getStudentsWithSkill() + " ဦး)။ "
+                            + "မဖြစ်မနေ လိုအပ်သည်အဖြစ် မထားဘဲ ရှိလျှင်ကောင်းသည်အဖြစ် ပြောင်းရန် "
+                            + "သို့မဟုတ် ဆက်စပ်ကျွမ်းကျင်မှု လက်ခံရန် စဉ်းစားပါ။ မဟုတ်ပါက ဤနေရာသို့ "
+                            + "မည်သူမျှ ဆက်လက် လျှောက်ထားမည် မဟုတ်ပါ။"
+                    : "Very few students list " + scarcest.getSkill()
+                            + " (" + scarcest.getStudentsWithSkill() + " on the whole platform). "
+                            + "Consider marking it as nice-to-have rather than required, or "
+                            + "accepting a related skill, otherwise this vacancy will keep "
+                            + "attracting nobody.");
         }
         if (!StringUtils.hasText(company.getDescription())) {
-            recommendations.add("Your company profile has no description. Students see it before "
-                    + "they decide whether to apply.");
+            recommendations.add(my
+                    ? "သင့်ကုမ္ပဏီ ပရိုဖိုင်တွင် ဖော်ပြချက် မရှိပါ။ လျှောက်ရန် ဆုံးဖြတ်မီ "
+                            + "ကျောင်းသားများ ၎င်းကို ကြည့်ကြပါသည်။"
+                    : "Your company profile has no description. Students see it before they "
+                            + "decide whether to apply.");
         }
         if (!StringUtils.hasText(company.getWebsite())) {
-            recommendations.add("Your company profile has no website, which makes the listing look "
-                    + "less credible.");
+            recommendations.add(my
+                    ? "သင့်ကုမ္ပဏီ ပရိုဖိုင်တွင် ဝဘ်ဆိုက် မရှိသဖြင့် ကြေညာချက်မှာ "
+                            + "ယုံကြည်ရမှု နည်းပါးသည်ဟု ထင်ရပါသည်။"
+                    : "Your company profile has no website, which makes the listing look less "
+                            + "credible.");
         }
         long unreviewedShare = insight.getTotalApplications() == 0 ? 0
                 : (insight.getAwaitingReview() * 100) / insight.getTotalApplications();
         if (insight.getTotalApplications() > 0 && unreviewedShare > 50) {
-            recommendations.add(unreviewedShare + "% of all applications you have ever received are "
-                    + "still unreviewed.");
+            recommendations.add(my
+                    ? "သင် ယခုအထိ လက်ခံရရှိသော လျှောက်လွှာအားလုံး၏ " + unreviewedShare
+                            + "% မှာ မစိစစ်ရသေးပါ။"
+                    : unreviewedShare + "% of all applications you have ever received are still "
+                            + "unreviewed.");
         }
         if (recommendations.isEmpty()) {
             recommendations.add("No structural problems found. Your listings are complete and your "
@@ -276,26 +313,48 @@ public class CompanyInsightService {
         return recommendations;
     }
 
-    private String buildSummary(CompanyInsightResponse insight) {
+    private String buildSummary(CompanyInsightResponse insight, String language) {
+        boolean my = "my".equalsIgnoreCase(language);
         if (insight.getTotalInternships() == 0) {
-            return "You have not published any internships yet, so there is nothing to analyse. "
-                    + "Create one with a clear description and a list of required skills - the "
-                    + "required skills are what students get matched against.";
+            return my
+                    ? "အလုပ်သင်နေရာ တစ်ခုမျှ မကြေညာရသေးသဖြင့် သုံးသပ်စရာ မရှိသေးပါ။ ရှင်းလင်းသော "
+                            + "ဖော်ပြချက်နှင့် လိုအပ်သော ကျွမ်းကျင်မှု စာရင်းဖြင့် တစ်ခု ဖန်တီးပါ — "
+                            + "လိုအပ်သော ကျွမ်းကျင်မှုများသည် ကျောင်းသားများနှင့် တွဲပေးရာတွင် အသုံးပြုပါသည်။"
+                    : "You have not published any internships yet, so there is nothing to "
+                            + "analyse. Create one with a clear description and a list of required "
+                            + "skills - the required skills are what students get matched against.";
         }
         StringBuilder summary = new StringBuilder();
-        summary.append(insight.getCompanyName()).append(" has ")
-                .append(insight.getOpenInternships()).append(" open internship(s) and has received ")
-                .append(insight.getTotalApplications()).append(" application(s). ");
+        if (my) {
+            summary.append(insight.getCompanyName()).append(" တွင် ဖွင့်ထားသော အလုပ်သင်နေရာ ")
+                    .append(insight.getOpenInternships()).append(" ခု ရှိပြီး လျှောက်လွှာ ")
+                    .append(insight.getTotalApplications()).append(" စောင် လက်ခံရရှိထားပါသည်။ ");
+        } else {
+            summary.append(insight.getCompanyName()).append(" has ")
+                    .append(insight.getOpenInternships())
+                    .append(" open internship(s) and has received ")
+                    .append(insight.getTotalApplications()).append(" application(s). ");
+        }
         if (insight.getAwaitingReview() > 0) {
-            summary.append(insight.getAwaitingReview()).append(" are still waiting for a first review. ");
+            summary.append(my
+                    ? insight.getAwaitingReview() + " စောင်မှာ ပထမဆုံး စိစစ်မှုကို စောင့်ဆိုင်းနေဆဲ ဖြစ်သည်။ "
+                    : insight.getAwaitingReview() + " are still waiting for a first review. ");
         }
         if (!insight.getListingIssues().isEmpty()) {
-            summary.append(insight.getListingIssues().size())
-                    .append(" listing(s) have something missing that is likely costing you applicants. ");
+            summary.append(my
+                    ? "ကြေညာချက် " + insight.getListingIssues().size()
+                            + " ခုတွင် လျှောက်ထားသူ ဆုံးရှုံးစေနိုင်သည့် လိုအပ်ချက် ရှိနေပါသည်။ "
+                    : insight.getListingIssues().size()
+                            + " listing(s) have something missing that is likely costing you "
+                            + "applicants. ");
         }
         if (!insight.getHardToFillSkills().isEmpty()) {
-            summary.append(insight.getHardToFillSkills().size())
-                    .append(" of the skills you require are held by almost no students on the platform.");
+            summary.append(my
+                    ? "သင် တောင်းဆိုထားသော ကျွမ်းကျင်မှု " + insight.getHardToFillSkills().size()
+                            + " မျိုးကို စနစ်ပေါ်ရှိ ကျောင်းသားများ လက်ဝယ် နီးပါး မရှိပါ။"
+                    : insight.getHardToFillSkills().size()
+                            + " of the skills you require are held by almost no students on the "
+                            + "platform.");
         }
         return summary.toString().trim();
     }

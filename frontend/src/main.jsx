@@ -11,6 +11,7 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "./styles/app.css";
 
+import { LanguageProvider } from "./config/languageContext.jsx";
 import App from "./App.jsx";
 import { applyTheme, readStoredTheme } from "./config/theme.js";
 
@@ -21,7 +22,11 @@ applyTheme(readStoredTheme());
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <BrowserRouter>
-      <App />
+      {/* Outside App so every page, including the auth screens, can read the
+          language and so the choice survives a route change. */}
+      <LanguageProvider>
+        <App />
+      </LanguageProvider>
     </BrowserRouter>
   </React.StrictMode>,
 );

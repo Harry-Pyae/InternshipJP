@@ -6,17 +6,6 @@ import LoadingBlock from "../../components/shared/LoadingBlock.jsx";
 
 /**
  * Where an employer lands until an administrator approves their company.
- *
- * WHY A DEDICATED SCREEN
- *   A PENDING employer used to reach the dashboard, where most things looked
- *   available and publishing failed with a 403 the moment they tried. A screen
- *   that half works is worse than one that explains itself.
- *
- * IT SHOWS THE REAL STATUS, NOT A GUESS
- *   The approval state and the administrator's note come from
- *   GET /api/employer/company. If an admin rejects the company or asks for
- *   more information, that reason appears here rather than the page insisting
- *   everything is still "pending".
  */
 export default function PendingApprovalPage() {
   const { user, signOut, refresh } = useAuth();

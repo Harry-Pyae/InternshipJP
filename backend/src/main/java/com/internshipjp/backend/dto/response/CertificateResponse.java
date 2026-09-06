@@ -10,6 +10,16 @@ public class CertificateResponse {
 
     private String title;
 
+    /**
+     * Whose certificate this is.
+     *
+     * Added because the administrator's review queue could not say. Reviewing a
+     * qualification without knowing whose it is makes the decision meaningless,
+     * and the screen showed "Student information unavailable" because the field
+     * simply was not there.
+     */
+    private String studentName;
+
     private String issuingOrganization;
 
     private String issueDate;
@@ -42,6 +52,14 @@ public class CertificateResponse {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getStudentName() {
+        return studentName;
+    }
+
+    public void setStudentName(String studentName) {
+        this.studentName = studentName;
     }
 
     public String getIssuingOrganization() {

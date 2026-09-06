@@ -5,26 +5,13 @@ import { describeApiError, fieldErrorsOf } from "../../api/axiosClient.js";
 import { rules, validate } from "../../api/validation.js";
 import LoadingBlock from "../../components/shared/LoadingBlock.jsx";
 import AuthField from "./AuthField.jsx";
+import { useLanguage } from "../../config/languageContext.jsx";
 
 /**
  * Sign in.
- *
- * After a successful sign-in the user goes to their own dashboard - students
- * to /student, employers to /employer, administrators to /admin - or back to
- * whatever page sent them here.
- *
- * TODO MEMBER_2: this is a working baseline, not the finished screen. Still
- * yours to add:
- *   - the 2FA challenge (the backend returns a normal session today even when
- *     2FA is enabled - see TODO MEMBER_2 in AuthService)
- *   - "remember me" and password reset
- *
- * Those three controls are deliberately absent rather than drawn and inert.
- * A checkbox that does nothing is the fake success the project brief forbids,
- * and a "forgot password" link that leads nowhere is worse than none: it makes
- * someone locked out believe there is a way back.
  */
 export default function LoginPage() {
+  const { t } = useLanguage();
   const { user, loading, signIn } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -43,7 +30,7 @@ export default function LoginPage() {
   };
 
   if (loading) {
-    return <LoadingBlock label="Checking your session..." />;
+    return <LoadingBlock label={t("Checking your session...")} />;
   }
 
   // Already signed in? Nobody needs to see a login form twice.
@@ -95,11 +82,9 @@ export default function LoginPage() {
   return (
     <>
       <span className="ijp-auth-eyebrow">
-            <i className="bi bi-box-arrow-in-right me-2" aria-hidden="true" />
-            Sign in
-          </span>
-          <h1 className="ijp-auth-title">Welcome back</h1>
-          <p className="ijp-muted mb-4">Sign in to continue to InternshipJP.</p>
+            <i className="bi bi-box-arrow-in-right me-2" aria-hidden="true" />{t("Sign in")}</span>
+          <h1 className="ijp-auth-title">{t("Welcome back")}</h1>
+          <p className="ijp-muted mb-4">{t("Sign in to continue to InternshipJP.")}</p>
 
           {error ? (
             <div className="ijp-auth-error" role="alert">
@@ -111,7 +96,7 @@ export default function LoginPage() {
           <form onSubmit={submit} className="d-grid gap-3">
             <AuthField
               id="loginEmail"
-              label="Email"
+              label={t("Email")}
               icon="bi-envelope"
               type="email"
               value={form.email}
@@ -126,7 +111,7 @@ export default function LoginPage() {
 
             <AuthField
               id="loginPassword"
-              label="Password"
+              label={t("Password")}
               icon="bi-lock"
               type="password"
               value={form.password}
@@ -141,26 +126,20 @@ export default function LoginPage() {
             <button className="btn btn-ijp-primary ijp-auth-submit" type="submit" disabled={busy}>
               {busy ? (
                 <>
-                  <span className="spinner-border spinner-border-sm me-2" aria-hidden="true" />
-                  Signing in...
-                </>
+                  <span className="spinner-border spinner-border-sm me-2" aria-hidden="true" />{t("Signing in...")}</>
               ) : (
-                <>
-                  Sign in
-                  <i className="bi bi-arrow-right ms-2" aria-hidden="true" />
+                <>{t("Sign in")}<i className="bi bi-arrow-right ms-2" aria-hidden="true" />
                 </>
               )}
             </button>
           </form>
 
           <div className="ijp-auth-divider">
-            <span>New to InternshipJP?</span>
+            <span>{t("New to InternshipJP?")}</span>
           </div>
 
       <Link className="btn btn-ijp-quiet w-100" to="/auth/register">
-        <i className="bi bi-person-plus me-2" aria-hidden="true" />
-        Sign up
-      </Link>
+        <i className="bi bi-person-plus me-2" aria-hidden="true" />{t("Sign up")}</Link>
     </>
   );
 }

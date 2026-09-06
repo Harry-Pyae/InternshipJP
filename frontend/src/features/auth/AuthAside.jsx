@@ -1,17 +1,13 @@
 import AuthIllustration from "./AuthIllustration.jsx";
+import { useLanguage } from "../../config/languageContext.jsx";
 
 /**
  * The left panel on the sign-in and sign-up pages.
  *
- * It used to be an illustration floating in an empty slab. Now it says what
- * the product actually does - and each line is something the platform really
- * enforces, not marketing:
- *
- *   matching     the score comes from comparing skills, calculated in Java
- *   verified     employers genuinely cannot see an unverified certificate
- *   guidance     the assistant reads real profile data, never invents it
- *
- * Shared by both auth pages so they cannot drift apart.
+ * POINTS holds the ENGLISH source strings. Translation happens at render, not
+ * here: a module-level constant is evaluated when the file is imported, long
+ * before any component exists, so calling t() at this level throws and takes
+ * the whole page with it.
  */
 const POINTS = [
   {
@@ -35,6 +31,7 @@ const POINTS = [
 ];
 
 export default function AuthAside() {
+  const { t } = useLanguage();
   return (
     <aside className="ijp-auth-aside">
       <div className="ijp-auth-aside-head">
@@ -46,7 +43,7 @@ export default function AuthAside() {
         </span>
       </div>
 
-      <p className="ijp-auth-tagline">Find opportunities. Build your future.</p>
+      <p className="ijp-auth-tagline">{t("Find opportunities. Build your future.")}</p>
 
       <AuthIllustration />
 
@@ -57,8 +54,8 @@ export default function AuthAside() {
               <i className={`bi ${point.icon}`} />
             </span>
             <span>
-              <span className="ijp-auth-point-title">{point.title}</span>
-              <span className="ijp-auth-point-text">{point.text}</span>
+              <span className="ijp-auth-point-title">{t(point.title)}</span>
+              <span className="ijp-auth-point-text">{t(point.text)}</span>
             </span>
           </li>
         ))}
