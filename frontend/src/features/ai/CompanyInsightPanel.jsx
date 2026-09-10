@@ -125,7 +125,7 @@ export default function CompanyInsightPanel({ onAsk }) {
         </>
       ) : null}
 
-      <button type="button" className="btn btn-sm btn-outline-secondary" onClick={onAsk}>{t("Ask the assistant to explain this")}</button>
+      <button type="button" className="btn btn-sm btn-ijp-quiet" onClick={onAsk}>{t("Ask the assistant to explain this")}</button>
     </div>
   );
 }

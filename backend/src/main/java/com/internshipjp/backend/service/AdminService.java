@@ -42,19 +42,22 @@ public class AdminService {
     private final NotificationService notificationService;
     private final CompanyMapper companyMapper;
     private final UserMapper userMapper;
+    private final AccountMailService accountMailService;
 
     public AdminService(CompanyRepository companyRepository,
                         EmployerProfileRepository employerProfileRepository,
                         UserRepository userRepository,
                         NotificationService notificationService,
                         CompanyMapper companyMapper,
-                        UserMapper userMapper) {
+                        UserMapper userMapper,
+                        AccountMailService accountMailService) {
         this.companyRepository = companyRepository;
         this.employerProfileRepository = employerProfileRepository;
         this.userRepository = userRepository;
         this.notificationService = notificationService;
         this.companyMapper = companyMapper;
         this.userMapper = userMapper;
+        this.accountMailService = accountMailService;
     }
 
     @Transactional(readOnly = true)
@@ -92,6 +95,21 @@ public class AdminService {
                     "COMPANY_" + decision.name(),
                     "Company review completed",
                     company.getName() + " is now " + decision.name().toLowerCase().replace('_', ' ') + ".");
+
+                // Email as well as the in-app notification: a recruiter waiting on
+                // approval is not sitting on the site refreshing, so the notification
+                // alone would never reach them.
+                //
+                // AccountMailService never throws. If it did, a mail server being
+                // down would roll back an approval already decided and saved.
+                if (decision == ApprovalStatus.APPROVED) {
+                    accountMailService.sendCompanyApproved(
+                            employer.getEmail(), employer.getFullName(), company.getName());
+                } else if (decision == ApprovalStatus.REJECTED) {
+                    accountMailService.sendCompanyRejected(
+                            employer.getEmail(), employer.getFullName(), company.getName(),
+                            request.getNote());
+                }
         }
 
         return companyMapper.toCompany(saved);
@@ -136,5 +154,34 @@ public class AdminService {
                 "An administrator set your account to " + status.name().toLowerCase() + ".");
 
         return userMapper.toAdminUser(saved);
+    }
+
+    /**
+     * Deletes an account and everything personal attached to it.
+     *
+     * Every foreign key to users is CASCADE or SET NULL, so profiles,
+     * applications, certificates and notifications go with it, while records
+     * that merely reference the person - who approved a company, who verified
+     * a certificate - keep their row and lose the pointer. Deleting an
+     * administrator should not erase the audit trail of what they approved.
+     *
+     * Two guards, both about not locking everyone out:
+     *   - you cannot delete your own account
+     *   - you cannot delete the last administrator who can still sign in
+     */
+    public void deleteUser(Long adminUserId, Long targetUserId) {
+        if (adminUserId.equals(targetUserId)) {
+            throw new BadRequestException("You cannot delete your own account.");
+        }
+        User user = userRepository.findById(targetUserId)
+                .orElseThrow(() -> NotFoundException.of("User", targetUserId));
+
+        if (user.getRole() == Role.ADMIN
+                && userRepository.countByRoleAndAccountStatus(Role.ADMIN, AccountStatus.ACTIVE) <= 1) {
+            throw new BadRequestException(
+                    "This is the last active administrator. Create another one first.");
+        }
+
+        userRepository.delete(user);
     }
 }

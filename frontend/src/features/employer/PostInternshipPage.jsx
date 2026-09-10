@@ -317,7 +317,7 @@ export default function PostInternshipPage() {
 
           <button
            type="submit"
-            className="btn btn-primary"
+            className="btn btn-ijp-primary"
             disabled={saving}
 >
             {saving

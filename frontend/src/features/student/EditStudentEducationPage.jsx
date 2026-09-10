@@ -215,7 +215,7 @@ export default function EditStudentEducationPage() {
                       <div className="d-flex gap-2">
                         <button
                           type="button"
-                          className="btn btn-outline-primary btn-sm"
+                          className="btn btn-ijp-primary btn-sm"
                           onClick={() => startEdit(item)}
                         >
                           Edit
@@ -223,7 +223,7 @@ export default function EditStudentEducationPage() {
 
                         <button
                           type="button"
-                          className="btn btn-outline-danger btn-sm"
+                          className="btn btn-ijp-quiet ijp-btn-danger btn-sm"
                           onClick={() =>
                             handleDelete(item.id)
                           }
@@ -344,7 +344,7 @@ export default function EditStudentEducationPage() {
                 <div className="col-12 d-flex gap-2">
   <button
     type="submit"
-    className="btn btn-primary"
+    className="btn btn-ijp-primary"
     disabled={saving}
   >
     {saving
@@ -357,7 +357,7 @@ export default function EditStudentEducationPage() {
   {editingId ? (
     <button
       type="button"
-      className="btn btn-secondary"
+      className="btn btn-ijp-quiet"
       onClick={resetForm}
       disabled={saving}
     >
@@ -367,7 +367,7 @@ export default function EditStudentEducationPage() {
 
   <button
     type="button"
-    className="btn btn-secondary"
+    className="btn btn-ijp-quiet"
     onClick={() => navigate("/student/profile")}
     disabled={saving}
   >

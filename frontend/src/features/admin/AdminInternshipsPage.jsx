@@ -8,9 +8,12 @@ import StatusBadge from "../../components/shared/StatusBadge.jsx";
 
 import { adminApi } from "../../api/adminApi.js";
 import { describeApiError } from "../../api/axiosClient.js";
+import { Link } from "react-router-dom";
+import { useLanguage } from "../../config/languageContext.jsx";
 
 
 export default function AdminInternshipsPage() {
+  const { t } = useLanguage();
 
   const [data, setData] = useState({
     content: [],
@@ -129,6 +132,21 @@ export default function AdminInternshipsPage() {
                 key: "createdAt",
                 header: "Created",
                 render: (row) => (row.createdAt ? row.createdAt.slice(0, 10) : "—"),
+              },
+              {
+                key: "actions",
+                header: "",
+                render: (row) => (
+                  <div className="d-flex justify-content-end">
+                    <Link
+                      className="btn btn-sm btn-ijp-quiet"
+                      to={`/admin/internships/${row.id}`}
+                    >
+                      {t("View")}
+                      <i className="bi bi-arrow-right ms-1" aria-hidden="true" />
+                    </Link>
+                  </div>
+                ),
               },
             ]}
             rows={rows}

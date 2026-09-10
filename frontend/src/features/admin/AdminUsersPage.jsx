@@ -5,19 +5,25 @@ import PageHeader from "../../components/shared/PageHeader.jsx";
 import LoadingBlock from "../../components/shared/LoadingBlock.jsx";
 import ErrorAlert from "../../components/shared/ErrorAlert.jsx";
 import UserTable from "./components/UserTable.jsx";
+import UserDetailModal from "./components/UserDetailModal.jsx";
 import { adminApi } from "../../api/adminApi.js";
 import { describeApiError } from "../../api/axiosClient.js";
+import { useSearchParams } from "react-router-dom";
 
 export default function AdminUsersPage() {
   const [data, setData] = useState({ content: [], totalElements: 0, totalPages: 0, page: 0 });
-  const [role, setRole] = useState("");
-  const [status, setStatus] = useState("");
+  // Filters start from the URL, so a link can arrive pre-filtered - the
+  // company review page links here for "the recruiters on this company".
+  const [params] = useSearchParams();
+  const [role, setRole] = useState(params.get("role") ?? "");
+  const [status, setStatus] = useState(params.get("status") ?? "");
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [busyId, setBusyId] = useState(null);
+  const [detail, setDetail] = useState(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -52,6 +58,43 @@ export default function AdminUsersPage() {
     setStatus(value);
   }
 
+  /**
+   * Deleting asks the administrator to type the email.
+   *
+   * window.confirm on a destructive, irreversible action is one careless
+   * Enter away from removing the wrong person - and unlike suspension there is
+   * nothing to undo. Typing the address forces you to read which row you are
+   * on.
+   */
+  async function removeUser(user) {
+    const typed = window.prompt(
+      `This permanently deletes ${user.fullName || user.email} and everything ` +
+        `attached to the account - applications, certificates and notifications.\n\n` +
+        `Suspending is reversible and is usually the better choice.\n\n` +
+        `To confirm, type the email address:`,
+    );
+    if (typed === null) {
+      return;
+    }
+    if (typed.trim().toLowerCase() !== (user.email || "").toLowerCase()) {
+      setError("That did not match the email address, so nothing was deleted.");
+      return;
+    }
+
+    setBusyId(user.id);
+    setError("");
+    try {
+      await adminApi.deleteUser(user.id);
+      // The account is gone, so the panel describing it must go too.
+      setDetail(null);
+      await load();
+    } catch (requestError) {
+      setError(describeApiError(requestError));
+    } finally {
+      setBusyId(null);
+    }
+  }
+
   async function toggleUser(user) {
     const nextStatus = user.accountStatus === "SUSPENDED" ? "ACTIVE" : "SUSPENDED";
     const action = nextStatus === "SUSPENDED" ? "suspend" : "reactivate";
@@ -62,6 +105,9 @@ export default function AdminUsersPage() {
     setError("");
     try {
       await adminApi.updateUserStatus(user.id, nextStatus);
+      setDetail((current) =>
+        current && current.id === user.id ? { ...current, accountStatus: nextStatus } : current,
+      );
       await load();
     } catch (requestError) {
       setError(describeApiError(requestError));
@@ -140,12 +186,27 @@ export default function AdminUsersPage() {
       </div>
 
       <div className="ijp-card p-4">
-        {loading ? <LoadingBlock label="Loading users..." /> : <UserTable rows={data.content} busyId={busyId} onToggle={toggleUser} />}
+        {loading ? <LoadingBlock label="Loading users..." /> : <UserTable
+            rows={data.content}
+            busyId={busyId}
+            onToggle={toggleUser}
+            onDelete={removeUser}
+            onView={setDetail}
+          />}
 
         {!loading && data.totalPages > 1 ? (
           <Pagination page={data.page} totalPages={data.totalPages} onChange={setPage} />
         ) : null}
       </div>
+      {detail ? (
+        <UserDetailModal
+          user={detail}
+          busy={busyId === detail.id}
+          onClose={() => setDetail(null)}
+          onToggle={toggleUser}
+          onDelete={removeUser}
+        />
+      ) : null}
     </>
   );
 }

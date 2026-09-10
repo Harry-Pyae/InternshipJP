@@ -14,15 +14,16 @@ application pipeline — is built on top of that verified data.
 ## What it does
 
 **Students** build a profile with skills, education and certificates, browse
-open internships, and apply. An assistant reads their actual profile and tells
-them what to learn next, and which vacancies fit.
+open internships, and apply. An assistant reads their actual profile and says
+what to learn next and which vacancies fit.
 
 **Employers** register a company, wait for approval, publish internships and
 review applicants. An assistant explains why a listing is not attracting people
-— missing skills, no deadline, a stipend left blank.
+— missing skills, no deadline, a stipend left blank — and they can ask an
+applicant for more information.
 
-**Administrators** verify certificates, approve companies, manage accounts, and
-see what is waiting and how long it has waited.
+**Administrators** verify certificates, approve companies, manage accounts,
+read user feedback, and see what is waiting and how long it has waited.
 
 ### The AI assistant
 
@@ -39,11 +40,15 @@ over the database, so they work with no API key and no internet:
 | Company review | Why a listing is not attracting applicants |
 | Admin workload | What is waiting, how long, and who is blocked by it |
 
+Answers are colour-coded by meaning: findings amber, recommendations blue,
+strengths green — derived from the words the assistant actually writes, so a
+long answer can be skimmed.
+
 ### English and Burmese
 
-The whole interface switches between English and မြန်မာ, including text
-generated on the server. The assistant follows the toggle: ask a question with
-Burmese selected and the answer comes back in Burmese.
+The whole interface switches between English and မြန်မာ — **554 translated
+strings**, including text generated on the server. The assistant follows the
+toggle: ask with Burmese selected and the answer comes back in Burmese.
 
 ---
 
@@ -57,12 +62,15 @@ Burmese selected and the answer comes back in Burmese.
 | Auth | Server-side sessions with an HTTP-only cookie and CSRF protection |
 | AI | Groq or Google Gemini, behind one interface |
 
-Roughly 187 Java files, 34 React pages, 75 API endpoints and 466 translated
-strings.
+190 Java files, 36 React pages, 77 API endpoints, 554 translated strings.
 
-**Sessions rather than JWT** is a deliberate choice: logging out genuinely ends
-the session on the server, which a self-contained token cannot do without extra
+**Sessions rather than JWT** is deliberate: logging out genuinely ends the
+session on the server, which a self-contained token cannot do without extra
 machinery.
+
+**No charting library.** The report charts are plain CSS with the number
+printed on every bar — a chart you have to estimate against an axis is worse
+than a table.
 
 ---
 
@@ -76,12 +84,9 @@ machinery.
 | **Node.js** | 20 or newer | https://nodejs.org |
 | **MariaDB** | 10.4 or newer | https://mariadb.org, or XAMPP which bundles it |
 
-Check all three before going further:
-
 ```powershell
 java -version     # should print 21+
 node -v           # should print v20+
-npm -v
 ```
 
 Maven is **not** required — the project includes the Maven wrapper
@@ -89,16 +94,13 @@ Maven is **not** required — the project includes the Maven wrapper
 
 ### 2. Create the database
 
-Start MariaDB, then create an empty database:
-
 ```sql
 CREATE DATABASE internshipjp_db
   CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
 ```
 
-Nothing else. **Flyway creates every table on first start** from the migrations
-in `backend/src/main/resources/db/migration`.
+Nothing else. **Flyway creates every table on first start.**
 
 `utf8mb4` matters — Burmese text will not store correctly without it.
 
@@ -109,7 +111,7 @@ cd backend
 copy application-local.example.properties application-local.properties
 ```
 
-Open the copy and set your database password:
+Set your database password in the copy:
 
 ```properties
 DB_USERNAME=root
@@ -119,7 +121,7 @@ DB_PASSWORD=your_password_here
 That is the minimum. This file is git-ignored, so your credentials never leave
 your machine.
 
-**To create the first administrator**, add these, start the app once, then set
+**To create the first administrator**, add these, start once, then set
 `enabled` back to `false`:
 
 ```properties
@@ -130,16 +132,13 @@ BOOTSTRAP_ADMIN_PASSWORD=choose-a-password
 
 There is no public admin registration endpoint, by design.
 
-**For sample data** to explore with, add `DEMO_DATA_ENABLED=true`. What that
-creates, and how to remove it later, is in
+For sample data, add `DEMO_DATA_ENABLED=true`. See
 [Demo data](#demo-data) below.
 
 ### 4. Enable the AI (optional)
 
 Everything runs without this. The chat reports "not configured" and the four
-calculated features above keep working, because they never call a provider.
-
-To enable it, get a key and add:
+calculated features keep working, because they never call a provider.
 
 ```properties
 AI_PROVIDER=gemini
@@ -147,8 +146,7 @@ GEMINI_API_KEY=your_key
 GEMINI_MODEL=gemini-2.5-flash
 ```
 
-Providers retire models often, so confirm the name against your own key rather
-than trusting the default:
+Providers retire models often, so confirm the name against your own key:
 
 ```powershell
 $k = "your_key"
@@ -161,19 +159,15 @@ Groq works the same way with `AI_PROVIDER=groq` and `GROQ_API_KEY`.
 
 Two terminals.
 
-**Terminal 1 — backend:**
-
 ```powershell
+# Terminal 1
 cd backend
+.\mvnw.cmd -q compile      # catches import and signature errors in seconds
 .\mvnw.cmd spring-boot:run
 ```
 
-First run takes a few minutes while Maven downloads dependencies. Wait for
-`Started InternshipJpApplication`.
-
-**Terminal 2 — frontend:**
-
 ```powershell
+# Terminal 2
 cd frontend
 npm install
 npm run dev
@@ -199,16 +193,18 @@ Session       the cookie made a round trip
 If something is wrong, this page says which layer — far quicker than reading a
 stack trace.
 
+The link is hidden from the sidebar by default so it does not appear during a
+demo. Set `VITE_SHOW_DEV_NAV=true` in `frontend/.env` to bring it back, or just
+type the URL.
+
 ---
 
 ## Demo data
 
-The project ships with a seeder that creates sample students, employers,
-vacancies, applications and certificates, so you can see every screen with
-something in it before any real data exists.
+The seeder creates sample students, employers, vacancies, applications and
+certificates, so every screen has something in it before any real data exists.
 
-Everything it creates is **marked**, so it can always be told apart from real
-records:
+Everything it creates is **marked**:
 
 - accounts end **`@demo.internshipjp.local`**
 - companies start **`Demo `**
@@ -216,8 +212,6 @@ records:
 Nothing outside those two patterns is ever touched.
 
 ### Turn it on
-
-In `backend/application-local.properties`:
 
 ```properties
 DEMO_DATA_ENABLED=true
@@ -234,8 +228,7 @@ Start the backend once. You get:
 | Certificates | 3 — two verified, one waiting for review |
 
 Records are deliberately **staggered in age**, so the administrator's queues
-show a realistic spread rather than every item reporting the same number of
-days:
+show a realistic spread rather than every item reporting the same day count:
 
 ```
 CERTIFICATES     9d  red     Intro to Databases        waiting
@@ -261,7 +254,7 @@ Clear first, then seed — two steps, with the backend stopped for the first.
 ```
 
 Then set `DEMO_DATA_ENABLED=true` and start the backend. Set it back to `false`
-once the data is in, so it does not re-check on every restart.
+once the data is in.
 
 > **Do not use `DEMO_DATA_RESET=true`.** It deletes through JPA in the same
 > transaction that seeds, and fails on a stale entity reference. The script
@@ -283,15 +276,7 @@ It prints what it will delete, asks for confirmation, and removes both the
 database rows and the uploaded certificate files. The files matter — deleting
 rows alone leaves orphaned PDFs on disk that nothing points at.
 
-SQL alternative, which does **not** delete the files:
-
-```powershell
-"C:\xampp\mysql\bin\mysql.exe" -u root internshipjp_db < database\remove_demo_data.sql
-```
-
 ### Start completely fresh
-
-If the database is in a state you would rather abandon:
 
 ```sql
 DROP DATABASE internshipjp_db;
@@ -306,8 +291,8 @@ Start the backend and Flyway rebuilds all eight migrations from nothing.
 
 ## A tour in two minutes
 
-With demo data loaded, this walks through verification, applying and the
-hiring pipeline — the three things the platform exists to do.
+With demo data loaded, this covers verification, applying and the hiring
+pipeline — the three things the platform exists to do.
 
 1. Sign in as **`student1@demo.internshipjp.local`** (`demo1234`).
    Go to **Certificates**, upload any PDF. It appears as **Pending**.
@@ -316,22 +301,20 @@ hiring pipeline — the three things the platform exists to do.
    **Certificate review** shows it with the student's name. Press **Review**,
    open the file, then **Verify**.
 
-3. Back as the student — the certificate now reads **Verified**, and the
-   waiting banner is gone.
+3. Back as the student — the certificate now reads **Verified**.
 
 4. Still as the student: **Browse internships**, open one, write a line and
    **Apply**.
 
 5. Sign in as **`employer1@demo.internshipjp.local`**.
-   **Applicants** shows the new application. Press **Review** — the student's
-   profile, skills and *verified* certificates are all there. Set the status to
-   **Shortlisted**.
+   **Applicants** shows the new application. Press **Review** — the profile,
+   skills and *verified* certificates are all there. Set **Shortlisted**.
 
 6. Back as the student — **My applications** shows **Shortlisted**, and the
    notification bell has a count.
 
-Switch the **EN / မြန်မာ** toggle at any point; the interface and the
-assistant's answers both follow it.
+Switch the **EN / မြန်မာ** toggle at any point; the interface, the FAQ and the
+assistant's answers all follow it.
 
 ---
 
@@ -405,7 +388,7 @@ scripts/        PowerShell helpers
 ```powershell
 .\scripts\start-dev.ps1                      # both servers at once
 .\scripts\list-accounts.ps1                  # every account and its role
-.\scripts\list-accounts.ps1 -ResetPassword email@example.com
+.\scripts\list-accounts.ps1 -ResetDemoPasswords
 .\scripts\remove-demo-data.ps1               # delete demo records only
 ```
 
@@ -414,10 +397,14 @@ scripts/        PowerShell helpers
 ## Notes for anyone reading the code
 
 - **`.\mvnw.cmd -q compile`** before running catches argument and import
-  mistakes in seconds.
+  mistakes in seconds. A clean `npm run build` does **not** mean the frontend
+  works — a missing import is valid syntax and only fails at render.
 - **Nothing calls axios directly from a component.** Every request goes through
   a module in `frontend/src/api/`.
 - **Interface text lives in one file**, `frontend/src/config/strings.js`. A
   string with no translation falls back to English rather than breaking.
+- **Buttons use `btn-ijp-primary` and `btn-ijp-quiet`**, never Bootstrap's own.
+  Bootstrap's blue is close enough to the project's to look like a mistake, and
+  it ignores the dark theme.
 - **Never edit V1–V8.** Flyway checksums them; a change breaks startup on every
   machine that already ran them. Add V9 instead.

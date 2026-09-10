@@ -3655,3 +3655,553 @@ h4 {
 .ijp-skill-chip-x:hover {
   color: var(--ijp-rejected);
 }
+
+
+/* --- FAQ accordion ---------------------------------------------------------
+   One answer open at a time. A page of expanded answers is the wall of text
+   the accordion existed to avoid. */
+.ijp-faq-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.ijp-faq {
+  border-bottom: 1px solid var(--ijp-border);
+}
+
+.ijp-faq:last-child {
+  border-bottom: 0;
+}
+
+.ijp-faq-q {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.85rem 0;
+  border: 0;
+  background: none;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--ijp-ink);
+}
+
+.ijp-faq-q:hover {
+  color: var(--ijp-signal);
+}
+
+.ijp-faq-chevron {
+  flex: 0 0 auto;
+  font-size: 0.8rem;
+  color: var(--ijp-ink-faint);
+}
+
+.ijp-faq--open .ijp-faq-chevron {
+  color: var(--ijp-signal);
+}
+
+.ijp-faq-a {
+  margin: 0 0 0.9rem;
+  padding-right: 2rem;
+  line-height: 1.65;
+  color: var(--ijp-ink-soft);
+}
+
+/* --- assistant launcher ----------------------------------------------------
+   Bottom right, above the content, retractable to a tab. */
+.ijp-launcher {
+  position: fixed;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  z-index: 1040;
+  display: flex;
+  align-items: stretch;
+  max-width: min(22rem, calc(100vw - 2.5rem));
+  border: 1px solid var(--ijp-border-strong);
+  border-radius: 999px;
+  background-color: var(--ijp-surface);
+  box-shadow: var(--ijp-shadow);
+  overflow: hidden;
+}
+
+.ijp-launcher-main {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.7rem 0.5rem 0.7rem 1rem;
+  min-width: 0;
+  text-decoration: none;
+  color: var(--ijp-ink);
+  font-size: 0.88rem;
+  font-weight: 500;
+}
+
+.ijp-launcher-main:hover {
+  color: var(--ijp-signal);
+}
+
+.ijp-launcher-icon {
+  flex: 0 0 auto;
+  color: var(--ijp-signal);
+}
+
+.ijp-launcher-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ijp-launcher-hide {
+  border: 0;
+  border-left: 1px solid var(--ijp-border);
+  background: none;
+  padding: 0 0.75rem;
+  color: var(--ijp-ink-faint);
+  font-size: 0.8rem;
+}
+
+.ijp-launcher-hide:hover {
+  background-color: var(--ijp-surface-sunken);
+  color: var(--ijp-ink);
+}
+
+/* Collapsed: a small tab that does not cover the page. */
+.ijp-launcher-tab {
+  position: fixed;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  z-index: 1040;
+  width: 2.75rem;
+  height: 2.75rem;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--ijp-border-strong);
+  border-radius: 999px;
+  background-color: var(--ijp-surface);
+  color: var(--ijp-signal);
+  box-shadow: var(--ijp-shadow);
+  font-size: 1.05rem;
+}
+
+.ijp-launcher-tab:hover {
+  background-color: var(--ijp-signal-soft);
+}
+
+[data-lang="my"] .ijp-faq-q,
+[data-lang="my"] .ijp-faq-a,
+[data-lang="my"] .ijp-launcher-text {
+  line-height: 1.85;
+}
+
+
+/* Numbered questions, so the list has a visible length. */
+.ijp-faq-n {
+  flex: 0 0 1.5rem;
+  height: 1.5rem;
+  display: grid;
+  place-items: center;
+  margin-top: 0.05rem;
+  border-radius: 6px;
+  background-color: var(--ijp-surface-sunken);
+  color: var(--ijp-ink-faint);
+  font-family: var(--ijp-font-data);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.ijp-faq--open .ijp-faq-n {
+  background-color: var(--ijp-signal-soft);
+  color: var(--ijp-signal);
+}
+
+.ijp-faq-text {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.ijp-faq-a {
+  padding-left: 2.25rem;
+}
+
+
+/* --- AI answers: meaning carried by colour ---------------------------------
+   Every block used to render identically, so a finding, a recommendation and a
+   question all looked the same. The tone comes from the words the assistants
+   actually write, so the colour means something rather than decorating. */
+.ijp-answer-heading {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin: 1.5rem 0 0.6rem;
+  padding-left: 0.7rem;
+  border-left: 3px solid var(--ijp-border-strong);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.ijp-answer-heading:first-child {
+  margin-top: 0;
+}
+
+.ijp-answer-heading-icon {
+  font-size: 0.85rem;
+}
+
+.ijp-answer-heading--warn {
+  border-left-color: var(--ijp-pending);
+  color: var(--ijp-pending);
+}
+
+.ijp-answer-heading--action {
+  border-left-color: var(--ijp-signal);
+  color: var(--ijp-signal);
+}
+
+.ijp-answer-heading--ok {
+  border-left-color: var(--ijp-verified);
+  color: var(--ijp-verified);
+}
+
+.ijp-answer-heading--ask {
+  border-left-color: var(--ijp-ink-soft);
+  color: var(--ijp-ink-soft);
+}
+
+.ijp-answer-heading--neutral {
+  color: var(--ijp-ink-soft);
+}
+
+/* The label the model wrote - Gap, Action, Strength - as a chip, so the
+   finding and what to do about it are visibly different things. */
+.ijp-answer-label {
+  display: inline-block;
+  margin-right: 0.45rem;
+  padding: 0.08rem 0.45rem;
+  border-radius: 5px;
+  background-color: var(--ijp-surface-sunken);
+  color: var(--ijp-ink-soft);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  vertical-align: 1px;
+}
+
+.ijp-answer-label--warn {
+  background-color: var(--ijp-pending-soft);
+  color: var(--ijp-pending);
+}
+
+.ijp-answer-label--action {
+  background-color: var(--ijp-signal-soft);
+  color: var(--ijp-signal);
+}
+
+.ijp-answer-label--ok {
+  background-color: var(--ijp-verified-soft);
+  color: var(--ijp-verified);
+}
+
+.ijp-answer-item {
+  margin-bottom: 0.45rem;
+}
+
+.ijp-answer-item--warn::marker,
+.ijp-answer-label--warn ~ * {
+  color: inherit;
+}
+
+
+/* --- bar chart -------------------------------------------------------------
+   Plain SVG-free bars. Each carries its own number, so nothing has to be
+   estimated against an axis. */
+.ijp-bars {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.ijp-bar-row {
+  display: grid;
+  grid-template-columns: minmax(6rem, 9rem) 1fr auto;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.ijp-bar-label {
+  font-size: 0.82rem;
+  color: var(--ijp-ink-soft);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ijp-bar-track {
+  height: 0.6rem;
+  border-radius: 999px;
+  background-color: var(--ijp-surface-sunken);
+  overflow: hidden;
+}
+
+.ijp-bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  transition: width 400ms ease;
+}
+
+.ijp-bar-fill--signal { background-color: var(--ijp-signal); }
+.ijp-bar-fill--ok     { background-color: var(--ijp-verified); }
+.ijp-bar-fill--warn   { background-color: var(--ijp-pending); }
+.ijp-bar-fill--bad    { background-color: var(--ijp-rejected); }
+
+.ijp-bar-value {
+  font-family: var(--ijp-font-data);
+  font-size: 0.85rem;
+  font-weight: 600;
+  min-width: 2.5rem;
+  text-align: right;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ijp-bar-fill { transition: none; }
+}
+
+
+/* Header row for a modal card - the certificate preview modal had its own
+   inline layout, so this generalises it. */
+.ijp-modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid var(--ijp-border);
+}
+
+
+/* --- person cell -----------------------------------------------------------
+   Name and email stacked. Two columns doubled the row width to say one thing. */
+.ijp-person {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.ijp-person-name {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ijp-person-email {
+  font-family: var(--ijp-font-data);
+  font-size: 0.76rem;
+  color: var(--ijp-ink-faint);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Role as a chip - ADMIN in capitals reads as shouting inside a table. */
+.ijp-role {
+  display: inline-block;
+  padding: 0.12rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--ijp-border-strong);
+  font-size: 0.74rem;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--ijp-ink-soft);
+}
+
+.ijp-role--student {
+  border-color: var(--ijp-signal);
+  color: var(--ijp-signal);
+  background-color: var(--ijp-signal-soft);
+}
+
+.ijp-role--employer {
+  border-color: var(--ijp-verified);
+  color: var(--ijp-verified);
+  background-color: var(--ijp-verified-soft);
+}
+
+.ijp-role--admin {
+  border-color: var(--ijp-pending);
+  color: var(--ijp-pending);
+  background-color: var(--ijp-pending-soft);
+}
+
+
+/* --- feedback inbox --------------------------------------------------------
+   What users wrote, most recent first. Quoted rather than listed, because the
+   words are theirs. */
+.ijp-feedback-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.ijp-feedback {
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--ijp-border);
+  border-left: 3px solid var(--ijp-signal);
+  border-radius: var(--ijp-radius-sm);
+  background-color: var(--ijp-surface-sunken);
+}
+
+.ijp-feedback-text {
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.ijp-feedback-meta {
+  font-size: 0.74rem;
+  color: var(--ijp-ink-faint);
+}
+
+
+/* --- tables ----------------------------------------------------------------
+   There was no table CSS at all - these relied on Bootstrap, which does not
+   stop a long unbroken string being chopped mid-word when its column gets
+   squeezed. That is where "student4@demo.internshipjp.loca / l" and
+   "EMPLOYE / R" came from.
+
+   The fix is to stop compressing. The table keeps a sensible minimum width and
+   the wrapper scrolls sideways instead, which is always more readable than a
+   column crushed to four characters. */
+.ijp-table {
+  min-width: 46rem;
+}
+
+.ijp-table th,
+.ijp-table td {
+  /* Never break inside a word. An email, a role or a button label is one
+     token and splitting it makes it unreadable. */
+  white-space: nowrap;
+  overflow-wrap: normal;
+  word-break: normal;
+  vertical-align: middle;
+}
+
+/* Long free text - a title, a company name - truncates with an ellipsis and
+   keeps its full value in the tooltip DataTable sets. */
+.ijp-table td {
+  max-width: 22rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ijp-table th {
+  border-bottom: 1px solid var(--ijp-border-strong);
+  padding-bottom: 0.6rem;
+}
+
+.ijp-table tbody td {
+  padding-top: 0.7rem;
+  padding-bottom: 0.7rem;
+}
+
+/* The action column: buttons must never wrap, and it sits hard right. */
+.ijp-table th:last-child,
+.ijp-table td:last-child {
+  text-align: right;
+  white-space: nowrap;
+  max-width: none;
+}
+
+.ijp-table td:last-child .btn {
+  white-space: nowrap;
+}
+
+/* A cell holding a stacked block - name over email - has to be allowed to be
+   two lines, so the nowrap above is undone for it only. */
+.ijp-table td:has(.ijp-person) {
+  white-space: normal;
+}
+
+.table-responsive {
+  /* Room for a focus ring on the last row's buttons, which was being clipped
+     by the scroll container. */
+  padding-bottom: 2px;
+}
+
+
+/* --- feedback rows, clickable ---------------------------------------------- */
+.ijp-feedback {
+  padding: 0;
+  overflow: hidden;
+}
+
+.ijp-feedback--unread {
+  border-left-color: var(--ijp-signal);
+  background-color: var(--ijp-signal-soft);
+}
+
+.ijp-feedback-hit {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border: 0;
+  background: none;
+  text-align: left;
+  color: inherit;
+}
+
+.ijp-feedback-who {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* Three lines in the list. 2000 characters is a wall; the detail view is
+   where the whole thing belongs. */
+.ijp-feedback-text {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.6;
+  color: var(--ijp-ink-soft);
+  overflow-wrap: anywhere;
+}
+
+.ijp-feedback-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.74rem;
+  color: var(--ijp-ink-faint);
+}
+
+.ijp-feedback-more {
+  color: var(--ijp-signal);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.ijp-feedback-hit:hover .ijp-feedback-more {
+  text-decoration: underline;
+}
+
+/* Unclamped, and it keeps the line breaks the person typed. */
+.ijp-feedback-full {
+  white-space: pre-line;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}

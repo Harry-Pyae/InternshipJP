@@ -2,7 +2,7 @@ import { api } from "./axiosClient.js";
 
 /**
  * The account endpoints every role shares: your own details, your password,
- * and your password.
+ * and the feedback form.
  */
 export const accountApi = {
   me: () => api.get("/api/account/me").then((response) => response.data),
@@ -11,6 +11,10 @@ export const accountApi = {
 
   changePassword: (data) =>
     api.post("/api/account/change-password", data).then((response) => response.data),
+
+  /** Feedback reaches administrators as a notification - see FeedbackController. */
+  sendFeedback: (message) =>
+    api.post("/api/feedback", { message }).then((response) => response.data),
 };
 
 /** Notifications, shared by all three roles. Owner: Member 4. */

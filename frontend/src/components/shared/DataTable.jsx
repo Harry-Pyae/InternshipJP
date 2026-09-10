@@ -21,7 +21,7 @@ export default function DataTable({ columns, rows = [], rowKey, empty, onRowClic
     <>
       {/* Wide screens: a normal table. */}
       <div className="table-responsive d-none d-md-block">
-        <table className="table align-middle mb-0">
+        <table className="table align-middle mb-0 ijp-table">
           <thead>
             <tr>
               {columns.map((column) => (
@@ -38,11 +38,24 @@ export default function DataTable({ columns, rows = [], rowKey, empty, onRowClic
                 onClick={onRowClick ? () => onRowClick(row) : undefined}
                 style={onRowClick ? { cursor: "pointer" } : undefined}
               >
-                {columns.map((column) => (
-                  <td key={column.key}>
-                    {column.render ? column.render(row) : row[column.key]}
-                  </td>
-                ))}
+                {columns.map((column) => {
+                  const value = column.render ? column.render(row) : row[column.key];
+                  // A cell that renders to plain text gets it as a tooltip, so an
+                  // ellipsised value stays readable. Truncating is only acceptable
+                  // when the full text is still reachable somehow.
+                  return (
+                    <td
+                      key={column.key}
+                      title={
+                        typeof value === "string" || typeof value === "number"
+                          ? String(value)
+                          : undefined
+                      }
+                    >
+                      {value}
+                    </td>
+                  );
+                })}
               </tr>
             ))}
           </tbody>

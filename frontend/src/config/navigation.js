@@ -17,13 +17,14 @@ function developerSection(path) {
 }
 export const STUDENT_NAV = [
   {
-    section: null,
+    section: "Your search", sectionKey: "section.yourSearch",
     items: [
       { to: "/student/dashboard", icon: "bi-grid-1x2", label: "Dashboard", labelKey: "nav.dashboard", end: true },
       { to: "/student/internships", icon: "bi-search", label: "Browse internships", labelKey: "nav.browse" },
       { to: "/student/applications", icon: "bi-send", label: "My applications", labelKey: "nav.applications" },
       { to: "/student/certificates", icon: "bi-patch-check", label: "Certificates", labelKey: "nav.certificates" },
       { to: "/student/notifications", icon: "bi-bell", label: "Notifications", labelKey: "nav.notifications" },
+      { to: "/student/faq", icon: "bi-question-circle", label: "Help and FAQ", labelKey: "nav.faq" },
     ],
   },
   {
@@ -42,13 +43,14 @@ export const STUDENT_NAV = [
 
 export const EMPLOYER_NAV = [
   {
-    section: null,
+    section: "Hiring", sectionKey: "section.hiring",
     items: [
       { to: "/employer/dashboard", icon: "bi-grid-1x2", label: "Dashboard", labelKey: "nav.dashboard", end: true },
       { to: "/employer/internships/new", icon: "bi-plus-square", label: "Post internship", labelKey: "nav.post" },
       { to: "/employer/internships", icon: "bi-megaphone", label: "Manage internships", labelKey: "nav.manage", end: true },
       { to: "/employer/applications", icon: "bi-people", label: "Applicants", labelKey: "nav.applicants" },
       { to: "/employer/notifications", icon: "bi-bell", label: "Notifications", labelKey: "nav.notifications" },
+      { to: "/employer/faq", icon: "bi-question-circle", label: "Help and FAQ", labelKey: "nav.faq" },
     ],
   },
   {
@@ -67,7 +69,7 @@ export const EMPLOYER_NAV = [
 
 export const ADMIN_NAV = [
   {
-    section: null,
+    section: "Platform", sectionKey: "section.platform",
     items: [
       { to: "/admin/dashboard", icon: "bi-grid-1x2", label: "Dashboard", labelKey: "nav.dashboard", end: true },
       { to: "/admin/certificates", icon: "bi-patch-check", label: "Certificate review", labelKey: "nav.certificateReview" },
@@ -76,6 +78,7 @@ export const ADMIN_NAV = [
       { to: "/admin/users", icon: "bi-people", label: "Users", labelKey: "nav.users" },
       { to: "/admin/reports", icon: "bi-graph-up", label: "Reports", labelKey: "nav.reports" },
       { to: "/admin/notifications", icon: "bi-bell", label: "Notifications", labelKey: "nav.notifications" },
+      { to: "/admin/faq", icon: "bi-question-circle", label: "Help and FAQ", labelKey: "nav.faq" },
     ],
   },
   {

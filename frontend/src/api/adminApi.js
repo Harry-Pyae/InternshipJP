@@ -30,6 +30,14 @@ export const adminApi = {
       })
       .then((response) => response.data),
 
+  /** Permanent. Suspension is the reversible option and is usually right. */
+  /** One internship, as an administrator sees it. */
+  getInternship: (id) =>
+    api.get(`/api/admin/internships/${id}`).then((response) => response.data),
+
+  deleteUser: (id) =>
+    api.delete(`/api/admin/users/${id}`).then((response) => response.data),
+
   updateUserStatus: (id, status) =>
     api
       .patch(`/api/admin/users/${id}/status`, { status })

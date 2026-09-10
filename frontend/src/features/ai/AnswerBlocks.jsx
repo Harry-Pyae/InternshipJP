@@ -11,6 +11,46 @@
  */
 const MYANMAR = /[\u1000-\u109F]/;
 
+/**
+ * Gives a heading or a labelled bullet a meaning, and therefore a colour.
+ *
+ * The assistants write in a consistent shape - a finding, then what to do
+ * about it - and that shape was invisible because every block rendered
+ * identically. Matching on the words the prompts actually produce turns a
+ * uniform wall of text into something you can skim.
+ *
+ * Unrecognised text falls through to neutral, which is the common case and
+ * must stay unremarkable.
+ */
+const TONES = [
+  // Matched anywhere in the text, not just at the start: the assistants write
+  // headings like "VACANCY CONFIGURATION RISK", where the meaningful word is
+  // last. Anchoring missed every one of them.
+  { match: /\b(gap|risk|issue|problem|weakness|missing|concern|warning|stalled)\b/i,
+    tone: "warn", icon: "bi-exclamation-triangle" },
+  { match: /\b(action|fix|recommend|suggest|next step|improve|consider|priorit)/i,
+    tone: "action", icon: "bi-arrow-right-circle" },
+  { match: /\b(strength|verified|match|advantage|already have)\b/i,
+    tone: "ok", icon: "bi-check-circle" },
+  { match: /\b(question|interview|ask about)\b/i,
+    tone: "ask", icon: "bi-chat-quote" },
+];
+
+function toneOf(text) {
+  const found = TONES.find((entry) => entry.match.test((text ?? "").trim()));
+  return found ?? { tone: "neutral", icon: "bi-dot" };
+}
+
+/** Splits "Gap: the vacancy has no skills" into its label and the rest. */
+function splitLabel(text) {
+  // Digits allowed: "J2EE Experience:" and "2FA setup:" are labels too.
+  const match = /^\s*(?:\*\*)?([A-Z][A-Za-z0-9 ]{2,28})(?:\*\*)?\s*:\s*(.*)$/s.exec(text ?? "");
+  if (!match) {
+    return null;
+  }
+  return { label: match[1].trim(), rest: match[2] };
+}
+
 export default function AnswerBlocks({ text, typing = false }) {
   const blocks = parse(text ?? "");
   const burmese = MYANMAR.test(text ?? "");
@@ -20,7 +60,14 @@ export default function AnswerBlocks({ text, typing = false }) {
       {blocks.map((block, index) => {
         if (block.type === "heading") {
           return (
-            <h3 className="ijp-answer-heading" key={index}>
+            <h3
+              className={`ijp-answer-heading ijp-answer-heading--${toneOf(block.text).tone}`}
+              key={index}
+            >
+              <i
+                className={`bi ${toneOf(block.text).icon} ijp-answer-heading-icon`}
+                aria-hidden="true"
+              />
               {block.text}
             </h3>
           );
@@ -32,7 +79,21 @@ export default function AnswerBlocks({ text, typing = false }) {
                 // value= keeps the model's numbering across a list that was
                 // interrupted, instead of silently restarting at 1.
                 <li key={i} value={item.number}>
-                  {inline(item.text)}
+                  {(() => {
+                    const parts = splitLabel(item.text);
+                    if (!parts) {
+                      return inline(item.text);
+                    }
+                    const { tone } = toneOf(parts.label);
+                    return (
+                      <>
+                        <span className={`ijp-answer-label ijp-answer-label--${tone}`}>
+                          {parts.label}
+                        </span>
+                        {inline(parts.rest)}
+                      </>
+                    );
+                  })()}
                 </li>
               ))}
             </ol>
@@ -41,9 +102,21 @@ export default function AnswerBlocks({ text, typing = false }) {
         if (block.type === "unordered") {
           return (
             <ul className="ijp-answer-list" key={index}>
-              {block.items.map((item, i) => (
-                <li key={i}>{inline(item)}</li>
-              ))}
+              {block.items.map((item, i) => {
+                const parts = splitLabel(item);
+                if (!parts) {
+                  return <li key={i}>{inline(item)}</li>;
+                }
+                const { tone } = toneOf(parts.label);
+                return (
+                  <li key={i} className={`ijp-answer-item ijp-answer-item--${tone}`}>
+                    <span className={`ijp-answer-label ijp-answer-label--${tone}`}>
+                      {parts.label}
+                    </span>
+                    {inline(parts.rest)}
+                  </li>
+                );
+              })}
             </ul>
           );
         }

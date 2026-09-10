@@ -47,14 +47,10 @@ restart.
 
 ## Clear demo data permanently, for real data
 
-When real students and employers arrive:
-
 ```properties
 DEMO_DATA_ENABLED=false
 DEMO_DATA_RESET=false
 ```
-
-Then remove what is already there:
 
 ```powershell
 .\scripts\remove-demo-data.ps1
@@ -64,13 +60,17 @@ It prints what it will delete, asks for confirmation, and removes **both the
 database rows and the uploaded certificate files**. The files matter — deleting
 rows alone leaves orphaned PDFs on disk that nothing points at.
 
-SQL alternative, if you prefer:
+SQL alternative, which does **not** delete the files:
 
 ```powershell
 "C:\xampp\mysql\bin\mysql.exe" -u root internshipjp_db < database\remove_demo_data.sql
 ```
 
-Note this one does **not** delete the files.
+If `mysql.exe` is somewhere else:
+
+```powershell
+.\scripts\remove-demo-data.ps1 -MysqlPath "C:\path\to\mysql.exe"
+```
 
 ---
 
@@ -117,7 +117,7 @@ Start the backend and Flyway rebuilds all eight migrations from nothing. With
 
 ---
 
-## What the new demo set contains
+## What the demo set contains
 
 | | |
 | --- | --- |
@@ -127,13 +127,13 @@ Start the backend and Flyway rebuilds all eight migrations from nothing. With
 | Applications | 5, across five different statuses |
 | Certificates | 3 — two verified, one waiting |
 
-### The change worth knowing about
+### Ages are staggered on purpose
 
-The old set created everything at one instant, so **every queue item read the
-same age** — "21d" beside all of them — and every urgency badge was the same
-colour. The screens looked broken rather than busy.
+An earlier version created everything at one instant, so **every queue item
+read the same age** — "21d" beside all of them — and every urgency badge was
+the same colour. The screens looked broken rather than busy.
 
-Records are now staggered, so the administrator sees a real spread:
+Records now spread out, so the administrator sees a real range:
 
 ```
 CERTIFICATES     9d  red     Intro to Databases        waiting
@@ -151,21 +151,28 @@ Green, amber and red all appear at once, which is what those colours were built
 to distinguish. One application sits past the 7-day stalled threshold and one
 sits well inside it, so that panel has content **and** the contrast is visible.
 
-### A demo path that shows the whole product
+### The vacancies are deliberately imperfect
+
+One is still a draft, one has no required skills, one has a passed deadline and
+one has received nothing. That is what gives the employer assistant something
+real to find — a demo where every listing is perfect shows nothing.
+
+---
+
+## A demo path that covers the whole product
 
 1. Sign in as `student1@demo.internshipjp.local` — upload a certificate, it
    appears as **Pending**
-2. Sign in as `admin@demo.internshipjp.local` — Certificate review shows it with
-   the student's name; open the file, verify it
+2. Sign in as `admin@demo.internshipjp.local` — Certificate review shows it
+   with the student's name; open the file, verify it
 3. Back as the student — it now reads **Verified**
 4. Browse internships, open one, apply
 5. Sign in as `employer1@demo.internshipjp.local` — the applicant is there;
    shortlist them
-6. Back as the student — My applications shows **Shortlisted**
+6. Back as the student — My applications shows **Shortlisted**, and the bell
+   has a count
 
-That covers verification, matching, applying and the pipeline in about two
-minutes.
-
+Two minutes, and it covers verification, matching, applying and the pipeline.
 
 ---
 

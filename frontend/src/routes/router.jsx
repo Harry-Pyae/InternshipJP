@@ -32,6 +32,7 @@ import EmployerProfilePage from "../features/employer/EmployerProfilePage.jsx";
 import BrowseInternshipsPage from "../features/student/BrowseInternshipsPage.jsx";
 import StudentInternshipDetailPage from "../features/student/StudentInternshipDetailPage.jsx";
 import NotificationsPage from "../features/shared/NotificationsPage.jsx";
+import FaqPage from "../features/shared/FaqPage.jsx";
 import AccountSettingsPage from "../features/shared/AccountSettingsPage.jsx";
 import AdminDashboardPage from "../features/admin/AdminDashboardPage.jsx";
 import AdminCertificatesPage from "../features/admin/AdminCertificatesPage.jsx";
@@ -42,6 +43,7 @@ import AdminInternshipsPage from "../features/admin/AdminInternshipsPage.jsx";
 import AdminNotificationsPage from "../features/admin/AdminNotificationsPage.jsx";
 import AdminEmployersPage from "../features/admin/AdminEmployersPage.jsx";
 import AdminEmployerReviewPage from "../features/admin/AdminEmployerReviewPage.jsx";
+import AdminInternshipDetailPage from "../features/admin/AdminInternshipDetailPage.jsx";
 import AdminReportsPage from "../features/admin/AdminReportsPage.jsx";
 import AiChatPage from "../features/ai/AiChatPage.jsx";
 
@@ -125,6 +127,7 @@ export default function AppRoutes() {
         <Route path="/student/certificates" element={<StudentCertificatesPage />} />
         <Route path="/student/applications" element={<StudentApplicationsPage />} />
         <Route path="/student/notifications" element={<NotificationsPage />} />
+        <Route path="/student/faq" element={<FaqPage />} />
         <Route path="/student/settings" element={<AccountSettingsPage />} />
 
         {STUDENT_PAGES.filter((page) => !STUDENT_BUILT.has(page.path)).map((page) => (
@@ -177,6 +180,7 @@ export default function AppRoutes() {
         */}
         <Route path="/employer/profile" element={<EmployerProfilePage />} />
         <Route path="/employer/notifications" element={<NotificationsPage />} />
+        <Route path="/employer/faq" element={<FaqPage />} />
         <Route path="/employer/settings" element={<AccountSettingsPage />} />
 
         {EMPLOYER_PAGES.filter((page) => !EMPLOYER_BUILT.has(page.path)).map((page) => (
@@ -205,8 +209,10 @@ export default function AppRoutes() {
         <Route path="/admin/certificates/:id" element={<AdminCertificateReviewPage />} />
         <Route path="/admin/employers" element={<AdminEmployersPage />} />
         <Route path="/admin/employers/:id" element={<AdminEmployerReviewPage />} />
+        <Route path="/admin/internships/:id" element={<AdminInternshipDetailPage />} />
         <Route path="/admin/internships" element={<AdminInternshipsPage />} />
         <Route path="/admin/notifications" element={<AdminNotificationsPage />} />
+        <Route path="/admin/faq" element={<FaqPage />} />
         <Route path="/admin/reports" element={<AdminReportsPage />} />
         <Route path="/admin/settings" element={<AdminSettingsPage />} />
 

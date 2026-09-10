@@ -12,6 +12,8 @@ import { describeApiError } from "../../api/axiosClient.js";
  * Approving or rejecting one company.
  */
 const DETAILS = [
+  { key: "name", label: "Company name" },
+  { key: "registrationNumber", label: "Registration number" },
   { key: "industry", label: "Industry" },
   { key: "companySize", label: "Company size" },
   { key: "foundedYear", label: "Founded" },
@@ -80,14 +82,41 @@ export default function AdminEmployerReviewPage() {
         title={company?.name ?? "Company"}
         subtitle="Check the registration before activating this company's recruiters."
         action={
-          <Link className="btn btn-sm btn-ijp-quiet" to="/admin/employers">
+          <div className="d-flex gap-2">
+            <Link
+              className="btn btn-sm btn-ijp-quiet"
+              to="/admin/users?role=EMPLOYER"
+              title="The recruiter accounts this decision activates"
+            >
+              <i className="bi bi-people me-1" aria-hidden="true" />
+              Employer accounts
+            </Link>
+            <Link className="btn btn-sm btn-ijp-quiet" to="/admin/employers">
             <i className="bi bi-arrow-left me-1" aria-hidden="true" />
             Back to queue
           </Link>
+          </div>
         }
       />
 
       <ErrorAlert message={error} />
+
+      {company ? (
+        <div className="ijp-fact-strip">
+          <Fact label="Status">
+            <StatusBadge value={company.approvalStatus} />
+          </Fact>
+          <Fact label="Company name">{company.name || "—"}</Fact>
+          <Fact label="Registration">{company.registrationNumber || "Not given"}</Fact>
+          <Fact label="Industry">{company.industry || "Not given"}</Fact>
+          <Fact label="Location">
+            {[company.location, company.country].filter(Boolean).join(", ") || "Not given"}
+          </Fact>
+          <Fact label="Registered">
+            {company.createdAt?.replace("T", " ").slice(0, 16) || "—"}
+          </Fact>
+        </div>
+      ) : null}
 
       {company ? (
         <div className="row g-4">
@@ -184,5 +213,14 @@ export default function AdminEmployerReviewPage() {
         </div>
       ) : null}
     </>
+  );
+}
+
+function Fact({ label, children }) {
+  return (
+    <div className="ijp-fact">
+      <span className="ijp-fact-label">{label}</span>
+      <span className="ijp-fact-value">{children}</span>
+    </div>
   );
 }

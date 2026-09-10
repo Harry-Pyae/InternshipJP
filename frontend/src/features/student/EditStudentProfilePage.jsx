@@ -356,7 +356,7 @@ export default function EditStudentProfilePage() {
           <div className="d-flex gap-2">
             <button
               type="submit"
-              className="btn btn-primary"
+              className="btn btn-ijp-primary"
               disabled={saving}
             >
               {saving ? "Saving..." : "Save profile"}
@@ -364,7 +364,7 @@ export default function EditStudentProfilePage() {
 
             <button
               type="button"
-              className="btn btn-secondary"
+              className="btn btn-ijp-quiet"
               onClick={() => window.history.back()}
               disabled={saving}
             >

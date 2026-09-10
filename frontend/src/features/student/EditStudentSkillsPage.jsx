@@ -239,7 +239,7 @@ export default function EditStudentSkillsPage() {
                 <div className="col-12 d-flex gap-2">
   <button
     type="submit"
-    className="btn btn-primary"
+    className="btn btn-ijp-primary"
     disabled={saving}
   >
     {saving
@@ -252,7 +252,7 @@ export default function EditStudentSkillsPage() {
   {editingId ? (
     <button
       type="button"
-      className="btn btn-secondary"
+      className="btn btn-ijp-quiet"
       onClick={resetForm}
       disabled={saving}
     >
@@ -262,7 +262,7 @@ export default function EditStudentSkillsPage() {
 
   <button
     type="button"
-    className="btn btn-secondary"
+    className="btn btn-ijp-quiet"
     onClick={() => navigate("/student/profile")}
     disabled={saving}
   >

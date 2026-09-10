@@ -188,7 +188,7 @@ function SignedIn({ user, busy, onSignOut }) {
         </p>
       ) : null}
 
-      <button type="button" className="btn btn-outline-secondary btn-sm" onClick={onSignOut} disabled={busy}>
+      <button type="button" className="btn btn-ijp-quiet btn-sm" onClick={onSignOut} disabled={busy}>
         Sign out
       </button>
     </>
@@ -216,14 +216,14 @@ function SignedOut({ mode, setMode, role, setRole, form, update, busy, onSubmit 
       <div className="btn-group btn-group-sm mb-1" role="group" aria-label="Sign in or register">
         <button
           type="button"
-          className={`btn ${registering ? "btn-outline-secondary" : "btn-ijp-primary"}`}
+          className={`btn ${registering ? "btn-ijp-quiet" : "btn-ijp-primary"}`}
           onClick={() => setMode("login")}
         >
           Sign in
         </button>
         <button
           type="button"
-          className={`btn ${registering ? "btn-ijp-primary" : "btn-outline-secondary"}`}
+          className={`btn ${registering ? "btn-ijp-primary" : "btn-ijp-quiet"}`}
           onClick={() => setMode("register")}
         >
           Create a test account

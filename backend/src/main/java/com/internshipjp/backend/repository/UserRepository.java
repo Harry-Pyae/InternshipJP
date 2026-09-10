@@ -25,6 +25,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     long countByRole(Role role);
 
+    /** Used to refuse deleting the last administrator who can still sign in. */
+    long countByRoleAndAccountStatus(Role role, AccountStatus accountStatus);
+
     long countByAccountStatus(AccountStatus status);
     Page<User> findByRole(Role role, Pageable pageable);
     Page<User> findByAccountStatus(AccountStatus status, Pageable pageable);

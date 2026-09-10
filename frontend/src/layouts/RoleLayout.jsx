@@ -3,6 +3,7 @@ import { Outlet, useLocation } from "react-router-dom";
 import Sidebar from "../components/navigation/Sidebar.jsx";
 import Topbar from "../components/navigation/Topbar.jsx";
 import { useLanguage } from "../config/languageContext.jsx";
+import AssistantLauncher from "../components/shared/AssistantLauncher.jsx";
 
 /**
  * The shell every signed-in page sits inside: sidebar, header, and the page
@@ -101,6 +102,7 @@ export default function RoleLayout({ nav, title, settingsPath }) {
         <main className="ijp-shell-content" id="main">
           <Outlet />
         </main>
+        <AssistantLauncher basePath={settingsPath.replace(/\/settings$/, "")} />
       </div>
     </div>
   );

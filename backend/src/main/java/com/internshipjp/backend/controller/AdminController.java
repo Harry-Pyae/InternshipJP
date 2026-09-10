@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import com.internshipjp.backend.dto.response.ApiMessageResponse;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 
@@ -77,6 +79,19 @@ public class AdminController {
         return adminService.listUsers(role, status, search,
                 PageRequest.of(Math.max(page, 0), safeSize(size),
                         Sort.by(Sort.Direction.DESC, "createdAt")));
+    }
+
+    /**
+     * Deletes an account permanently.
+     *
+     * Kept separate from suspension on purpose. Suspending is reversible and
+     * is the right answer almost always; this is for a duplicate or a test
+     * account that should not exist at all.
+     */
+    @DeleteMapping("/users/{id}")
+    public ApiMessageResponse deleteUser(@PathVariable Long id) {
+        adminService.deleteUser(currentUserService.requireUserId(), id);
+        return new ApiMessageResponse("The account was deleted.");
     }
 
     @PatchMapping("/users/{id}/status")

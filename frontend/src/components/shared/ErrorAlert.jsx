@@ -10,7 +10,7 @@ export default function ErrorAlert({ message, onRetry }) {
         {message}
       </span>
       {onRetry ? (
-        <button type="button" className="btn btn-sm btn-outline-danger" onClick={onRetry}>
+        <button type="button" className="btn btn-sm btn-ijp-quiet ijp-btn-danger" onClick={onRetry}>
           Try again
         </button>
       ) : null}

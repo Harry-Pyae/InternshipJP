@@ -257,7 +257,7 @@ export default function EmployerProfilePage() {
             <div className="mt-4 d-flex gap-2">
               <button
                 type="submit"
-                className="btn btn-primary"
+                className="btn btn-ijp-primary"
                 disabled={saving}
               >
                 {saving ? "Saving..." : "Save changes"}
@@ -265,7 +265,7 @@ export default function EmployerProfilePage() {
 
               <button
                 type="button"
-                className="btn btn-outline-secondary"
+                className="btn btn-ijp-quiet"
                 onClick={loadProfile}
                 disabled={loading || saving}
               >

@@ -47,7 +47,7 @@ export default function RecommendationsPanel({ onDiscuss, onLearnSkill }) {
     <div>
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h2 className="ijp-label mb-0">{t("Matched to your skills")}</h2>
-        <button type="button" className="btn btn-sm btn-outline-secondary" onClick={load}>
+        <button type="button" className="btn btn-sm btn-ijp-quiet" onClick={load}>
           <i className="bi bi-arrow-clockwise" aria-hidden="true" />
           <span className="visually-hidden">{t("Refresh recommendations")}</span>
         </button>

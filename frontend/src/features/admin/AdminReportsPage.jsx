@@ -12,6 +12,7 @@ import { adminApi } from "../../api/adminApi.js";
 import { aiApi } from "../../api/aiApi.js";
 import { describeApiError } from "../../api/axiosClient.js";
 import { useLanguage } from "../../config/languageContext.jsx";
+import BarChart from "../../components/shared/BarChart.jsx";
 
 export default function AdminReportsPage() {
   const { t, language } = useLanguage();
@@ -134,6 +135,74 @@ export default function AdminReportsPage() {
                     {summary.configured
                       ? "The configured AI provider is available to the backend."
                       : "The AI provider is not configured."}
+                  </p>
+                </SectionCard>
+              </div>
+            </div>
+          </section>
+
+          <section className="ijp-report-section">
+            <div className="ijp-section-head">
+              <h2 className="ijp-section-title">{t("At a glance")}</h2>
+              <p className="ijp-section-note">
+                {t("The same figures above, shaped so the differences are visible.")}
+              </p>
+            </div>
+
+            <div className="row g-4">
+              <div className="col-lg-4">
+                <SectionCard title="Accounts by role">
+                  <BarChart
+                    data={[
+                      { label: t("Students"), value: workload.totalStudents },
+                      { label: t("Employers"), value: workload.totalEmployers },
+                      { label: t("Administrators"), value: workload.totalAdmins },
+                      {
+                        label: t("Suspended"),
+                        value: workload.suspendedAccounts,
+                        tone: workload.suspendedAccounts ? "bad" : "signal",
+                      },
+                    ]}
+                  />
+                </SectionCard>
+              </div>
+
+              <div className="col-lg-4">
+                <SectionCard title="Waiting for a decision">
+                  <BarChart
+                    tone="warn"
+                    data={[
+                      { label: t("Certificates"), value: workload.certificatesPending },
+                      { label: t("Companies"), value: workload.companiesPending },
+                      { label: t("Stalled"), value: workload.applicationsStalled },
+                    ]}
+                    empty={t("Nothing waiting.")}
+                  />
+                  <p className="ijp-field-hint mt-3 mb-0">
+                    {t("A bar at zero is the target. Anything else is someone waiting.")}
+                  </p>
+                </SectionCard>
+              </div>
+
+              <div className="col-lg-4">
+                <SectionCard title="AI calls">
+                  <BarChart
+                    data={[
+                      {
+                        label: t("Successful"),
+                        value: summary?.successfulCalls ?? 0,
+                        tone: "ok",
+                      },
+                      {
+                        label: t("Failed"),
+                        value: summary?.failedCalls ?? 0,
+                        tone: (summary?.failedCalls ?? 0) > 0 ? "bad" : "signal",
+                      },
+                    ]}
+                    empty={t("No calls recorded yet.")}
+                  />
+                  <p className="ijp-field-hint mt-3 mb-0">
+                    {t("Failures are usually a provider limit or a missing key, not a fault in the platform.")}
                   </p>
                 </SectionCard>
               </div>

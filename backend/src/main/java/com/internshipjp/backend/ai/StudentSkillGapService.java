@@ -62,6 +62,15 @@ public class StudentSkillGapService {
         this.skillMarketService = skillMarketService;
     }
 
+    /**
+     * Defaults to English.
+     *
+     * Annotated as well as the overload it delegates to. Calling the other
+     * method from inside this class goes straight to the object, not through
+     * Spring's proxy, so its @Transactional would never fire - and every lazy
+     * association read inside it would throw.
+     */
+    @Transactional(readOnly = true)
     public SkillGapResponse analyse(Long userId) {
         return analyse(userId, "en");
     }
