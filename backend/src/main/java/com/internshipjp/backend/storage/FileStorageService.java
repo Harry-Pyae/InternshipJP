@@ -159,6 +159,60 @@ public class FileStorageService {
         if (!appProperties.getStorage().getAllowedExtensions().contains(extensionOf(originalName))) {
             throw new BadRequestException("Only .pdf, .png, .jpg and .jpeg files are accepted.");
         }
+
+        requireContentMatchesType(file);
+    }
+
+    /**
+     * Checks the first bytes of the file, not what the caller said it was.
+     *
+     * Everything above this trusts the request: the extension is part of a
+     * filename anyone can choose, and Content-Type is a header the browser
+     * sends and a script can set to whatever it likes. So a file can claim to
+     * be application/pdf, be named report.pdf, and actually contain HTML with
+     * a script in it - which is the classic way a "document" upload becomes a
+     * stored cross-site scripting hole.
+     *
+     * These four signatures are fixed by the file formats themselves and are
+     * the first thing in every real file of that type.
+     */
+    private void requireContentMatchesType(MultipartFile file) {
+        byte[] head = new byte[8];
+        int read;
+        try (InputStream in = file.getInputStream()) {
+            read = in.read(head);
+        } catch (IOException ex) {
+            throw new BadRequestException("The file could not be read.");
+        }
+        if (read < 4) {
+            throw new BadRequestException("The file is empty or truncated.");
+        }
+
+        if (matches(head, (byte) 0x25, (byte) 0x50, (byte) 0x44, (byte) 0x46)) {
+            return;                                     // %PDF
+        }
+        if (matches(head, (byte) 0x89, (byte) 0x50, (byte) 0x4E, (byte) 0x47)) {
+            return;                                     // .PNG
+        }
+        if (matches(head, (byte) 0xFF, (byte) 0xD8, (byte) 0xFF)) {
+            return;                                     // JPEG
+        }
+
+        throw new BadRequestException(
+                "That file is not a real PDF, PNG or JPG. Renaming a file does not change "
+                        + "what is inside it.");
+    }
+
+    private boolean matches(byte[] head, byte... signature) {
+        if (head.length < signature.length) {
+            return false;
+        }
+        for (int i = 0; i < signature.length; i++) {
+            if (head[i] != signature[i]) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private String extensionOf(String fileName) {

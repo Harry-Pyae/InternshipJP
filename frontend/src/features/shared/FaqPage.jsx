@@ -9,6 +9,7 @@ import { useAuth } from "../../config/authContext.jsx";
 import LoadingBlock from "../../components/shared/LoadingBlock.jsx";
 import EmptyState from "../../components/shared/EmptyState.jsx";
 import { timeAgo, exactTime } from "../../api/relativeTime.js";
+import SearchBox, { matches } from "../../components/shared/SearchBox.jsx";
 
 /**
  * Questions people actually ask, and a way to say something we did not answer.
@@ -291,6 +292,7 @@ function FeedbackInbox() {
   const [items, setItems] = useState(null);
   const [error, setError] = useState(null);
   const [open, setOpen] = useState(null);
+  const [query, setQuery] = useState("");
 
   const load = useCallback(async () => {
     setError(null);
@@ -306,6 +308,12 @@ function FeedbackInbox() {
     load();
   }, [load]);
 
+  const visibleFeedback = (items ?? []).filter((item) =>
+
+    matches(item, query, ["message", "title"]),
+
+  );
+
   return (
     <SectionCard
       title="Feedback from users"
@@ -318,9 +326,21 @@ function FeedbackInbox() {
     >
       <ErrorAlert message={error} onRetry={load} />
 
+      {/* Every piece of feedback is already in memory here, so unlike the
+          table searches this one really does cover everything. */}
+      {items !== null && items.length > 0 ? (
+        <SearchBox
+          value={query}
+          onChange={setQuery}
+          placeholder={t("Search feedback")}
+          shown={visibleFeedback.length}
+          total={items.length}
+        />
+      ) : null}
+
       {items === null ? (
         <LoadingBlock label="Loading feedback..." />
-      ) : items.length === 0 ? (
+      ) : visibleFeedback.length === 0 ? (
         <EmptyState
           icon="bi-chat-left-text"
           title="No feedback yet"
@@ -328,7 +348,7 @@ function FeedbackInbox() {
         />
       ) : (
         <ul className="ijp-feedback-list">
-          {items.map((item) => (
+          {visibleFeedback.map((item) => (
             <li
               className={`ijp-feedback${item.read ? "" : " ijp-feedback--unread"}`}
               key={item.id}
@@ -360,8 +380,10 @@ function FeedbackInbox() {
                     and the detail view exists for the whole thing. */}
                 <span className="ijp-feedback-text">{parseFeedback(item).text}</span>
                 <span className="ijp-feedback-meta" title={exactTime(item.createdAt)}>
-                  <i className="bi bi-clock me-1" aria-hidden="true" />
-                  {timeAgo(item.createdAt)}
+                  <span className="ijp-feedback-when">
+                    <i className="bi bi-clock" aria-hidden="true" />
+                    {timeAgo(item.createdAt)}
+                  </span>
                   <span className="ijp-feedback-more">
                     {t("View details")}
                     <i className="bi bi-chevron-right ms-1" aria-hidden="true" />

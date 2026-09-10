@@ -27,6 +27,16 @@ export default function RegisterPage() {
     companyWebsite: "",
     industry: "",
     jobTitle: "",
+    registrationNumber: "",
+    contactEmail: "",
+    country: "",
+    location: "",
+    address: "",
+    linkedinUrl: "",
+    contactPhone: "",
+    companySize: "",
+    foundedYear: "",
+    description: "",
   });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
@@ -41,6 +51,10 @@ export default function RegisterPage() {
     ...(role === "EMPLOYER"
       ? {
           companyName: rules.required("Company name"),
+          registrationNumber: rules.required("Registration number"),
+          contactEmail: rules.required("Contact email"),
+          country: rules.required("Country"),
+          location: rules.required("City"),
           companyWebsite: rules.url("Company website"),
         }
       : {}),
@@ -104,6 +118,16 @@ export default function RegisterPage() {
           website: form.companyWebsite || undefined,
           industry: form.industry || undefined,
           jobTitle: form.jobTitle || undefined,
+          registrationNumber: form.registrationNumber,
+          contactEmail: form.contactEmail,
+          country: form.country,
+          location: form.location,
+          address: form.address || undefined,
+          linkedinUrl: form.linkedinUrl || undefined,
+          contactPhone: form.contactPhone || undefined,
+          companySize: form.companySize || undefined,
+          foundedYear: form.foundedYear ? Number(form.foundedYear) : undefined,
+          description: form.description || undefined,
         });
       }
 
@@ -251,6 +275,119 @@ export default function RegisterPage() {
                   onChange={(value) => update("jobTitle", value)}
                 />
               </div>
+
+              {/* An administrator has to approve a real business. Without these
+                  three there is nothing to verify against, and a company can be
+                  registered under a person's name without anyone noticing. */}
+              <div className="ijp-auth-row">
+                <AuthField
+                  id="regRegistration"
+                  label={t("Business registration number")}
+                  icon="bi-hash"
+                  value={form.registrationNumber}
+                  onChange={(value) => update("registrationNumber", value)}
+                  onBlur={() => blur("registrationNumber")}
+                  error={fieldErrors?.registrationNumber}
+                  required
+                  hint={t("An administrator checks this before approving you.")}
+                />
+                <AuthField
+                  id="regContactEmail"
+                  type="email"
+                  label={t("Company contact email")}
+                  icon="bi-envelope-at"
+                  value={form.contactEmail}
+                  onChange={(value) => update("contactEmail", value)}
+                  onBlur={() => blur("contactEmail")}
+                  error={fieldErrors?.contactEmail}
+                  required
+                />
+              </div>
+
+              <div className="ijp-auth-row">
+                <AuthField
+                  id="regCountry"
+                  label={t("Country")}
+                  icon="bi-globe2"
+                  value={form.country}
+                  onChange={(value) => update("country", value)}
+                  onBlur={() => blur("country")}
+                  error={fieldErrors?.country}
+                  required
+                />
+                <AuthField
+                  id="regCity"
+                  label={t("City")}
+                  icon="bi-geo-alt"
+                  value={form.location}
+                  onChange={(value) => update("location", value)}
+                  onBlur={() => blur("location")}
+                  error={fieldErrors?.location}
+                  required
+                />
+              </div>
+
+              <div className="ijp-auth-row">
+                <AuthField
+                  id="regAddress"
+                  label={t("Address")}
+                  icon="bi-pin-map"
+                  optional
+                  value={form.address}
+                  onChange={(value) => update("address", value)}
+                />
+                <AuthField
+                  id="regContactPhone"
+                  label={t("Contact phone")}
+                  icon="bi-telephone"
+                  optional
+                  value={form.contactPhone}
+                  onChange={(value) => update("contactPhone", value)}
+                />
+              </div>
+
+              <div className="ijp-auth-row">
+                <AuthField
+                  id="regCompanySize"
+                  label={t("Company size")}
+                  icon="bi-people"
+                  optional
+                  placeholder="e.g. 11-50"
+                  value={form.companySize}
+                  onChange={(value) => update("companySize", value)}
+                />
+                <AuthField
+                  id="regLinkedin"
+                  label={t("LinkedIn")}
+                  icon="bi-linkedin"
+                  optional
+                  placeholder="https://linkedin.com/company/..."
+                  value={form.linkedinUrl}
+                  onChange={(value) => update("linkedinUrl", value)}
+                />
+              </div>
+
+              <div className="ijp-auth-row">
+                <AuthField
+                  id="regFoundedYear"
+                  label={t("Founded year")}
+                  icon="bi-calendar3"
+                  optional
+                  placeholder="e.g. 2019"
+                  value={form.foundedYear}
+                  onChange={(value) => update("foundedYear", value)}
+                />
+              </div>
+
+              <AuthField
+                id="regDescription"
+                label={t("What the company does")}
+                icon="bi-card-text"
+                optional
+                value={form.description}
+                onChange={(value) => update("description", value)}
+                hint={t("Students read this before deciding whether to apply.")}
+              />
               <p className="ijp-muted small mb-0">
                 <i className="bi bi-info-circle me-1" aria-hidden="true" />
                 Employer accounts are reviewed by an administrator. You can sign in straight

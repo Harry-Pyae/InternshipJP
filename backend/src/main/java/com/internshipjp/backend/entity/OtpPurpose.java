@@ -5,5 +5,8 @@ package com.internshipjp.backend.entity;
  */
 public enum OtpPurpose {
     ENABLE_EMAIL_OTP,
+
+    /** A code emailed to someone who cannot sign in. */
+    PASSWORD_RESET,
     LOGIN_CHALLENGE
 }

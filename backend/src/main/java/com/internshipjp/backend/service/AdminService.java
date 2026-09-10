@@ -18,6 +18,7 @@ import com.internshipjp.backend.mapper.UserMapper;
 import com.internshipjp.backend.repository.CompanyRepository;
 import com.internshipjp.backend.repository.EmployerProfileRepository;
 import com.internshipjp.backend.repository.UserRepository;
+import com.internshipjp.backend.security.LoginAttemptService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -43,6 +44,7 @@ public class AdminService {
     private final CompanyMapper companyMapper;
     private final UserMapper userMapper;
     private final AccountMailService accountMailService;
+    private final LoginAttemptService loginAttemptService;
 
     public AdminService(CompanyRepository companyRepository,
                         EmployerProfileRepository employerProfileRepository,
@@ -50,7 +52,8 @@ public class AdminService {
                         NotificationService notificationService,
                         CompanyMapper companyMapper,
                         UserMapper userMapper,
-                        AccountMailService accountMailService) {
+                        AccountMailService accountMailService,
+                        LoginAttemptService loginAttemptService) {
         this.companyRepository = companyRepository;
         this.employerProfileRepository = employerProfileRepository;
         this.userRepository = userRepository;
@@ -58,6 +61,7 @@ public class AdminService {
         this.companyMapper = companyMapper;
         this.userMapper = userMapper;
         this.accountMailService = accountMailService;
+        this.loginAttemptService = loginAttemptService;
     }
 
     @Transactional(readOnly = true)
@@ -183,5 +187,12 @@ public class AdminService {
         }
 
         userRepository.delete(user);
+    }
+
+    /** Releases a temporary sign-in lock at the person's request. */
+    public void unlockSignIn(Long targetUserId) {
+        User user = userRepository.findById(targetUserId)
+                .orElseThrow(() -> NotFoundException.of("User", targetUserId));
+        loginAttemptService.unlock(user.getEmail());
     }
 }

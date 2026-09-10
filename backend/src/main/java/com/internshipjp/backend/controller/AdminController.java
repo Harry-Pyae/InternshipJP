@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import com.internshipjp.backend.dto.response.ApiMessageResponse;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 
@@ -88,6 +89,19 @@ public class AdminController {
      * is the right answer almost always; this is for a duplicate or a test
      * account that should not exist at all.
      */
+    /**
+     * Releases a sign-in lock so someone can try again immediately.
+     *
+     * Separate from account status: a lock is temporary and expires on its own,
+     * while suspension is a decision. Conflating them would make it impossible
+     * to tell why an account cannot sign in.
+     */
+    @PostMapping("/users/{id}/unlock")
+    public ApiMessageResponse unlockSignIn(@PathVariable Long id) {
+        adminService.unlockSignIn(id);
+        return new ApiMessageResponse("Sign-in was unlocked for that account.");
+    }
+
     @DeleteMapping("/users/{id}")
     public ApiMessageResponse deleteUser(@PathVariable Long id) {
         adminService.deleteUser(currentUserService.requireUserId(), id);

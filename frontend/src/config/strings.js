@@ -64,6 +64,35 @@ export const strings = {
   },
 
   my: {
+    "Forgot your password?": "စကားဝှက် မေ့နေပါသလား။",
+    "Enter your email and we will send a code.": "သင့် အီးမေးလ် ထည့်ပါ။ ကုဒ်တစ်ခု ပို့ပေးပါမည်။",
+    "Enter the code from the email and choose a new password.": "အီးမေးလ်ထဲမှ ကုဒ်ကို ထည့်ပြီး စကားဝှက် အသစ် ရွေးပါ။",
+    "Code from the email": "အီးမေးလ်မှ ကုဒ်",
+    "Send me a code": "ကုဒ် ပို့ပေးပါ",
+    "Send another code": "ကုဒ် ထပ်ပို့ပါ",
+    "Change my password": "စကားဝှက် ပြောင်းရန်",
+    "Password changed": "စကားဝှက် ပြောင်းပြီးပါပြီ",
+    "You can sign in with your new password now.": "စကားဝှက် အသစ်ဖြင့် ယခု ဝင်ရောက်နိုင်ပါပြီ။",
+    "Back to sign in": "ဝင်ရောက်ရန် စာမျက်နှာသို့ ပြန်သွားရန်",
+    "Please wait...": "ခဏစောင့်ပါ...",
+
+    "LinkedIn": "LinkedIn",
+
+    "{shown} of {total} shown": "{total} ခုအနက် {shown} ခု ပြသထားသည်",
+    "Clear search": "ရှာဖွေမှု ရှင်းရန်",
+    "Search companies": "ကုမ္ပဏီများ ရှာရန်",
+    "Search certificates": "လက်မှတ်များ ရှာရန်",
+    "Search internships": "အလုပ်သင်နေရာများ ရှာရန်",
+    "Search applications": "လျှောက်လွှာများ ရှာရန်",
+    "Search feedback": "အကြံပြုချက်များ ရှာရန်",
+
+    "Business registration number": "လုပ်ငန်း မှတ်ပုံတင် အမှတ်",
+    "An administrator checks this before approving you.": "အတည်မပြုမီ စီမံခန့်ခွဲသူက ဤအချက်ကို စစ်ဆေးပါသည်။",
+    "Company contact email": "ကုမ္ပဏီ ဆက်သွယ်ရန် အီးမေးလ်",
+    "Contact phone": "ဆက်သွယ်ရန် ဖုန်း",
+    "What the company does": "ကုမ္ပဏီ၏ လုပ်ငန်းအကြောင်း",
+    "Students read this before deciding whether to apply.": "လျှောက်ရန် ဆုံးဖြတ်မီ ကျောင်းသားများ ဤအချက်ကို ဖတ်ကြပါသည်။",
+
     "View details": "အသေးစိတ် ကြည့်ရန်",
     "Feedback": "အကြံပြုချက်",
     "Someone": "တစ်စုံတစ်ဦး",
@@ -225,7 +254,6 @@ export const strings = {
     "Address": "လိပ်စာ",
     "Website": "ဝဘ်ဆိုက်",
     "Contact email": "ဆက်သွယ်ရန် အီးမေးလ်",
-    "Contact phone": "ဆက်သွယ်ရန် ဖုန်း",
     "Company description": "ကုမ္ပဏီ ဖော်ပြချက်",
 
     // --- student pages -----------------------------------------------------
@@ -465,7 +493,6 @@ export const strings = {
     "GitHub": "GitHub",
     "Internship preferences": "အလုပ်သင်နေရာ ရွေးချယ်မှုများ",
     "It only ever reads data belonging to the signed-in user, so it needs a session. The real login screen is Member 2's work; until then, use the Session panel on the Integration status page.": "၎င်းသည် ဝင်ရောက်ထားသူ၏ အချက်အလက်များကိုသာ ဖတ်ရှုသောကြောင့် session လိုအပ်ပါသည်။ အမှန်တကယ် ဝင်ရောက်သည့် စာမျက်နှာမှာ Member 2 ၏ တာဝန်ဖြစ်သည်။ ထိုအချိန်အထိ စနစ် အခြေအနေ စာမျက်နှာရှိ Session ကို အသုံးပြုပါ။",
-    "LinkedIn": "LinkedIn",
     "Live check of the connections between React, Spring Boot, MariaDB and the AI provider.": "React, Spring Boot, MariaDB နှင့် AI ဝန်ဆောင်မှုကြား ချိတ်ဆက်မှုကို တိုက်ရိုက် စစ်ဆေးခြင်း။",
     "Loading account settings...": "အကောင့် ဆက်တင်များ ရယူနေသည်...",
     "Loading administrator dashboard...": "စီမံခန့်ခွဲသူ ဒက်ရှ်ဘုတ် ရယူနေသည်...",
@@ -499,7 +526,6 @@ export const strings = {
     "Provider": "ဝန်ဆောင်မှုပေးသူ",
     "Recent registrations": "မကြာသေးမီက မှတ်ပုံတင်မှုများ",
     "Reviewing your listings and pipeline...": "သင့် ကြေညာချက်များနှင့် လုပ်ငန်းစဉ်ကို သုံးသပ်နေသည်...",
-    "Search internships": "အလုပ်သင်နေရာများ ရှာရန်",
     "Search users": "အသုံးပြုသူများ ရှာရန်",
     "Session": "Session",
     "Sign in or register": "ဝင်ရောက်ရန် သို့မဟုတ် မှတ်ပုံတင်ရန်",

@@ -7,6 +7,10 @@ import com.internshipjp.backend.dto.response.AuthUserResponse;
 import com.internshipjp.backend.mapper.UserMapper;
 import com.internshipjp.backend.security.CurrentUserService;
 import com.internshipjp.backend.service.AuthService;
+import com.internshipjp.backend.dto.request.ForgotPasswordRequest;
+import com.internshipjp.backend.dto.request.ResetPasswordRequest;
+import com.internshipjp.backend.service.PasswordResetService;
+import com.internshipjp.backend.dto.response.ApiMessageResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -31,13 +35,16 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
+    private final PasswordResetService passwordResetService;
     private final CurrentUserService currentUserService;
     private final UserMapper userMapper;
 
     public AuthController(AuthService authService,
                           CurrentUserService currentUserService,
-                          UserMapper userMapper) {
+                          UserMapper userMapper,
+                          PasswordResetService passwordResetService) {
         this.authService = authService;
+        this.passwordResetService = passwordResetService;
         this.currentUserService = currentUserService;
         this.userMapper = userMapper;
     }
@@ -65,6 +72,27 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.registerEmployer(request));
     }
 
+    /**
+     * Asks for a reset code.
+     *
+     * Always answers the same way, whether the address has an account or not.
+     * Otherwise this becomes a way to discover who is registered.
+     */
+    @PostMapping("/forgot-password")
+    public ApiMessageResponse forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        passwordResetService.requestReset(request);
+        return new ApiMessageResponse(
+                "If that address has an account, a reset code is on its way. "
+                        + "The code expires in 15 minutes.");
+    }
+
+    /** Uses the code to set a new password. */
+    @PostMapping("/reset-password")
+    public ApiMessageResponse resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        passwordResetService.resetPassword(request);
+        return new ApiMessageResponse("Your password has been changed. You can sign in now.");
+    }
+
     @PostMapping("/login")
     public AuthUserResponse login(@Valid @RequestBody LoginRequest request,
                                   HttpServletRequest httpRequest,
@@ -72,9 +100,23 @@ public class AuthController {
         return authService.login(request, httpRequest, httpResponse);
     }
 
-    /** Who am I? Used by React on every page load to restore the session. */
+    /**
+     * Who am I? Asked by React on every page load to restore the session.
+     *
+     * Answers 200 with an empty body when nobody is signed in, rather than
+     * 401. "Nobody" is a valid answer to this question, not an error - and a
+     * 401 made the browser log a failed request on every visit to the sign-in
+     * page, which is noise that cannot be silenced from JavaScript and buries
+     * the errors that do matter.
+     *
+     * Every other endpoint still returns 401 when it should. This one is a
+     * question about the session, not a protected resource.
+     */
     @GetMapping("/me")
-    public AuthUserResponse me() {
-        return userMapper.toAuthUser(currentUserService.requireUser());
+    public ResponseEntity<AuthUserResponse> me() {
+        return currentUserService.currentDetails()
+                .map(details -> ResponseEntity.ok(
+                        userMapper.toAuthUser(currentUserService.requireUser())))
+                .orElseGet(() -> ResponseEntity.noContent().build());
     }
 }

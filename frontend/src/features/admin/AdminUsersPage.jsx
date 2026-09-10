@@ -212,6 +212,13 @@ export default function AdminUsersPage() {
 }
 
 function Pagination({ page, totalPages, onChange }) {
+  // One page needs no controls. This rendered regardless, leaving a row of
+  // dead buttons under every short list - the shared Pagination component
+  // has always had this guard; this local copy did not.
+  if (!totalPages || totalPages <= 1) {
+    return null;
+  }
+
   return (
     <div className="d-flex justify-content-between align-items-center gap-2 mt-4">
       <button type="button" className="btn btn-sm btn-ijp-quiet" disabled={page === 0} onClick={() => onChange(page - 1)}>

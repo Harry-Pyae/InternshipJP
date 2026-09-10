@@ -123,6 +123,12 @@ export default function LoginPage() {
               required
             />
 
+            <p className="ijp-auth-forgot">
+
+              <Link to="/auth/forgot-password">{t("Forgot your password?")}</Link>
+
+            </p>
+
             <button className="btn btn-ijp-primary ijp-auth-submit" type="submit" disabled={busy}>
               {busy ? (
                 <>

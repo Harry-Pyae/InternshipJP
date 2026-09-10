@@ -96,8 +96,18 @@
 
 /* --- type scale --------------------------------------------------------- */
 :root {
-  --ijp-font-ui: "Plus Jakarta Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
-  --ijp-font-data: "IBM Plex Mono", "Cascadia Mono", Consolas, monospace;
+  /* Both webfonts are fetched from Google. If that fails - no internet in the
+     room, or the domain blocked - every fallback below takes over, and the
+     page renders in a different typeface than it was designed in.
+
+     Burmese is the reason the stacks look inconsistent: neither Plus Jakarta
+     Sans nor IBM Plex Mono contains Myanmar glyphs, so Burmese text silently
+     falls through to whatever the operating system picks. Naming the Myanmar
+     faces explicitly means it is a choice rather than an accident. */
+  --ijp-font-ui: "Plus Jakarta Sans", "Segoe UI", "Myanmar Text", "Noto Sans Myanmar",
+    "Padauk", system-ui, -apple-system, sans-serif;
+  --ijp-font-data: "IBM Plex Mono", "Cascadia Mono", Consolas, "Myanmar Text",
+    "Noto Sans Myanmar", monospace;
 
   --ijp-radius: 12px;
   --ijp-radius-sm: 8px;
@@ -117,6 +127,22 @@ body,
 #root {
   height: 100%;
   max-width: 100%;
+}
+
+/* The application shell is exactly one viewport tall and scrolls internally,
+   so the document itself must never scroll. Without this, anything that
+   escapes the shell - an absolutely positioned menu, a wide table, a stray
+   margin - adds page scroll, and you get two scrollbars and a band of empty
+   canvas below the interface.
+   The auth and public pages are not inside the shell, so they opt back in. */
+body:has(.ijp-shell) {
+  overflow: hidden;
+}
+
+/* Belt and braces for browsers without :has - the shell clips itself too. */
+#root:has(.ijp-shell) {
+  height: 100%;
+  overflow: hidden;
 }
 
 body {
@@ -4065,10 +4091,7 @@ h4 {
   overflow-wrap: anywhere;
 }
 
-.ijp-feedback-meta {
-  font-size: 0.74rem;
-  color: var(--ijp-ink-faint);
-}
+
 
 
 /* --- tables ----------------------------------------------------------------
@@ -4183,10 +4206,22 @@ h4 {
 .ijp-feedback-meta {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 1rem;
   font-size: 0.74rem;
   color: var(--ijp-ink-faint);
+}
+
+/* The clock and the time are one unit; only "View details" is pushed right.
+   space-between on three children spread all three, which is why the time
+   floated in the middle. */
+.ijp-feedback-when {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.ijp-feedback-more {
+  margin-left: auto;
 }
 
 .ijp-feedback-more {
@@ -4204,4 +4239,78 @@ h4 {
   white-space: pre-line;
   line-height: 1.7;
   overflow-wrap: anywhere;
+}
+
+
+/* --- search box ------------------------------------------------------------ */
+.ijp-searchbox {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.ijp-searchbox-field {
+  position: relative;
+  flex: 1 1 16rem;
+  max-width: 26rem;
+}
+
+.ijp-searchbox-field .form-control {
+  padding-left: 2.1rem;
+  padding-right: 2.1rem;
+}
+
+/* Chrome draws its own clear button on type=search; ours is themed. */
+.ijp-searchbox-field input[type="search"]::-webkit-search-cancel-button {
+  display: none;
+}
+
+.ijp-searchbox-icon {
+  position: absolute;
+  left: 0.7rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--ijp-ink-faint);
+  font-size: 0.85rem;
+  pointer-events: none;
+}
+
+.ijp-searchbox-clear {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 0;
+  background: none;
+  padding: 0.2rem;
+  color: var(--ijp-ink-faint);
+  font-size: 0.7rem;
+}
+
+.ijp-searchbox-clear:hover {
+  color: var(--ijp-ink);
+}
+
+.ijp-searchbox-count {
+  font-size: 0.8rem;
+  color: var(--ijp-ink-faint);
+  white-space: nowrap;
+}
+
+
+.ijp-auth-forgot {
+  margin: -0.35rem 0 0.9rem;
+  text-align: right;
+  font-size: 0.83rem;
+}
+
+.ijp-auth-forgot a {
+  color: var(--ijp-signal);
+  text-decoration: none;
+}
+
+.ijp-auth-forgot a:hover {
+  text-decoration: underline;
 }

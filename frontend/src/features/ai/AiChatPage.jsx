@@ -17,6 +17,7 @@ import RevealingText from "./RevealingText.jsx";
 import AnswerBlocks from "./AnswerBlocks.jsx";
 import Select from "../../components/shared/Select.jsx";
 import { timeAgo, exactTime } from "../../api/relativeTime.js";
+import { useAuth } from "../../config/authContext.jsx";
 
 /**
  * The AI assistant - Member 1's vertical slice.
@@ -27,8 +28,8 @@ export default function AiChatPage({ audience, initialTab = "chat" }) {
   const isEmployer = audience === "employer";
   const isAdmin = audience === "admin";
 
-  const [user, setUser] = useState(null);
-  const [checkingUser, setCheckingUser] = useState(true);
+  const { user } = useAuth();
+  const { loading: checkingUser } = useAuth();
   const [tab, setTab] = useState(initialTab);
 
   const [messages, setMessages] = useState([]);
@@ -61,29 +62,15 @@ export default function AiChatPage({ audience, initialTab = "chat" }) {
     }
   }, []);
 
+  // The signed-in user comes from the auth context, which fetched it once at
+  // startup. Asking the server again here meant a second /me on every visit to
+  // this page - and with React's development double-render, four requests for
+  // one answer the app already had.
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const me = await authApi.me();
-        if (!cancelled) {
-          setUser(me);
-          loadConversations();
-        }
-      } catch {
-        if (!cancelled) {
-          setUser(null);
-        }
-      } finally {
-        if (!cancelled) {
-          setCheckingUser(false);
-        }
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [loadConversations]);
+    if (user) {
+      loadConversations();
+    }
+  }, [user, loadConversations]);
 
   // The dropdown only ever contains vacancies this employer's company owns -
   // the backend cannot return anyone else's.

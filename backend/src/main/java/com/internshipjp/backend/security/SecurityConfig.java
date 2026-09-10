@@ -113,8 +113,16 @@ public class SecurityConfig {
                     // --- open to everyone -------------------------------------
                     .requestMatchers("/api/test/**").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/auth/csrf").permitAll()
+                    // Answers "nobody" rather than refusing, so it must be
+                    // reachable without a session.
+                    .requestMatchers(HttpMethod.GET, "/api/auth/me").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/auth/register/**").permitAll()
+                    // Someone who cannot sign in cannot authenticate, so the two
+                    // endpoints that exist to help them must be reachable without
+                    // a session. Both are rate-limited by the OTP attempt count.
+                    .requestMatchers(HttpMethod.POST, "/api/auth/forgot-password").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/auth/reset-password").permitAll()
                     // Public internship discovery. Students do not have to sign
                     // in just to browse vacancies.
                     .requestMatchers(HttpMethod.GET, "/api/internships", "/api/internships/*").permitAll()

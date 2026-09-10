@@ -13,6 +13,7 @@ import LoadingBlock from "../components/shared/LoadingBlock.jsx";
 import FoundationHomePage from "../features/integration/FoundationHomePage.jsx";
 import IntegrationStatusPage from "../features/integration/IntegrationStatusPage.jsx";
 import LoginPage from "../features/auth/LoginPage.jsx";
+import ForgotPasswordPage from "../features/auth/ForgotPasswordPage.jsx";
 import RegisterPage from "../features/auth/RegisterPage.jsx";
 import PendingApprovalPage from "../features/auth/PendingApprovalPage.jsx";
 import StudentDashboardPage from "../features/student/StudentDashboardPage.jsx";
@@ -103,6 +104,7 @@ export default function AppRoutes() {
       */}
       <Route element={<AuthLayout />}>
         <Route path="/auth/login" element={<LoginPage />} />
+        <Route path="/auth/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/auth/register" element={<RegisterPage />} />
       </Route>
 

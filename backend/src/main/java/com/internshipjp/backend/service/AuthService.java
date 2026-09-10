@@ -19,6 +19,7 @@ import com.internshipjp.backend.repository.EmployerProfileRepository;
 import com.internshipjp.backend.repository.StudentProfileRepository;
 import com.internshipjp.backend.repository.UserRepository;
 import com.internshipjp.backend.security.AppUserDetails;
+import com.internshipjp.backend.security.LoginAttemptService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -57,6 +58,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final SecurityContextRepository securityContextRepository;
+    private final LoginAttemptService loginAttemptService;
     private final NotificationService notificationService;
     private final UserMapper userMapper;
 
@@ -68,7 +70,8 @@ public class AuthService {
                        AuthenticationManager authenticationManager,
                        SecurityContextRepository securityContextRepository,
                        NotificationService notificationService,
-                       UserMapper userMapper) {
+                       UserMapper userMapper,
+                       LoginAttemptService loginAttemptService) {
         this.userRepository = userRepository;
         this.studentProfileRepository = studentProfileRepository;
         this.companyRepository = companyRepository;
@@ -76,6 +79,7 @@ public class AuthService {
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.securityContextRepository = securityContextRepository;
+        this.loginAttemptService = loginAttemptService;
         this.notificationService = notificationService;
         this.userMapper = userMapper;
     }
@@ -131,6 +135,18 @@ public class AuthService {
         company.setName(request.getCompanyName().trim());
         company.setIndustry(request.getIndustry());
         company.setWebsite(request.getWebsite());
+        // The fields an administrator needs to make a decision, rather than
+        // just a name someone typed.
+        company.setRegistrationNumber(trimOrNull(request.getRegistrationNumber()));
+        company.setContactEmail(trimOrNull(request.getContactEmail()));
+        company.setCountry(trimOrNull(request.getCountry()));
+        company.setLocation(trimOrNull(request.getLocation()));
+        company.setAddress(trimOrNull(request.getAddress()));
+        company.setLinkedinUrl(trimOrNull(request.getLinkedinUrl()));
+        company.setContactPhone(trimOrNull(request.getContactPhone()));
+        company.setCompanySize(trimOrNull(request.getCompanySize()));
+        company.setFoundedYear(request.getFoundedYear());
+        company.setDescription(trimOrNull(request.getDescription()));
         company.setApprovalStatus(ApprovalStatus.PENDING);
         company = companyRepository.save(company);
 
@@ -162,14 +178,40 @@ public class AuthService {
                                   HttpServletRequest httpRequest,
                                   HttpServletResponse httpResponse) {
         String email = normaliseEmail(request.getEmail());
+
+        // Checked before the password is, so a locked address costs an attacker
+        // nothing to attack - no hashing, no database round trip.
+        if (loginAttemptService.isLocked(email)) {
+            throw new UnauthorizedException(
+                    "Too many failed attempts. Sign-in for this address is locked for "
+                            + loginAttemptService.minutesRemaining(email) + " more minute(s). "
+                            + "Wait, or contact an administrator to have it released.");
+        }
+
         Authentication authentication;
         try {
             authentication = authenticationManager.authenticate(
                     UsernamePasswordAuthenticationToken.unauthenticated(email, request.getPassword()));
         } catch (AuthenticationException ex) {
-            // Same message for "unknown email" and "wrong password" on purpose.
-            throw new UnauthorizedException("Email or password is incorrect.");
+            loginAttemptService.recordFailure(email);
+
+            // Still the same message whether the address exists or not - the
+            // count is kept for every address, so a wrong email and a wrong
+            // password are indistinguishable from outside. Only the number of
+            // tries left is added, which tells an attacker nothing they could
+            // not work out by counting.
+            int left = loginAttemptService.attemptsRemaining(email);
+            String message = "Email or password is incorrect.";
+            if (left == 0) {
+                message += " This address is now locked for 15 minutes. Contact an "
+                        + "administrator if you need it released sooner.";
+            } else if (left <= 2) {
+                message += " " + left + " attempt(s) left before this address is locked.";
+            }
+            throw new UnauthorizedException(message);
         }
+
+        loginAttemptService.recordSuccess(email);
 
         SecurityContext context = SecurityContextHolder.createEmptyContext();
         context.setAuthentication(authentication);
@@ -196,5 +238,14 @@ public class AuthService {
         if (userRepository.existsByEmail(email)) {
             throw new ConflictException("An account with that email already exists.");
         }
+    }
+
+    /** Blank optional fields are stored as NULL, so "Not set" means not set. */
+    private static String trimOrNull(String value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed;
     }
 }

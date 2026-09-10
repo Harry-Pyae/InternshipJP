@@ -7,11 +7,17 @@ import ErrorAlert from "../../components/shared/ErrorAlert.jsx";
 import LoadingBlock from "../../components/shared/LoadingBlock.jsx";
 import { employerApi } from "../../api/employerApi.js";
 import { describeApiError } from "../../api/axiosClient.js";
+import SearchBox, { matches } from "../../components/shared/SearchBox.jsx";
+import { useLanguage } from "../../config/languageContext.jsx";
+import Pagination from "../../components/shared/Pagination.jsx";
 
 /**
  * Every vacancy this employer's company owns.
  */
 export default function ManageInternshipsPage() {
+  const { t } = useLanguage();
+  const [query, setQuery] = useState("");
+  const [page, setPage] = useState(0);
   const [internships, setInternships] = useState(null);
   const [error, setError] = useState(null);
 
@@ -29,6 +35,20 @@ export default function ManageInternshipsPage() {
     load();
   }, [load]);
 
+  // Filters what is loaded, not the database. The count beside the box
+
+  // says so - a search that quietly covers less than the user assumes
+
+  // is worse than no search at all.
+
+  const visible = (internships ?? []).filter((row) => matches(row, query, ["title", "location", "status"]));
+
+  // Paging and searching both work on the same filtered list, so the
+  // page count follows the search rather than ignoring it.
+  const PER_PAGE = 15;
+  const pageCount = Math.max(1, Math.ceil(visible.length / PER_PAGE));
+  const safePage = Math.min(page, pageCount - 1);
+  const pageRows = visible.slice(safePage * PER_PAGE, safePage * PER_PAGE + PER_PAGE);
   return (
     <>
       <PageHeader
@@ -45,75 +65,94 @@ export default function ManageInternshipsPage() {
       <ErrorAlert message={error} onRetry={load} />
 
       <div className="ijp-card p-3 p-md-4">
+        <SearchBox
+          value={query}
+          onChange={(value) => {
+              setQuery(value);
+              setPage(0);
+            }}
+          placeholder={t("Search internships")}
+          shown={visible.length}
+          total={(internships ?? []).length}
+        />
         {internships === null ? (
           <LoadingBlock label="Loading your internships..." />
         ) : (
-          <DataTable
-            columns={[
-              {
-                key: "title",
-                header: "Title",
-                render: (row) => (
-                  <span className="fw-semibold">{row.title || "Untitled internship"}</span>
-                ),
-              },
-              { key: "location", header: "Location", render: (row) => row.location || "—" },
-              {
-                key: "workMode",
-                header: "Work mode",
-                render: (row) => formatWorkMode(row.workMode),
-              },
-              {
-                key: "durationMonths",
-                header: "Duration",
-                render: (row) =>
-                  row.durationMonths ? `${row.durationMonths} months` : "—",
-              },
-              {
-                key: "availablePositions",
-                header: "Positions",
-                render: (row) => (
-                  <span className="ijp-data">{row.availablePositions ?? "—"}</span>
-                ),
-              },
-              {
-                key: "status",
-                header: "Status",
-                // The shared badge, so DRAFT is the same amber here as on the
-                // administrator's queue rather than a grey Bootstrap pill.
-                render: (row) => <StatusBadge value={row.status} />,
-              },
-              {
-                key: "actions",
-                header: "",
-                render: (row) => (
-                  <div className="d-flex gap-1 justify-content-end">
-                    <Link
-                      className="btn btn-sm btn-ijp-quiet"
-                      to={`/employer/internships/${row.id}/edit`}
-                      title="Edit this internship"
-                    >
-                      <i className="bi bi-pencil" aria-hidden="true" />
-                    </Link>
-                    <Link
-                      className="btn btn-sm btn-ijp-quiet"
-                      to={`/employer/applications?internshipId=${row.id}`}
-                      title="View applicants"
-                    >
-                      <i className="bi bi-people" aria-hidden="true" />
-                    </Link>
-                  </div>
-                ),
-              },
-            ]}
-            rows={internships}
-            rowKey={(row) => row.id}
-            empty={{
-              icon: "bi-megaphone",
-              title: "No internships yet",
-              hint: "Post one to start receiving applications. It stays a draft until you publish it.",
-            }}
-          />
+                    <>
+            <DataTable
+              columns={[
+                {
+                  key: "title",
+                  header: "Title",
+                  render: (row) => (
+                    <span className="fw-semibold">{row.title || "Untitled internship"}</span>
+                  ),
+                },
+                { key: "location", header: "Location", render: (row) => row.location || "—" },
+                {
+                  key: "workMode",
+                  header: "Work mode",
+                  render: (row) => formatWorkMode(row.workMode),
+                },
+                {
+                  key: "durationMonths",
+                  header: "Duration",
+                  render: (row) =>
+                    row.durationMonths ? `${row.durationMonths} months` : "—",
+                },
+                {
+                  key: "availablePositions",
+                  header: "Positions",
+                  render: (row) => (
+                    <span className="ijp-data">{row.availablePositions ?? "—"}</span>
+                  ),
+                },
+                {
+                  key: "status",
+                  header: "Status",
+                  // The shared badge, so DRAFT is the same amber here as on the
+                  // administrator's queue rather than a grey Bootstrap pill.
+                  render: (row) => <StatusBadge value={row.status} />,
+                },
+                {
+                  key: "actions",
+                  header: "",
+                  render: (row) => (
+                    <div className="d-flex gap-1 justify-content-end">
+                      <Link
+                        className="btn btn-sm btn-ijp-quiet"
+                        to={`/employer/internships/${row.id}/edit`}
+                        title="Edit this internship"
+                      >
+                        <i className="bi bi-pencil" aria-hidden="true" />
+                      </Link>
+                      <Link
+                        className="btn btn-sm btn-ijp-quiet"
+                        to={`/employer/applications?internshipId=${row.id}`}
+                        title="View applicants"
+                      >
+                        <i className="bi bi-people" aria-hidden="true" />
+                      </Link>
+                    </div>
+                  ),
+                },
+              ]}
+              rows={pageRows}
+              rowKey={(row) => row.id}
+              empty={{
+                icon: "bi-megaphone",
+                title: "No internships yet",
+                hint: "Post one to start receiving applications. It stays a draft until you publish it.",
+              }}
+            />
+            <Pagination
+              page={safePage}
+              pageCount={pageCount}
+              total={visible.length}
+              onChange={setPage}
+              noun="internship"
+            />
+          </>
         )}
 
         <div className="d-flex justify-content-end mt-3">

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import Sidebar from "../components/navigation/Sidebar.jsx";
 import Topbar from "../components/navigation/Topbar.jsx";
@@ -12,6 +12,7 @@ import AssistantLauncher from "../components/shared/AssistantLauncher.jsx";
 const STORAGE_KEY = "internshipjp-sidebar-collapsed";
 
 export default function RoleLayout({ nav, title, settingsPath }) {
+  const contentRef = useRef(null);
   const { t } = useLanguage();
   const location = useLocation();
 
@@ -63,6 +64,17 @@ export default function RoleLayout({ nav, title, settingsPath }) {
       .filter((item) => location.pathname.startsWith(item.to))
       .sort((a, b) => b.to.length - a.to.length)[0]?.label ?? title;
 
+  // Back to the top on every route change.
+  //
+  // <main> is the scroll container, not the window, so React Router's own
+  // scroll handling and any window.scrollTo would both miss it. Without this,
+  // scrolling down a long page and then navigating leaves the next page
+  // already scrolled - which on a short page like Users means landing below
+  // its own content, looking at empty space with the header out of view.
+  useEffect(() => {
+    contentRef.current?.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  }, [location.pathname]);
+
   // The tab title follows the page, and the language. Three tabs open on three
   // roles otherwise read identically, which is exactly when you need to tell
   // them apart.
@@ -99,7 +111,7 @@ export default function RoleLayout({ nav, title, settingsPath }) {
           basePath={settingsPath.replace(/\/settings$/, "")}
           onOpenDrawer={() => setDrawerOpen(true)}
         />
-        <main className="ijp-shell-content" id="main">
+        <main className="ijp-shell-content" id="main" ref={contentRef}>
           <Outlet />
         </main>
         <AssistantLauncher basePath={settingsPath.replace(/\/settings$/, "")} />

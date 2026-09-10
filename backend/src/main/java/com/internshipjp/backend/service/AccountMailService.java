@@ -7,6 +7,8 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 /**
  * Emails about an account decision, separate from the OTP path.
@@ -60,14 +62,56 @@ public class AccountMailService {
                         + "InternshipJP");
     }
 
+    /** The code someone needs to set a new password. */
+    public void sendPasswordReset(String toEmail, String fullName, String code, int minutes) {
+        send(toEmail,
+                "Your InternshipJP password reset code",
+                "Hello " + fullName + ",\n\n"
+                        + "Someone asked to reset the password for this account. Your code is:\n\n"
+                        + "    " + code + "\n\n"
+                        + "It expires in " + minutes + " minutes and can be used once.\n\n"
+                        + "If this was not you, nothing has changed and you can ignore this "
+                        + "email. Your password stays as it is until the code is used.\n\n"
+                        + "InternshipJP");
+    }
+
+    /**
+     * Prints the email as one framed block.
+     *
+     * Six separate log calls meant six timestamped, thread-tagged lines with
+     * the message text wrapped between them, which is unreadable when the
+     * whole point is to copy a six-digit code out of it. One call keeps the
+     * block together, and a code is pulled out and shown on its own line.
+     */
+    private void logToConsole(String toEmail, String subject, String body) {
+        String rule = "-".repeat(64);
+        StringBuilder out = new StringBuilder(System.lineSeparator());
+        out.append(rule).append(System.lineSeparator());
+        out.append("  EMAIL (not sent - MAIL_MODE=console)").append(System.lineSeparator());
+        out.append(rule).append(System.lineSeparator());
+        out.append("  To       ").append(toEmail).append(System.lineSeparator());
+        out.append("  Subject  ").append(subject).append(System.lineSeparator());
+
+        // A six-digit code is the only thing anyone reads out of this, so it
+        // gets its own line rather than being hunted for inside a paragraph.
+        Matcher code = Pattern.compile("\\b(\\d{6})\\b").matcher(body);
+        if (code.find()) {
+            out.append(rule).append(System.lineSeparator());
+            out.append("  CODE     ").append(code.group(1)).append(System.lineSeparator());
+        }
+
+        out.append(rule).append(System.lineSeparator());
+        for (String line : body.split("\\R")) {
+            out.append("  ").append(line).append(System.lineSeparator());
+        }
+        out.append(rule);
+
+        log.info("{}", out);
+    }
+
     private void send(String toEmail, String subject, String body) {
         if ("console".equalsIgnoreCase(appProperties.getMail().getMode())) {
-            log.info("=================== DEVELOPMENT EMAIL ===================");
-            log.info(" To      : {}", toEmail);
-            log.info(" Subject : {}", subject);
-            log.info("{}", body);
-            log.info(" MAIL_MODE=console - nothing was actually sent.");
-            log.info("=========================================================");
+            logToConsole(toEmail, subject, body);
             return;
         }
 
