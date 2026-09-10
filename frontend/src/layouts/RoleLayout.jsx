@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import Sidebar from "../components/navigation/Sidebar.jsx";
 import Topbar from "../components/navigation/Topbar.jsx";
+import { useLanguage } from "../config/languageContext.jsx";
 
 /**
  * The shell every signed-in page sits inside: sidebar, header, and the page
@@ -10,6 +11,7 @@ import Topbar from "../components/navigation/Topbar.jsx";
 const STORAGE_KEY = "internshipjp-sidebar-collapsed";
 
 export default function RoleLayout({ nav, title, settingsPath }) {
+  const { t } = useLanguage();
   const location = useLocation();
 
   const [collapsed, setCollapsed] = useState(() => {
@@ -59,6 +61,14 @@ export default function RoleLayout({ nav, title, settingsPath }) {
       .flatMap((group) => group.items)
       .filter((item) => location.pathname.startsWith(item.to))
       .sort((a, b) => b.to.length - a.to.length)[0]?.label ?? title;
+
+  // The tab title follows the page, and the language. Three tabs open on three
+  // roles otherwise read identically, which is exactly when you need to tell
+  // them apart.
+  useEffect(() => {
+    const label = activeLabel ? t(activeLabel) : "";
+    document.title = label ? `${label} · InternshipJP` : "InternshipJP";
+  }, [activeLabel, t]);
 
   return (
     <div className={`ijp-shell${collapsed ? " ijp-shell--collapsed" : ""}`}>

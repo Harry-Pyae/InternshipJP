@@ -2,6 +2,7 @@ import ThemeToggle from "../shared/ThemeToggle.jsx";
 import LanguageToggle from "../shared/LanguageToggle.jsx";
 import NotificationBell from "../shared/NotificationBell.jsx";
 import UserMenu from "./UserMenu.jsx";
+import { useLanguage } from "../../config/languageContext.jsx";
 
 /**
  * The dashboard header.
@@ -11,6 +12,7 @@ import UserMenu from "./UserMenu.jsx";
  * belongs at the top: where you are, and who you are.
  */
 export default function Topbar({ title, onOpenDrawer, settingsPath, basePath }) {
+  const { t } = useLanguage();
   return (
     <header className="ijp-topbar">
       <div className="d-flex align-items-center gap-2 min-w-0">
@@ -22,7 +24,7 @@ export default function Topbar({ title, onOpenDrawer, settingsPath, basePath }) 
         >
           <i className="bi bi-list" aria-hidden="true" />
         </button>
-        <span className="ijp-topbar-title text-truncate">{title}</span>
+        <span className="ijp-topbar-title text-truncate">{t(title)}</span>
       </div>
 
       <div className="d-flex align-items-center gap-2">
