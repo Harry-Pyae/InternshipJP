@@ -68,14 +68,6 @@ public class AdminWorkloadService {
         this.userRepository = userRepository;
     }
 
-    /**
-     * Defaults to English.
-     *
-     * Annotated as well as the overload it delegates to. Calling the other
-     * method from inside this class goes straight to the object, not through
-     * Spring's proxy, so its @Transactional would never fire - and every lazy
-     * association read inside it would throw.
-     */
     @Transactional(readOnly = true)
     public AdminWorkloadResponse analyse() {
         return analyse("en");
@@ -130,12 +122,8 @@ public class AdminWorkloadService {
                     company.getId(),
                     company.getName(),
                     company.getRegistrationNumber() == null
-                            ? (isBurmese(language)
-                                    ? "မှတ်ပုံတင်အမှတ် မပေးထားပါ"
-                                    : "No registration number given")
-                            : (isBurmese(language)
-                                    ? "မှတ်ပုံတင်အမှတ် " + company.getRegistrationNumber()
-                                    : "Registration " + company.getRegistrationNumber()),
+                            ? "No registration number given"
+                            : "Registration " + company.getRegistrationNumber(),
                     days, urgency(days)));
         }
         response.setOldestCompanies(companyItems);
@@ -155,11 +143,8 @@ public class AdminWorkloadService {
             stalled.add(new AdminWorkloadResponse.WorkItem(
                     application.getId(),
                     application.getInternship().getTitle(),
-                    isBurmese(language)
-                            ? application.getInternship().getCompany().getName()
-                                    + " သည် ဤလျှောက်လွှာကို မဖွင့်ရသေးပါ"
-                            : application.getInternship().getCompany().getName()
-                                    + " has not opened this application",
+                    application.getInternship().getCompany().getName()
+                            + " has not opened this application",
                     days, urgency(days)));
             if (stalled.size() >= MAX_ITEMS) {
                 break;
@@ -224,11 +209,6 @@ public class AdminWorkloadService {
                     .append(item.getDetail()).append(") - waiting ")
                     .append(item.getDaysWaiting()).append(" day(s)\n");
         }
-    }
-
-    /** Whether the caller asked for Burmese. */
-    private boolean isBurmese(String language) {
-        return "my".equalsIgnoreCase(language);
     }
 
     private int daysSince(LocalDateTime moment, LocalDateTime now) {

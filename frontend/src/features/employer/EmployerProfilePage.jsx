@@ -124,6 +124,7 @@ export default function EmployerProfilePage() {
                   <label className="form-label">Full name</label>
 
                   <input
+                    aria-label="Full name"
                     type="text"
                     className="form-control"
                     value={profile?.fullName || ""}
@@ -137,6 +138,7 @@ export default function EmployerProfilePage() {
                   </label>
 
                   <input
+                    aria-label="Account email"
                     type="email"
                     className="form-control"
                     value={profile?.email || ""}

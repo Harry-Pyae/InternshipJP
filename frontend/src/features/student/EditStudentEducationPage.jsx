@@ -249,13 +249,14 @@ export default function EditStudentEducationPage() {
             <form onSubmit={handleSubmit}>
               <div className="row g-3">
                 <div className="col-12">
-                  <label className="form-label">
+                  <label htmlFor="institution" className="form-label">
                     Institution
                   </label>
 
                   <input
                     type="text"
-                    name="institution"
+                    id="institution"
+                  name="institution"
                     className="form-control"
                     value={form.institution}
                     onChange={handleChange}
@@ -265,13 +266,14 @@ export default function EditStudentEducationPage() {
                 </div>
 
                 <div className="col-md-6">
-                  <label className="form-label">
+                  <label htmlFor="degree" className="form-label">
                     Degree
                   </label>
 
                   <input
                     type="text"
-                    name="degree"
+                    id="degree"
+                  name="degree"
                     className="form-control"
                     value={form.degree}
                     onChange={handleChange}
@@ -280,13 +282,14 @@ export default function EditStudentEducationPage() {
                 </div>
 
                 <div className="col-md-6">
-                  <label className="form-label">
+                  <label htmlFor="fieldOfStudy" className="form-label">
                     Field of study
                   </label>
 
                   <input
                     type="text"
-                    name="fieldOfStudy"
+                    id="fieldOfStudy"
+                  name="fieldOfStudy"
                     className="form-control"
                     value={form.fieldOfStudy}
                     onChange={handleChange}
@@ -295,13 +298,14 @@ export default function EditStudentEducationPage() {
                 </div>
 
                 <div className="col-md-4">
-                  <label className="form-label">
+                  <label htmlFor="startYear" className="form-label">
                     Start year
                   </label>
 
                   <input
                     type="number"
-                    name="startYear"
+                    id="startYear"
+                  name="startYear"
                     className="form-control"
                     value={form.startYear}
                     onChange={handleChange}
@@ -311,13 +315,14 @@ export default function EditStudentEducationPage() {
                 </div>
 
                 <div className="col-md-4">
-                  <label className="form-label">
+                  <label htmlFor="endYear" className="form-label">
                     End year
                   </label>
 
                   <input
                     type="number"
-                    name="endYear"
+                    id="endYear"
+                  name="endYear"
                     className="form-control"
                     value={form.endYear}
                     onChange={handleChange}
@@ -327,13 +332,14 @@ export default function EditStudentEducationPage() {
                 </div>
 
                 <div className="col-md-4">
-                  <label className="form-label">
+                  <label htmlFor="grade" className="form-label">
                     Grade
                   </label>
 
                   <input
                     type="text"
-                    name="grade"
+                    id="grade"
+                  name="grade"
                     className="form-control"
                     value={form.grade}
                     onChange={handleChange}

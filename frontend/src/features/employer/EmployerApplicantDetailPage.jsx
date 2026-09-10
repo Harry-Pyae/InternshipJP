@@ -267,6 +267,7 @@ export default function EmployerApplicantDetailPage() {
             <div className="ijp-card p-3 p-md-4">
               <p className="ijp-label mb-2">Ask for more information</p>
               <textarea
+                aria-label="Ask for more information"
                 className="form-control mb-2"
                 rows={4}
                 value={message}

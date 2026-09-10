@@ -230,6 +230,7 @@ function FeedbackForm() {
         {t("This goes to the administrators as a notification. Tell us what is confusing, broken, or missing.")}
       </p>
       <textarea
+        aria-label={t("What would you change?")}
         className="form-control mb-2"
         rows={4}
         value={message}

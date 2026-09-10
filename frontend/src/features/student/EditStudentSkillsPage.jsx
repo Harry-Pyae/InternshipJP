@@ -204,13 +204,14 @@ export default function EditStudentSkillsPage() {
             <form onSubmit={handleSubmit}>
               <div className="row g-3">
                 <div className="col-md-6">
-                  <label className="form-label">
+                  <label htmlFor="name" className="form-label">
                     Skill name
                   </label>
 
                   <input
                     type="text"
-                    name="name"
+                    id="name"
+                  name="name"
                     className="form-control"
                     value={form.name}
                     onChange={handleChange}

@@ -138,9 +138,10 @@ export default function EditStudentProfilePage() {
           <SectionCard title="Personal information">
             <div className="row g-3">
               <div className="col-12">
-                <label className="form-label">Headline</label>
+                <label htmlFor="headline" className="form-label">Headline</label>
                 <input
                   type="text"
+                  id="headline"
                   name="headline"
                   className="form-control"
                   value={form.headline}
@@ -150,9 +151,10 @@ export default function EditStudentProfilePage() {
               </div>
 
               <div className="col-md-6">
-                <label className="form-label">Date of birth</label>
+                <label htmlFor="dateOfBirth" className="form-label">Date of birth</label>
                 <input
                   type="date"
+                  id="dateOfBirth"
                   name="dateOfBirth"
                   className="form-control"
                   value={form.dateOfBirth}
@@ -161,9 +163,10 @@ export default function EditStudentProfilePage() {
               </div>
 
               <div className="col-md-6">
-                <label className="form-label">Country</label>
+                <label htmlFor="country" className="form-label">Country</label>
                 <input
                   type="text"
+                  id="country"
                   name="country"
                   className="form-control"
                   value={form.country}
@@ -173,9 +176,10 @@ export default function EditStudentProfilePage() {
               </div>
 
               <div className="col-md-6">
-                <label className="form-label">Location</label>
+                <label htmlFor="location" className="form-label">Location</label>
                 <input
                   type="text"
+                  id="location"
                   name="location"
                   className="form-control"
                   value={form.location}
@@ -189,9 +193,10 @@ export default function EditStudentProfilePage() {
           <SectionCard title="Education information">
             <div className="row g-3">
               <div className="col-md-6">
-                <label className="form-label">University</label>
+                <label htmlFor="university" className="form-label">University</label>
                 <input
                   type="text"
+                  id="university"
                   name="university"
                   className="form-control"
                   value={form.university}
@@ -201,9 +206,10 @@ export default function EditStudentProfilePage() {
               </div>
 
               <div className="col-md-6">
-                <label className="form-label">Degree</label>
+                <label htmlFor="degree" className="form-label">Degree</label>
                 <input
                   type="text"
+                  id="degree"
                   name="degree"
                   className="form-control"
                   value={form.degree}
@@ -213,9 +219,10 @@ export default function EditStudentProfilePage() {
               </div>
 
               <div className="col-md-6">
-                <label className="form-label">Field of study</label>
+                <label htmlFor="fieldOfStudy" className="form-label">Field of study</label>
                 <input
                   type="text"
+                  id="fieldOfStudy"
                   name="fieldOfStudy"
                   className="form-control"
                   value={form.fieldOfStudy}
@@ -225,9 +232,10 @@ export default function EditStudentProfilePage() {
               </div>
 
               <div className="col-md-6">
-                <label className="form-label">Graduation year</label>
+                <label htmlFor="graduationYear" className="form-label">Graduation year</label>
                 <input
                   type="number"
+                  id="graduationYear"
                   name="graduationYear"
                   className="form-control"
                   value={form.graduationYear}
@@ -262,9 +270,10 @@ export default function EditStudentProfilePage() {
           <SectionCard title="Internship preferences">
             <div className="row g-3">
               <div className="col-md-4">
-                <label className="form-label">Availability</label>
+                <label htmlFor="availability" className="form-label">Availability</label>
                 <input
                   type="text"
+                  id="availability"
                   name="availability"
                   className="form-control"
                   value={form.availability}
@@ -274,8 +283,9 @@ export default function EditStudentProfilePage() {
               </div>
 
               <div className="col-md-4">
-                <label className="form-label">Preferred work mode</label>
+                <label htmlFor="preferredWorkMode" className="form-label">Preferred work mode</label>
                 <select
+                  id="preferredWorkMode"
                   name="preferredWorkMode"
                   className="form-select"
                   value={form.preferredWorkMode}
@@ -289,9 +299,10 @@ export default function EditStudentProfilePage() {
               </div>
 
               <div className="col-md-4">
-                <label className="form-label">Available from</label>
+                <label htmlFor="availableFrom" className="form-label">Available from</label>
                 <input
                   type="date"
+                  id="availableFrom"
                   name="availableFrom"
                   className="form-control"
                   value={form.availableFrom}
@@ -302,9 +313,10 @@ export default function EditStudentProfilePage() {
           </SectionCard>
 
           <SectionCard title="About">
-            <label className="form-label">Biography</label>
+            <label htmlFor="biography" className="form-label">Biography</label>
             <textarea
-              name="biography"
+              id="biography"
+                  name="biography"
               className="form-control"
               rows="5"
               value={form.biography}
@@ -316,9 +328,10 @@ export default function EditStudentProfilePage() {
           <SectionCard title="Links">
             <div className="row g-3">
               <div className="col-md-4">
-                <label className="form-label">Portfolio</label>
+                <label htmlFor="portfolioUrl" className="form-label">Portfolio</label>
                 <input
                   type="url"
+                  id="portfolioUrl"
                   name="portfolioUrl"
                   className="form-control"
                   value={form.portfolioUrl}
@@ -328,9 +341,10 @@ export default function EditStudentProfilePage() {
               </div>
 
               <div className="col-md-4">
-                <label className="form-label">LinkedIn</label>
+                <label htmlFor="linkedinUrl" className="form-label">LinkedIn</label>
                 <input
                   type="url"
+                  id="linkedinUrl"
                   name="linkedinUrl"
                   className="form-control"
                   value={form.linkedinUrl}
@@ -340,9 +354,10 @@ export default function EditStudentProfilePage() {
               </div>
 
               <div className="col-md-4">
-                <label className="form-label">GitHub</label>
+                <label htmlFor="githubUrl" className="form-label">GitHub</label>
                 <input
                   type="url"
+                  id="githubUrl"
                   name="githubUrl"
                   className="form-control"
                   value={form.githubUrl}
