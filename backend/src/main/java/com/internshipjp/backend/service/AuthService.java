@@ -39,7 +39,7 @@ import java.util.Locale;
 /**
  * Registration and sign-in.
  *
- * TODO MEMBER_2: this is the baseline that makes the application usable end to
+ * This is the baseline that makes the application usable end to
  * end. What is left for you:
  *   - the 2FA login challenge (if the account has TOTP or email OTP enabled,
  *     do not complete the sign-in until the second factor is verified)
@@ -224,7 +224,7 @@ public class AuthService {
         user.setLastLoginAt(LocalDateTime.now());
         userRepository.save(user);
 
-        // TODO MEMBER_2: if 2FA is enabled for this user, do not return a full
+        // Future work: if 2FA is enabled for this user, do not return a full
         // session here. Return a "challenge required" response instead and only
         // save the SecurityContext once the code has been verified.
         return userMapper.toAuthUser(user);

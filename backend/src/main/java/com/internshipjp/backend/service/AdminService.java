@@ -31,7 +31,7 @@ import java.util.List;
 /**
  * Administrator operations: approving companies and managing accounts.
  *
- * TODO MEMBER_4: yours to extend - platform reports, activity monitoring, an
+ * Future work: platform reports, activity monitoring, an
  * audit log of admin actions, and the admin React screens.
  */
 @Service

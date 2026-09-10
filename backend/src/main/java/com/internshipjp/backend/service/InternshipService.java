@@ -27,7 +27,7 @@ import java.util.Locale;
 /**
  * Internship listing (public) and internship management (employer).
  *
- * TODO MEMBER_3: this is deliberately the simple version. Yours to add:
+ * Future work. This is deliberately the simple version. Still to add:
  *   - filtering by work mode, location, stipend range and required skills
  *   - the required-skills editor (internship_skills table + repository exist)
  *   - closing an internship automatically when the deadline passes

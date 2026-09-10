@@ -25,7 +25,7 @@ import java.util.List;
  *   - employer registration notifies the administrators
  *   - an application status change notifies the student
  *
- * TODO MEMBER_4: extend this with notification preferences, grouping by type,
+ * Future work: extend this with notification preferences, grouping by type,
  * and the React notification centre. The backend contract below is stable, so
  * you can build the UI against it immediately.
  */

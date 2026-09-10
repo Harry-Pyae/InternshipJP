@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
  * That filtering happens in CertificateService, so it cannot be bypassed by
  * calling this endpoint directly.
  *
- * TODO MEMBER_3: add filtering and sorting of the applicant list (by status,
+ * Future work: add filtering and sorting of the applicant list (by status,
  * by match score), and bulk shortlisting.
  *
  * Owner: Member 3.

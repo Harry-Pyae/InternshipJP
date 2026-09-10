@@ -65,7 +65,7 @@ public class AccountService {
         user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
 
-        // TODO MEMBER_2: invalidate the user's other sessions here once you add
+        // Future work: invalidate the user's other sessions here once we add
         // session tracking, and send a "your password was changed" notification.
     }
 

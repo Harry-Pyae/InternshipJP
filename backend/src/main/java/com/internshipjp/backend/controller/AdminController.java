@@ -32,7 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
  * "employers/pending" lists companies waiting for approval: approving a
  * company is what activates its recruiter accounts.
  *
- * TODO MEMBER_4: add reports, activity monitoring and an audit log of admin
+ * Future work: add reports, activity monitoring and an audit log of admin
  * actions, plus the admin React screens.
  *
  * Owner: Member 4.

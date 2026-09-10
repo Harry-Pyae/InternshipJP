@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * Only OPEN internships are listed. Drafts stay invisible.
  *
- * TODO MEMBER_3: add the real filters (work mode, location, stipend range,
+ * Future work: add the real filters (work mode, location, stipend range,
  * required skills) as extra optional request parameters here.
  *
  * Owner: Member 3.

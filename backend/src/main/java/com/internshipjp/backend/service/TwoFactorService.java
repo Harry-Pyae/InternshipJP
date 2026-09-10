@@ -31,7 +31,7 @@ import java.time.LocalDateTime;
  *   rules that go with them: secrets encrypted at rest, codes stored only as a
  *   hash, expiry, attempt limits and a resend cooldown.
  *
- * TODO MEMBER_2: WHAT IS LEFT FOR YOU
+ * NOT YET IMPLEMENTED
  *   The login challenge itself. Today AuthService completes a sign-in as soon
  *   as the password is correct. The 2FA login flow should be:
  *     1. password verified -> if 2FA is enabled, do NOT save the security

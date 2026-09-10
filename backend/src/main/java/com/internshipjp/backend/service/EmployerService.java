@@ -27,7 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
  * of the employer module builds on - they turn "the signed-in user" into
  * "the company this request is allowed to touch".
  *
- * TODO MEMBER_3: add company logo upload (FileStorageService already supports
+ * Future work: add company logo upload (FileStorageService already supports
  * it), multiple recruiters per company, and employer dashboard statistics.
  */
 @Service
@@ -96,7 +96,7 @@ private final CompanyMapper companyMapper;
      * Editing company details does not reset the approval decision in this
      * baseline version.
      *
-     * TODO MEMBER_4: decide whether changing the company name or website
+     * Future work: decide whether changing the company name or website
      * should send the company back to PENDING for re-review.
      */
     @Transactional

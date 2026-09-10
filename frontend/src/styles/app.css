@@ -104,8 +104,8 @@
      Sans nor IBM Plex Mono contains Myanmar glyphs, so Burmese text silently
      falls through to whatever the operating system picks. Naming the Myanmar
      faces explicitly means it is a choice rather than an accident. */
-  --ijp-font-ui: "Plus Jakarta Sans", "Segoe UI", "Myanmar Text", "Noto Sans Myanmar",
-    "Padauk", system-ui, -apple-system, sans-serif;
+  --ijp-font-ui: "Plus Jakarta Sans", "Noto Sans Myanmar", "Segoe UI",
+    "Myanmar Text", "Padauk", system-ui, -apple-system, sans-serif;
   --ijp-font-data: "IBM Plex Mono", "Cascadia Mono", Consolas, "Myanmar Text",
     "Noto Sans Myanmar", monospace;
 

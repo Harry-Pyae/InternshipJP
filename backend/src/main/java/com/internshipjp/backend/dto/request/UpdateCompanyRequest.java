@@ -8,7 +8,7 @@ import jakarta.validation.constraints.Size;
 
 /**
  * Employer edit of their own company.
- * TODO MEMBER_3: the edit form for these fields is yours.
+ * Future work: the edit form for these fields is not yet built.
  */
 public class UpdateCompanyRequest {
     @NotBlank

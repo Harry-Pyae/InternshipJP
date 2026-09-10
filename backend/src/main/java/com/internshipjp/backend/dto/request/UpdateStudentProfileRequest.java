@@ -11,7 +11,7 @@ import java.time.LocalDate;
  *
  * Note what is NOT here: age. The client sends dateOfBirth and the server
  * derives the age, so it can never go stale.
- * TODO MEMBER_2: extend with education entries and richer validation.
+ * Future work: extend with education entries and richer validation.
  */
 public class UpdateStudentProfileRequest {
     @Size(max = 150)

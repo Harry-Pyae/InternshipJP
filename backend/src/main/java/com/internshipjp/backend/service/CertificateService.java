@@ -139,7 +139,7 @@ public class CertificateService {
     /**
      * Records an administrator's decision and tells the student.
      *
-     * TODO MEMBER_4: extend the audit trail here - keep every decision rather
+     * Future work: extend the audit trail here, keeping every decision rather
      * than only the latest one, and add MORE_INFO_REQUIRED handling.
      */
     @Transactional

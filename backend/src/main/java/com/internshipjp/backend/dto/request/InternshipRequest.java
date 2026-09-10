@@ -11,7 +11,7 @@ import java.time.LocalDate;
 
 /**
  * Employer create/update payload for an internship.
- * TODO MEMBER_3: add the required-skills list and deadline business rules.
+ * Future work: add the required-skills list and deadline business rules.
  */
 public class InternshipRequest {
     @NotBlank

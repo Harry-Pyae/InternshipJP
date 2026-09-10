@@ -39,7 +39,7 @@ import java.util.Map;
  *   - in the database (uk_application_once), so a double-click or a second
  *     server instance still cannot create two rows.
  *
- * TODO MEMBER_3: yours to extend - withdrawing an application, interview
+ * Future work: withdrawing an application, interview
  * scheduling, bulk shortlisting, and the "positions filled" rule.
  */
 @Service

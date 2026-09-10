@@ -1,3 +1,18 @@
+// Fonts are bundled rather than fetched from fonts.googleapis.com.
+// A demonstration room with no internet, or a network that blocks Google,
+// would otherwise render the whole interface in a substitute face.
+// Noto Sans Myanmar is included because neither Latin face contains
+// Myanmar glyphs, so Burmese was previously falling back to whatever the
+// operating system happened to provide.
+import "@fontsource/plus-jakarta-sans/400.css";
+import "@fontsource/plus-jakarta-sans/500.css";
+import "@fontsource/plus-jakarta-sans/600.css";
+import "@fontsource/plus-jakarta-sans/700.css";
+import "@fontsource/ibm-plex-mono/400.css";
+import "@fontsource/ibm-plex-mono/500.css";
+import "@fontsource/noto-sans-myanmar/400.css";
+import "@fontsource/noto-sans-myanmar/600.css";
+
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";

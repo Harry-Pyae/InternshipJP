@@ -51,6 +51,9 @@ public class PasswordResetService {
     private static final int EXPIRY_MINUTES = 15;
     private static final int MAX_ATTEMPTS = 5;
 
+    /** A new code cannot be requested for the same address more often than this. */
+    private static final Duration REQUEST_COOLDOWN = Duration.ofSeconds(60);
+
     private final UserRepository userRepository;
     private final EmailOtpChallengeRepository challengeRepository;
     private final PasswordEncoder passwordEncoder;
@@ -86,6 +89,20 @@ public class PasswordResetService {
             return;
         }
         User user = found.get();
+
+        // Without this, anyone could post this address repeatedly and flood the
+        // person's inbox. Worse, each new code invalidates the previous one, so
+        // a stream of requests would also stop the owner completing a reset.
+        // The check uses the existing challenge row rather than new state.
+        Optional<EmailOtpChallenge> recent = challengeRepository
+                .findTopByUserIdAndPurposeAndConsumedAtIsNullOrderByCreatedAtDesc(
+                        user.getId(), OtpPurpose.PASSWORD_RESET);
+        if (recent.isPresent() && recent.get().getCreatedAt() != null
+                && recent.get().getCreatedAt().isAfter(
+                        LocalDateTime.now().minus(REQUEST_COOLDOWN))) {
+            log.info("Password reset for {} asked again within the cooldown. Nothing sent.", email);
+            return;
+        }
 
         String code = String.format("%0" + CODE_DIGITS + "d",
                 random.nextInt((int) Math.pow(10, CODE_DIGITS)));

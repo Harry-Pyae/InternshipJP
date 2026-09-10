@@ -15,7 +15,7 @@ import org.springframework.data.repository.query.Param;
 /**
  * In-app notifications.
  *
- * TODO MEMBER_4: add filtering by type and a delete/archive rule.
+ * Future work: add filtering by type and a delete/archive rule.
  */
 @Repository
 public interface NotificationRepository extends JpaRepository<Notification, Long> {

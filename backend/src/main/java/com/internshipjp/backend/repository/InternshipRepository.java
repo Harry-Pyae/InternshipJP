@@ -15,7 +15,7 @@ import org.springframework.data.repository.query.Param;
 /**
  * Internships.
  *
- * TODO MEMBER_3: add filtering by work mode, location and required skills.
+ * Future work: add filtering by work mode, location and required skills.
  */
 @Repository
 public interface InternshipRepository extends JpaRepository<Internship, Long> {
