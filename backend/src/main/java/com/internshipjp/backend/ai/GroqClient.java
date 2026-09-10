@@ -42,6 +42,10 @@ import java.util.List;
 public class GroqClient implements AiProviderClient {
 
     private static final Logger log = LoggerFactory.getLogger(GroqClient.class);
+
+    /** Retries for a busy model. Short, so a demonstration is not left waiting. */
+    private static final int MAX_RETRIES = 2;
+    private static final long RETRY_BACKOFF_MS = 800L;
     private static final String PROVIDER = "groq";
 
     private final AppProperties appProperties;
@@ -117,23 +121,44 @@ public class GroqClient implements AiProviderClient {
         long startedAt = System.currentTimeMillis();
 
         HttpResponse<String> response;
-        try {
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(groq().getBaseUrl() + "/chat/completions"))
-                    .timeout(Duration.ofSeconds(groq().getTimeoutSeconds()))
-                    .header("Content-Type", "application/json")
-                    .header("Authorization", "Bearer " + groq().getApiKey())
-                    .POST(HttpRequest.BodyPublishers.ofString(payload, StandardCharsets.UTF_8))
-                    .build();
-            response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        } catch (java.net.http.HttpTimeoutException ex) {
-            throw new ProviderUnavailableException("The AI assistant took too long to answer. Please try again.");
-        } catch (InterruptedException ex) {
-            Thread.currentThread().interrupt();
-            throw new ProviderUnavailableException("The AI request was interrupted.");
-        } catch (Exception ex) {
-            log.warn("Groq call failed: {}", ex.getClass().getSimpleName());
-            throw new ProviderUnavailableException("The AI assistant is unavailable right now.");
+        int attempt = 0;
+        while (true) {
+            try {
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create(groq().getBaseUrl() + "/chat/completions"))
+                        .timeout(Duration.ofSeconds(groq().getTimeoutSeconds()))
+                        .header("Content-Type", "application/json")
+                        .header("Authorization", "Bearer " + groq().getApiKey())
+                        .POST(HttpRequest.BodyPublishers.ofString(payload, StandardCharsets.UTF_8))
+                        .build();
+                response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            } catch (java.net.http.HttpTimeoutException ex) {
+                throw new ProviderUnavailableException("The AI assistant took too long to answer. Please try again.");
+            } catch (InterruptedException ex) {
+                Thread.currentThread().interrupt();
+                throw new ProviderUnavailableException("The AI request was interrupted.");
+            } catch (Exception ex) {
+                log.warn("Groq call failed: {}", ex.getClass().getSimpleName());
+                throw new ProviderUnavailableException("The AI assistant is unavailable right now.");
+            }
+
+            // 503 and 429 mean the model is busy, not that the request is wrong.
+            // Retrying briefly stops a temporary spike surfacing as a failure.
+            if ((response.statusCode() == 503 || response.statusCode() == 429)
+                    && attempt < MAX_RETRIES) {
+                attempt++;
+                long waitMs = RETRY_BACKOFF_MS * attempt;
+                log.warn("Groq returned HTTP {} (busy). Retry {} of {} in {} ms.",
+                        response.statusCode(), attempt, MAX_RETRIES, waitMs);
+                try {
+                    Thread.sleep(waitMs);
+                } catch (InterruptedException ex) {
+                    Thread.currentThread().interrupt();
+                    throw new ProviderUnavailableException("The AI request was interrupted.");
+                }
+                continue;
+            }
+            break;
         }
 
         long duration = System.currentTimeMillis() - startedAt;
@@ -150,10 +175,12 @@ public class GroqClient implements AiProviderClient {
                 throw new ProviderUnavailableException(
                         "The AI provider rejected the server's credentials. Check GROQ_API_KEY.");
             }
-            if (response.statusCode() == 429) {
+            if (response.statusCode() == 429 || response.statusCode() == 503) {
                 throw new ProviderUnavailableException(
-                        "The AI assistant has hit its rate limit. Wait a minute and try again. ("
-                                + reason + ")");
+                        "The AI provider is busy and did not answer after " + MAX_RETRIES
+                                + " retries. This is load on their side, not a fault here. "
+                                + "Skill matching, gap analysis and the reports are unaffected - "
+                                + "they are calculated from the database and never call the provider.");
             }
             if (response.statusCode() == 413) {
                 // Groq returns this when a SINGLE request exceeds the

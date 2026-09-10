@@ -56,6 +56,10 @@ public class GeminiClient implements AiProviderClient {
     private static final Logger log = LoggerFactory.getLogger(GeminiClient.class);
     private static final String PROVIDER = "gemini";
 
+    /** Retries for a busy model. Short, so a demonstration is not left waiting. */
+    private static final int MAX_RETRIES = 2;
+    private static final long RETRY_BACKOFF_MS = 800L;
+
     private final AppProperties appProperties;
     private final ObjectMapper objectMapper;
     private final HttpClient httpClient;
@@ -160,20 +164,43 @@ public class GeminiClient implements AiProviderClient {
 
         long started = System.currentTimeMillis();
         HttpResponse<String> response;
-        try {
-            response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        } catch (HttpTimeoutException ex) {
-            throw new ProviderUnavailableException(
-                    "The AI assistant took too long to answer. Please try again.");
-        } catch (InterruptedException ex) {
-            Thread.currentThread().interrupt();
-            throw new ProviderUnavailableException("The AI request was interrupted.");
-        } catch (IOException ex) {
-            // The usual cause here is the network, not the service - a VPN that
-            // dropped, or no VPN when one is required. Say so rather than
-            // blaming the provider.
-            throw new ProviderUnavailableException(
-                    "Could not reach the AI provider. Check the server's internet connection.");
+        int attempt = 0;
+        while (true) {
+            try {
+                response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            } catch (HttpTimeoutException ex) {
+                throw new ProviderUnavailableException(
+                        "The AI assistant took too long to answer. Please try again.");
+            } catch (InterruptedException ex) {
+                Thread.currentThread().interrupt();
+                throw new ProviderUnavailableException("The AI request was interrupted.");
+            } catch (IOException ex) {
+                // The usual cause here is the network, not the service - a VPN that
+                // dropped, or no VPN when one is required. Say so rather than
+                // blaming the provider.
+                throw new ProviderUnavailableException(
+                        "Could not reach the AI provider. Check the server's internet connection.");
+            }
+
+            // 503 and 429 mean the model is busy, not that anything is wrong with
+            // the request. A demonstration should not fail on a spike that clears
+            // in a second, so these are retried with a short backoff before the
+            // error ever reaches the user.
+            if ((response.statusCode() == 503 || response.statusCode() == 429)
+                    && attempt < MAX_RETRIES) {
+                attempt++;
+                long waitMs = RETRY_BACKOFF_MS * attempt;
+                log.warn("Gemini returned HTTP {} (busy). Retry {} of {} in {} ms.",
+                        response.statusCode(), attempt, MAX_RETRIES, waitMs);
+                try {
+                    Thread.sleep(waitMs);
+                } catch (InterruptedException ex) {
+                    Thread.currentThread().interrupt();
+                    throw new ProviderUnavailableException("The AI request was interrupted.");
+                }
+                continue;
+            }
+            break;
         }
 
         if (response.statusCode() / 100 != 2) {
@@ -208,8 +235,16 @@ public class GeminiClient implements AiProviderClient {
             }
             if (response.statusCode() == 429) {
                 throw new ProviderUnavailableException(
-                        "The AI assistant has hit its rate limit. Wait a minute and try again. ("
-                                + reason + ")");
+                        "The AI assistant has hit its rate limit. Wait a minute and try again. "
+                                + "Skill matching, gap analysis and the reports are unaffected - "
+                                + "they are calculated from the database and do not call the provider.");
+            }
+            if (response.statusCode() == 503) {
+                throw new ProviderUnavailableException(
+                        "The AI provider is busy and did not answer after "
+                                + MAX_RETRIES + " retries. This is load on their side, not a fault "
+                                + "here. Skill matching, gap analysis and the reports are "
+                                + "unaffected - they are calculated from the database.");
             }
             throw new ProviderUnavailableException(
                     "The AI assistant could not answer (HTTP " + response.statusCode()

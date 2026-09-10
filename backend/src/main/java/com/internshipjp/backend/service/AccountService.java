@@ -11,6 +11,11 @@ import com.internshipjp.backend.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.internshipjp.backend.dto.request.DeleteAccountRequest;
+import com.internshipjp.backend.entity.AccountStatus;
+import com.internshipjp.backend.entity.Role;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Account settings shared by all three roles.
@@ -21,6 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 public class AccountService {
+
+    private static final Logger log = LoggerFactory.getLogger(AccountService.class);
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -67,6 +74,35 @@ public class AccountService {
 
         // Future work: invalidate the user's other sessions here once we add
         // session tracking, and send a "your password was changed" notification.
+    }
+
+    /**
+     * Deletes the caller's own account, permanently.
+     *
+     * Two guards. The password must be correct, because deletion cannot be
+     * undone and an unattended browser should not be enough to trigger it. And
+     * the last active administrator cannot remove themselves, since there would
+     * then be no one able to verify a certificate or approve a company, and no
+     * way to create a replacement through the interface.
+     *
+     * Everything owned by the account goes with it: profile, applications,
+     * certificates and notifications, by the cascade rules in the schema.
+     */
+    public void deleteOwnAccount(Long userId, DeleteAccountRequest request) {
+        User user = loadUser(userId);
+
+        if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
+            throw new BadRequestException("That password is not correct.");
+        }
+        if (user.getRole() == Role.ADMIN
+                && userRepository.countByRoleAndAccountStatus(Role.ADMIN, AccountStatus.ACTIVE) <= 1) {
+            throw new BadRequestException(
+                    "You are the last active administrator. Create another one before "
+                            + "deleting this account.");
+        }
+
+        log.info("Account {} deleted itself.", user.getEmail());
+        userRepository.delete(user);
     }
 
     private User loadUser(Long userId) {

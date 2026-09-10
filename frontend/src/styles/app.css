@@ -2562,6 +2562,35 @@ h4 {
   color: var(--ijp-pending);
 }
 
+/* The destructive variant of the callout, for an action with no undo. */
+.ijp-callout--danger {
+  border-color: var(--ijp-rejected);
+  background-color: var(--ijp-rejected-soft);
+}
+
+.ijp-callout--danger .ijp-callout-icon {
+  color: var(--ijp-rejected);
+}
+
+/* --- danger zone ------------------------------------------------------------
+   A section whose action cannot be undone should not look like the two cards
+   above it. The rule on the left is the whole signal: it costs one line and it
+   is visible before any text is read. */
+.ijp-danger-zone {
+  border-left: 3px solid var(--ijp-rejected);
+  padding-left: 1rem;
+}
+
+.ijp-danger-zone .ijp-danger-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.35rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--ijp-rejected);
+}
+
 /* --- two-column lists ----------------------------------------------------- */
 /* Short rows in one tall column waste the width these panels have. Both fall
    back to a single column below their minimum. */

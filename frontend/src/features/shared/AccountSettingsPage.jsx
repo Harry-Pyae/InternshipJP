@@ -18,6 +18,11 @@ export default function AccountSettingsPage() {
   const [account, setAccount] = useState(null);
   const [error, setError] = useState(null);
 
+  const [deletePassword, setDeletePassword] = useState("");
+  const [deleteConfirm, setDeleteConfirm] = useState("");
+  const [deleteBusy, setDeleteBusy] = useState(false);
+  const [deleteError, setDeleteError] = useState(null);
+
   const [profile, setProfile] = useState({ fullName: "", phone: "" });
   const [profileBusy, setProfileBusy] = useState(false);
   const [profileDone, setProfileDone] = useState(false);
@@ -101,6 +106,44 @@ export default function AccountSettingsPage() {
   if (account === null && !error) {
     return <LoadingBlock label="Loading your account..." />;
   }
+
+  // Deleting your own account. The typed confirmation is deliberate: a
+
+  // dialog dismissed with Enter is not a decision, and this removes the
+
+  // profile, applications and certificates with no way back.
+
+  const canDelete =
+
+    deletePassword.length > 0 && deleteConfirm.trim().toUpperCase() === "DELETE";
+
+
+  async function deleteAccount() {
+
+    setDeleteBusy(true);
+
+    setDeleteError(null);
+
+    try {
+
+      await accountApi.deleteMyAccount(deletePassword);
+
+      // The session is already gone on the server, so reload rather than
+
+      // navigate: it clears every piece of cached account state.
+
+      window.location.assign("/auth/login");
+
+    } catch (requestError) {
+
+      setDeleteError(describeApiError(requestError));
+
+      setDeleteBusy(false);
+
+    }
+
+  }
+
 
   return (
     <>
@@ -207,6 +250,67 @@ export default function AccountSettingsPage() {
           </SectionCard>
         </div>
 
+
+
+        <div className="col-12">
+          <SectionCard title="Delete this account">
+            <div className="ijp-danger-zone">
+              <p className="ijp-danger-title">
+                <i className="bi bi-exclamation-octagon" aria-hidden="true" />
+                This cannot be undone
+              </p>
+              <p className="ijp-muted small mb-3">
+                Deleting removes this account and everything attached to it: your
+                profile, your applications and every certificate you have uploaded.
+                Verified certificates are removed too and would have to be checked
+                again if you register a second time.
+              </p>
+
+              <div className="ijp-callout ijp-callout--danger">
+                <i className="bi bi-arrow-repeat ijp-callout-icon" aria-hidden="true" />
+                <p className="mb-0">
+                  <strong>Registered under the wrong role?</strong> Delete this account,
+                  then register again with the role you meant. A role cannot be changed
+                  once chosen, because the profile and its records are tied to it.
+                </p>
+              </div>
+
+              <form className="d-grid gap-3" onSubmit={(event) => event.preventDefault()}>
+                <AuthField
+                  id="deleteAccountPassword"
+                  type="password"
+                  label="Your password"
+                  icon="bi-lock"
+                  value={deletePassword}
+                  onChange={setDeletePassword}
+                  hint="Required, because deletion is permanent."
+                />
+                <AuthField
+                  id="deleteAccountConfirm"
+                  label="Type DELETE to confirm"
+                  icon="bi-exclamation-triangle"
+                  value={deleteConfirm}
+                  onChange={setDeleteConfirm}
+                  placeholder="DELETE"
+                />
+
+                <ErrorAlert message={deleteError} />
+
+                <div>
+                  <button
+                    type="button"
+                    className="btn btn-ijp-quiet ijp-btn-danger"
+                    onClick={deleteAccount}
+                    disabled={!canDelete || deleteBusy}
+                  >
+                    <i className="bi bi-trash me-1" aria-hidden="true" />
+                    {deleteBusy ? "Deleting..." : "Delete my account permanently"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </SectionCard>
+        </div>
 
       </div>
     </>

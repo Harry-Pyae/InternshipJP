@@ -13,6 +13,11 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.internshipjp.backend.dto.request.DeleteAccountRequest;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.DeleteMapping;
 
 /**
  * Account settings that every role shares.
@@ -43,6 +48,25 @@ public class AccountController {
     @PutMapping("/me")
     public AccountResponse updateMe(@Valid @RequestBody UpdateAccountRequest request) {
         return accountService.updateAccount(currentUserService.requireUserId(), request);
+    }
+
+    /**
+     * Deletes the caller's own account.
+     *
+     * The session is invalidated before returning, so the browser is not left
+     * holding a cookie for a user that no longer exists.
+     */
+    @DeleteMapping("/me")
+    public ApiMessageResponse deleteMyAccount(@Valid @RequestBody DeleteAccountRequest request,
+                                              HttpServletRequest httpRequest) {
+        accountService.deleteOwnAccount(currentUserService.requireUserId(), request);
+
+        HttpSession session = httpRequest.getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
+        SecurityContextHolder.clearContext();
+        return new ApiMessageResponse("Your account has been deleted.");
     }
 
     @PostMapping("/change-password")

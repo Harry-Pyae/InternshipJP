@@ -40,6 +40,18 @@ const COMMON = [
     a: "The EN / မြန်မာ toggle at the top right, available before you sign in as well as after. The assistant follows it too, so questions asked with Burmese selected are answered in Burmese.",
   },
   {
+    q: "I chose the wrong role. Can I change it?",
+    a: "No, and this is deliberate rather than missing. A student account has a student profile beneath it, and an employer account has a company profile pointing at a company record; switching the role would leave one orphaned and the other absent, and every page for the new role would fail. Delete the account in Settings and register again with the role you meant.",
+  },
+  {
+    q: "Can I have both a student and an employer account?",
+    a: "Yes, but they must use different email addresses, because the address is what identifies an account. Sign out of one before signing in to the other. Nothing is shared between them, and an employer account still waits for its company to be approved.",
+  },
+  {
+    q: "How do I delete my own account?",
+    a: "Settings, at the bottom, under Delete this account. You need your password and you must type DELETE, because it cannot be undone: the profile, applications and certificates all go with it. If you are the last active administrator the platform refuses, since nobody would then be able to verify a certificate.",
+  },
+  {
     q: "How do I change my password?",
     a: "Settings, under Account. You need your current password, which is why someone who finds your computer unlocked still cannot lock you out of your own account.",
   },
@@ -51,6 +63,10 @@ const COMMON = [
 
 const BY_ROLE = {
   STUDENT: [
+    {
+      q: "I registered as a student but I meant to register as an employer.",
+      a: "Delete the student account from Settings and register again choosing \"I'm an employer\". Nothing you uploaded transfers, so do this before spending time on a profile. If certificates were already verified, they belong to the deleted account and would need uploading again.",
+    },
     {
       q: "Why can't employers see my certificate?",
       a: "Only verified certificates are ever sent to employers. After you upload one it waits for an administrator to open the file and check it against the qualification it claims. That check is the whole point of the platform.",
@@ -78,6 +94,10 @@ const BY_ROLE = {
   ],
   EMPLOYER: [
     {
+      q: "I registered as an employer but I am a student.",
+      a: "Delete the employer account from Settings and register again as a student. The company record created with your registration is removed with the account, so an administrator is not left reviewing a company nobody owns.",
+    },
+    {
       q: "Why can't I publish an internship?",
       a: "Vacancies stay as drafts until an administrator approves your company. Until then no student can see them. You are emailed and notified the moment that happens.",
     },
@@ -103,6 +123,10 @@ const BY_ROLE = {
     },
   ],
   ADMIN: [
+    {
+      q: "A user registered under the wrong role. What do I tell them?",
+      a: "That they should delete their own account from Settings and register again, which is the documented route and needs nothing from you. You can also delete it for them from the Users page. There is no way to switch a role: the profile and its records are tied to it, so switching would orphan them.",
+    },
     {
       q: "What happens when I verify a certificate?",
       a: "It becomes visible to every employer who receives an application from that student. Nothing else in the system can make that happen, which is why the queue matters.",
