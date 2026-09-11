@@ -4133,7 +4133,11 @@ h4 {
    the wrapper scrolls sideways instead, which is always more readable than a
    column crushed to four characters. */
 .ijp-table {
-  min-width: 46rem;
+  /* No minimum width. A fixed 46rem forced every table to that size, so a
+     three-column table inside a half-width card scrolled sideways for no
+     reason. Cells already refuse to break mid-word, and the responsive
+     wrapper still scrolls when a table genuinely is wider than its box. */
+  width: 100%;
 }
 
 .ijp-table th,
@@ -4342,4 +4346,514 @@ h4 {
 
 .ijp-auth-forgot a:hover {
   text-decoration: underline;
+}
+
+/* --- Bootstrap alerts, themed -----------------------------------------------
+   Six places use .alert-danger, .alert-success, .alert-warning or .alert-info
+   directly. Bootstrap draws those in its own colours, which are close enough
+   to the project's to look like a mistake and which ignore the dark theme
+   entirely. Mapping the four to the design tokens fixes every one of them
+   without touching a component. */
+.alert {
+  border-radius: var(--ijp-radius-sm);
+  border-width: 1px;
+  border-style: solid;
+  padding: 0.75rem 1rem;
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.alert-danger {
+  color: var(--ijp-rejected);
+  background-color: var(--ijp-rejected-soft);
+  border-color: var(--ijp-rejected);
+}
+
+.alert-success {
+  color: var(--ijp-verified);
+  background-color: var(--ijp-verified-soft);
+  border-color: var(--ijp-verified);
+}
+
+.alert-warning {
+  color: var(--ijp-pending);
+  background-color: var(--ijp-pending-soft);
+  border-color: var(--ijp-pending);
+}
+
+.alert-info {
+  color: var(--ijp-signal);
+  background-color: var(--ijp-signal-soft);
+  border-color: var(--ijp-signal);
+}
+
+/* --- post-internship form sections -----------------------------------------
+   Three numbered cards rather than twelve fields in one column. The accent is
+   wayfinding, not status: the pending, verified and rejected colours keep
+   their meaning on badges and chips, which never appear on a form heading. */
+.ijp-form-section {
+  border: 1px solid var(--ijp-border);
+  border-left: 4px solid var(--ijp-signal);
+  border-radius: var(--ijp-radius-sm);
+  background-color: var(--ijp-surface-sunken);
+  padding: 1.1rem 1.25rem 0.6rem;
+  margin-bottom: 1.25rem;
+}
+
+.ijp-form-section-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.8rem;
+  margin-bottom: 1rem;
+}
+
+.ijp-form-section-n {
+  flex: 0 0 1.8rem;
+  height: 1.8rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background-color: var(--ijp-signal);
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.ijp-form-section-title {
+  margin: 0.15rem 0 0.2rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ijp-ink);
+}
+
+.ijp-form-section-hint {
+  margin: 0;
+  font-size: 0.83rem;
+  line-height: 1.55;
+  color: var(--ijp-ink-soft);
+}
+
+/* Section one uses the base accent; stated explicitly so all three are
+   visible together rather than one being implied by the default. */
+.ijp-form-section--role {
+  border-left-color: var(--ijp-signal);
+}
+.ijp-form-section--role .ijp-form-section-n {
+  background-color: var(--ijp-signal);
+}
+
+.ijp-form-section--where {
+  border-left-color: var(--ijp-verified);
+}
+.ijp-form-section--where .ijp-form-section-n {
+  background-color: var(--ijp-verified);
+}
+
+.ijp-form-section--pay {
+  border-left-color: var(--ijp-pending);
+}
+.ijp-form-section--pay .ijp-form-section-n {
+  background-color: var(--ijp-pending);
+}
+
+/* A per-field note, for the fields whose effect is not obvious. */
+.ijp-field-note {
+  margin: 0.3rem 0 0;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--ijp-ink-faint);
+}
+
+/* --- post-internship briefing ----------------------------------------------
+   Shown before the form when creating. The icon sits beside the text rather
+   than above it: a number alone on one line with the heading tight beneath
+   read as two unrelated things. */
+.ijp-brief-lead {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.15rem 1.3rem;
+  margin-bottom: 1.25rem;
+  border-left: 4px solid var(--ijp-signal);
+  border-radius: var(--ijp-radius);
+  background-color: var(--ijp-signal-soft);
+}
+
+.ijp-brief-lead-icon {
+  flex: 0 0 auto;
+  font-size: 1.4rem;
+  line-height: 1.15;
+  color: var(--ijp-signal);
+}
+
+.ijp-brief-lead-head {
+  margin: 0 0 0.3rem;
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: var(--ijp-ink);
+}
+
+.ijp-brief-lead-body {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: var(--ijp-ink-soft);
+}
+
+.ijp-brief-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(24rem, 1fr));
+  gap: 1rem;
+}
+
+/* Icon column, then content. */
+.ijp-brief {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1rem;
+  padding: 1.25rem;
+  border: 1px solid var(--ijp-border);
+  border-radius: var(--ijp-radius);
+  background-color: var(--ijp-surface);
+}
+
+.ijp-brief-icon {
+  width: 2.9rem;
+  height: 2.9rem;
+  display: grid;
+  place-items: center;
+  border-radius: var(--ijp-radius-sm);
+  background-color: var(--ijp-signal-soft);
+  color: var(--ijp-signal);
+  font-size: 1.3rem;
+}
+
+.ijp-brief-main {
+  min-width: 0;
+}
+
+/* The number and the category on one line above the heading, so the heading
+   is never the thing sitting underneath a bare digit. */
+.ijp-brief-kicker {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ijp-signal);
+}
+
+.ijp-brief-n {
+  display: inline-grid;
+  place-items: center;
+  width: 1.3rem;
+  height: 1.3rem;
+  border-radius: 999px;
+  background-color: var(--ijp-signal);
+  color: #fff;
+  font-family: var(--ijp-font-data);
+  font-size: 0.7rem;
+  letter-spacing: 0;
+}
+
+.ijp-brief-head {
+  margin: 0 0 0.45rem;
+  font-size: 1.02rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--ijp-ink);
+}
+
+.ijp-brief-body {
+  margin: 0 0 0.7rem;
+  font-size: 0.87rem;
+  line-height: 1.65;
+  color: var(--ijp-ink-soft);
+}
+
+/* What to actually do about it. Separated so the card answers "and therefore?"
+   rather than only stating the rule. */
+.ijp-brief-todo {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin: 0;
+  padding-top: 0.7rem;
+  border-top: 1px dashed var(--ijp-border-strong);
+  font-size: 0.83rem;
+  line-height: 1.6;
+  color: var(--ijp-ink);
+}
+
+.ijp-brief-todo .bi {
+  flex: 0 0 auto;
+  margin-top: 0.15rem;
+  color: var(--ijp-signal);
+}
+
+.ijp-brief--pending .ijp-brief-icon {
+  background-color: var(--ijp-pending-soft);
+  color: var(--ijp-pending);
+}
+.ijp-brief--pending .ijp-brief-kicker { color: var(--ijp-pending); }
+.ijp-brief--pending .ijp-brief-n { background-color: var(--ijp-pending); }
+.ijp-brief--pending .ijp-brief-todo .bi { color: var(--ijp-pending); }
+
+.ijp-brief--rejected .ijp-brief-icon {
+  background-color: var(--ijp-rejected-soft);
+  color: var(--ijp-rejected);
+}
+.ijp-brief--rejected .ijp-brief-kicker { color: var(--ijp-rejected); }
+.ijp-brief--rejected .ijp-brief-n { background-color: var(--ijp-rejected); }
+.ijp-brief--rejected .ijp-brief-todo .bi { color: var(--ijp-rejected); }
+
+.ijp-brief--verified .ijp-brief-icon {
+  background-color: var(--ijp-verified-soft);
+  color: var(--ijp-verified);
+}
+.ijp-brief--verified .ijp-brief-kicker { color: var(--ijp-verified); }
+.ijp-brief--verified .ijp-brief-n { background-color: var(--ijp-verified); }
+.ijp-brief--verified .ijp-brief-todo .bi { color: var(--ijp-verified); }
+
+/* On a narrow screen the icon column would squeeze the text, so it stacks. */
+@media (max-width: 35.98rem) {
+  .ijp-brief {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+}
+
+/* --- what happens after you publish ---------------------------------------
+   The employer's half of the process, so the wait for approval is expected
+   rather than discovered. */
+.ijp-flow {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 0.75rem;
+}
+
+.ijp-flow-step {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  gap: 0.3rem;
+  padding: 0.9rem 0.6rem;
+  border-radius: var(--ijp-radius-sm);
+  background-color: var(--ijp-surface-sunken);
+}
+
+.ijp-flow-mark {
+  width: 2.1rem;
+  height: 2.1rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background-color: var(--ijp-signal);
+  color: #fff;
+  font-size: 0.95rem;
+}
+
+.ijp-flow-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ijp-ink);
+}
+
+.ijp-flow-note {
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: var(--ijp-ink-faint);
+}
+
+/* The arrow sits in the gap between cards, and is hidden once the grid wraps
+   to one column, where it would point at nothing. */
+.ijp-flow-arrow {
+  position: absolute;
+  right: -0.62rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.8rem;
+  color: var(--ijp-ink-faint);
+}
+
+@media (max-width: 47.98rem) {
+  .ijp-flow-arrow { display: none; }
+}
+
+/* --- post-internship side rail ---------------------------------------------
+   The form used to be one long column with the button at the bottom, so there
+   was no way to tell how far through you were or what the result would look
+   like. The rail answers both without the user scrolling. */
+.ijp-post-aside {
+  position: sticky;
+  top: 1rem;
+}
+
+/* Progress. The marks are computed from the form, so an unticked step means a
+   field is genuinely missing rather than merely unvisited. */
+.ijp-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.7rem;
+}
+
+.ijp-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+}
+
+.ijp-step-mark {
+  flex: 0 0 1.55rem;
+  height: 1.55rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  border: 1px solid var(--ijp-border-strong);
+  background-color: var(--ijp-surface);
+  color: var(--ijp-ink-faint);
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.ijp-step--done .ijp-step-mark {
+  border-color: var(--ijp-verified);
+  background-color: var(--ijp-verified);
+  color: #fff;
+}
+
+.ijp-step-label {
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--ijp-ink);
+}
+
+.ijp-step--done .ijp-step-label {
+  color: var(--ijp-verified);
+}
+
+.ijp-step-note {
+  display: block;
+  font-size: 0.76rem;
+  color: var(--ijp-ink-faint);
+}
+
+/* The preview. Deliberately plain: it is meant to resemble what a student
+   sees in the vacancy list, not to be a second design. */
+.ijp-preview {
+  border: 1px solid var(--ijp-border);
+  border-radius: var(--ijp-radius-sm);
+  background-color: var(--ijp-surface-sunken);
+  padding: 0.85rem 1rem;
+}
+
+.ijp-preview-title {
+  margin: 0 0 0.5rem;
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: var(--ijp-ink);
+  overflow-wrap: anywhere;
+}
+
+.ijp-preview-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-bottom: 0.6rem;
+}
+
+.ijp-preview-chip {
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--ijp-border-strong);
+  background-color: var(--ijp-surface);
+  font-size: 0.72rem;
+  color: var(--ijp-ink-soft);
+  white-space: nowrap;
+}
+
+.ijp-preview-chip--pay {
+  border-color: var(--ijp-verified);
+  color: var(--ijp-verified);
+  background-color: var(--ijp-verified-soft);
+}
+
+.ijp-preview-body {
+  margin: 0 0 0.6rem;
+  font-size: 0.8rem;
+  line-height: 1.55;
+  color: var(--ijp-ink-soft);
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.ijp-preview-foot {
+  margin: 0;
+  padding-top: 0.55rem;
+  border-top: 1px solid var(--ijp-border);
+  font-size: 0.74rem;
+  color: var(--ijp-ink-faint);
+}
+
+/* Below the two-column breakpoint the rail stops being sticky, because a
+   sticky block in a single column covers the form it belongs to. */
+@media (max-width: 1199.98px) {
+  .ijp-post-aside {
+    position: static;
+  }
+}
+
+
+/* One field and its label, note and control. Replaces the ad-hoc mb-3 blocks
+   the page used before, so spacing is defined once. */
+.ijp-field {
+  margin-bottom: 1rem;
+}
+
+.ijp-field:last-child {
+  margin-bottom: 0;
+}
+
+.ijp-req {
+  color: var(--ijp-rejected);
+  font-weight: 700;
+}
+
+/* --- forgot password -------------------------------------------------------
+   Two classes were used on that page with no rule behind them, so the subtitle
+   and the return link rendered as unstyled body text. Matched to the auth
+   styles already in use rather than invented again. */
+.ijp-auth-sub {
+  margin-bottom: 1.1rem;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--ijp-ink-soft);
+}
+
+.ijp-auth-alt {
+  margin-bottom: 0;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--ijp-ink-soft);
+}
+
+/* The account dropdown. Bootstrap draws the menu; this only aligns it with
+   the product's surfaces and border so it does not read as a stock control. */
+.ijp-menu {
+  border: 1px solid var(--ijp-border);
+  border-radius: var(--ijp-radius-sm);
+  background-color: var(--ijp-surface-raised);
+  box-shadow: var(--ijp-shadow, 0 6px 20px rgba(15, 27, 45, 0.12));
 }

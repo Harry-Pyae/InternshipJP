@@ -637,17 +637,13 @@ export default function AdminDashboardPage() {
 
 
               {aiUsage.configured != null ? (
-                <div>
-                  <div className="small opacity-75">Configuration</div>
-                  <div className="mt-1">
+                <div className="ijp-mini-row">
+                  <span className="ijp-mini-label">{t("Configuration")}</span>
+                  <span className="ijp-mini-value">
                     <StatusBadge
-                      value={
-                        aiUsage.configured
-                          ? "CONFIGURED"
-                          : "NOT_CONFIGURED"
-                      }
+                      value={aiUsage.configured ? "CONFIGURED" : "NOT_CONFIGURED"}
                     />
-                  </div>
+                  </span>
                 </div>
               ) : null}
             </div>

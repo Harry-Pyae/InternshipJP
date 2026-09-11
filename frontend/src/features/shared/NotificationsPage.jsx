@@ -26,6 +26,7 @@ import { timeAgo, exactTime } from "../../api/relativeTime.js";
 const ROUTES = {
   CERTIFICATE_VERIFICATION_REQUESTED: { ADMIN: "/admin/certificates" },
   COMPANY_APPROVAL_REQUESTED: { ADMIN: "/admin/employers" },
+  FEEDBACK: { ADMIN: "/admin/faq" },
   CERTIFICATE_VERIFIED: { STUDENT: "/student/certificates" },
   CERTIFICATE_REJECTED: { STUDENT: "/student/certificates" },
   APPLICATION_STATUS_CHANGED: { STUDENT: "/student/applications" },
@@ -43,6 +44,7 @@ const LOOKS = [
   { match: /APPLICATION/, icon: "bi-send", tone: "signal", group: "Applications" },
   { match: /COMPANY/, icon: "bi-building", tone: "warn", group: "Companies" },
   { match: /ACCOUNT/, icon: "bi-person-gear", tone: "unknown", group: "Account" },
+  { match: /FEEDBACK/, icon: "bi-chat-left-text", tone: "ok", group: "Feedback" },
 ];
 
 const TABS = [

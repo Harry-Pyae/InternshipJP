@@ -41,7 +41,6 @@ import AdminCertificateReviewPage from "../features/admin/AdminCertificateReview
 import AdminUsersPage from "../features/admin/AdminUsersPage.jsx";
 import AdminSettingsPage from "../features/admin/AdminSettingsPage.jsx";
 import AdminInternshipsPage from "../features/admin/AdminInternshipsPage.jsx";
-import AdminNotificationsPage from "../features/admin/AdminNotificationsPage.jsx";
 import AdminEmployersPage from "../features/admin/AdminEmployersPage.jsx";
 import AdminEmployerReviewPage from "../features/admin/AdminEmployerReviewPage.jsx";
 import AdminInternshipDetailPage from "../features/admin/AdminInternshipDetailPage.jsx";
@@ -213,7 +212,7 @@ export default function AppRoutes() {
         <Route path="/admin/employers/:id" element={<AdminEmployerReviewPage />} />
         <Route path="/admin/internships/:id" element={<AdminInternshipDetailPage />} />
         <Route path="/admin/internships" element={<AdminInternshipsPage />} />
-        <Route path="/admin/notifications" element={<AdminNotificationsPage />} />
+        <Route path="/admin/notifications" element={<NotificationsPage />} />
         <Route path="/admin/faq" element={<FaqPage />} />
         <Route path="/admin/reports" element={<AdminReportsPage />} />
         <Route path="/admin/settings" element={<AdminSettingsPage />} />
