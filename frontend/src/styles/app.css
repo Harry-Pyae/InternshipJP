@@ -1157,7 +1157,10 @@ h4 {
   background-color: var(--ijp-surface);
   border-color: var(--ijp-signal);
   color: var(--ijp-ink);
-  box-shadow: 0 0 0 3px var(--ijp-focus);
+  /* One definition. A second block later in the file set this to
+     --ijp-signal-soft, so editing the value here changed nothing - the exact
+     fault that once made a correct change look like no change at all. */
+  box-shadow: 0 0 0 3px var(--ijp-signal-soft);
 }
 
 .form-control::placeholder {
@@ -1264,11 +1267,6 @@ h4 {
   border-bottom: 1px solid var(--ijp-border);
 }
 
-.ijp-sidebar--collapsed .ijp-sidebar-head {
-  justify-content: center;
-  padding: 0 0.5rem;
-}
-
 .ijp-sidebar-brand {
   display: flex;
   align-items: center;
@@ -1324,6 +1322,9 @@ h4 {
    way back to the expanded sidebar. Collapsed, the head stacks vertically so
    the logo and the chevron both fit in 4.5rem. */
 .ijp-sidebar--collapsed .ijp-sidebar-head {
+  /* The only definition. An earlier block set justify-content and a different
+     padding; both were overridden here and neither did anything. */
+  justify-content: center;
   flex-direction: column;
   height: auto;
   gap: 0.4rem;
@@ -2250,12 +2251,6 @@ h4 {
 .ijp-history-delete:focus-visible,
 .dropdown-item.text-danger:focus-visible {
   outline-color: var(--ijp-rejected);
-}
-
-.form-control:focus,
-.form-select:focus {
-  border-color: var(--ijp-signal);
-  box-shadow: 0 0 0 3px var(--ijp-signal-soft);
 }
 
 /* --- consistent hover and active across secondary controls --------------- */
@@ -5299,4 +5294,11 @@ h4 {
 .ijp-pick--pending {
   border: 2px dashed var(--ijp-signal);
   padding: 2px;
+}
+
+/* The invite panel on the users page. It was carrying a class with no rule
+   behind it - harmless, because ijp-card did the work, but a styling hook that
+   does nothing is a question waiting to be asked. */
+.ijp-invite {
+  border-left: 4px solid var(--ijp-signal);
 }
