@@ -226,11 +226,22 @@ public class AppProperties {
         public static class Gemini {
         /** Never log this value and never send it to the browser. */
         private String apiKey = "";
-        private String model = "llama-3.3-70b-versatile";
-        private String baseUrl = "https://api.groq.com/openai/v1";
-        private int timeoutSeconds = 30;
-        private int maxOutputTokens = 700;
-            private int thinkingBudget = 0;
+        // Gemini's own defaults, not Groq's.
+        //
+        // These were copied from the Groq class and left: the model name and
+        // the base URL both pointed at Groq. application.yml overrides them,
+        // so nothing was broken, but a profile that omits the gemini block
+        // would have sent Gemini requests to Groq's endpoint with a Groq
+        // model name. A default that is wrong is worse than no default: it
+        // fails somewhere other than where the mistake is.
+        private String model = "gemini-3.6-flash";
+        private String baseUrl = "https://generativelanguage.googleapis.com/v1beta";
+        // Longer than Groq's: Burmese costs several tokens per syllable, and
+        // a truncated answer in the middle of a sentence is worse than a slow
+        // one. The yml raises both further.
+        private int timeoutSeconds = 45;
+        private int maxOutputTokens = 2000;
+        private int thinkingBudget = 0;
 
         public String getApiKey() {
             return apiKey;

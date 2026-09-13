@@ -4,9 +4,7 @@ import RoleLayout from "../layouts/RoleLayout.jsx";
 import PublicLayout from "../layouts/PublicLayout.jsx";
 import AuthLayout from "../layouts/AuthLayout.jsx";
 import RequireAuth from "../components/shared/RequireAuth.jsx";
-import FeaturePlaceholder from "../components/common/FeaturePlaceholder.jsx";
 import { STUDENT_NAV, EMPLOYER_NAV, ADMIN_NAV } from "../config/navigation.js";
-import { STUDENT_PAGES, EMPLOYER_PAGES, ADMIN_PAGES } from "./placeholders.js";
 import { useAuth, homeFor } from "../config/authContext.jsx";
 import LoadingBlock from "../components/shared/LoadingBlock.jsx";
 
@@ -55,41 +53,10 @@ import AdminProfileEditPage from "../features/admin/AdminProfileEditPage.jsx";
  * Every route in the application.
  */
 /** Employer paths Member 3 has built. */
-const EMPLOYER_BUILT = new Set([
-  "/employer/applications/:id",
-  "/employer/internships/:id/edit",
-  "/employer/notifications",
-  "/employer/settings",
-  "/employer/internships/new",
-  "/employer/internships",
-  "/employer/applications",
-  "/employer/company",
-  "/employer/profile",
-]);
 
 /** Student paths built by Member 3 (browsing vacancies is their module). */
-const STUDENT_BUILT = new Set([
-  "/student/internships",
-  "/student/profile",
-  "/student/profile/edit",
-  "/student/skills/edit",
-  "/student/education/edit",
-  "/student/certificates",
-  "/student/applications",
-  "/student/notifications",
-  "/student/settings",
-]);
 
 /** Admin paths that now have a real page, so no placeholder is needed. */
-const ADMIN_BUILT = new Set([
-  "/admin/users",
-  "/admin/certificates",
-  "/admin/employers",
-  "/admin/internships",
-  "/admin/notifications",
-  "/admin/reports",
-  "/admin/settings",
-]);
 
 export default function AppRoutes() {
   return (
@@ -135,14 +102,6 @@ export default function AppRoutes() {
         <Route path="/student/notifications" element={<NotificationsPage />} />
         <Route path="/student/faq" element={<FaqPage />} />
         <Route path="/student/settings" element={<AccountSettingsPage />} />
-
-        {STUDENT_PAGES.filter((page) => !STUDENT_BUILT.has(page.path)).map((page) => (
-          <Route
-            key={page.path}
-            path={page.path}
-            element={<FeaturePlaceholder {...page} />}
-          />
-        ))}
       </Route>
 
       {/*
@@ -189,14 +148,6 @@ export default function AppRoutes() {
         <Route path="/employer/notifications" element={<NotificationsPage />} />
         <Route path="/employer/faq" element={<FaqPage />} />
         <Route path="/employer/settings" element={<AccountSettingsPage />} />
-
-        {EMPLOYER_PAGES.filter((page) => !EMPLOYER_BUILT.has(page.path)).map((page) => (
-          <Route
-            key={page.path}
-            path={page.path}
-            element={<FeaturePlaceholder {...page} />}
-          />
-        ))}
       </Route>
 
       {/* -------------------------------------------------- ADMIN */}
@@ -224,21 +175,6 @@ export default function AppRoutes() {
         <Route path="/admin/profile" element={<AdminProfilePage />} />
         <Route path="/admin/profile/edit" element={<AdminProfileEditPage />} />
         <Route path="/admin/settings" element={<AdminSettingsPage />} />
-
-        {/*
-          Member 4 built every admin screen except Messages, which has no
-          backend at all. Anything in ADMIN_PAGES without a real page above
-          keeps its placeholder - without this, the Messages link in the
-          sidebar would match no route, fall through to the catch-all and
-          bounce the admin back to the landing page.
-        */}
-        {ADMIN_PAGES.filter((page) => !ADMIN_BUILT.has(page.path)).map((page) => (
-          <Route
-            key={page.path}
-            path={page.path}
-            element={<FeaturePlaceholder {...page} />}
-          />
-        ))}
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />

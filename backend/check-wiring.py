@@ -28,24 +28,49 @@ for path in sorted(glob.glob("**/*.java", recursive=True)):
 
     # Indentation varies between files in this project, so the patterns below
     # deliberately do not anchor to a column.
-    fields = set(re.findall(r"private\s+final\s+[\w<>,\[\]\s]*?(\w+)\s*;", src))
+    # Only the fields of this class, not of a nested one. A nested class has
+    # its own constructor, which this loop never looks at, so its fields would
+    # otherwise all read as never assigned.
+    outer = src
+    for nested in re.finditer(r"\n    (?:public|private|protected)?\s*static\s+class\s+\w+\s*\{", src):
+        depth, j = 0, nested.end() - 1
+        while j < len(src):
+            if src[j] == "{":
+                depth += 1
+            elif src[j] == "}":
+                depth -= 1
+                if depth == 0:
+                    break
+            j += 1
+        outer = outer.replace(src[nested.start():j + 1], "")
+    fields = set(re.findall(r"private\s+final\s+[\w<>,\[\]\s]*?(\w+)\s*;", outer))
     if not fields:
         continue
 
-    ctor = re.search(r"public\s+" + re.escape(cls) + r"\s*\(([^)]*)\)\s*\{([\s\S]*?)\n\s*\}", src)
+    # Any visibility, not just public. A nested value class with a
+    # package-private constructor was reporting five of its fields as never
+    # assigned, because this only looked for `public ClassName(`.
+    ctor = re.search(r"(?:public|protected|private)?\s*" + re.escape(cls)
+                     + r"\s*\(([^)]*)\)\s*\{([\s\S]*?)\n\s*\}", src)
     if not ctor:
         continue
 
     params = [p.strip().split()[-1] for p in ctor.group(1).split(",") if p.strip()]
     assigns = set(re.findall(r"this\.(\w+)\s*=", ctor.group(2)))
 
+    # A parameter counts as used if it appears anywhere in the body, not only
+    # when it is stored verbatim. `this.id = user.getId()` uses `user`, and
+    # `super(message)` uses `message`; both were being reported as unused.
+    body = ctor.group(2)
+    used_in_body = set(re.findall(r"(?<![\w.])(\w+)(?![\w])", body))
+
     for a in sorted(assigns - fields):
         undeclared.append(f"{name}: this.{a} assigned, but no field {a} is declared")
     for f in sorted(fields - assigns):
         unassigned.append(f"{name}: final field {f} is never assigned")
     for p in params:
-        if p not in assigns:
-            unused.append(f"{name}: constructor parameter {p} is never stored")
+        if p not in assigns and p not in used_in_body:
+            unused.append(f"{name}: constructor parameter {p} is never used")
 
 for u in undeclared:
     print("  CANNOT COMPILE  " + u)

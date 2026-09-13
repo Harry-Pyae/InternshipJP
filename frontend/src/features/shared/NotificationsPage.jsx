@@ -26,6 +26,17 @@ import { timeAgo, exactTime } from "../../api/relativeTime.js";
 const ROUTES = {
   CERTIFICATE_VERIFICATION_REQUESTED: { ADMIN: "/admin/certificates" },
   COMPANY_APPROVAL_REQUESTED: { ADMIN: "/admin/employers" },
+  // AdminService emits "COMPANY_" + decision.name(), so an employer receives
+  // COMPANY_APPROVED or COMPANY_REJECTED. Neither was here, so the one
+  // notification that tells an employer their registration was decided was
+  // the one that led nowhere - while the equivalent certificate decisions
+  // have always taken a student to their certificates.
+  COMPANY_APPROVED: { EMPLOYER: "/employer/company" },
+  COMPANY_REJECTED: { EMPLOYER: "/employer/company" },
+  // MORE_INFO_REQUIRED is a permitted decision, not a hypothetical: the
+  // request validator accepts APPROVED, REJECTED and MORE_INFO_REQUIRED,
+  // and it is the one an employer most needs to act on.
+  COMPANY_MORE_INFO_REQUIRED: { EMPLOYER: "/employer/company" },
   FEEDBACK: { ADMIN: "/admin/faq" },
   CERTIFICATE_VERIFIED: { STUDENT: "/student/certificates" },
   CERTIFICATE_REJECTED: { STUDENT: "/student/certificates" },
