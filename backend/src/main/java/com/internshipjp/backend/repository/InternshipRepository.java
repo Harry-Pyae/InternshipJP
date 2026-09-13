@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import java.time.LocalDate;
 
 /**
  * Internships.
@@ -42,7 +43,33 @@ public interface InternshipRepository extends JpaRepository<Internship, Long> {
                                 @Param("keyword") String keyword,
                                 Pageable pageable);
 
-         /** Admin search: one status, plus a keyword across title/company/location. */
+         /**
+     * The public list, with passed deadlines excluded.
+     *
+     * A deadline was previously checked only when somebody tried to apply, so a
+     * vacancy three weeks past its closing date still appeared in browse and
+     * still counted in the reports. Filtering here means the rule holds
+     * wherever the list is read, with nothing running on a timer to drift.
+     *
+     * A null deadline means the employer did not want a cut-off.
+     */
+    @Query("SELECT i FROM Internship i WHERE i.status = :status "
+            + "AND (i.applicationDeadline IS NULL OR i.applicationDeadline >= :today)")
+    Page<Internship> findOpenAndNotExpired(@Param("status") InternshipStatus status,
+                                           @Param("today") LocalDate today,
+                                           Pageable pageable);
+
+    @Query("SELECT i FROM Internship i WHERE i.status = :status "
+            + "AND (i.applicationDeadline IS NULL OR i.applicationDeadline >= :today) AND ("
+            + "LOWER(i.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR "
+            + "LOWER(i.company.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR "
+            + "LOWER(i.location) LIKE LOWER(CONCAT('%', :keyword, '%')))")
+    Page<Internship> searchOpenAndNotExpired(@Param("status") InternshipStatus status,
+                                             @Param("keyword") String keyword,
+                                             @Param("today") LocalDate today,
+                                             Pageable pageable);
+
+    /** Admin search: one status, plus a keyword across title/company/location. */
          
     @Query("SELECT i FROM Internship i WHERE i.status = :status AND ("
             + "LOWER(i.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR "

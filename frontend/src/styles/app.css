@@ -1535,6 +1535,9 @@ h4 {
   color: var(--ijp-signal);
   font-size: 0.8rem;
   font-weight: 700;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  flex-shrink: 0;
 }
 
 .ijp-avatar--sm {
@@ -4099,30 +4102,6 @@ h4 {
 /* --- feedback inbox --------------------------------------------------------
    What users wrote, most recent first. Quoted rather than listed, because the
    words are theirs. */
-.ijp-feedback-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 0.75rem;
-}
-
-.ijp-feedback {
-  padding: 0.8rem 1rem;
-  border: 1px solid var(--ijp-border);
-  border-left: 3px solid var(--ijp-signal);
-  border-radius: var(--ijp-radius-sm);
-  background-color: var(--ijp-surface-sunken);
-}
-
-.ijp-feedback-text {
-  line-height: 1.6;
-  overflow-wrap: anywhere;
-}
-
-
-
-
 /* --- tables ----------------------------------------------------------------
    There was no table CSS at all - these relied on Bootstrap, which does not
    stop a long unbroken string being chopped mid-word when its column gets
@@ -4194,75 +4173,11 @@ h4 {
 
 
 /* --- feedback rows, clickable ---------------------------------------------- */
-.ijp-feedback {
-  padding: 0;
-  overflow: hidden;
-}
-
-.ijp-feedback--unread {
-  border-left-color: var(--ijp-signal);
-  background-color: var(--ijp-signal-soft);
-}
-
-.ijp-feedback-hit {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  width: 100%;
-  padding: 0.8rem 1rem;
-  border: 0;
-  background: none;
-  text-align: left;
-  color: inherit;
-}
-
-.ijp-feedback-who {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-weight: 600;
-  font-size: 0.9rem;
-}
-
 /* Three lines in the list. 2000 characters is a wall; the detail view is
    where the whole thing belongs. */
-.ijp-feedback-text {
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  line-height: 1.6;
-  color: var(--ijp-ink-soft);
-  overflow-wrap: anywhere;
-}
-
-.ijp-feedback-meta {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  font-size: 0.74rem;
-  color: var(--ijp-ink-faint);
-}
-
 /* The clock and the time are one unit; only "View details" is pushed right.
    space-between on three children spread all three, which is why the time
    floated in the middle. */
-.ijp-feedback-when {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-}
-
-.ijp-feedback-more {
-  margin-left: auto;
-}
-
-.ijp-feedback-more {
-  color: var(--ijp-signal);
-  font-weight: 600;
-  white-space: nowrap;
-}
-
 .ijp-feedback-hit:hover .ijp-feedback-more {
   text-decoration: underline;
 }
@@ -4818,8 +4733,17 @@ h4 {
 
 /* One field and its label, note and control. Replaces the ad-hoc mb-3 blocks
    the page used before, so spacing is defined once. */
+/* No bottom margin. Spacing between fields comes from the container - the auth
+   forms use a grid gap - and the reserved message slot below already adds a
+   line. Having all three stacked put 3.2rem under every field. */
 .ijp-field {
-  margin-bottom: 1rem;
+  margin-bottom: 0;
+}
+
+/* The post-internship sections stack fields directly rather than in a grid, so
+   they get their separation here. */
+.ijp-form-section .ijp-field + .ijp-field {
+  margin-top: 0.5rem;
 }
 
 .ijp-field:last-child {
@@ -4856,4 +4780,519 @@ h4 {
   border-radius: var(--ijp-radius-sm);
   background-color: var(--ijp-surface-raised);
   box-shadow: var(--ijp-shadow, 0 6px 20px rgba(15, 27, 45, 0.12));
+}
+
+/* A fixed slot under every auth field, so a message arriving does not move the
+   page. Without it, validating on blur pushed everything below the field down
+   and a click aimed at the next control missed. */
+.ijp-field-msg {
+  min-height: 1.2rem;
+}
+
+.ijp-field-msg > p {
+  margin: 0.3rem 0 0;
+}
+
+/* --- confirmation dialog ----------------------------------------------------
+   Replaces window.confirm and window.prompt, which the operating system draws
+   and no stylesheet reaches. */
+.ijp-confirm {
+  max-width: 30rem;
+}
+
+.ijp-confirm-head {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 0.9rem;
+}
+
+.ijp-confirm-icon {
+  width: 2.3rem;
+  height: 2.3rem;
+  display: grid;
+  place-items: center;
+  border-radius: var(--ijp-radius-sm);
+  font-size: 1.1rem;
+  background-color: var(--ijp-signal-soft);
+  color: var(--ijp-signal);
+}
+
+.ijp-confirm-head--danger .ijp-confirm-icon {
+  background-color: var(--ijp-rejected-soft);
+  color: var(--ijp-rejected);
+}
+
+.ijp-confirm-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--ijp-ink);
+}
+
+.ijp-confirm-message {
+  margin: 0 0 0.5rem;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--ijp-ink);
+}
+
+.ijp-confirm-note {
+  margin: 0 0 1rem;
+  font-size: 0.84rem;
+  line-height: 1.6;
+  color: var(--ijp-ink-soft);
+}
+
+.ijp-confirm-field {
+  margin-bottom: 1rem;
+}
+
+.ijp-confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+/* The signed-in administrator's own row in the users table. */
+.ijp-self-row {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  background-color: var(--ijp-surface-sunken);
+  border: 1px solid var(--ijp-border);
+  font-size: 0.76rem;
+  color: var(--ijp-ink-faint);
+  white-space: nowrap;
+}
+
+/* A second line under a fact value: the age of a certificate under its issue
+   date. Its own line because the fact column is 9rem at its narrowest, where a
+   phrase beside the date breaks in the middle. */
+.ijp-fact-sub {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.78rem;
+  color: var(--ijp-ink-faint);
+  white-space: nowrap;
+}
+
+/* --- feedback inbox --------------------------------------------------------
+   Was a flat stack of name, text and timestamp inside one bordered box, and
+   two competing definitions of .ijp-feedback left it with no internal padding
+   at all - so a short message read as a long empty pill. Now an initial, a
+   header row with the sender and the time apart, the message, and a footer. */
+.ijp-feedback-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.ijp-feedback {
+  border: 1px solid var(--ijp-border);
+  border-radius: var(--ijp-radius);
+  background-color: var(--ijp-surface);
+  overflow: hidden;
+}
+
+.ijp-feedback--unread {
+  border-color: var(--ijp-signal);
+  background-color: var(--ijp-signal-soft);
+}
+
+/* The whole row is the target, so there is no small link to aim at. */
+.ijp-feedback-hit {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.85rem;
+  width: 100%;
+  padding: 0.9rem 1rem;
+  border: 0;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ijp-feedback-hit:hover {
+  background-color: var(--ijp-surface-sunken);
+}
+
+.ijp-feedback-avatar {
+  width: 2.3rem;
+  height: 2.3rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background-color: var(--ijp-signal);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.ijp-feedback-body {
+  min-width: 0;
+}
+
+.ijp-feedback-top {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.35rem;
+}
+
+.ijp-feedback-dot {
+  color: var(--ijp-ink-faint);
+}
+
+.ijp-feedback-who {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ijp-ink);
+}
+
+.ijp-feedback-when {
+  font-size: 0.75rem;
+  color: var(--ijp-ink-faint);
+  white-space: nowrap;
+}
+
+.ijp-feedback-text {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 0.86rem;
+  line-height: 1.6;
+  color: var(--ijp-ink-soft);
+  overflow-wrap: anywhere;
+}
+
+.ijp-feedback-foot {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.6rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--ijp-border);
+}
+
+.ijp-feedback-new {
+  padding: 0.05rem 0.45rem;
+  border-radius: 999px;
+  background-color: var(--ijp-signal);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.ijp-feedback-more {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--ijp-signal);
+}
+
+/* A profile photo inside the avatar circle. Initials remain the fallback. */
+/* A rectangular photo must still be a circle.
+   object-fit crops it, aspect-ratio stops the box itself stretching in a flex
+   row, and overflow hides any overhang if a parent ever sets an odd height. */
+.ijp-avatar-img {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  object-position: center;
+  border-radius: inherit;
+  display: block;
+}
+
+/* --- profile photo control -------------------------------------------------- */
+.ijp-photo-row {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.ijp-photo-actions {
+  min-width: 0;
+}
+
+.ijp-avatar--lg {
+  width: 4.5rem;
+  height: 4.5rem;
+  font-size: 1.3rem;
+  flex: 0 0 auto;
+}
+
+/* --- avatar zoom -----------------------------------------------------------
+   Only a real photo becomes a button. Initials are not worth enlarging, and a
+   control that does nothing useful is worse than no control. */
+.ijp-avatar--zoom {
+  border: 0;
+  padding: 0;
+  cursor: zoom-in;
+}
+
+.ijp-avatar--zoom:hover {
+  outline: 2px solid var(--ijp-signal);
+  outline-offset: 1px;
+}
+
+.ijp-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 1080;
+  display: grid;
+  place-items: center;
+  padding: 2rem;
+  background-color: rgba(6, 12, 22, 0.82);
+  cursor: zoom-out;
+}
+
+.ijp-lightbox-img {
+  max-width: min(90vw, 40rem);
+  max-height: 85vh;
+  border-radius: var(--ijp-radius);
+  object-fit: contain;
+  background-color: var(--ijp-surface);
+}
+
+.ijp-lightbox-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 999px;
+  background-color: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  font-size: 1rem;
+}
+
+.ijp-lightbox-close:hover {
+  background-color: rgba(255, 255, 255, 0.26);
+}
+
+/* A person cell: photo, then name over email. */
+.ijp-person-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+/* The photo you picked, before it is uploaded. Dashed, so it reads as a
+   proposal rather than as the photo already in use. */
+.ijp-photo-preview {
+  width: 4.5rem;
+  height: 4.5rem;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  overflow: hidden;
+  border: 2px dashed var(--ijp-signal);
+  padding: 2px;
+}
+
+.ijp-photo-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 999px;
+  display: block;
+}
+
+.ijp-photo-question {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--ijp-ink);
+}
+
+.ijp-photo-file {
+  display: block;
+  margin-top: 0.15rem;
+  font-family: var(--ijp-font-data);
+  font-size: 0.75rem;
+  color: var(--ijp-ink-faint);
+  overflow-wrap: anywhere;
+}
+
+/* --- company logo ----------------------------------------------------------- */
+.ijp-logo-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.ijp-logo {
+  width: 4rem;
+  height: 4rem;
+  border-radius: var(--ijp-radius-sm);
+  object-fit: contain;
+  background-color: var(--ijp-surface-sunken);
+  border: 1px solid var(--ijp-border);
+  padding: 0.35rem;
+}
+
+.ijp-logo--empty {
+  display: grid;
+  place-items: center;
+  color: var(--ijp-ink-faint);
+  font-size: 1.4rem;
+}
+
+/* A small labelled divider inside a form. Replaces the bare <h3> headings on
+   the employer profile, which sat at page-heading size inside a card. */
+.ijp-form-group {
+  margin: 1.75rem 0 0.75rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ijp-signal);
+}
+
+.ijp-form-group:first-child {
+  margin-top: 0;
+}
+
+/* --- full-page loading ------------------------------------------------------
+   Centred, because this is the whole screen while the session is checked. The
+   inline variant stayed as it was for use inside a card. */
+.ijp-loading-page {
+  min-height: 60vh;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 1rem;
+  padding: 2rem;
+  text-align: center;
+}
+
+.ijp-loading-mark {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.ijp-loading-dot {
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 999px;
+  background-color: var(--ijp-signal);
+  animation: ijp-loading-bounce 1.05s ease-in-out infinite;
+}
+
+.ijp-loading-dot:nth-child(2) {
+  animation-delay: 0.14s;
+}
+
+.ijp-loading-dot:nth-child(3) {
+  animation-delay: 0.28s;
+}
+
+.ijp-loading-label {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--ijp-ink-soft);
+}
+
+@keyframes ijp-loading-bounce {
+  0%, 70%, 100% {
+    transform: translateY(0);
+    opacity: 0.45;
+  }
+  35% {
+    transform: translateY(-0.45rem);
+    opacity: 1;
+  }
+}
+
+/* Anyone who has asked for less movement gets a steady fade instead. */
+@media (prefers-reduced-motion: reduce) {
+  .ijp-loading-dot {
+    animation: ijp-loading-fade 1.4s ease-in-out infinite;
+  }
+  @keyframes ijp-loading-fade {
+    0%, 100% { opacity: 0.35; }
+    50% { opacity: 1; }
+  }
+}
+
+/* --- image picker ----------------------------------------------------------
+   Round for a person, square for a company: a logo cropped to a circle loses
+   its corners, which is usually where the wordmark is. */
+.ijp-pick {
+  /* Every dimension is fixed and bounded. The frame holds an image whose
+     intrinsic size is unknown until it loads, so nothing here may depend on
+     the content: box-sizing keeps the padding inside, and the max rules mean
+     a tall or wide file cannot push the card open. */
+  box-sizing: border-box;
+  width: 4.5rem;
+  height: 4.5rem;
+  max-width: 4.5rem;
+  max-height: 4.5rem;
+  flex: 0 0 4.5rem;
+  overflow: hidden;
+  display: block;
+  background-color: var(--ijp-surface-sunken);
+  border: 1px solid var(--ijp-border);
+}
+
+/* The empty state centres an icon, but must not change the frame. */
+.ijp-pick.ijp-logo--empty {
+  display: grid;
+  place-items: center;
+  width: 4.5rem;
+  height: 4.5rem;
+}
+
+.ijp-pick img {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  display: block;
+}
+
+.ijp-pick--round {
+  border-radius: 999px;
+}
+
+.ijp-pick--round img {
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  object-position: center;
+}
+
+.ijp-pick--square {
+  border-radius: var(--ijp-radius-sm);
+  padding: 0.3rem;
+}
+
+.ijp-pick--square img {
+  object-fit: contain;
+}
+
+/* Dashed while it is only a proposal. */
+.ijp-pick--pending {
+  border: 2px dashed var(--ijp-signal);
+  padding: 2px;
 }

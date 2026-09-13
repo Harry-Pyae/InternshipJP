@@ -75,7 +75,7 @@ export default function Sidebar({ nav, collapsed, onToggleCollapse, onNavigate, 
       {user ? (
         <div className="ijp-sidebar-foot">
           <div className={`ijp-identity${isCollapsed ? " ijp-identity--collapsed" : ""}`}>
-            <Avatar name={user.fullName} />
+            <Avatar name={user.fullName} userId={user.id} zoom={false} />
             {isCollapsed ? null : (
               <span className="ijp-identity-text">
                 <span className="ijp-identity-name">{user.fullName}</span>

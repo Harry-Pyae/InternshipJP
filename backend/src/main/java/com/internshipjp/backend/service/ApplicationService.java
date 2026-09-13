@@ -199,12 +199,18 @@ public class ApplicationService {
 
         recordHistory(saved, from, to, userId, request.getNote());
 
+        // The employer's note was already written to the history table and then
+        // left there: the student was told the status had changed and never
+        // why. The reason existed in the database and was invisible to the one
+        // person it was written for.
         notificationService.create(
                 application.getStudentProfile().getUser(),
                 "APPLICATION_STATUS_CHANGED",
                 "Your application was updated",
-                "\"" + application.getInternship().getTitle() + "\" is now "
-                        + to.name().toLowerCase().replace('_', ' ') + ".");
+                statusMessage(application.getInternship().getTitle(),
+                        to,
+                        employerName(application),
+                        request.getNote()));
 
         return applicationMapper.toSummary(saved);
     }
@@ -251,5 +257,27 @@ public class ApplicationService {
         history.setChangedBy(changedBy);
         history.setNote(note);
         historyRepository.save(history);
+    }
+
+    /** The company name, for attributing a note to somebody rather than nobody. */
+    private String employerName(Application application) {
+        return application.getInternship().getCompany().getName();
+    }
+
+    /**
+     * What the student is told when a status changes.
+     *
+     * Package-private and static so the rule can be tested on its own: the
+     * employer's note was previously written to the history table and never
+     * sent, so the student learned that something had changed and never why.
+     */
+    static String statusMessage(String title, ApplicationStatus to, String company, String note) {
+        String message = "\"" + title + "\" is now "
+                + to.name().toLowerCase().replace('_', ' ') + ".";
+        String trimmed = note == null ? "" : note.trim();
+        if (!trimmed.isEmpty()) {
+            message = message + " " + company + " wrote: " + trimmed;
+        }
+        return message;
     }
 }

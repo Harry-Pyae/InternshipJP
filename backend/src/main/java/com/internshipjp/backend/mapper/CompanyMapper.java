@@ -15,6 +15,7 @@ public class CompanyMapper {
         CompanyResponse dto = new CompanyResponse();
         dto.setId(company.getId());
         dto.setName(company.getName());
+        dto.setLogoPath(company.getLogoPath());
         dto.setIndustry(company.getIndustry());
         dto.setCompanySize(company.getCompanySize());
         dto.setFoundedYear(company.getFoundedYear());

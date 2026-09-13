@@ -18,6 +18,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import com.internshipjp.backend.storage.FileStorageService;
 
 /**
  * Example of testing a service rule without starting Spring or touching the
@@ -39,7 +40,8 @@ class AccountServiceTest {
     void setUp() {
         userRepository = Mockito.mock(UserRepository.class);
         passwordEncoder = new BCryptPasswordEncoder();
-        accountService = new AccountService(userRepository, passwordEncoder, new UserMapper());
+        accountService = new AccountService(userRepository, passwordEncoder, new UserMapper(),
+                Mockito.mock(FileStorageService.class));
 
         user = new User();
         user.setId(USER_ID);

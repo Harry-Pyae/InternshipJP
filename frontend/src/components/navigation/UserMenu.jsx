@@ -36,7 +36,7 @@ export default function UserMenu({ settingsPath }) {
         aria-expanded="false"
         aria-label="Account menu"
       >
-        <Avatar name={user.fullName} size="sm" />
+        <Avatar name={user.fullName} userId={user.id} size="sm" zoom={false} />
         <span className="ijp-usermenu-text d-none d-md-flex">
           <span className="ijp-usermenu-name">{user.fullName}</span>
           <span className="ijp-usermenu-role">{ROLE_LABEL[user.role] ?? user.role}</span>

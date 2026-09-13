@@ -8,6 +8,7 @@ import Avatar from "../../components/shared/Avatar.jsx";
 import { studentApi } from "../../api/studentApi.js";
 import { studentEducationApi } from "../../api/studentEducationApi.js";
 import { describeApiError } from "../../api/axiosClient.js";
+import { useAuth } from "../../config/authContext.jsx";
 
 /**
  * The student's profile, read-only.
@@ -20,6 +21,7 @@ const SKILL_GROUPS = [
 ];
 
 export default function StudentProfilePage() {
+  const { user } = useAuth();
   const [profile, setProfile] = useState(null);
   const [skills, setSkills] = useState([]);
   const [education, setEducation] = useState([]);
@@ -68,7 +70,7 @@ export default function StudentProfilePage() {
         <>
           <div className="ijp-card p-3 p-md-4 mb-4">
             <div className="d-flex align-items-center gap-3 flex-wrap">
-              <Avatar name={profile.fullName} />
+              <Avatar name={profile.fullName} userId={user?.id} size="lg" />
               <div style={{ minWidth: 0 }}>
                 <p className="h5 mb-1">{profile.fullName}</p>
                 <p className="ijp-muted mb-0">

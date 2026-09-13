@@ -27,6 +27,7 @@ import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import com.internshipjp.backend.repository.StudentProfileRepository;
 
 /**
  * Administrator operations: approving companies and managing accounts.
@@ -39,6 +40,7 @@ public class AdminService {
 
     private final CompanyRepository companyRepository;
     private final EmployerProfileRepository employerProfileRepository;
+    private final StudentProfileRepository studentProfileRepository;
     private final UserRepository userRepository;
     private final NotificationService notificationService;
     private final CompanyMapper companyMapper;
@@ -53,7 +55,9 @@ public class AdminService {
                         CompanyMapper companyMapper,
                         UserMapper userMapper,
                         AccountMailService accountMailService,
-                        LoginAttemptService loginAttemptService) {
+                        LoginAttemptService loginAttemptService,
+                        StudentProfileRepository studentProfileRepository) {
+        this.studentProfileRepository = studentProfileRepository;
         this.companyRepository = companyRepository;
         this.employerProfileRepository = employerProfileRepository;
         this.userRepository = userRepository;
@@ -140,6 +144,45 @@ public class AdminService {
         return PageResponse.from(page, userMapper::toAdminUser);
     }
 
+    /**
+     * Everything known about one account.
+     *
+     * The list endpoint returns the six columns a table needs. This one is
+     * called when an administrator opens a single account, and joins the
+     * role-specific profile: doing that for every row of the list would be a
+     * query per row for data nobody is looking at.
+     */
+    @Transactional(readOnly = true)
+    public AdminUserResponse getUser(Long targetUserId) {
+        User user = userRepository.findById(targetUserId)
+                .orElseThrow(() -> NotFoundException.of("User", targetUserId));
+
+        AdminUserResponse dto = userMapper.toAdminUser(user);
+
+        if (user.getRole() == Role.STUDENT) {
+            studentProfileRepository.findByUserId(user.getId()).ifPresent(profile -> {
+                dto.setHeadline(profile.getHeadline());
+                dto.setLocation(profile.getLocation());
+                dto.setCountry(profile.getCountry());
+                dto.setUniversity(profile.getUniversity());
+                dto.setDegree(profile.getDegree());
+                dto.setFieldOfStudy(profile.getFieldOfStudy());
+            });
+        } else if (user.getRole() == Role.EMPLOYER) {
+            employerProfileRepository.findByUserId(user.getId()).ifPresent(profile -> {
+                dto.setJobTitle(profile.getJobTitle());
+                if (profile.getCompany() != null) {
+                    dto.setCompanyName(profile.getCompany().getName());
+                    dto.setCompanyIndustry(profile.getCompany().getIndustry());
+                    dto.setRegistrationNumber(profile.getCompany().getRegistrationNumber());
+                    dto.setLocation(profile.getCompany().getLocation());
+                }
+            });
+        }
+
+        return dto;
+    }
+
     @Transactional
     public AdminUserResponse updateUserStatus(Long adminUserId, Long targetUserId,
                                               UpdateUserStatusRequest request) {
@@ -150,12 +193,32 @@ public class AdminService {
                 .orElseThrow(() -> NotFoundException.of("User", targetUserId));
 
         AccountStatus status = AccountStatus.valueOf(request.getStatus());
+        String reason = request.getReason() == null ? "" : request.getReason().trim();
+
+        // Suspending somebody without telling them why leaves them guessing at
+        // a decision about their own account. Rejecting a certificate already
+        // required a written reason; this is the same rule applied to the
+        // heavier action.
+        if (status == AccountStatus.SUSPENDED && reason.isEmpty()) {
+            throw new BadRequestException(
+                    "Give a reason for the suspension. The user is told what it says.");
+        }
+
         user.setAccountStatus(status);
         User saved = userRepository.save(user);
 
+        String message = "An administrator set your account to "
+                + status.name().toLowerCase() + ".";
+        if (!reason.isEmpty()) {
+            message = message + " Reason: " + reason;
+        }
+        if (status == AccountStatus.SUSPENDED) {
+            message = message + " A suspended account cannot sign in. Contact an "
+                    + "administrator if you believe this is a mistake.";
+        }
+
         notificationService.create(saved, "ACCOUNT_STATUS_CHANGED",
-                "Your account status changed",
-                "An administrator set your account to " + status.name().toLowerCase() + ".");
+                "Your account status changed", message);
 
         return userMapper.toAdminUser(saved);
     }
@@ -173,6 +236,7 @@ public class AdminService {
      *   - you cannot delete your own account
      *   - you cannot delete the last administrator who can still sign in
      */
+    @Transactional
     public void deleteUser(Long adminUserId, Long targetUserId) {
         if (adminUserId.equals(targetUserId)) {
             throw new BadRequestException("You cannot delete your own account.");
@@ -180,16 +244,38 @@ public class AdminService {
         User user = userRepository.findById(targetUserId)
                 .orElseThrow(() -> NotFoundException.of("User", targetUserId));
 
-        if (user.getRole() == Role.ADMIN
-                && userRepository.countByRoleAndAccountStatus(Role.ADMIN, AccountStatus.ACTIVE) <= 1) {
+        // An administrator cannot delete another administrator.
+        //
+        // The previous rule only protected the last one, which left every other
+        // administrator able to remove the rest: one compromised account could
+        // clear the team. Suspension is still available and is reversible, so
+        // an administrator who must be stopped can be stopped immediately
+        // without anyone being able to destroy the record permanently.
+        //
+        // Removing an administrator for good is a decision for whoever runs the
+        // deployment, through the database, and it leaves a trace.
+        if (user.getRole() == Role.ADMIN) {
             throw new BadRequestException(
-                    "This is the last active administrator. Create another one first.");
+                    "An administrator cannot be deleted from here. Suspend the account "
+                            + "instead: that is reversible and takes effect immediately.");
+        }
+
+        // Deletion is permanent and cannot be appealed, so it is not reachable
+        // in one step from a working account. Suspend first: that is reversible,
+        // it states a reason, and the person is notified and has the chance to
+        // respond before anything is destroyed.
+        if (user.getAccountStatus() != AccountStatus.SUSPENDED) {
+            throw new BadRequestException(
+                    "Suspend this account with a reason first. Only a suspended account "
+                            + "can be deleted, so the person has been told and had the "
+                            + "opportunity to reply.");
         }
 
         userRepository.delete(user);
     }
 
     /** Releases a temporary sign-in lock at the person's request. */
+    @Transactional
     public void unlockSignIn(Long targetUserId) {
         User user = userRepository.findById(targetUserId)
                 .orElseThrow(() -> NotFoundException.of("User", targetUserId));

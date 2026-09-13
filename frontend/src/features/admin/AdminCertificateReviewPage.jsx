@@ -9,6 +9,7 @@ import FilePreview from "./components/FilePreview.jsx";
 import { adminApi } from "../../api/adminApi.js";
 import { describeApiError } from "../../api/axiosClient.js";
 import { appConfig } from "../../config/appConfig.js";
+import { certificateAge } from "../../api/relativeTime.js";
 
 /**
  * Reviewing one certificate.
@@ -87,7 +88,20 @@ export default function AdminCertificateReviewPage() {
             </Fact>
             <Fact label="Student">{certificate.studentName || "Unknown"}</Fact>
             <Fact label="Issuer">{certificate.issuingOrganization || "Not given"}</Fact>
-            <Fact label="Issue date">{certificate.issueDate || "Not given"}</Fact>
+            <Fact label="Issue date">
+              {certificate.issueDate ? (
+                <>
+                  {certificate.issueDate}
+                  {/* Its own line. The fact column is 9rem at its narrowest, and
+                      "3 months old" beside a date broke mid-phrase there. */}
+                  <span className="ijp-fact-sub">
+                    {certificateAge(certificate.issueDate)}
+                  </span>
+                </>
+              ) : (
+                "Not given"
+              )}
+            </Fact>
             <Fact label="Uploaded">
               {certificate.createdAt?.replace("T", " ").slice(0, 16) || "—"}
             </Fact>

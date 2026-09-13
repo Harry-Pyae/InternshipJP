@@ -10,6 +10,7 @@ import { studentApi } from "../../api/studentApi.js";
 import { describeApiError } from "../../api/axiosClient.js";
 import { timeAgo, exactTime } from "../../api/relativeTime.js";
 import { useLanguage } from "../../config/languageContext.jsx";
+import { certificateAge } from "../../api/relativeTime.js";
 
 /**
  * Uploading qualifications, and seeing whether they have been verified.
@@ -220,7 +221,15 @@ export default function StudentCertificatesPage() {
                   {
                     key: "title",
                     header: "Certificate",
-                    render: (row) => <span className="fw-semibold">{row.title}</span>,
+                    render: (row) => (
+                      <span className="ijp-person">
+                        <span className="ijp-person-name">{row.title}</span>
+                        <span className="ijp-person-email">
+                          {row.issuingOrganization || t("Issuer not given")}
+                          {row.issueDate ? ` · ${certificateAge(row.issueDate)}` : ""}
+                        </span>
+                      </span>
+                    ),
                   },
                   {
                     key: "verificationStatus",

@@ -61,7 +61,7 @@ export default function RegisterPage() {
   };
 
   if (loading) {
-    return <LoadingBlock label={t("Checking your session...")} />;
+    return <LoadingBlock variant="page" label={t("Checking your session...")} />;
   }
   if (user) {
     return <Navigate to={homeFor(user.role)} replace />;

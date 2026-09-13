@@ -30,7 +30,7 @@ export default function LoginPage() {
   };
 
   if (loading) {
-    return <LoadingBlock label={t("Checking your session...")} />;
+    return <LoadingBlock variant="page" label={t("Checking your session...")} />;
   }
 
   // Already signed in? Nobody needs to see a login form twice.

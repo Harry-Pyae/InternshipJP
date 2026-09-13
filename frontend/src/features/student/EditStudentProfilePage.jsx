@@ -6,6 +6,7 @@ import LoadingBlock from "../../components/shared/LoadingBlock.jsx";
 import SectionCard from "../../components/shared/SectionCard.jsx";
 import { describeApiError } from "../../api/axiosClient.js";
 import { studentApi } from "../../api/studentApi.js";
+import PhotoCard from "../../components/shared/PhotoCard.jsx";
 
 export default function EditStudentProfilePage() {
   const [form, setForm] = useState({
@@ -134,6 +135,11 @@ export default function EditStudentProfilePage() {
       ) : null}
 
       {!loading && !error ? (
+        <>
+        <div className="mb-4">
+          <PhotoCard onError={setError} />
+        </div>
+
         <form onSubmit={handleSubmit} className="d-grid gap-4">
           <SectionCard title="Personal information">
             <div className="row g-3">
@@ -387,6 +393,7 @@ export default function EditStudentProfilePage() {
             </button>
           </div>
         </form>
+        </>
       ) : null}
     </>
   );

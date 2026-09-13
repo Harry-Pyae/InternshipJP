@@ -11,7 +11,7 @@ export default function RequireAuth({ role, children }) {
   const location = useLocation();
 
   if (loading) {
-    return <LoadingBlock label="Checking your session..." />;
+    return <LoadingBlock variant="page" label="Checking your session..." />;
   }
 
   if (!user) {

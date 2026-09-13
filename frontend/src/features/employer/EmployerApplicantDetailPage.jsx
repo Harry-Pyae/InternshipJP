@@ -11,6 +11,7 @@ import Avatar from "../../components/shared/Avatar.jsx";
 import { employerApi } from "../../api/employerApi.js";
 import { describeApiError } from "../../api/axiosClient.js";
 import { timeAgo, exactTime } from "../../api/relativeTime.js";
+import { certificateAge } from "../../api/relativeTime.js";
 
 /**
  * One applicant, in full.
@@ -184,6 +185,7 @@ export default function EmployerApplicantDetailPage() {
                         <span className="ijp-muted">
                           {certificate.issuingOrganization || "Issuer not given"}
                           {certificate.issueDate ? ` · ${certificate.issueDate}` : ""}
+                          {certificate.issueDate ? ` · ${certificateAge(certificate.issueDate)}` : ""}
                         </span>
                       </span>
                     </li>

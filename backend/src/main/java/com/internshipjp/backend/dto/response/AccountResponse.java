@@ -21,6 +21,8 @@ public class AccountResponse {
 
     private String createdAt;
 
+    private String lastLoginAt;
+
     public Long getId() {
         return id;
     }
@@ -83,5 +85,13 @@ public class AccountResponse {
 
     public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getLastLoginAt() {
+        return lastLoginAt;
+    }
+
+    public void setLastLoginAt(String lastLoginAt) {
+        this.lastLoginAt = lastLoginAt;
     }
 }

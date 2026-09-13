@@ -2,6 +2,7 @@ import DataTable from "../../../components/shared/DataTable.jsx";
 import StatusBadge from "../../../components/shared/StatusBadge.jsx";
 import StatusToggle from "./StatusToggle.jsx";
 import { timeAgo, exactTime } from "../../../api/relativeTime.js";
+import Avatar from "../../../components/shared/Avatar.jsx";
 
 const ROLE_LABEL = {
   STUDENT: "Student",
@@ -9,7 +10,7 @@ const ROLE_LABEL = {
   ADMIN: "Administrator",
 };
 
-export default function UserTable({ rows, busyId, onToggle, onDelete, onView }) {
+export default function UserTable({ rows, busyId, onToggle, onDelete, onView, currentUserId }) {
   return (
     <DataTable
       columns={[
@@ -19,9 +20,12 @@ export default function UserTable({ rows, busyId, onToggle, onDelete, onView }) 
           // Name and email in one cell. They identify the same person, and two
           // columns made every row twice as wide for no extra information.
           render: (row) => (
-            <span className="ijp-person">
-              <span className="ijp-person-name">{row.fullName || "Unnamed account"}</span>
-              <span className="ijp-person-email">{row.email}</span>
+            <span className="ijp-person-row">
+              <Avatar name={row.fullName} userId={row.id} size="sm" />
+              <span className="ijp-person">
+                <span className="ijp-person-name">{row.fullName || "Unnamed account"}</span>
+                <span className="ijp-person-email">{row.email}</span>
+              </span>
             </span>
           ),
         },
@@ -64,7 +68,32 @@ export default function UserTable({ rows, busyId, onToggle, onDelete, onView }) 
         {
           key: "action",
           header: "Action",
-          render: (row) => (
+          render: (row) => {
+            // Your own row offers nothing. The server already refuses to let an
+            // administrator suspend or delete themselves, so the controls could
+            // only ever produce an error; saying "this is you" answers the
+            // question they would have raised.
+            if (row.id === currentUserId) {
+              return (
+                <div className="d-flex gap-2 justify-content-end align-items-center">
+                  <span className="ijp-self-row">
+                    <i className="bi bi-person-check me-1" aria-hidden="true" />
+                    This is you
+                  </span>
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-ijp-quiet"
+                    onClick={() => onView(row)}
+                    title="Account details"
+                  >
+                    <i className="bi bi-eye" aria-hidden="true" />
+                    <span className="visually-hidden">Details</span>
+                  </button>
+                </div>
+              );
+            }
+
+            return (
             <div className="d-flex gap-2 justify-content-end">
               <button
                 type="button"
@@ -82,20 +111,27 @@ export default function UserTable({ rows, busyId, onToggle, onDelete, onView }) 
               />
               {/* Quiet until hovered, because suspending is almost always the
                   right action and this one cannot be undone. */}
-              <button
-                type="button"
-                className="btn btn-sm btn-ijp-quiet ijp-btn-danger"
-                onClick={() => onDelete(row)}
-                disabled={busyId === row.id}
-                title="Delete this account permanently"
-              >
-                <i className="bi bi-trash" aria-hidden="true" />
-                <span className="visually-hidden">Delete</span>
-              </button>
+              {/* No delete on an administrator. The server refuses it, and a
+                  button that can only ever produce an error is worse than no
+                  button. Suspension is the action that works, and it is
+                  reversible. */}
+              {row.role === "ADMIN" ? null : (
+                <button
+                  type="button"
+                  className="btn btn-sm btn-ijp-quiet ijp-btn-danger"
+                  onClick={() => onDelete(row)}
+                  disabled={busyId === row.id}
+                  title="Delete this account permanently"
+                >
+                  <i className="bi bi-trash" aria-hidden="true" />
+                  <span className="visually-hidden">Delete</span>
+                </button>
+              )}
             </div>
-          ),
-        },
-      ]}
+            );
+          },
+          },
+        ]}
       rows={rows}
       rowKey={(row) => row.id}
       empty={{

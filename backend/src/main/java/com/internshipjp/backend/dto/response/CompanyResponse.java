@@ -12,6 +12,8 @@ public class CompanyResponse {
 
     private String name;
 
+    private String logoPath;
+
     private String industry;
 
     private String companySize;
@@ -176,5 +178,13 @@ public class CompanyResponse {
 
     public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getLogoPath() {
+        return logoPath;
+    }
+
+    public void setLogoPath(String logoPath) {
+        this.logoPath = logoPath;
     }
 }

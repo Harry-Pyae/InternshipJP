@@ -19,6 +19,14 @@ import com.internshipjp.backend.repository.CompanyRepository;
 import com.internshipjp.backend.repository.EmployerProfileRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.internshipjp.backend.storage.FileStorageService;
+import com.internshipjp.backend.storage.StoredFile;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.core.io.Resource;
+import org.springframework.http.CacheControl;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import java.time.Duration;
 
 /**
  * Employer profile and company details.
@@ -38,11 +46,14 @@ private final CompanyRepository companyRepository;
 private final InternshipRepository internshipRepository;
 private final ApplicationRepository applicationRepository;
 private final CompanyMapper companyMapper;
+private final FileStorageService fileStorageService;
     public EmployerService(EmployerProfileRepository employerProfileRepository,
                        CompanyRepository companyRepository,
                        InternshipRepository internshipRepository,
                        ApplicationRepository applicationRepository,
-                       CompanyMapper companyMapper) {
+                       CompanyMapper companyMapper,
+                           FileStorageService fileStorageService) {
+        this.fileStorageService = fileStorageService;
         this.employerProfileRepository = employerProfileRepository;
         this.companyRepository = companyRepository;
 	this.internshipRepository = internshipRepository;
@@ -99,6 +110,63 @@ private final CompanyMapper companyMapper;
      * Future work: decide whether changing the company name or website
      * should send the company back to PENDING for re-review.
      */
+    /**
+     * The company logo, or 404.
+     *
+     * A 404 rather than a placeholder image: the interface decides what to
+     * draw when there is none, and it already has a building icon for that.
+     */
+    @Transactional(readOnly = true)
+    public ResponseEntity<Resource> ownCompanyLogo(Long userId) {
+        Company company = requireProfile(userId).getCompany();
+        if (company == null || company.getLogoPath() == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.noStore())
+                .contentType(MediaType.IMAGE_JPEG)
+                .body(fileStorageService.loadAsResource(company.getLogoPath()));
+    }
+
+    /** Removes the company logo and the file behind it. */
+    @Transactional
+    public CompanyResponse removeCompanyLogo(Long userId) {
+        Company company = requireProfile(userId).getCompany();
+        String previous = company.getLogoPath();
+        if (previous == null) {
+            return companyMapper.toCompany(company);
+        }
+        company.setLogoPath(null);
+        Company saved = companyRepository.save(company);
+        fileStorageService.delete(previous);
+        return companyMapper.toCompany(saved);
+    }
+
+    /**
+     * Replaces the company logo.
+     *
+     * Only an employer of that company may change it. Stored exactly like a
+     * profile photo and a certificate: under the upload root, outside the
+     * served directory, with the storage service checking the first bytes
+     * rather than the extension.
+     */
+    @Transactional
+    public CompanyResponse replaceCompanyLogo(Long userId, MultipartFile file) {
+        Company company = requireProfile(userId).getCompany();
+        String previous = company.getLogoPath();
+
+        StoredFile stored = fileStorageService.store(file, "logos", company.getId());
+        company.setLogoPath(stored.getStoragePath());
+        Company saved = companyRepository.save(company);
+
+        // After the save, not before: if it fails, the company still has the
+        // logo it had.
+        if (previous != null && !previous.equals(stored.getStoragePath())) {
+            fileStorageService.delete(previous);
+        }
+        return companyMapper.toCompany(saved);
+    }
+
     @Transactional
     public CompanyResponse updateOwnCompany(Long userId, UpdateCompanyRequest request) {
         Company company = requireProfile(userId).getCompany();

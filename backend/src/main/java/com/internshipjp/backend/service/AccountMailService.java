@@ -135,4 +135,28 @@ public class AccountMailService {
             log.error("Could not send the account email to {}", toEmail, ex);
         }
     }
+
+    /**
+     * An invitation to become an administrator.
+     *
+     * The code is the whole credential until it is used, so the message says
+     * plainly what it is for and what to do if it was unexpected. Nobody
+     * receives a password in an email, because one administrator setting
+     * another's password would mean two people knew it.
+     */
+    public void sendAdminInvite(String toEmail, String fullName, String code, int hours) {
+        send(toEmail,
+                "You have been invited to administer InternshipJP",
+                "Hello " + fullName + ",\n\n"
+                        + "An administrator has invited you to help run InternshipJP. "
+                        + "Your invitation code is:\n\n"
+                        + "    " + code + "\n\n"
+                        + "Open http://localhost:5173/auth/accept-invite , enter this "
+                        + "address and the code, and choose your own password.\n\n"
+                        + "The code expires in " + hours + " hours and can be used once. "
+                        + "Until you use it the account cannot be signed into at all.\n\n"
+                        + "If you were not expecting this, tell the person who administers "
+                        + "the platform. Ignoring the email leaves the account unusable.\n\n"
+                        + "InternshipJP");
+    }
 }

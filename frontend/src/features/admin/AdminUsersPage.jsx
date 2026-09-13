@@ -9,8 +9,11 @@ import UserDetailModal from "./components/UserDetailModal.jsx";
 import { adminApi } from "../../api/adminApi.js";
 import { describeApiError } from "../../api/axiosClient.js";
 import { useSearchParams } from "react-router-dom";
+import ConfirmDialog from "../../components/shared/ConfirmDialog.jsx";
+import { useAuth } from "../../config/authContext.jsx";
 
 export default function AdminUsersPage() {
+  const { user: authUser } = useAuth();
   const [data, setData] = useState({ content: [], totalElements: 0, totalPages: 0, page: 0 });
   // Filters start from the URL, so a link can arrive pre-filtered - the
   // company review page links here for "the recruiters on this company".
@@ -23,6 +26,13 @@ export default function AdminUsersPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [busyId, setBusyId] = useState(null);
+  // One dialog for both actions. The browser's own prompt and confirm are
+  // drawn by the operating system, ignore the theme, and cannot hold a
+  // reason field beside the question.
+  const [dialog, setDialog] = useState(null);
+  const [invite, setInvite] = useState(null);
+  const [inviteBusy, setInviteBusy] = useState(false);
+  const [inviteDone, setInviteDone] = useState("");
   const [detail, setDetail] = useState(null);
 
   const load = useCallback(async () => {
@@ -66,53 +76,110 @@ export default function AdminUsersPage() {
    * nothing to undo. Typing the address forces you to read which row you are
    * on.
    */
-  async function removeUser(user) {
-    const typed = window.prompt(
-      `This permanently deletes ${user.fullName || user.email} and everything ` +
-        `attached to the account - applications, certificates and notifications.\n\n` +
-        `Suspending is reversible and is usually the better choice.\n\n` +
-        `To confirm, type the email address:`,
-    );
-    if (typed === null) {
-      return;
-    }
-    if (typed.trim().toLowerCase() !== (user.email || "").toLowerCase()) {
-      setError("That did not match the email address, so nothing was deleted.");
-      return;
-    }
+  function removeUser(user) {
+    setDialog({
+      kind: "delete",
+      user,
+      title: "Delete this account permanently",
+      message: `This deletes ${user.fullName || user.email} and everything attached `
+        + `to the account: applications, certificates and notifications.`,
+      note: "The account must already be suspended. Suspending is reversible and is "
+        + "usually the better choice.",
+      confirmLabel: "Delete permanently",
+      confirmWord: "DELETE",
+    });
+  }
 
+  async function confirmDelete(user) {
     setBusyId(user.id);
     setError("");
     try {
       await adminApi.deleteUser(user.id);
       // The account is gone, so the panel describing it must go too.
       setDetail(null);
+      setDialog(null);
       await load();
     } catch (requestError) {
       setError(describeApiError(requestError));
+      setDialog(null);
     } finally {
       setBusyId(null);
     }
   }
 
-  async function toggleUser(user) {
-    const nextStatus = user.accountStatus === "SUSPENDED" ? "ACTIVE" : "SUSPENDED";
-    const action = nextStatus === "SUSPENDED" ? "suspend" : "reactivate";
+  function toggleUser(user) {
+    const suspending = user.accountStatus !== "SUSPENDED";
+    const who = user.fullName || user.email;
 
-    if (!window.confirm(`Are you sure you want to ${action} ${user.fullName || user.email}?`)) return;
+    setDialog(
+      suspending
+        ? {
+            kind: "suspend",
+            user,
+            title: "Suspend this account",
+            message: `${who} will not be able to sign in.`,
+            note: "They are sent the reason exactly as you type it, so write it for "
+              + "them to read.",
+            confirmLabel: "Suspend account",
+            requireReason: true,
+            reasonLabel: "Why is this account being suspended?",
+            reasonHint: "For example: inactive for 12 months, duplicate account, or "
+              + "a policy the account breached.",
+          }
+        : {
+            kind: "reactivate",
+            user,
+            tone: "neutral",
+            title: "Reactivate this account",
+            message: `${who} will be able to sign in again.`,
+            confirmLabel: "Reactivate",
+          },
+    );
+  }
 
+  async function confirmStatus(user, nextStatus, reason) {
     setBusyId(user.id);
     setError("");
     try {
-      await adminApi.updateUserStatus(user.id, nextStatus);
+      await adminApi.updateUserStatus(user.id, nextStatus, reason);
       setDetail((current) =>
         current && current.id === user.id ? { ...current, accountStatus: nextStatus } : current,
       );
+      setDialog(null);
+      await load();
+    } catch (requestError) {
+      setError(describeApiError(requestError));
+      setDialog(null);
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  async function sendInvite(event) {
+    event.preventDefault();
+    setInviteBusy(true);
+    setError("");
+    try {
+      const result = await adminApi.inviteAdmin(invite);
+      setInvite(null);
+      setInviteDone(result?.message ?? "Invitation sent.");
+      // The invited account is a PENDING administrator, so it appears in the
+      // list immediately under the filters that already exist.
       await load();
     } catch (requestError) {
       setError(describeApiError(requestError));
     } finally {
-      setBusyId(null);
+      setInviteBusy(false);
+    }
+  }
+
+  /** One place that knows what each dialog does when it is confirmed. */
+  function runDialog(reason) {
+    if (!dialog) return;
+    if (dialog.kind === "delete") {
+      confirmDelete(dialog.user);
+    } else {
+      confirmStatus(dialog.user, dialog.kind === "suspend" ? "SUSPENDED" : "ACTIVE", reason);
     }
   }
 
@@ -121,10 +188,85 @@ export default function AdminUsersPage() {
       <PageHeader
         title="Users"
         subtitle="Manage student and employer accounts and their status."
-        action={<span className="ijp-muted small">{data.totalElements} account(s)</span>}
+        action={
+          <div className="d-flex align-items-center gap-3">
+            <span className="ijp-muted small">{data.totalElements} account(s)</span>
+            <button
+              type="button"
+              className="btn btn-sm btn-ijp-primary"
+              onClick={() => {
+                setInviteDone("");
+                setInvite({ email: "", fullName: "" });
+              }}
+            >
+              <i className="bi bi-person-plus me-1" aria-hidden="true" />
+              Invite administrator
+            </button>
+          </div>
+        }
       />
 
       <ErrorAlert message={error} onRetry={load} />
+
+      {inviteDone ? (
+        <div className="alert alert-success" role="status">
+          {inviteDone}
+        </div>
+      ) : null}
+
+      {invite ? (
+        <div className="ijp-card p-3 p-md-4 mb-4 ijp-invite">
+          <p className="ijp-label mb-1">Invite an administrator</p>
+          <p className="ijp-muted small mb-3">
+            They receive a code by email and choose their own password. Until they
+            accept, the account exists but cannot be signed into. You will never
+            see or set their password.
+          </p>
+          <form className="row g-3 align-items-end" onSubmit={sendInvite}>
+            <div className="col-md-5">
+              <label className="form-label" htmlFor="inviteName">Name</label>
+              <input
+                id="inviteName"
+                className="form-control"
+                value={invite.fullName}
+                onChange={(event) =>
+                  setInvite((current) => ({ ...current, fullName: event.target.value }))
+                }
+                maxLength={150}
+                required
+              />
+            </div>
+            <div className="col-md-5">
+              <label className="form-label" htmlFor="inviteEmailAddr">Email</label>
+              <input
+                id="inviteEmailAddr"
+                type="email"
+                className="form-control"
+                value={invite.email}
+                onChange={(event) =>
+                  setInvite((current) => ({ ...current, email: event.target.value }))
+                }
+                placeholder="colleague@example.com"
+                maxLength={190}
+                required
+              />
+            </div>
+            <div className="col-md-2 d-flex gap-2">
+              <button type="submit" className="btn btn-ijp-primary" disabled={inviteBusy}>
+                {inviteBusy ? "Sending..." : "Send"}
+              </button>
+              <button
+                type="button"
+                className="btn btn-ijp-quiet"
+                onClick={() => setInvite(null)}
+                disabled={inviteBusy}
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      ) : null}
 
       <div className="ijp-card p-3 mb-4">
         <form className="row g-3 align-items-end" onSubmit={submitSearch}>
@@ -187,6 +329,7 @@ export default function AdminUsersPage() {
 
       <div className="ijp-card p-4">
         {loading ? <LoadingBlock label="Loading users..." /> : <UserTable
+              currentUserId={authUser?.id}
             rows={data.content}
             busyId={busyId}
             onToggle={toggleUser}
@@ -207,6 +350,21 @@ export default function AdminUsersPage() {
           onDelete={removeUser}
         />
       ) : null}
+      <ConfirmDialog
+        open={Boolean(dialog)}
+        title={dialog?.title}
+        message={dialog?.message}
+        note={dialog?.note}
+        tone={dialog?.tone ?? "danger"}
+        confirmLabel={dialog?.confirmLabel}
+        requireReason={dialog?.requireReason}
+        reasonLabel={dialog?.reasonLabel}
+        reasonHint={dialog?.reasonHint}
+        confirmWord={dialog?.confirmWord}
+        busy={busyId === dialog?.user?.id}
+        onConfirm={runDialog}
+        onCancel={() => setDialog(null)}
+      />
     </>
   );
 }

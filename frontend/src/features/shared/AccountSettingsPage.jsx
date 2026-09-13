@@ -8,11 +8,13 @@ import { accountApi } from "../../api/accountApi.js";
 import { describeApiError, fieldErrorsOf } from "../../api/axiosClient.js";
 import { rules, validate } from "../../api/validation.js";
 import { useAuth } from "../../config/authContext.jsx";
+import { useLanguage } from "../../config/languageContext.jsx";
 
 /**
  * Account settings, shared by all three roles.
  */
 export default function AccountSettingsPage() {
+  const { t } = useLanguage();
   const { refresh } = useAuth();
 
   const [account, setAccount] = useState(null);
@@ -253,25 +255,18 @@ export default function AccountSettingsPage() {
 
 
         <div className="col-12">
-          <SectionCard title="Delete this account">
+          <SectionCard title={t("Delete this account")}>
             <div className="ijp-danger-zone">
               <p className="ijp-danger-title">
                 <i className="bi bi-exclamation-octagon" aria-hidden="true" />
-                This cannot be undone
+                {t("This cannot be undone")}
               </p>
-              <p className="ijp-muted small mb-3">
-                Deleting removes this account and everything attached to it: your
-                profile, your applications and every certificate you have uploaded.
-                Verified certificates are removed too and would have to be checked
-                again if you register a second time.
-              </p>
+              <p className="ijp-muted small mb-3">{t("Deleting removes this account and everything attached to it: your profile, your applications and every certificate you have uploaded. Verified certificates are removed too and would have to be checked again if you register a second time.")}</p>
 
               <div className="ijp-callout ijp-callout--danger">
                 <i className="bi bi-arrow-repeat ijp-callout-icon" aria-hidden="true" />
                 <p className="mb-0">
-                  <strong>Registered under the wrong role?</strong> Delete this account,
-                  then register again with the role you meant. A role cannot be changed
-                  once chosen, because the profile and its records are tied to it.
+                  <strong>{t("Registered under the wrong role?")}</strong> {t("Delete this account, then register again with the role you meant. A role cannot be changed once chosen, because the profile and its records are tied to it.")}
                 </p>
               </div>
 
@@ -279,15 +274,15 @@ export default function AccountSettingsPage() {
                 <AuthField
                   id="deleteAccountPassword"
                   type="password"
-                  label="Your password"
+                  label={t("Your password")}
                   icon="bi-lock"
                   value={deletePassword}
                   onChange={setDeletePassword}
-                  hint="Required, because deletion is permanent."
+                  hint={t("Required, because deletion is permanent.")}
                 />
                 <AuthField
                   id="deleteAccountConfirm"
-                  label="Type DELETE to confirm"
+                  label={t("Type DELETE to confirm")}
                   icon="bi-exclamation-triangle"
                   value={deleteConfirm}
                   onChange={setDeleteConfirm}
@@ -304,7 +299,7 @@ export default function AccountSettingsPage() {
                     disabled={!canDelete || deleteBusy}
                   >
                     <i className="bi bi-trash me-1" aria-hidden="true" />
-                    {deleteBusy ? "Deleting..." : "Delete my account permanently"}
+                    {deleteBusy ? t("Deleting...") : t("Delete my account permanently")}
                   </button>
                 </div>
               </form>

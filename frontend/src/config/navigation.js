@@ -60,6 +60,7 @@ export const EMPLOYER_NAV = [
   {
     section: "Account", sectionKey: "section.account",
     items: [
+      { to: "/employer/profile", icon: "bi-person", label: "My profile", labelKey: "nav.profile" },
       { to: "/employer/company", icon: "bi-building", label: "Company profile", labelKey: "nav.company" },
       { to: "/employer/settings", icon: "bi-gear", label: "Settings", labelKey: "nav.settings" },
     ],
@@ -87,7 +88,10 @@ export const ADMIN_NAV = [
   },
   {
     section: "Account", sectionKey: "section.account",
-    items: [{ to: "/admin/settings", icon: "bi-gear", label: "Settings", labelKey: "nav.settings" }],
+    items: [
+      { to: "/admin/profile", icon: "bi-person", label: "My profile", labelKey: "nav.profile" },
+      { to: "/admin/settings", icon: "bi-gear", label: "Settings", labelKey: "nav.settings" },
+    ],
   },
   ...developerSection("/admin/integration"),
 ];

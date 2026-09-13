@@ -37,6 +37,12 @@ public class UserMapper {
         dto.setRole(user.getRole().name());
         dto.setAccountStatus(user.getAccountStatus().name());
         dto.setCreatedAt(Dates.format(user.getCreatedAt()));
+        // On the users table this is everything. The role-specific fields are
+        // filled by AdminService only when one account is opened, because
+        // loading every profile to render a list would be a query per row.
+        dto.setPhone(user.getPhone());
+        dto.setPhotoPath(user.getPhotoPath());
+        dto.setLastLoginAt(Dates.format(user.getLastLoginAt()));
         return dto;
     }
 

@@ -133,7 +133,8 @@ public class StudentSkillGapService {
                         org.springframework.data.domain.PageRequest.of(0, 1))
                 .getTotalElements();
 
-        List<String> profileGaps = findProfileGaps(profile, ownSkills.size(), verifiedCertificates);
+        List<String> profileGaps = findProfileGaps(profile, ownSkills.size(), verifiedCertificates,
+                StringUtils.hasText(profile.getUser().getPhotoPath()));
 
         SkillGapResponse response = new SkillGapResponse();
         response.setProfileCompleteness(completeness(profileGaps));
@@ -199,7 +200,8 @@ public class StudentSkillGapService {
 
     // ---------------------------------------------------------------- helpers
 
-    private List<String> findProfileGaps(StudentProfile profile, int skillCount, int verifiedCertificates) {
+    private List<String> findProfileGaps(StudentProfile profile, int skillCount,
+                                         int verifiedCertificates, boolean hasPhoto) {
         List<String> gaps = new ArrayList<>();
         if (skillCount == 0) {
             gaps.add("No skills added yet - employers filter on these first");
@@ -224,12 +226,17 @@ public class StudentSkillGapService {
         if (!StringUtils.hasText(profile.getLocation())) {
             gaps.add("Location is empty - it affects onsite and hybrid matches");
         }
+        // A photograph is the only part of a profile an employer takes in
+        // before reading anything, and it is one of the cheapest to supply.
+        if (!hasPhoto) {
+            gaps.add("No profile photo - it appears beside your name on every application");
+        }
         return gaps;
     }
 
     /** Seven things are checked, so each one missing costs about 14%. */
     private int completeness(List<String> gaps) {
-        int checks = 7;
+        int checks = 8;
         int missing = Math.min(gaps.size(), checks);
         return (int) Math.round(((checks - missing) * 100.0) / checks);
     }

@@ -14,6 +14,7 @@ import FoundationHomePage from "../features/integration/FoundationHomePage.jsx";
 import IntegrationStatusPage from "../features/integration/IntegrationStatusPage.jsx";
 import LoginPage from "../features/auth/LoginPage.jsx";
 import ForgotPasswordPage from "../features/auth/ForgotPasswordPage.jsx";
+import AcceptInvitePage from "../features/auth/AcceptInvitePage.jsx";
 import RegisterPage from "../features/auth/RegisterPage.jsx";
 import PendingApprovalPage from "../features/auth/PendingApprovalPage.jsx";
 import StudentDashboardPage from "../features/student/StudentDashboardPage.jsx";
@@ -30,6 +31,7 @@ import ApplicantsPage from "../features/employer/ApplicantsPage.jsx";
 import EmployerApplicantDetailPage from "../features/employer/EmployerApplicantDetailPage.jsx";
 import CompanyProfilePage from "../features/employer/CompanyProfilePage.jsx";
 import EmployerProfilePage from "../features/employer/EmployerProfilePage.jsx";
+import EmployerProfileEditPage from "../features/employer/EmployerProfileEditPage.jsx";
 import BrowseInternshipsPage from "../features/student/BrowseInternshipsPage.jsx";
 import StudentInternshipDetailPage from "../features/student/StudentInternshipDetailPage.jsx";
 import NotificationsPage from "../features/shared/NotificationsPage.jsx";
@@ -46,6 +48,8 @@ import AdminEmployerReviewPage from "../features/admin/AdminEmployerReviewPage.j
 import AdminInternshipDetailPage from "../features/admin/AdminInternshipDetailPage.jsx";
 import AdminReportsPage from "../features/admin/AdminReportsPage.jsx";
 import AiChatPage from "../features/ai/AiChatPage.jsx";
+import AdminProfilePage from "../features/admin/AdminProfilePage.jsx";
+import AdminProfileEditPage from "../features/admin/AdminProfileEditPage.jsx";
 
 /**
  * Every route in the application.
@@ -104,6 +108,7 @@ export default function AppRoutes() {
       <Route element={<AuthLayout />}>
         <Route path="/auth/login" element={<LoginPage />} />
         <Route path="/auth/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/auth/accept-invite" element={<AcceptInvitePage />} />
         <Route path="/auth/register" element={<RegisterPage />} />
       </Route>
 
@@ -180,6 +185,7 @@ export default function AppRoutes() {
           but did not add a sidebar link; left as they had it.
         */}
         <Route path="/employer/profile" element={<EmployerProfilePage />} />
+        <Route path="/employer/profile/edit" element={<EmployerProfileEditPage />} />
         <Route path="/employer/notifications" element={<NotificationsPage />} />
         <Route path="/employer/faq" element={<FaqPage />} />
         <Route path="/employer/settings" element={<AccountSettingsPage />} />
@@ -215,6 +221,8 @@ export default function AppRoutes() {
         <Route path="/admin/notifications" element={<NotificationsPage />} />
         <Route path="/admin/faq" element={<FaqPage />} />
         <Route path="/admin/reports" element={<AdminReportsPage />} />
+        <Route path="/admin/profile" element={<AdminProfilePage />} />
+        <Route path="/admin/profile/edit" element={<AdminProfileEditPage />} />
         <Route path="/admin/settings" element={<AdminSettingsPage />} />
 
         {/*

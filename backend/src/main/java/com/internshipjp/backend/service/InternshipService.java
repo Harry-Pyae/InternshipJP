@@ -23,6 +23,7 @@ import org.springframework.util.StringUtils;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Locale;
+import java.time.LocalDate;
 
 /**
  * Internship listing (public) and internship management (employer).
@@ -117,8 +118,12 @@ public PageResponse<InternshipSummaryResponse> listForAdmin(
     @Transactional(readOnly = true)
     public PageResponse<InternshipSummaryResponse> listOpen(String keyword, Pageable pageable) {
         Page<Internship> page = StringUtils.hasText(keyword)
-                ? internshipRepository.searchOpen(InternshipStatus.OPEN, keyword.trim(), pageable)
-                : internshipRepository.findByStatus(InternshipStatus.OPEN, pageable);
+                // Passed deadlines are excluded here rather than by a scheduled job,
+                // so the rule cannot drift out of step with the data.
+                ? internshipRepository.searchOpenAndNotExpired(
+                        InternshipStatus.OPEN, keyword.trim(), LocalDate.now(), pageable)
+                : internshipRepository.findOpenAndNotExpired(
+                        InternshipStatus.OPEN, LocalDate.now(), pageable);
         return PageResponse.from(page, internshipMapper::toSummary);
     }
 

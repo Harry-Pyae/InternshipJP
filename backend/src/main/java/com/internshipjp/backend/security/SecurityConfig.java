@@ -123,6 +123,9 @@ public class SecurityConfig {
                     // a session. Both are rate-limited by the OTP attempt count.
                     .requestMatchers(HttpMethod.POST, "/api/auth/forgot-password").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/auth/reset-password").permitAll()
+                    // Somebody accepting an administrator invitation has no account
+                    // they can sign into yet, so this cannot require one.
+                    .requestMatchers(HttpMethod.POST, "/api/auth/accept-invite").permitAll()
                     // Public internship discovery. Students do not have to sign
                     // in just to browse vacancies.
                     .requestMatchers(HttpMethod.GET, "/api/internships", "/api/internships/*").permitAll()

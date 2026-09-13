@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.internshipjp.backend.dto.request.AcceptInviteRequest;
+import com.internshipjp.backend.service.AdminInviteService;
 
 /**
  * Registration and sign-in.
@@ -35,6 +37,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
+    private final AdminInviteService adminInviteService;
     private final PasswordResetService passwordResetService;
     private final CurrentUserService currentUserService;
     private final UserMapper userMapper;
@@ -42,7 +45,9 @@ public class AuthController {
     public AuthController(AuthService authService,
                           CurrentUserService currentUserService,
                           UserMapper userMapper,
-                          PasswordResetService passwordResetService) {
+                          PasswordResetService passwordResetService,
+                          AdminInviteService adminInviteService) {
+        this.adminInviteService = adminInviteService;
         this.authService = authService;
         this.passwordResetService = passwordResetService;
         this.currentUserService = currentUserService;
@@ -84,6 +89,20 @@ public class AuthController {
         return new ApiMessageResponse(
                 "If that address has an account, a reset code is on its way. "
                         + "The code expires in 15 minutes.");
+    }
+
+    /**
+     * Accepts an administrator invitation.
+     *
+     * permitAll, and it has to be: somebody accepting an invitation has no
+     * account they can sign into yet. The account exists with no password hash
+     * at all, so this endpoint is the only way it can ever become usable.
+     */
+    @PostMapping("/accept-invite")
+    public ApiMessageResponse acceptInvite(@Valid @RequestBody AcceptInviteRequest request) {
+        adminInviteService.accept(request);
+        return new ApiMessageResponse(
+                "Your account is ready. Sign in with the password you just chose.");
     }
 
     /** Uses the code to set a new password. */

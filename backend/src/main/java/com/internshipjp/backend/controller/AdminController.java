@@ -23,6 +23,8 @@ import com.internshipjp.backend.dto.response.ApiMessageResponse;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.internshipjp.backend.dto.request.InviteAdminRequest;
+import com.internshipjp.backend.service.AdminInviteService;
 
 
 /**
@@ -47,11 +49,15 @@ public class AdminController {
     private final AdminService adminService;
     private final CurrentUserService currentUserService;
     private final InternshipService internshipService;
+    private final AdminInviteService adminInviteService;
 
-    public AdminController(AdminService adminService, CurrentUserService currentUserService, InternshipService internshipService) {
+    public AdminController(AdminService adminService, CurrentUserService currentUserService,
+                           InternshipService internshipService,
+                           AdminInviteService adminInviteService) {
         this.adminService = adminService;
         this.currentUserService = currentUserService;
         this.internshipService = internshipService;
+        this.adminInviteService = adminInviteService;
     }
 
     @GetMapping("/employers/pending")
@@ -132,5 +138,30 @@ public class AdminController {
 
     private int safeSize(int size) {
         return Math.min(Math.max(size, 1), MAX_PAGE_SIZE);
+    }
+
+    /**
+     * Invites another administrator.
+     *
+     * There is no create-an-administrator form anywhere: one administrator
+     * setting another's password would mean two people knew it. The invited
+     * account is created with no password, and the invitee proves control of
+     * the mailbox before choosing their own.
+     *
+     * A pending invitation is a User with role ADMIN and status PENDING, so it
+     * appears in the list below under filters that already exist. Every
+     * administrator can see who was invited without a separate queue.
+     */
+    /** Everything known about one account, including its role-specific profile. */
+    @GetMapping("/users/{id}")
+    public AdminUserResponse user(@PathVariable Long id) {
+        return adminService.getUser(id);
+    }
+
+    @PostMapping("/invites")
+    public ApiMessageResponse inviteAdmin(@Valid @RequestBody InviteAdminRequest request) {
+        adminInviteService.invite(currentUserService.requireUserId(), request);
+        return new ApiMessageResponse(
+                "Invitation sent. The account cannot be used until it is accepted.");
     }
 }

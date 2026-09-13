@@ -55,6 +55,29 @@ export const employerApi = {
       .then((response) => response.data),
 
   /** Update the signed-in employer's company profile. */
+  /** Replaces the company logo. Multipart, like a certificate upload. */
+  /** The company logo as a blob URL, or null. Same reason as profile photos. */
+  fetchCompanyLogo: (version = 0) =>
+    api
+      // Versioned for the same reason as a profile photo: the endpoint caches
+      // for ten minutes, so without this a refetch after a change is answered
+      // from the browser cache with the old image.
+      .get("/api/employer/company/logo", { responseType: "blob", params: { v: version } })
+      .then((response) => URL.createObjectURL(response.data))
+      .catch(() => null),
+
+  /** Removes the company logo. */
+  removeCompanyLogo: () =>
+    api.delete("/api/employer/company/logo").then((response) => response.data),
+
+  uploadCompanyLogo: (file) => {
+    const form = new FormData();
+    form.append("file", file);
+    return api
+      .post("/api/employer/company/logo", form)
+      .then((response) => response.data);
+  },
+
   updateCompany: (data) =>
     api
       .put("/api/employer/company", data)

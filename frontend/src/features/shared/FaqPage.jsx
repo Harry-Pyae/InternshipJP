@@ -10,6 +10,7 @@ import LoadingBlock from "../../components/shared/LoadingBlock.jsx";
 import EmptyState from "../../components/shared/EmptyState.jsx";
 import { timeAgo, exactTime } from "../../api/relativeTime.js";
 import SearchBox, { matches } from "../../components/shared/SearchBox.jsx";
+import { initialsOf } from "../../components/shared/Avatar.jsx";
 
 /**
  * Questions people actually ask, and a way to say something we did not answer.
@@ -393,25 +394,44 @@ function FeedbackInbox() {
                   }
                 }}
               >
-                <span className="ijp-feedback-who">
-                  {parseFeedback(item).name ?? t("Someone")}
-                  {parseFeedback(item).role ? (
-                    <span className={`ijp-role ijp-role--${parseFeedback(item).role.toLowerCase()}`}>
-                      {t(parseFeedback(item).role)}
-                    </span>
-                  ) : null}
+                <span className="ijp-feedback-avatar" aria-hidden="true">
+                  {initialsOf(parseFeedback(item).name ?? "?")}
                 </span>
-                {/* Clamped to three lines. 2000 characters in a list is a wall,
-                    and the detail view exists for the whole thing. */}
-                <span className="ijp-feedback-text">{parseFeedback(item).text}</span>
-                <span className="ijp-feedback-meta" title={exactTime(item.createdAt)}>
-                  <span className="ijp-feedback-when">
-                    <i className="bi bi-clock" aria-hidden="true" />
-                    {timeAgo(item.createdAt)}
+
+                <span className="ijp-feedback-body">
+                  {/* Name, role and time on one line, next to each other
+                      rather than pushed to opposite edges. Space-between put
+                      the timestamp against the right margin with nothing in
+                      the middle, which read as a gap rather than a layout. */}
+                  <span className="ijp-feedback-top">
+                    <span className="ijp-feedback-who">
+                      {parseFeedback(item).name ?? t("Someone")}
+                    </span>
+                    {parseFeedback(item).role ? (
+                      <span
+                        className={`ijp-role ijp-role--${parseFeedback(item).role.toLowerCase()}`}
+                      >
+                        {t(parseFeedback(item).role)}
+                      </span>
+                    ) : null}
+                    <span className="ijp-feedback-dot" aria-hidden="true">·</span>
+                    <span className="ijp-feedback-when" title={exactTime(item.createdAt)}>
+                      {timeAgo(item.createdAt)}
+                    </span>
                   </span>
-                  <span className="ijp-feedback-more">
-                    {t("View details")}
-                    <i className="bi bi-chevron-right ms-1" aria-hidden="true" />
+
+                  {/* Clamped to two lines. 2000 characters in a list is a wall,
+                      and the detail view exists for the whole thing. */}
+                  <span className="ijp-feedback-text">{parseFeedback(item).text}</span>
+
+                  <span className="ijp-feedback-foot">
+                    {item.read ? null : (
+                      <span className="ijp-feedback-new">{t("Unread")}</span>
+                    )}
+                    <span className="ijp-feedback-more">
+                      {t("Read the full message")}
+                      <i className="bi bi-arrow-right ms-1" aria-hidden="true" />
+                    </span>
                   </span>
                 </span>
               </button>

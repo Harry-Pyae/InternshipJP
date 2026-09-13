@@ -7,6 +7,7 @@ import StatusBadge from "../../components/shared/StatusBadge.jsx";
 import { employerApi } from "../../api/employerApi.js";
 import { describeApiError, fieldErrorsOf } from "../../api/axiosClient.js";
 import { useLanguage } from "../../config/languageContext.jsx";
+import CompanyLogoCard from "../../components/shared/CompanyLogoCard.jsx";
 
 /**
  * The company profile: a page you read, and a form you open.
@@ -37,6 +38,11 @@ export default function CompanyProfilePage() {
   const [saved, setSaved] = useState(null);
   const [form, setForm] = useState(EMPTY);
   const [editing, setEditing] = useState(false);
+  // The logo is displayed here and changed on the profile edit page.
+  // Fetched through the client rather than pointed at by an img src: the
+  // API is a different origin in development and carries no cookie on a
+  // plain image request.
+  const [logo, setLogo] = useState(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
   const [fieldErrors, setFieldErrors] = useState(null);
@@ -56,6 +62,20 @@ export default function CompanyProfilePage() {
   useEffect(() => {
     load();
   }, [load]);
+
+  useEffect(() => {
+    if (!saved?.logoPath) {
+      setLogo(null);
+      return undefined;
+    }
+    let alive = true;
+    employerApi.fetchCompanyLogo().then((url) => {
+      if (alive) setLogo(url);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [saved?.logoPath]);
 
   function cancel() {
     // Back to what is stored, not to whatever was half-typed.
@@ -147,6 +167,11 @@ export default function CompanyProfilePage() {
       </div>
 
       {editing ? (
+        <>
+        <div className="mb-4">
+          <CompanyLogoCard onError={setError} />
+        </div>
+
         <SectionCard title="Edit organisation details">
           <form onSubmit={save} className="ijp-form-card p-0">
             <div className="row g-3">
@@ -203,8 +228,20 @@ export default function CompanyProfilePage() {
             </div>
           </form>
         </SectionCard>
+        </>
       ) : (
         <SectionCard title="Organisation details">
+          {logo ? (
+            <div className="ijp-photo-row mb-4">
+              <span className="ijp-pick ijp-pick--square">
+                <img src={logo} alt="" />
+              </span>
+              <p className="ijp-muted small mb-0">
+                {t("The logo is changed on the profile edit page.")}
+              </p>
+            </div>
+          ) : null}
+
           <dl className="ijp-detail-grid ijp-detail">
             {FIELDS.map((field) => (
               <div key={field.name}>

@@ -31,6 +31,12 @@ export const authApi = {
     api.post("/api/auth/forgot-password", { email }).then((response) => response.data),
 
   /** Uses the emailed code to set a new password. */
+  /** Accepting an administrator invitation. No session exists yet. */
+  acceptInvite: ({ email, code, newPassword }) =>
+    api
+      .post("/api/auth/accept-invite", { email, code, newPassword })
+      .then((response) => response.data),
+
   resetPassword: (payload) =>
     api.post("/api/auth/reset-password", payload).then((response) => response.data),
 };

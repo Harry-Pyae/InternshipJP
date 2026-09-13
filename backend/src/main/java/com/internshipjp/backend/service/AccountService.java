@@ -16,6 +16,9 @@ import com.internshipjp.backend.entity.AccountStatus;
 import com.internshipjp.backend.entity.Role;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.internshipjp.backend.storage.FileStorageService;
+import com.internshipjp.backend.storage.StoredFile;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * Account settings shared by all three roles.
@@ -30,12 +33,15 @@ public class AccountService {
     private static final Logger log = LoggerFactory.getLogger(AccountService.class);
 
     private final UserRepository userRepository;
+    private final FileStorageService fileStorageService;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
 
     public AccountService(UserRepository userRepository,
                           PasswordEncoder passwordEncoder,
-                          UserMapper userMapper) {
+                          UserMapper userMapper,
+                          FileStorageService fileStorageService) {
+        this.fileStorageService = fileStorageService;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.userMapper = userMapper;
@@ -88,6 +94,7 @@ public class AccountService {
      * Everything owned by the account goes with it: profile, applications,
      * certificates and notifications, by the cascade rules in the schema.
      */
+    @Transactional
     public void deleteOwnAccount(Long userId, DeleteAccountRequest request) {
         User user = loadUser(userId);
 
@@ -103,6 +110,45 @@ public class AccountService {
 
         log.info("Account {} deleted itself.", user.getEmail());
         userRepository.delete(user);
+    }
+
+    /**
+     * Replaces the caller's profile photo.
+     *
+     * Stored the same way a certificate is: under the upload root, outside the
+     * served web directory, with only the path in the database. The storage
+     * service checks the first bytes of the file rather than trusting the
+     * extension or the Content-Type header, both of which the caller chooses.
+     *
+     * The old file is deleted after the new path is saved, not before: if the
+     * save fails, the person still has the photo they had.
+     */
+    @Transactional
+    public String replacePhoto(Long userId, MultipartFile file) {
+        User user = loadUser(userId);
+        String previous = user.getPhotoPath();
+
+        StoredFile stored = fileStorageService.store(file, "photos", userId);
+        user.setPhotoPath(stored.getStoragePath());
+        userRepository.save(user);
+
+        if (previous != null && !previous.equals(stored.getStoragePath())) {
+            fileStorageService.delete(previous);
+        }
+        return stored.getStoragePath();
+    }
+
+    /** Removes the photo and the file behind it. */
+    @Transactional
+    public void removePhoto(Long userId) {
+        User user = loadUser(userId);
+        String previous = user.getPhotoPath();
+        if (previous == null) {
+            return;
+        }
+        user.setPhotoPath(null);
+        userRepository.save(user);
+        fileStorageService.delete(previous);
     }
 
     private User loadUser(Long userId) {

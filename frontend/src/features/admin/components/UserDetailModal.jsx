@@ -1,6 +1,9 @@
 import { Link } from "react-router-dom";
 import StatusBadge from "../../../components/shared/StatusBadge.jsx";
 import { useLanguage } from "../../../config/languageContext.jsx";
+import { useEffect, useState } from "react";
+import Avatar from "../../../components/shared/Avatar.jsx";
+import { adminApi } from "../../../api/adminApi.js";
 
 /**
  * Everything known about one account, and every action, in one place.
@@ -18,10 +21,31 @@ import { useLanguage } from "../../../config/languageContext.jsx";
  */
 export default function UserDetailModal({ user, busy, onClose, onToggle, onDelete }) {
   const { t } = useLanguage();
+  // The list gives six columns. The rest of the record is fetched when the
+  // panel opens, because joining every profile to render a table would be a
+  // query per row for data nobody is looking at.
+  const [full, setFull] = useState(null);
+
+  useEffect(() => {
+    setFull(null);
+    if (!user?.id) return undefined;
+    let alive = true;
+    adminApi
+      .getUser(user.id)
+      .then((data) => {
+        if (alive) setFull(data);
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [user?.id]);
+
   if (!user) {
     return null;
   }
 
+  const detail = full ?? user;
   const suspended = user.accountStatus === "SUSPENDED";
 
   return (
@@ -72,6 +96,58 @@ export default function UserDetailModal({ user, busy, onClose, onToggle, onDelet
               <dt>{t("Account ID")}</dt>
               <dd className="ijp-data">{user.id}</dd>
             </div>
+            <div>
+              <dt>{t("Phone")}</dt>
+              <dd>{detail.phone || <span className="ijp-muted">{t("Not given")}</span>}</dd>
+            </div>
+            {detail.headline ? (
+              <div>
+                <dt>{t("Headline")}</dt>
+                <dd>{detail.headline}</dd>
+              </div>
+            ) : null}
+            {detail.location || detail.country ? (
+              <div>
+                <dt>{t("Location")}</dt>
+                <dd>{[detail.location, detail.country].filter(Boolean).join(", ")}</dd>
+              </div>
+            ) : null}
+            {detail.university ? (
+              <div>
+                <dt>{t("University")}</dt>
+                <dd>{detail.university}</dd>
+              </div>
+            ) : null}
+            {detail.degree || detail.fieldOfStudy ? (
+              <div>
+                <dt>{t("Studying")}</dt>
+                <dd>{[detail.degree, detail.fieldOfStudy].filter(Boolean).join(" — ")}</dd>
+              </div>
+            ) : null}
+            {detail.jobTitle ? (
+              <div>
+                <dt>{t("Job title")}</dt>
+                <dd>{detail.jobTitle}</dd>
+              </div>
+            ) : null}
+            {detail.companyName ? (
+              <div>
+                <dt>{t("Company")}</dt>
+                <dd>{detail.companyName}</dd>
+              </div>
+            ) : null}
+            {detail.companyIndustry ? (
+              <div>
+                <dt>{t("Industry")}</dt>
+                <dd>{detail.companyIndustry}</dd>
+              </div>
+            ) : null}
+            {detail.registrationNumber ? (
+              <div>
+                <dt>{t("Registration number")}</dt>
+                <dd className="ijp-data">{detail.registrationNumber}</dd>
+              </div>
+            ) : null}
           </dl>
 
           {/* Where the rest of this person's records live. */}
@@ -103,15 +179,21 @@ export default function UserDetailModal({ user, busy, onClose, onToggle, onDelet
               {suspended ? t("Reactivate account") : t("Suspend account")}
             </button>
 
-            <button
-              type="button"
-              className="btn btn-ijp-quiet ijp-btn-danger"
-              onClick={() => onDelete(user)}
-              disabled={busy}
-            >
-              <i className="bi bi-trash me-1" aria-hidden="true" />
-              {t("Delete account")}
-            </button>
+            {/* Same rule as the table: an administrator cannot be deleted here. */}
+
+            {user.role === "ADMIN" ? null : (
+  
+              <button
+                type="button"
+                className="btn btn-ijp-quiet ijp-btn-danger"
+                onClick={() => onDelete(user)}
+                disabled={busy}
+              >
+                <i className="bi bi-trash me-1" aria-hidden="true" />
+                {t("Delete account")}
+              </button>
+
+            )}
           </div>
 
           <p className="ijp-field-hint mt-3 mb-0">

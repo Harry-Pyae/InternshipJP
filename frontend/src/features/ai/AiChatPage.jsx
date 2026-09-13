@@ -259,7 +259,7 @@ export default function AiChatPage({ audience, initialTab = "chat" }) {
   // ---------------------------------------------------------------- guards
 
   if (checkingUser) {
-    return <LoadingBlock label="Checking your session..." />;
+    return <LoadingBlock variant="page" label="Checking your session..." />;
   }
 
   const title = isAdmin

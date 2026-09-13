@@ -65,17 +65,27 @@ export default function AuthField({
         ) : null}
       </div>
 
-      {error ? (
-        <p className="ijp-field-error" id={errorId} role="alert">
-          <i className="bi bi-exclamation-circle me-1" aria-hidden="true" />
-          {error}
-        </p>
-      ) : null}
-      {hint && !error ? (
-        <p className="ijp-field-hint" id={hintId}>
-          {hint}
-        </p>
-      ) : null}
+      {/*
+        The slot is always here, even when empty.
+
+        It used to appear only when there was something to say, which made the
+        whole page below the field jump down the moment a message arrived. On
+        the sign-in page that broke the Sign up link: leaving the email field
+        validated it on blur, the message appeared, everything below moved, and
+        the click landed on empty space. It took two taps to navigate.
+      */}
+      <div className="ijp-field-msg">
+        {error ? (
+          <p className="ijp-field-error" id={errorId} role="alert">
+            <i className="bi bi-exclamation-circle me-1" aria-hidden="true" />
+            {error}
+          </p>
+        ) : hint ? (
+          <p className="ijp-field-hint" id={hintId}>
+            {hint}
+          </p>
+        ) : null}
+      </div>
     </div>
   );
 }

@@ -38,9 +38,20 @@ export const adminApi = {
   deleteUser: (id) =>
     api.delete(`/api/admin/users/${id}`).then((response) => response.data),
 
-  updateUserStatus: (id, status) =>
+  /** The reason is required when suspending; the user is shown what it says. */
+  /** Invites another administrator. They set their own password. */
+  inviteAdmin: ({ email, fullName }) =>
     api
-      .patch(`/api/admin/users/${id}/status`, { status })
+      .post("/api/admin/invites", { email, fullName })
+      .then((response) => response.data),
+
+  /** One account in full, including its role-specific profile. */
+  getUser: (id) =>
+    api.get(`/api/admin/users/${id}`).then((response) => response.data),
+
+  updateUserStatus: (id, status, reason) =>
+    api
+      .patch(`/api/admin/users/${id}/status`, { status, reason })
       .then((response) => response.data),
 
   // ---------------------------------------------------------------
