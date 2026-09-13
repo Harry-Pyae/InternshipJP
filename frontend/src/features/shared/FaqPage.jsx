@@ -11,6 +11,7 @@ import EmptyState from "../../components/shared/EmptyState.jsx";
 import { timeAgo, exactTime } from "../../api/relativeTime.js";
 import SearchBox, { matches } from "../../components/shared/SearchBox.jsx";
 import { initialsOf } from "../../components/shared/Avatar.jsx";
+import Pagination from "../../components/shared/Pagination.jsx";
 
 /**
  * Questions people actually ask, and a way to say something we did not answer.
@@ -319,6 +320,11 @@ function FeedbackInbox() {
   const [error, setError] = useState(null);
   const [open, setOpen] = useState(null);
   const [query, setQuery] = useState("");
+  // Paged in the browser, because every piece of feedback is already here:
+  // the list is fetched once and filtered in memory, so asking the server
+  // for a page would be a round trip to reorder data we hold.
+  const [page, setPage] = useState(0);
+  const PER_PAGE = 9;
 
   const load = useCallback(async () => {
     setError(null);
@@ -335,10 +341,14 @@ function FeedbackInbox() {
   }, [load]);
 
   const visibleFeedback = (items ?? []).filter((item) =>
-
     matches(item, query, ["message", "title"]),
-
   );
+
+  const pageCount = Math.max(1, Math.ceil(visibleFeedback.length / PER_PAGE));
+  // A filter that shortens the list can leave you on a page that no longer
+  // exists, which shows an empty grid rather than results.
+  const safePage = Math.min(page, pageCount - 1);
+  const shown = visibleFeedback.slice(safePage * PER_PAGE, safePage * PER_PAGE + PER_PAGE);
 
   return (
     <SectionCard
@@ -373,8 +383,9 @@ function FeedbackInbox() {
           hint="Messages sent from the FAQ page on the student and employer sites arrive here."
         />
       ) : (
+        <>
         <ul className="ijp-feedback-list">
-          {visibleFeedback.map((item) => (
+          {shown.map((item) => (
             <li
               className={`ijp-feedback${item.read ? "" : " ijp-feedback--unread"}`}
               key={item.id}
@@ -438,6 +449,16 @@ function FeedbackInbox() {
             </li>
           ))}
         </ul>
+
+            <Pagination
+              page={safePage}
+              pageCount={pageCount}
+              total={visibleFeedback.length}
+              onChange={setPage}
+              noun="message"
+            />
+
+        </>
       )}
 
       <p className="ijp-field-hint mt-3 mb-0">

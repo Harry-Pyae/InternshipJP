@@ -1071,17 +1071,6 @@ h4 {
 
 /* Section titles reuse the small-caps label from the rest of the app, with a
    rule above so the eye finds the boundaries without reading. */
-.ijp-answer-heading {
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: var(--ijp-signal);
-  margin: 0.35rem 0 0;
-  padding-top: 0.7rem;
-  border-top: 1px solid var(--ijp-border);
-}
-
 /* No rule above the first section - it would sit against the bubble edge. */
 .ijp-answer > .ijp-answer-heading:first-child {
   margin-top: 0;
@@ -1369,12 +1358,6 @@ h4 {
   margin-bottom: 0.4rem;
 }
 
-.ijp-nav-divider {
-  border-color: var(--ijp-border);
-  margin: 0.6rem 0.5rem;
-  opacity: 1;
-}
-
 .ijp-nav-item {
   position: relative;
   display: flex;
@@ -1469,10 +1452,14 @@ h4 {
   overflow: hidden;
 }
 
+/* One definition. It was split across two blocks, the later silently
+   overriding part of the earlier - which is how a correctly written
+   change can appear to do nothing. */
 .ijp-nav-divider {
+  border-color: var(--ijp-border);
+  margin: 0;
   opacity: 0;
   height: 0;
-  margin: 0;
   border: 0;
   transition: opacity 140ms ease, margin 220ms ease;
 }
@@ -1989,10 +1976,6 @@ h4 {
   border-left: 2px solid var(--ijp-rejected);
 }
 
-.ijp-scarce-skill {
-  font-weight: 600;
-}
-
 .ijp-listing-issue {
   border: 1px solid var(--ijp-border);
   border-radius: var(--ijp-radius-sm);
@@ -2460,9 +2443,12 @@ h4 {
   background-color: var(--ijp-surface-sunken);
 }
 
+/* One definition. It was split across two blocks, the later silently
+   overriding part of the earlier - which is how a correctly written
+   change can appear to do nothing. */
 .ijp-scarce-skill {
-  font-size: 0.88rem;
   font-weight: 600;
+  font-size: 0.88rem;
 }
 
 /* The number is the finding. "0 students" is the reason a vacancy is not
@@ -3888,17 +3874,23 @@ h4 {
    Every block used to render identically, so a finding, a recommendation and a
    question all looked the same. The tone comes from the words the assistants
    actually write, so the colour means something rather than decorating. */
+/* One definition. It was split across two blocks, the later silently
+   overriding part of the earlier - which is how a correctly written
+   change can appear to do nothing. */
 .ijp-answer-heading {
-  display: flex;
-  align-items: baseline;
-  gap: 0.5rem;
-  margin: 1.5rem 0 0.6rem;
-  padding-left: 0.7rem;
-  border-left: 3px solid var(--ijp-border-strong);
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+  color: var(--ijp-signal);
+  margin: 1.5rem 0 0.6rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--ijp-border);
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding-left: 0.7rem;
+  border-left: 3px solid var(--ijp-border-strong);
 }
 
 .ijp-answer-heading:first-child {
@@ -4883,15 +4875,24 @@ h4 {
    two competing definitions of .ijp-feedback left it with no internal padding
    at all - so a short message read as a long empty pill. Now an initial, a
    header row with the sender and the time apart, the message, and a footer. */
+/* A grid, not a column.
+   One card per row meant every message spanned the full page while its text
+   wrapped after a third of it, so two thirds of each card was empty. At this
+   minimum three fit on a wide screen and one on a phone, and the text fills
+   the card it is in. */
 .ijp-feedback-list {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
-  gap: 0.6rem;
+  grid-template-columns: repeat(auto-fill, minmax(21rem, 1fr));
+  gap: 0.75rem;
+  align-items: start;
 }
 
 .ijp-feedback {
+  display: flex;
+  height: 100%;
   border: 1px solid var(--ijp-border);
   border-radius: var(--ijp-radius);
   background-color: var(--ijp-surface);
@@ -4904,10 +4905,11 @@ h4 {
 }
 
 /* The whole row is the target, so there is no small link to aim at. */
+/* The whole card is the target, so there is no small link to aim at. */
 .ijp-feedback-hit {
   display: grid;
   grid-template-columns: auto 1fr;
-  gap: 0.85rem;
+  gap: 0.75rem;
   width: 100%;
   padding: 0.9rem 1rem;
   border: 0;
@@ -4965,9 +4967,11 @@ h4 {
   white-space: nowrap;
 }
 
+/* Three lines in a card this width is roughly the same amount of text two
+   lines showed across the full page. The panel holds the whole message. */
 .ijp-feedback-text {
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
   font-size: 0.86rem;

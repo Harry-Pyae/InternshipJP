@@ -64,6 +64,10 @@ export const strings = {
   },
 
   my: {
+    // --- sign-in lock ---
+    "Clear sign-in lock": "ဝင်ရောက်မှု ပိတ်ဆို့ခြင်း ဖြေရှင်းရန်",
+    "Sign-in lock cleared": "ဝင်ရောက်မှု ပိတ်ဆို့ခြင်း ဖြေရှင်းပြီး",
+
     // --- employer profile ---
     "Department": "ဌာန",
     "Work email": "အလုပ် အီးမေးလ်",

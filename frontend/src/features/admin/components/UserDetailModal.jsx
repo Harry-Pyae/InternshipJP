@@ -25,9 +25,26 @@ export default function UserDetailModal({ user, busy, onClose, onToggle, onDelet
   // panel opens, because joining every profile to render a table would be a
   // query per row for data nobody is looking at.
   const [full, setFull] = useState(null);
+  const [unlocking, setUnlocking] = useState(false);
+  const [unlocked, setUnlocked] = useState(false);
+
+  async function unlock() {
+    setUnlocking(true);
+    try {
+      await adminApi.unlockSignIn(user.id);
+      setUnlocked(true);
+    } catch {
+      // A lock that was not there is not a failure worth a message: the
+      // account can sign in either way, which is what was asked for.
+      setUnlocked(true);
+    } finally {
+      setUnlocking(false);
+    }
+  }
 
   useEffect(() => {
     setFull(null);
+    setUnlocked(false);
     if (!user?.id) return undefined;
     let alive = true;
     adminApi
@@ -177,6 +194,20 @@ export default function UserDetailModal({ user, busy, onClose, onToggle, onDelet
                 aria-hidden="true"
               />
               {suspended ? t("Reactivate account") : t("Suspend account")}
+            </button>
+
+            {/* Clears a temporary sign-in lock. Five failed attempts lock an
+                address for fifteen minutes; this saves the person waiting it
+                out. It is not the same as reactivating a suspended account,
+                which is why it sits apart from the status control. */}
+            <button
+              type="button"
+              className="btn btn-ijp-quiet"
+              onClick={unlock}
+              disabled={busy || unlocking}
+            >
+              <i className="bi bi-unlock me-1" aria-hidden="true" />
+              {unlocked ? t("Sign-in lock cleared") : t("Clear sign-in lock")}
             </button>
 
             {/* Same rule as the table: an administrator cannot be deleted here. */}

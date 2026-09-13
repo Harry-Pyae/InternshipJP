@@ -49,6 +49,17 @@ export const adminApi = {
   getUser: (id) =>
     api.get(`/api/admin/users/${id}`).then((response) => response.data),
 
+  /**
+   * Clears a temporary sign-in lock.
+   *
+   * Separate from account status: a lock expires on its own after fifteen
+   * minutes, so this only saves the person waiting. Until now the endpoint
+   * existed with no way to reach it, and the only way to clear a lock early
+   * was to restart the server.
+   */
+  unlockSignIn: (id) =>
+    api.post(`/api/admin/users/${id}/unlock`).then((response) => response.data),
+
   updateUserStatus: (id, status, reason) =>
     api
       .patch(`/api/admin/users/${id}/status`, { status, reason })
@@ -155,25 +166,6 @@ export const adminApi = {
   changePassword: (payload) =>
     api
       .post("/api/account/change-password", payload)
-      .then((response) => response.data),
-
-
-
-
-
-  sendEmailOtp: () =>
-    api
-      .post("/api/account/2fa/email/send")
-      .then((response) => response.data),
-
-  verifyEmailOtp: (code) =>
-    api
-      .post("/api/account/2fa/email/verify", { code })
-      .then((response) => response.data),
-
-  disableEmailOtp: () =>
-    api
-      .post("/api/account/2fa/email/disable")
       .then((response) => response.data),
 
 // ---------------------------------------------------------------
