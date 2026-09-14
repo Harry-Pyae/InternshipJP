@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Companies and their approval state. Owner: Member 3 / Member 4.
@@ -22,6 +23,20 @@ public interface CompanyRepository extends JpaRepository<Company, Long> {
     long countByApprovalStatus(ApprovalStatus status);
 
     /** Used by the demo-data seeder to find and remove only its own rows. */
+    /**
+     * The company holding this registration number, if one is already here.
+     *
+     * Case-insensitive, because a number typed as "sg-1234" and "SG-1234" is
+     * the same company and the second person to register should not create a
+     * second row for it.
+     *
+     * Returns Optional rather than a List even though the column has no unique
+     * constraint: the application is what keeps it unique, and returning one
+     * result says that is the intent. The constraint is deliberately not in a
+     * migration - see the note in AuthService.
+     */
+    Optional<Company> findFirstByRegistrationNumberIgnoreCase(String registrationNumber);
+
     List<Company> findByNameStartingWith(String prefix);
 
 }

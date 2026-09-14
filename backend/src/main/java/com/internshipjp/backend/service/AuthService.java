@@ -36,6 +36,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Locale;
 import com.internshipjp.backend.security.PasswordPolicy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Registration and sign-in.
@@ -51,6 +53,8 @@ import com.internshipjp.backend.security.PasswordPolicy;
  */
 @Service
 public class AuthService {
+
+    private static final Logger log = LoggerFactory.getLogger(AuthService.class);
 
     private final UserRepository userRepository;
 
@@ -143,6 +147,30 @@ public class AuthService {
         user.setAccountStatus(AccountStatus.PENDING);
         user = userRepository.save(user);
 
+        // A second recruiter from a company already here joins it rather than
+        // creating a duplicate.
+        //
+        // Registration used to call new Company() unconditionally, so two
+        // managers from the same firm produced two company rows with the same
+        // name and the same registration number. The consequences compounded:
+        // an administrator reviewed the same real company twice, each manager
+        // could see only their own vacancies and applicants, students saw the
+        // employer listed twice, and if one manager left their vacancies were
+        // stranded where nobody else could reach them.
+        //
+        // The rest of the system was already built for this. decideCompany
+        // loops over every profile attached to a company and activates all of
+        // them, and employer_profiles has no unique constraint on company_id.
+        // The only thing missing was a way to get into that state.
+        String registrationNumber = trimOrNull(request.getRegistrationNumber());
+        Company existing = registrationNumber == null ? null
+                : companyRepository.findFirstByRegistrationNumberIgnoreCase(registrationNumber)
+                        .orElse(null);
+
+        if (existing != null) {
+            return joinExistingCompany(user, existing, request, email);
+        }
+
         Company company = new Company();
         company.setName(request.getCompanyName().trim());
         company.setIndustry(request.getIndustry());
@@ -174,6 +202,68 @@ public class AuthService {
                 "COMPANY_APPROVAL_REQUESTED",
                 "New company waiting for approval",
                 company.getName() + " registered and is waiting for review.");
+
+        return userMapper.toAuthUser(user);
+    }
+
+    /**
+     * Attaches a new recruiter to a company that is already registered.
+     *
+     * WHAT IS DELIBERATELY NOT DONE HERE
+     *   The company's own details are not overwritten. The first registration
+     *   is the one an administrator reviewed; letting a later joiner silently
+     *   change the address or the name would undo that review without anybody
+     *   seeing it.
+     *
+     *   The approval status is not reset. An approved company does not go back
+     *   into the queue because a second person joined, and no second
+     *   notification is sent to administrators - there is nothing new to
+     *   review.
+     *
+     * WHAT THE NEW RECRUITER INHERITS
+     *   The company's standing. Joining an approved company makes the account
+     *   active immediately, because the thing that was being waited on has
+     *   already happened. Joining one that is still pending, or was rejected,
+     *   leaves the account pending - the same position as the first recruiter.
+     */
+    private AuthUserResponse joinExistingCompany(User user, Company company,
+                                                 RegisterEmployerRequest request, String email) {
+        if (company.getApprovalStatus() == ApprovalStatus.APPROVED) {
+            user.setAccountStatus(AccountStatus.ACTIVE);
+            user = userRepository.save(user);
+        }
+
+        // A second name for the same object, because the one above is
+        // reassigned by the save and a lambda can only capture a variable that
+        // is never reassigned. Nothing else changes.
+        final User joiner = user;
+
+        EmployerProfile profile = new EmployerProfile();
+        profile.setUser(user);
+        profile.setCompany(company);
+        profile.setJobTitle(request.getJobTitle());
+        profile.setWorkEmail(email);
+        employerProfileRepository.save(profile);
+
+        // Everybody already at the company is told.
+        //
+        // Joining is keyed on the registration number, so a mistyped number
+        // attaches somebody to a company that is not theirs - and that company's
+        // vacancies and applicants become visible to them. Nothing else would
+        // surface that. Telling the existing recruiters makes a wrong join
+        // something a person notices rather than something that just happens.
+        employerProfileRepository.findByCompanyId(company.getId()).stream()
+                .map(EmployerProfile::getUser)
+                .filter(existing -> !existing.getId().equals(joiner.getId()))
+                .forEach(existing -> notificationService.create(existing,
+                        "COMPANY_RECRUITER_JOINED",
+                        "Someone joined " + company.getName(),
+                        joiner.getFullName() + " (" + email + ") registered as a recruiter for "
+                                + company.getName() + ". If you do not recognise them, tell an "
+                                + "administrator."));
+
+        log.info("{} joined the existing company {} (id {})",
+                email, company.getName(), company.getId());
 
         return userMapper.toAuthUser(user);
     }

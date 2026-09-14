@@ -5302,3 +5302,11 @@ h4 {
 .ijp-invite {
   border-left: 4px solid var(--ijp-signal);
 }
+
+/* The language and theme controls on the sign-in bar, kept together at the
+   right-hand end. */
+.ijp-auth-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}

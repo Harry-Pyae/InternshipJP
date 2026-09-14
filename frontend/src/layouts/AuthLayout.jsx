@@ -19,10 +19,16 @@ export default function AuthLayout() {
           </span>
         </Link>
 
-        {/* Before sign-in is exactly when this matters: someone who reads
-            Burmese should not have to get through an English login first. */}
-        <LanguageToggle />
-        <ThemeToggle />
+        {/* Both controls in one group, so space-between puts the brand at one
+            end and the pair together at the other. Loose in the header they
+            were three children spread across the bar, which left the language
+            toggle stranded in the middle. */}
+        <div className="ijp-auth-controls">
+          {/* Before sign-in is exactly when this matters: someone who reads
+              Burmese should not have to get through an English login first. */}
+          <LanguageToggle />
+          <ThemeToggle />
+        </div>
       </header>
 
       <main className="ijp-auth-screen" id="main">

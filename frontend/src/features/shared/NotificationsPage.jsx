@@ -37,6 +37,10 @@ const ROUTES = {
   // request validator accepts APPROVED, REJECTED and MORE_INFO_REQUIRED,
   // and it is the one an employer most needs to act on.
   COMPANY_MORE_INFO_REQUIRED: { EMPLOYER: "/employer/company" },
+  // Raised when a second recruiter registers with this company's
+  // registration number. It goes to the company page because that is where
+  // the organisation is, and an unexpected joiner is a reason to look.
+  COMPANY_RECRUITER_JOINED: { EMPLOYER: "/employer/company" },
   FEEDBACK: { ADMIN: "/admin/faq" },
   CERTIFICATE_VERIFIED: { STUDENT: "/student/certificates" },
   CERTIFICATE_REJECTED: { STUDENT: "/student/certificates" },
