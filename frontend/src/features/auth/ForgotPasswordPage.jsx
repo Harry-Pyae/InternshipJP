@@ -120,7 +120,7 @@ export default function ForgotPasswordPage() {
             icon="bi-lock"
             value={newPassword}
             onChange={setNewPassword}
-            hint={t("At least 8 characters.")}
+            hint={t("At least 8 characters, with an uppercase letter, a lowercase letter, a digit and a symbol.")}
           />
         </>
       ) : null}

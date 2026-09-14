@@ -13,7 +13,7 @@ public class AcceptInviteRequest {
     private String code;
 
     @NotBlank(message = "Choose a password.")
-    @Size(min = 8, message = "Use at least 8 characters.")
+    @Size(min = 8, max = 72, message = "Use at least 8 characters.")
     private String newPassword;
 
     public String getEmail() {

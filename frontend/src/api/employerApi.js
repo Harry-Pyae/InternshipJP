@@ -35,11 +35,21 @@ export const employerApi = {
       .get("/api/employer/dashboard")
       .then((response) => response.data),
   /** List applications for one of the employer's internships. */
+  /**
+   * Applicants for one vacancy, or for all of them.
+   *
+   * Two endpoints rather than one with an optional parameter, because the
+   * per-vacancy route is path-scoped and proves ownership by its shape. An
+   * absent internshipId means "all", which is the "All" option on the page.
+   */
   listApplications: ({ internshipId, page = 0, size = 50 }) =>
     api
-      .get(`/api/employer/internships/${internshipId}/applications`, {
-        params: { page, size },
-      })
+      .get(
+        internshipId
+          ? `/api/employer/internships/${internshipId}/applications`
+          : "/api/employer/applications",
+        { params: { page, size } },
+      )
       .then((response) => response.data),
 
   /** Get the full details of one application. */

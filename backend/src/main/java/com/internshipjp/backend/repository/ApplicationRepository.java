@@ -22,6 +22,15 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
     Page<Application> findByStudentProfileIdOrderByCreatedAtDesc(Long studentProfileId, Pageable pageable);
     Page<Application> findByInternshipId(Long internshipId, Pageable pageable);
 
+    /**
+     * Every application across one company's vacancies.
+     *
+     * Scoped by company rather than by employer, because two recruiters at
+     * the same company should see the same applicants - the vacancy belongs
+     * to the organisation, not to whoever posted it.
+     */
+    Page<Application> findByInternshipCompanyIdOrderByCreatedAtDesc(Long companyId, Pageable pageable);
+
     /** Ownership-safe lookup for employers. */
     Optional<Application> findByIdAndInternship_Company_Id(Long id, Long companyId);
 

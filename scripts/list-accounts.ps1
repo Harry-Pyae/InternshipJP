@@ -34,8 +34,8 @@ $ErrorActionPreference = "Stop"
 # BCrypt hash of "password123", cost 10, $2a variant - the same format Spring
 # Security's BCryptPasswordEncoder writes, so it verifies without any doubt.
 $KNOWN_PLAIN = "password123"
-# BCrypt hash of "demo1234", the password the demo seeder uses.
-$DEMO_PLAIN = "demo1234"
+# BCrypt hash of "Practice-77x", the password the demo seeder uses.
+$DEMO_PLAIN = "Practice-77x"
 $DEMO_HASH  = '$2a$10$LDdPZ.MeIe8Ur4uiQEbTm.7tYvyX8.rnZaVe/D5v91slAJmRUz4AC' 
 $KNOWN_HASH  = '$2a$10$/8pE/69fZYUnePzMx4Lt8eNzHW7Xs9QVpX0v0MXDSfS2mE3yPxbbS'
 
@@ -55,7 +55,7 @@ function Invoke-Sql([string]$sql) {
 }
 
 if ($ResetDemoPasswords) {
-    # Puts every demo account back to demo1234. Only touches accounts whose
+    # Puts every demo account back to Practice-77x. Only touches accounts whose
     # email ends @demo.internshipjp.local - real accounts are never matched.
     Invoke-Sql @"
 UPDATE users SET password_hash = '$DEMO_HASH', account_status = 'ACTIVE', updated_at = NOW(6)
@@ -105,4 +105,4 @@ Write-Host ""
 Write-Host "Passwords are BCrypt hashes and cannot be read back - not by you," -ForegroundColor DarkGray
 Write-Host "not by an admin, not by anyone with the database. Reset one with:" -ForegroundColor DarkGray
 Write-Host "  .\scripts\list-accounts.ps1 -ResetPassword <email>   -> password123" -ForegroundColor DarkGray
-Write-Host "  .\scripts\list-accounts.ps1 -ResetDemoPasswords      -> demo1234 for all demo accounts" -ForegroundColor DarkGray
+Write-Host "  .\scripts\list-accounts.ps1 -ResetDemoPasswords      -> Practice-77x for all demo accounts" -ForegroundColor DarkGray

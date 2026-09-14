@@ -29,9 +29,9 @@ export default function ApplicantsPage() {
       .then((page) => {
         const list = page?.content ?? [];
         setInternships(list);
-        if (!internshipId && list.length > 0) {
-          setParams({ internshipId: String(list[0].id) }, { replace: true });
-        }
+        // No redirect to the first vacancy any more. An empty selection now
+        // means "all", which is a better place to land than whichever opening
+        // happens to be newest.
       })
       .catch((requestError) => setError(describeApiError(requestError)));
     // Only on mount: re-running when the id changes would fight the redirect.
@@ -39,9 +39,6 @@ export default function ApplicantsPage() {
   }, []);
 
   const load = useCallback(async () => {
-    if (!internshipId) {
-      return;
-    }
     setRows(null);
     setError(null);
     try {
@@ -66,7 +63,7 @@ export default function ApplicantsPage() {
             type="button"
             className="btn btn-sm btn-ijp-quiet"
             onClick={load}
-            disabled={!internshipId}
+            disabled={rows === null}
           >
             <i className="bi bi-arrow-clockwise me-1" aria-hidden="true" />
             Refresh
@@ -86,20 +83,29 @@ export default function ApplicantsPage() {
           groups={[
             {
               label: null,
-              items: internships.map((internship) => ({
-                value: internship.id,
-                label: internship.title,
-              })),
+              items: [
+                // First, because "who has applied at all" is where an employer
+                // with several openings starts. The empty value is what the
+                // api module reads as "all".
+                { value: "", label: "All vacancies" },
+                ...internships.map((internship) => ({
+                  value: internship.id,
+                  label: internship.title,
+                })),
+              ],
             },
           ]}
-          placeholder={internships.length ? "Choose an internship..." : "No internships yet"}
+          placeholder={internships.length ? "All vacancies" : "No internships yet"}
           disabled={internships.length === 0}
-          ariaLabel="Which internship"
+          ariaLabel="Which vacancy"
         />
       </div>
 
       <div className="ijp-card p-3 p-md-4">
-        {!internshipId ? (
+        {/* The condition is "no vacancies exist", not "none is selected".
+            An empty selection now means All, and short-circuiting on it sent
+            the one view that shows everything to an empty state. */}
+        {internships.length === 0 ? (
           <EmptyState
             icon="bi-megaphone"
             title="No internships yet"
@@ -113,7 +119,17 @@ export default function ApplicantsPage() {
               {
                 key: "studentName",
                 header: "Student",
-                render: (row) => <span className="fw-semibold">{row.studentName ?? "—"}</span>,
+                // With All selected the rows come from several vacancies, so
+                // the name alone does not say what the person applied to. The
+                // response has always carried the title; nothing showed it.
+                render: (row) => (
+                  <span className="ijp-person">
+                    <span className="ijp-person-name">{row.studentName ?? "—"}</span>
+                    {internshipId ? null : (
+                      <span className="ijp-person-email">{row.internshipTitle}</span>
+                    )}
+                  </span>
+                ),
               },
               {
                 key: "createdAt",
@@ -148,7 +164,11 @@ export default function ApplicantsPage() {
             empty={{
               icon: "bi-people",
               title: "Nobody has applied yet",
-              hint: "Applications for this vacancy will appear here.",
+              // The wording follows the selection, because "for this vacancy"
+              // is wrong when the selection is all of them.
+              hint: internshipId
+                ? "Applications for this vacancy will appear here."
+                : "Applications to any of your vacancies will appear here.",
             }}
           />
         )}

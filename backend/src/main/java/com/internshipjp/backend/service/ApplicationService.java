@@ -30,6 +30,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import com.internshipjp.backend.entity.Company;
 
 /**
  * Applying to internships, and reviewing applicants.
@@ -147,6 +148,27 @@ public class ApplicationService {
         Internship internship = internshipService.requireOwnInternship(userId, internshipId);
         return PageResponse.from(
                 applicationRepository.findByInternshipId(internship.getId(), pageable),
+                applicationMapper::toSummary);
+    }
+
+    /**
+     * Every applicant across this employer's vacancies.
+     *
+     * The per-vacancy list answers "who applied to this one". This answers
+     * "who has applied at all", which is the question an employer with several
+     * openings actually starts from - and previously could only answer by
+     * stepping through each vacancy in turn.
+     *
+     * Scoped to the company, so ownership is enforced by the query rather than
+     * by a check that could be forgotten: an employer can only ever reach rows
+     * belonging to their own organisation.
+     */
+    @Transactional(readOnly = true)
+    public PageResponse<ApplicationSummaryResponse> listForOwnCompany(Long userId, Pageable pageable) {
+        Company company = employerService.requireApprovedCompany(userId);
+        return PageResponse.from(
+                applicationRepository.findByInternshipCompanyIdOrderByCreatedAtDesc(
+                        company.getId(), pageable),
                 applicationMapper::toSummary);
     }
 

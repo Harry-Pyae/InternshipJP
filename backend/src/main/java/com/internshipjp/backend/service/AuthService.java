@@ -35,6 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Locale;
+import com.internshipjp.backend.security.PasswordPolicy;
 
 /**
  * Registration and sign-in.
@@ -52,6 +53,8 @@ import java.util.Locale;
 public class AuthService {
 
     private final UserRepository userRepository;
+
+    private final PasswordPolicy passwordPolicy;
     private final StudentProfileRepository studentProfileRepository;
     private final CompanyRepository companyRepository;
     private final EmployerProfileRepository employerProfileRepository;
@@ -71,7 +74,10 @@ public class AuthService {
                        SecurityContextRepository securityContextRepository,
                        NotificationService notificationService,
                        UserMapper userMapper,
-                       LoginAttemptService loginAttemptService) {
+                       LoginAttemptService loginAttemptService,
+                          PasswordPolicy passwordPolicy) {
+
+        this.passwordPolicy = passwordPolicy;
         this.userRepository = userRepository;
         this.studentProfileRepository = studentProfileRepository;
         this.companyRepository = companyRepository;
@@ -97,6 +103,10 @@ public class AuthService {
 
         User user = new User();
         user.setEmail(email);
+        // Checked here rather than only by @Size, because the rules that matter
+        // most - not your own name, not the first thing anybody would try - are
+        // about the person, and an annotation cannot see them.
+        passwordPolicy.check(request.getPassword(), request.getEmail(), request.getFullName());
         user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
         user.setFullName(request.getFullName().trim());
         user.setRole(Role.STUDENT);
@@ -125,6 +135,8 @@ public class AuthService {
 
         User user = new User();
         user.setEmail(email);
+        passwordPolicy.check(request.getPassword(), request.getEmail(),
+                request.getFullName());
         user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
         user.setFullName(request.getFullName().trim());
         user.setRole(Role.EMPLOYER);

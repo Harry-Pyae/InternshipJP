@@ -98,7 +98,18 @@ public class DemoDataSeeder implements ApplicationRunner {
     /** Every seeded account ends with this, so cleanup can be exact. */
     private static final String DEMO_EMAIL_SUFFIX = "@demo.internshipjp.local";
     private static final String DEMO_COMPANY_PREFIX = "Demo ";
-    private static final String DEMO_PASSWORD = "demo1234";
+    /**
+     * Chosen to satisfy the policy: eight or more, with an uppercase letter,
+     *
+     * a lowercase letter, a digit and a symbol.
+     *
+     * The seeder does not go through PasswordPolicy - it writes hashes
+     * directly - so nothing would have stopped it creating accounts that
+     * cannot be changed later without choosing a longer password. Keeping it
+     * in step means the demo accounts obey the same rule they are used to
+     * demonstrate.
+     */
+    private static final String DEMO_PASSWORD = "Practice-77x";
 
     private final AppProperties appProperties;
     private final Environment environment;

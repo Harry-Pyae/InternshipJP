@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import com.internshipjp.backend.security.PasswordPolicy;
 
 /**
  * Inviting an administrator.
@@ -48,7 +49,8 @@ class AdminInviteServiceTest {
         mailService = Mockito.mock(AccountMailService.class);
         encoder = new BCryptPasswordEncoder(4);
 
-        service = new AdminInviteService(userRepository, challengeRepository, encoder, mailService);
+        service = new AdminInviteService(userRepository, challengeRepository, encoder, mailService,
+                new PasswordPolicy());
 
         Mockito.when(userRepository.save(Mockito.any(User.class)))
                 .thenAnswer(i -> i.getArgument(0));
@@ -133,10 +135,10 @@ class AdminInviteServiceTest {
                                 9L, OtpPurpose.ADMIN_INVITE))
                 .thenReturn(Optional.of(challenge));
 
-        service.accept(accept("123456", "a-good-password"));
+        service.accept(accept("123456", "Good-Pass1!"));
 
         assertEquals(AccountStatus.ACTIVE, pending.getAccountStatus());
-        assertTrue(encoder.matches("a-good-password", pending.getPasswordHash()),
+        assertTrue(encoder.matches("Good-Pass1!", pending.getPasswordHash()),
                 "the invitee's own password should now work");
         assertNotNull(challenge.getConsumedAt(), "the code must be single-use");
     }

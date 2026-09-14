@@ -46,6 +46,21 @@ public class EmployerApplicationController {
         this.currentUserService = currentUserService;
     }
 
+    /**
+     * Every applicant across this employer's vacancies.
+     *
+     * The "All" option on the applicants page. Without it an employer with
+     * several openings had to step through them one at a time to see who had
+     * applied.
+     */
+    @GetMapping("/applications")
+    public PageResponse<ApplicationSummaryResponse> listForCompany(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return applicationService.listForOwnCompany(
+                currentUserService.requireUserId(), PageRequest.of(page, size));
+    }
+
     @GetMapping("/internships/{id}/applications")
     public PageResponse<ApplicationSummaryResponse> listForInternship(
             @PathVariable Long id,

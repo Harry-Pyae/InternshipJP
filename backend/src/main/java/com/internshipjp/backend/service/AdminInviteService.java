@@ -20,6 +20,7 @@ import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.Locale;
 import java.util.UUID;
+import com.internshipjp.backend.security.PasswordPolicy;
 
 /**
  * Inviting another administrator.
@@ -51,6 +52,8 @@ public class AdminInviteService {
     private static final int MAX_ATTEMPTS = 5;
 
     private final UserRepository userRepository;
+
+    private final PasswordPolicy passwordPolicy;
     private final EmailOtpChallengeRepository challengeRepository;
     private final PasswordEncoder passwordEncoder;
     private final AccountMailService accountMailService;
@@ -59,7 +62,10 @@ public class AdminInviteService {
     public AdminInviteService(UserRepository userRepository,
                               EmailOtpChallengeRepository challengeRepository,
                               PasswordEncoder passwordEncoder,
-                              AccountMailService accountMailService) {
+                              AccountMailService accountMailService,
+                          PasswordPolicy passwordPolicy) {
+
+        this.passwordPolicy = passwordPolicy;
         this.userRepository = userRepository;
         this.challengeRepository = challengeRepository;
         this.passwordEncoder = passwordEncoder;
@@ -144,6 +150,7 @@ public class AdminInviteService {
                     : "Too many incorrect codes. Ask for a new invitation.");
         }
 
+        passwordPolicy.check(request.getNewPassword(), user.getEmail(), user.getFullName());
         user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
         user.setAccountStatus(AccountStatus.ACTIVE);
         userRepository.save(user);

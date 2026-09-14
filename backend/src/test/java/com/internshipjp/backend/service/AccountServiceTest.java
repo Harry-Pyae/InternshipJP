@@ -19,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.internshipjp.backend.storage.FileStorageService;
+import com.internshipjp.backend.security.PasswordPolicy;
 
 /**
  * Example of testing a service rule without starting Spring or touching the
@@ -41,7 +42,7 @@ class AccountServiceTest {
         userRepository = Mockito.mock(UserRepository.class);
         passwordEncoder = new BCryptPasswordEncoder();
         accountService = new AccountService(userRepository, passwordEncoder, new UserMapper(),
-                Mockito.mock(FileStorageService.class));
+                Mockito.mock(FileStorageService.class), new PasswordPolicy());
 
         user = new User();
         user.setId(USER_ID);
@@ -49,7 +50,7 @@ class AccountServiceTest {
         user.setFullName("Test Student");
         user.setRole(Role.STUDENT);
         user.setAccountStatus(AccountStatus.ACTIVE);
-        user.setPasswordHash(passwordEncoder.encode("current-password"));
+        user.setPasswordHash(passwordEncoder.encode("Current-Pass1!"));
 
         Mockito.when(userRepository.findById(USER_ID)).thenReturn(Optional.of(user));
         Mockito.when(userRepository.save(Mockito.any(User.class)))
@@ -59,32 +60,32 @@ class AccountServiceTest {
     @Test
     void changesThePasswordWhenTheCurrentOneIsCorrect() {
         ChangePasswordRequest request = new ChangePasswordRequest();
-        request.setCurrentPassword("current-password");
-        request.setNewPassword("a-brand-new-password");
+        request.setCurrentPassword("Current-Pass1!");
+        request.setNewPassword("Brand-New-Pass1");
 
         accountService.changePassword(USER_ID, request);
 
-        assertTrue(passwordEncoder.matches("a-brand-new-password", user.getPasswordHash()));
+        assertTrue(passwordEncoder.matches("Brand-New-Pass1", user.getPasswordHash()));
         // The stored value must be a hash, never the password itself.
-        assertFalse(user.getPasswordHash().contains("a-brand-new-password"));
+        assertFalse(user.getPasswordHash().contains("Brand-New-Pass1"));
     }
 
     @Test
     void refusesWhenTheCurrentPasswordIsWrong() {
         ChangePasswordRequest request = new ChangePasswordRequest();
         request.setCurrentPassword("not-my-password");
-        request.setNewPassword("a-brand-new-password");
+        request.setNewPassword("Brand-New-Pass1");
 
         assertThrows(BadRequestException.class, () -> accountService.changePassword(USER_ID, request));
-        assertTrue(passwordEncoder.matches("current-password", user.getPasswordHash()),
+        assertTrue(passwordEncoder.matches("Current-Pass1!", user.getPasswordHash()),
                 "a failed attempt must leave the old password in place");
     }
 
     @Test
     void refusesReusingTheSamePassword() {
         ChangePasswordRequest request = new ChangePasswordRequest();
-        request.setCurrentPassword("current-password");
-        request.setNewPassword("current-password");
+        request.setCurrentPassword("Current-Pass1!");
+        request.setNewPassword("Current-Pass1!");
 
         assertThrows(BadRequestException.class, () -> accountService.changePassword(USER_ID, request));
     }

@@ -122,7 +122,7 @@ export default function AcceptInvitePage() {
           type="password"
           value={form.newPassword}
           onChange={(value) => set("newPassword", value)}
-          hint={t("At least 8 characters.")}
+          hint={t("At least 8 characters, with an uppercase letter, a lowercase letter, a digit and a symbol.")}
           autoComplete="new-password"
           required
         />

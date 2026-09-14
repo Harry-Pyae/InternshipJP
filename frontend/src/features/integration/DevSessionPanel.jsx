@@ -276,7 +276,7 @@ function SignedOut({ mode, setMode, role, setRole, form, update, busy, onSubmit 
           required
         />
         {registering ? (
-          <p className="ijp-muted small mb-0 mt-1">At least 8 characters.</p>
+          <p className="ijp-muted small mb-0 mt-1">At least 8 characters, with an uppercase letter, a lowercase letter, a digit and a symbol.</p>
         ) : null}
       </div>
 

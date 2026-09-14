@@ -210,7 +210,7 @@ export default function RegisterPage() {
             onChange={(value) => update("password", value)}
             onBlur={() => blur("password")}
             error={fieldErrors?.password}
-            hint="At least 8 characters."
+            hint="At least 8 characters, with an uppercase letter, a lowercase letter, a digit and a symbol."
             autoComplete="new-password"
             required
           />

@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import com.internshipjp.backend.storage.FileStorageService;
 import com.internshipjp.backend.storage.StoredFile;
 import org.springframework.web.multipart.MultipartFile;
+import com.internshipjp.backend.security.PasswordPolicy;
 
 /**
  * Account settings shared by all three roles.
@@ -33,6 +34,8 @@ public class AccountService {
     private static final Logger log = LoggerFactory.getLogger(AccountService.class);
 
     private final UserRepository userRepository;
+
+    private final PasswordPolicy passwordPolicy;
     private final FileStorageService fileStorageService;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
@@ -40,7 +43,10 @@ public class AccountService {
     public AccountService(UserRepository userRepository,
                           PasswordEncoder passwordEncoder,
                           UserMapper userMapper,
-                          FileStorageService fileStorageService) {
+                          FileStorageService fileStorageService,
+                          PasswordPolicy passwordPolicy) {
+
+        this.passwordPolicy = passwordPolicy;
         this.fileStorageService = fileStorageService;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
@@ -75,6 +81,7 @@ public class AccountService {
             throw new BadRequestException("The new password must be different from the current one.");
         }
 
+        passwordPolicy.check(request.getNewPassword(), user.getEmail(), user.getFullName());
         user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
 

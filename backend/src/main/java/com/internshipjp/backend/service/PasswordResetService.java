@@ -20,6 +20,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Locale;
 import java.util.Optional;
+import com.internshipjp.backend.security.PasswordPolicy;
 
 /**
  * Letting someone back in when they have forgotten their password.
@@ -56,6 +57,8 @@ public class PasswordResetService {
     private static final Duration REQUEST_COOLDOWN = Duration.ofSeconds(60);
 
     private final UserRepository userRepository;
+
+    private final PasswordPolicy passwordPolicy;
     private final EmailOtpChallengeRepository challengeRepository;
     private final PasswordEncoder passwordEncoder;
     private final AccountMailService accountMailService;
@@ -66,7 +69,10 @@ public class PasswordResetService {
                                 EmailOtpChallengeRepository challengeRepository,
                                 PasswordEncoder passwordEncoder,
                                 AccountMailService accountMailService,
-                                LoginAttemptService loginAttemptService) {
+                                LoginAttemptService loginAttemptService,
+                          PasswordPolicy passwordPolicy) {
+
+        this.passwordPolicy = passwordPolicy;
         this.userRepository = userRepository;
         this.challengeRepository = challengeRepository;
         this.passwordEncoder = passwordEncoder;
@@ -151,6 +157,7 @@ public class PasswordResetService {
                     : "Too many incorrect codes. Ask for a new one.");
         }
 
+        passwordPolicy.check(request.getNewPassword(), user.getEmail(), user.getFullName());
         user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
 

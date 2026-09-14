@@ -16,7 +16,7 @@ public class ResetPasswordRequest {
     private String code;
 
     @NotBlank
-    @Size(min = 8, max = 100, message = "Password must be at least 8 characters")
+    @Size(min = 8, max = 72, message = "Password must be at least 8 characters")
     private String newPassword;
 
     public String getEmail() {

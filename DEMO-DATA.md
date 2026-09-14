@@ -96,7 +96,7 @@ Sets it to `password123`. For demo accounts specifically:
 .\scripts\list-accounts.ps1 -ResetDemoPasswords
 ```
 
-Sets every demo account to `demo1234`.
+Sets every demo account to `Practice-77x`.
 
 ---
 
@@ -121,7 +121,7 @@ Start the backend and Flyway rebuilds all eight migrations from nothing. With
 
 | | |
 | --- | --- |
-| Accounts | 1 administrator, 2 employers, 4 students — all `demo1234` |
+| Accounts | 1 administrator, 2 employers, 4 students — all `Practice-77x` |
 | Companies | Demo Yangon Tech (approved), Demo Sakura Systems (pending) |
 | Internships | 5, including one draft and one with no required skills |
 | Applications | 5, across five different statuses |

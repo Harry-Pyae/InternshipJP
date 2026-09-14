@@ -219,7 +219,7 @@ export default function AccountSettingsPage() {
                 icon="bi-shield-lock"
                 type="password"
                 autoComplete="new-password"
-                hint="At least 8 characters."
+                hint="At least 8 characters, with an uppercase letter, a lowercase letter, a digit and a symbol."
                 value={password.newPassword}
                 onChange={(value) => setPassword((c) => ({ ...c, newPassword: value }))}
                 error={passwordErrors?.newPassword}

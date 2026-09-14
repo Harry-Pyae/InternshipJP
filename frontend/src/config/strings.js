@@ -64,6 +64,13 @@ export const strings = {
   },
 
   my: {
+    // --- password policy ---
+    "At least 8 characters, with an uppercase letter, a lowercase letter, a digit and a symbol.": "အနည်းဆုံး စာလုံး ၈ လုံး၊ စာလုံးကြီး တစ်လုံး၊ စာလုံးငယ် တစ်လုံး၊ ဂဏန်း တစ်လုံးနှင့် သင်္ကေတ တစ်ခု ပါဝင်ရပါမည်။",
+    "Use at least 8 characters.": "အနည်းဆုံး စာလုံး ၈ လုံး သုံးပါ။",
+
+    // --- password policy ---
+    "Use at most 72 characters.": "အများဆုံး စာလုံး ၇၂ လုံး သုံးပါ။",
+
     // --- sign-in lock ---
     "Clear sign-in lock": "ဝင်ရောက်မှု ပိတ်ဆို့ခြင်း ဖြေရှင်းရန်",
     "Sign-in lock cleared": "ဝင်ရောက်မှု ပိတ်ဆို့ခြင်း ဖြေရှင်းပြီး",
@@ -650,7 +657,6 @@ export const strings = {
     "Ask a question and it will be saved here.": "မေးခွန်း တစ်ခု မေးပါ။ ဤနေရာတွင် သိမ်းဆည်းထားပါမည်။",
     "Ask the assistant a question": "အကူအညီကို မေးခွန်း တစ်ခု မေးပါ",
     "Assistant mode": "အကူအညီ ပုံစံ",
-    "At least 8 characters.": "အနည်းဆုံး စာလုံး ၈ လုံး။",
     "Availability": "အားလပ်ချိန်",
     "Backend API": "Backend API",
     "Certificate preview": "လက်မှတ် အစမ်းကြည့်ရှုခြင်း",
