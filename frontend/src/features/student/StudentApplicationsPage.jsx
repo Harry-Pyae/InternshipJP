@@ -11,6 +11,7 @@ import { timeAgo, exactTime } from "../../api/relativeTime.js";
 import SearchBox, { matches } from "../../components/shared/SearchBox.jsx";
 import { useLanguage } from "../../config/languageContext.jsx";
 import Pagination from "../../components/shared/Pagination.jsx";
+import ConfirmDialog from "../../components/shared/ConfirmDialog.jsx";
 
 /**
  * Everything this student has applied to.
@@ -21,6 +22,10 @@ export default function StudentApplicationsPage() {
   const [page, setPage] = useState(0);
   const [rows, setRows] = useState(null);
   const [error, setError] = useState(null);
+  // Which application is being replied to, and whether the send is in flight.
+  const [replyTo, setReplyTo] = useState(null);
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState("");
 
   const load = useCallback(async () => {
     setRows(null);
@@ -63,6 +68,12 @@ export default function StudentApplicationsPage() {
           </button>
         }
       />
+
+      {sent ? (
+        <div className="alert alert-success" role="status">
+          {sent}
+        </div>
+      ) : null}
 
       <ErrorAlert message={error} onRetry={load} />
 
@@ -110,9 +121,26 @@ export default function StudentApplicationsPage() {
                 {
                   key: "actions",
                   header: "",
-                  render: (row) =>
-                    row.internshipId ? (
-                      <div className="d-flex justify-content-end">
+                  render: (row) => (
+                    <div className="d-flex justify-content-end gap-2">
+                      {/* An employer can ask a question on an application and
+                          there was no way to answer it here. A closed
+                          application is not a conversation any more, so the
+                          reply goes with it. */}
+                      {row.status === "REJECTED" || row.status === "WITHDRAWN" ? null : (
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-ijp-quiet"
+                          onClick={() => {
+                            setSent("");
+                            setReplyTo(row);
+                          }}
+                        >
+                          <i className="bi bi-reply me-1" aria-hidden="true" />
+                          Reply
+                        </button>
+                      )}
+                      {row.internshipId ? (
                         <Link
                           className="btn btn-sm btn-ijp-quiet"
                           to={`/student/internships/${row.internshipId}`}
@@ -120,8 +148,9 @@ export default function StudentApplicationsPage() {
                           View
                           <i className="bi bi-arrow-right ms-1" aria-hidden="true" />
                         </Link>
-                      </div>
-                    ) : null,
+                      ) : null}
+                    </div>
+                  ),
                 },
               ]}
               rows={pageRows}
@@ -147,6 +176,32 @@ export default function StudentApplicationsPage() {
         Only the employer can change an application's status. You will get a notification
         when one of these moves.
       </p>
+      <ConfirmDialog
+        open={Boolean(replyTo)}
+        tone="neutral"
+        title={replyTo ? `Reply about ${replyTo.internshipTitle}` : ""}
+        message={replyTo ? `Your reply goes to ${replyTo.companyName}.` : ""}
+        note="They see it as a notification, the same way you see theirs."
+        confirmLabel="Send reply"
+        requireReason
+        reasonLabel="Your reply"
+        busy={sending}
+        onCancel={() => setReplyTo(null)}
+        onConfirm={async (text) => {
+          setSending(true);
+          setError(null);
+          try {
+            await studentApi.replyToEmployer(replyTo.id, text);
+            setSent("Your reply was sent.");
+            setReplyTo(null);
+          } catch (requestError) {
+            setError(describeApiError(requestError));
+          } finally {
+            setSending(false);
+          }
+        }}
+      />
+
     </>
   );
 }

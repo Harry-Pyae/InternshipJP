@@ -45,8 +45,14 @@ public class FeedbackController {
         notificationService.notifyAdmins(
                 "FEEDBACK",
                 "Feedback from " + sender.getFullName(),
-                sender.getFullName() + " (" + sender.getRole().name().toLowerCase() + ") wrote: "
-                        + request.getMessage().trim());
+                // The attribution and the message on separate lines, with what
+                // the person actually wrote in quotation marks - the same shape
+                // as an employer's note on an application. Run together, "Aung
+                // Kyaw (employer) wrote: I want more ai assistant" reads as one
+                // sentence, and the reader has to find where the report stops
+                // and the person's own words start.
+                sender.getFullName() + " (" + sender.getRole().name().toLowerCase() + ") wrote:"
+                        + "\n\u201c" + request.getMessage().trim() + "\u201d");
 
         return new ApiMessageResponse("Thank you. Your feedback was sent to the team.");
     }

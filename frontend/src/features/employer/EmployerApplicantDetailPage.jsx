@@ -4,7 +4,6 @@ import { Link, useParams } from "react-router-dom";
 import PageHeader from "../../components/shared/PageHeader.jsx";
 import SectionCard from "../../components/shared/SectionCard.jsx";
 import StatusBadge from "../../components/shared/StatusBadge.jsx";
-import Select from "../../components/shared/Select.jsx";
 import ErrorAlert from "../../components/shared/ErrorAlert.jsx";
 import LoadingBlock from "../../components/shared/LoadingBlock.jsx";
 import Avatar from "../../components/shared/Avatar.jsx";
@@ -12,19 +11,54 @@ import { employerApi } from "../../api/employerApi.js";
 import { describeApiError } from "../../api/axiosClient.js";
 import { timeAgo, exactTime } from "../../api/relativeTime.js";
 import { certificateAge } from "../../api/relativeTime.js";
+import { useLanguage } from "../../config/languageContext.jsx";
 
 /**
  * One applicant, in full.
  */
-const STATUSES = [
-  { value: "UNDER_REVIEW", label: "Under review" },
-  { value: "SHORTLISTED", label: "Shortlisted" },
-  { value: "INTERVIEW", label: "Interview" },
-  { value: "ACCEPTED", label: "Accepted" },
-  { value: "REJECTED", label: "Rejected" },
-];
+const LABELS = {
+  APPLIED: "Applied",
+  UNDER_REVIEW: "Under review",
+  SHORTLISTED: "Shortlisted",
+  INTERVIEW: "Interview",
+  ACCEPTED: "Accepted",
+  REJECTED: "Rejected",
+  WITHDRAWN: "Withdrawn",
+};
+
+/**
+ * Where an application can go from where it is.
+ *
+ * The same table the server enforces. The dropdown used to offer all five
+ * statuses whatever stage the application was at, so it looked as though an
+ * employer could jump straight from Applied to Accepted - and the server
+ * refused it after they tried. Offering only what is possible says the rule
+ * without anybody having to read it.
+ */
+const NEXT = {
+  APPLIED: ["UNDER_REVIEW", "SHORTLISTED", "REJECTED"],
+  UNDER_REVIEW: ["SHORTLISTED", "INTERVIEW", "REJECTED"],
+  SHORTLISTED: ["INTERVIEW", "ACCEPTED", "REJECTED"],
+  INTERVIEW: ["ACCEPTED", "REJECTED"],
+  ACCEPTED: [],
+  REJECTED: [],
+  WITHDRAWN: [],
+};
+
+/** The ordinary path, shown so the stage after this one is visible. */
+/** What choosing each one means, shown on the button itself. */
+const MEANS = {
+  UNDER_REVIEW: "You are reading the application",
+  SHORTLISTED: "Worth taking further",
+  INTERVIEW: "You want to meet them",
+  ACCEPTED: "Offer the place - this fills a slot",
+  REJECTED: "Close it, with a reason below",
+};
+
+const JOURNEY = ["APPLIED", "UNDER_REVIEW", "SHORTLISTED", "INTERVIEW", "ACCEPTED"];
 
 export default function EmployerApplicantDetailPage() {
+  const { t } = useLanguage();
   const { id } = useParams();
 
   const [application, setApplication] = useState(null);
@@ -65,7 +99,7 @@ export default function EmployerApplicantDetailPage() {
       // Accurate, and worth saying: updateStatus in ApplicationService creates
       // an APPLICATION_STATUS_CHANGED notification itself. The employer did
       // not send anything - the platform did, automatically.
-      setStatusDone("Status saved. The student is notified automatically.");
+      setStatusDone(t("Status saved. The student is notified automatically."));
       await load();
     } catch (requestError) {
       setError(describeApiError(requestError));
@@ -76,7 +110,7 @@ export default function EmployerApplicantDetailPage() {
 
   async function send() {
     if (!message.trim()) {
-      setError("Write a message before sending it.");
+      setError(t("Write a message before sending it."));
       return;
     }
     setSending(true);
@@ -85,7 +119,7 @@ export default function EmployerApplicantDetailPage() {
     try {
       await employerApi.messageApplicant(id, message.trim());
       setMessage("");
-      setMessageDone("Sent. It is in the student's notifications now.");
+      setMessageDone(t("Sent. It is in the student's notifications now."));
     } catch (requestError) {
       setError(describeApiError(requestError));
     } finally {
@@ -94,7 +128,7 @@ export default function EmployerApplicantDetailPage() {
   }
 
   if (application === null && !error) {
-    return <LoadingBlock label="Loading the application..." />;
+    return <LoadingBlock label={t("Loading the application...")} />;
   }
 
   const student = application?.student;
@@ -112,7 +146,7 @@ export default function EmployerApplicantDetailPage() {
         action={
           <Link className="btn btn-sm btn-ijp-quiet" to="/employer/applications">
             <i className="bi bi-arrow-left me-1" aria-hidden="true" />
-            Back to applicants
+            {t("Back to applicants")}
           </Link>
         }
       />
@@ -135,24 +169,24 @@ export default function EmployerApplicantDetailPage() {
               </div>
 
               <dl className="ijp-detail-grid ijp-detail mb-0">
-                <Row label="Email" value={student?.email} mono />
-                <Row label="Location" value={student?.location} />
-                <Row label="Country" value={student?.country} />
-                <Row label="Available from" value={student?.availableFrom} mono />
-                <Row label="Applied" value={timeAgo(application.createdAt)} />
-                <Row label="Preferred work mode" value={student?.preferredWorkMode} />
+                <Row label={t("Email")} value={student?.email} mono />
+                <Row label={t("Location")} value={student?.location} />
+                <Row label={t("Country")} value={student?.country} />
+                <Row label={t("Available from")} value={student?.availableFrom} mono />
+                <Row label={t("Applied")} value={timeAgo(application.createdAt)} />
+                <Row label={t("Preferred work mode")} value={student?.preferredWorkMode} />
               </dl>
             </div>
 
             {application.coverLetter ? (
-              <SectionCard title="Cover letter">
+              <SectionCard title={t("Cover letter")}>
                 <p className="mb-0" style={{ whiteSpace: "pre-line", lineHeight: 1.6 }}>
                   {application.coverLetter}
                 </p>
               </SectionCard>
             ) : null}
 
-            <SectionCard title="Skills">
+            <SectionCard title={t("Skills")}>
               {application.skills?.length ? (
                 <div className="ijp-pill-row">
                   {application.skills.map((skill) => (
@@ -165,11 +199,11 @@ export default function EmployerApplicantDetailPage() {
                   ))}
                 </div>
               ) : (
-                <p className="ijp-muted mb-0">This student has not listed any skills.</p>
+                <p className="ijp-muted mb-0">{t("This student has not listed any skills.")}</p>
               )}
             </SectionCard>
 
-            <SectionCard title="Verified certificates">
+            <SectionCard title={t("Verified certificates")}>
               {certificates.length ? (
                 <ul className="ijp-gap-grid mb-0">
                   {certificates.map((certificate) => (
@@ -183,7 +217,7 @@ export default function EmployerApplicantDetailPage() {
                           {certificate.title}
                         </span>
                         <span className="ijp-muted">
-                          {certificate.issuingOrganization || "Issuer not given"}
+                          {certificate.issuingOrganization || t("Issuer not given")}
                           {certificate.issueDate ? ` · ${certificate.issueDate}` : ""}
                           {certificate.issueDate ? ` · ${certificateAge(certificate.issueDate)}` : ""}
                         </span>
@@ -192,7 +226,7 @@ export default function EmployerApplicantDetailPage() {
                   ))}
                 </ul>
               ) : (
-                <p className="ijp-muted mb-0">No verified certificates.</p>
+                <p className="ijp-muted mb-0">{t("No verified certificates.")}</p>
               )}
               <p className="ijp-field-hint mt-3 mb-0">
                 Only qualifications an administrator has checked against the original
@@ -201,7 +235,7 @@ export default function EmployerApplicantDetailPage() {
             </SectionCard>
 
             {application.statusHistory?.length ? (
-              <SectionCard title="History">
+              <SectionCard title={t("History")}>
                 <ul className="ijp-fix-list mb-0">
                   {application.statusHistory.map((entry, index) => (
                     <li className="ijp-fix" key={entry.id ?? index}>
@@ -223,24 +257,64 @@ export default function EmployerApplicantDetailPage() {
 
           <div className="ijp-review-side d-grid gap-3">
             <div className="ijp-card p-3 p-md-4">
-              <p className="ijp-label mb-1">Decision</p>
+              <p className="ijp-label mb-1">{t("Decision")}</p>
               <p className="ijp-field-hint mb-3">
-                Changing the status notifies the student on its own. You do not need to
-                send a message as well.
+                {t("Changing the status notifies the student on its own. You do not need to send a message as well.")}
               </p>
-              <label className="ijp-field-label" htmlFor="appStatus">
-                Status
-              </label>
-              <div className="mb-2">
-                <Select
-                  value={status}
-                  onChange={setStatus}
-                  groups={[{ label: null, items: STATUSES }]}
-                  ariaLabel="Application status"
-                />
-              </div>
+              {/* Buttons, not a dropdown.
+                  A dropdown asks somebody to open it, read a list, choose, and
+                  then find the save button - four steps to answer one question.
+                  There are at most three answers, so each is a button that says
+                  what choosing it means. */}
+              <p className="ijp-field-label">{t("Where does this go next?")}</p>
+
+              {(NEXT[application.status] ?? []).length === 0 ? (
+                <p className="ijp-field-note mb-0">
+                  {application.status === "ACCEPTED"
+                    ? t("This applicant was accepted. Nothing further to set.")
+                    : t("This application was closed. A closed application cannot be reopened.")}
+                </p>
+              ) : (
+                <>
+                  <div className="ijp-decide">
+                    {(NEXT[application.status] ?? []).map((next) => (
+                      <button
+                        type="button"
+                        key={next}
+                        className={`ijp-decide-option${
+                          status === next ? " ijp-decide-option--on" : ""
+                        }${next === "REJECTED" ? " ijp-decide-option--no" : ""}`}
+                        onClick={() => setStatus(next)}
+                      >
+                        <span className="ijp-decide-name">{t(LABELS[next])}</span>
+                        <span className="ijp-decide-why">{t(MEANS[next])}</span>
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* The path sits after the choice, not before it. The decision
+                      is what the employer came here to make; the stages are
+                      context for it. */}
+                  <p className="ijp-decide-path">
+                    {JOURNEY.map((stage, index) => (
+                      <span key={stage}>
+                        {index > 0 ? <span className="ijp-decide-arrow"> › </span> : null}
+                        <span
+                          className={stage === application.status ? "ijp-decide-here" : undefined}
+                        >
+                          {t(LABELS[stage])}
+                        </span>
+                      </span>
+                    ))}
+                    <span className="ijp-decide-note">
+                      {" — a stage can be skipped forward, never gone back to."}
+                    </span>
+                  </p>
+                </>
+              )}
+
               <label className="ijp-field-label" htmlFor="statusNote">
-                Note <span className="ijp-muted fw-normal">(optional)</span>
+                {t("Note")} <span className="ijp-muted fw-normal">{t("(optional)")}</span>
               </label>
               <textarea
                 id="statusNote"
@@ -248,7 +322,7 @@ export default function EmployerApplicantDetailPage() {
                 rows={3}
                 value={note}
                 onChange={(event) => setNote(event.target.value)}
-                placeholder="Kept with the application history."
+                placeholder={t("Kept with the application history.")}
               />
               <button
                 type="button"
@@ -267,9 +341,9 @@ export default function EmployerApplicantDetailPage() {
             </div>
 
             <div className="ijp-card p-3 p-md-4">
-              <p className="ijp-label mb-2">Ask for more information</p>
+              <p className="ijp-label mb-2">{t("Ask for more information")}</p>
               <textarea
-                aria-label="Ask for more information"
+                aria-label={t("Ask for more information")}
                 className="form-control mb-2"
                 rows={4}
                 value={message}
@@ -288,7 +362,7 @@ export default function EmployerApplicantDetailPage() {
                 disabled={sending || !message.trim()}
               >
                 <i className="bi bi-send me-1" aria-hidden="true" />
-                {sending ? "Sending..." : "Send to applicant"}
+                {sending ? "Sending..." : t("Send to applicant")}
               </button>
               {messageDone ? (
                 <p className="ijp-state--ok small mt-2 mb-0" role="status">

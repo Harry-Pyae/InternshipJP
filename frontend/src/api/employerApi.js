@@ -73,7 +73,12 @@ export const employerApi = {
       // for ten minutes, so without this a refetch after a change is answered
       // from the browser cache with the old image.
       .get("/api/employer/company/logo", { responseType: "blob", params: { v: version } })
-      .then((response) => URL.createObjectURL(response.data))
+      // 204 means no logo, the same as a profile photo.
+      .then((response) =>
+        response.status === 204 || !response.data || response.data.size === 0
+          ? null
+          : URL.createObjectURL(response.data),
+      )
       .catch(() => null),
 
   /** Removes the company logo. */

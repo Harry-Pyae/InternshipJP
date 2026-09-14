@@ -89,10 +89,11 @@ export default function AdminProfileEditPage() {
                 <AuthField
                   id="adminPhone"
                   label={t("Phone")}
+                  placeholder="+959795123456"
                   icon="bi-telephone"
                   value={form.phone}
                   onChange={(value) => setForm((c) => ({ ...c, phone: value }))}
-                  hint={t("Optional. Useful when another administrator needs to reach you.")}
+                  hint={t("Optional. Myanmar format, for example +959795123456.")}
                 />
 
                 <div className="d-flex gap-2">

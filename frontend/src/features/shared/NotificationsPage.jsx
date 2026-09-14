@@ -41,6 +41,9 @@ const ROUTES = {
   // registration number. It goes to the company page because that is where
   // the organisation is, and an unexpected joiner is a reason to look.
   COMPANY_RECRUITER_JOINED: { EMPLOYER: "/employer/company" },
+  // Raised when a student applies. It goes to the applicants list, which is
+  // where the employer acts on it.
+  APPLICATION_RECEIVED: { EMPLOYER: "/employer/applications" },
   FEEDBACK: { ADMIN: "/admin/faq" },
   CERTIFICATE_VERIFIED: { STUDENT: "/student/certificates" },
   CERTIFICATE_REJECTED: { STUDENT: "/student/certificates" },
@@ -256,7 +259,31 @@ function NotificationRow({ item, onOpen, clickable }) {
 
         <span className="ijp-notif-body">
           {item.title ? <span className="ijp-notif-title">{t(item.title)}</span> : null}
-          <span className="ijp-notif-text">{item.message}</span>
+          {/* One line per fact.
+              A status change and the employer's own words are two different
+              kinds of thing, and run together they read as one sentence with
+              no clue where the system stops speaking and a person starts. The
+              server separates them with a newline; this is what draws it.
+              A line in quotation marks is somebody talking, so it is set apart
+              like a quotation. */}
+          <span className="ijp-notif-text">
+            {String(item.message ?? "").split("\n").map((line, index) =>
+              // A quoted line holds somebody's own words. Matching on the
+              // curly quotation marks at both ends rather than just the start,
+              // because the attribution comes first: Demo Yangon Tech wrote:
+              // \u201c...\u201d. A vacancy title with a stray curly quote in it
+              // will not end with one, so it is not mistaken for speech.
+              line.trim().includes("\u201c") && line.trim().endsWith("\u201d") ? (
+                <span className="ijp-notif-quote" key={index}>
+                  {line}
+                </span>
+              ) : (
+                <span className="ijp-notif-line" key={index}>
+                  {line}
+                </span>
+              ),
+            )}
+          </span>
           <span className="ijp-notif-meta" title={exactTime(item.createdAt)}>
             <i className="bi bi-clock" aria-hidden="true" />
             {timeAgo(item.createdAt)}

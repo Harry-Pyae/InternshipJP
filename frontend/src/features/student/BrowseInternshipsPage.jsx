@@ -91,10 +91,16 @@ export default function BrowseInternshipsPage() {
             >
               <div className="d-flex justify-content-between align-items-start gap-3">
                 <div style={{ minWidth: 0 }}>
+                  {/* The company sits with the title, not under it as a footnote.
+                      Two firms advertise "Software Engineering Intern" and the
+                      cards were telling them apart in muted 12px. */}
                   <p className="ijp-match-title">{internship.title}</p>
-                  <p className="ijp-muted small mb-0">
+                  <p className="ijp-match-company">
+                    <i className="bi bi-building me-1" aria-hidden="true" />
                     {internship.companyName}
-                    {internship.location ? ` · ${internship.location}` : ""}
+                  </p>
+                  <p className="ijp-muted small mb-0">
+                    {internship.location}
                   </p>
                 </div>
                 <StatusBadge value={internship.status} />

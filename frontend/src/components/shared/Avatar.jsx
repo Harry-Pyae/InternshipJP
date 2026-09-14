@@ -30,6 +30,16 @@ const listeners = new Set();
 /** Incremented per user on every change, to defeat the HTTP cache. */
 const versions = new Map();
 
+/**
+ * Requests already in the air, so four avatars for the same person share one.
+ *
+ * The result cache only helps after a request has finished. Four rows showing
+ * the same person all mount in the same tick, all find the cache empty, and
+ * all four ask the server - which is what filled the console with the same
+ * line four times over.
+ */
+const inFlight = new Map();
+
 /** Forgets a cached photo and tells every mounted avatar to fetch it again. */
 export function invalidatePhoto(userId) {
   const previous = photoCache.get(userId);
@@ -39,6 +49,8 @@ export function invalidatePhoto(userId) {
     URL.revokeObjectURL(previous);
   }
   photoCache.delete(userId);
+  // A request already running would put the old photo back.
+  inFlight.delete(userId);
   versions.set(userId, (versions.get(userId) ?? 0) + 1);
   listeners.forEach((notify) => notify(userId));
 }
@@ -68,8 +80,19 @@ export default function Avatar({ name, userId, size = "md", className = "", zoom
       return undefined;
     }
     let alive = true;
-    accountApi.fetchPhoto(userId, versions.get(userId) ?? 0).then((url) => {
-      photoCache.set(userId, url);
+    let request = inFlight.get(userId);
+    if (!request) {
+      request = accountApi.fetchPhoto(userId, versions.get(userId) ?? 0)
+        .then((url) => {
+          photoCache.set(userId, url);
+          return url;
+        })
+        .finally(() => {
+          inFlight.delete(userId);
+        });
+      inFlight.set(userId, request);
+    }
+    request.then((url) => {
       if (alive) setPhoto(url);
     });
     return () => {

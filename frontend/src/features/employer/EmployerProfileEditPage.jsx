@@ -116,6 +116,7 @@ export default function EmployerProfileEditPage() {
                 <AuthField
                   id="contactPhone"
                   label={t("Contact phone")}
+                  placeholder="+959795123456"
                   icon="bi-telephone"
                   value={form.contactPhone}
                   onChange={(value) => set("contactPhone", value)}

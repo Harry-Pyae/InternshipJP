@@ -305,13 +305,19 @@ function FeedbackForm() {
  * covers older rows and any notification that acquires the type later.
  */
 function parseFeedback(item) {
+  // The message now reads:  Name (role) wrote:\n\u201ctheir words\u201d
+  // The newline and the quotation marks are both optional here, so feedback
+  // stored before that change still parses.
   const match = /^(.+?)\s+\((student|employer|admin)\)\s+wrote:\s*([\s\S]*)$/i.exec(
     item.message ?? "",
   );
   if (!match) {
     return { name: null, role: null, text: item.message ?? "" };
   }
-  return { name: match[1], role: match[2].toUpperCase(), text: match[3] };
+  // Strip the quotation marks: the card already shows the text as the person's
+  // own words, so repeating them inside would be quoting a quotation.
+  const text = match[3].trim().replace(/^\u201c/, "").replace(/\u201d$/, "");
+  return { name: match[1], role: match[2].toUpperCase(), text };
 }
 
 function FeedbackInbox() {

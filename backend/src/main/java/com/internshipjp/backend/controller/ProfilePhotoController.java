@@ -77,7 +77,7 @@ public class ProfilePhotoController {
     /**
      * Streams somebody's photo.
      *
-     * A 404 when there is none, rather than a placeholder image: the interface
+     * Nothing when there is none, rather than a placeholder image: the interface
      * decides what to draw in its absence, and it already has initials for
      * exactly that.
      */
@@ -87,7 +87,14 @@ public class ProfilePhotoController {
                 .orElseThrow(() -> NotFoundException.of("User", userId));
 
         if (user.getPhotoPath() == null) {
-            return ResponseEntity.notFound().build();
+            // 204, not 404.
+            //
+            // The account exists and the request succeeded - there is simply no
+            // photo, which is the ordinary case for most people. 404 says the
+            // address is wrong, and browsers log every one of them as an error,
+            // so an avatar with initials filled the console with failures that
+            // were not failures.
+            return ResponseEntity.noContent().build();
         }
 
         Resource resource = fileStorageService.loadAsResource(user.getPhotoPath());

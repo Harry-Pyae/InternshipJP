@@ -18,6 +18,22 @@ export const rules = {
     return EMAIL.test(value.trim()) ? null : "Enter a valid email address.";
   },
 
+  /**
+   * A Myanmar number, in the form it is dialled from abroad.
+   *
+   * Mirrors the @Pattern on the request objects. Optional: an empty field
+   * passes, an ill-formed one does not.
+   */
+  phone: () => (value) => {
+    if (!value) {
+      return null;
+    }
+    if (!/^\+95[0-9]{7,10}$/.test(value.trim())) {
+      return "Use a Myanmar number in the form +959XXXXXXXX.";
+    }
+    return null;
+  },
+
   password: () => (value) => {
     if (!value) {
       return "Password is required.";

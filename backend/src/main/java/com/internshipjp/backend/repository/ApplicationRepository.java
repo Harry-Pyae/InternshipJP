@@ -8,6 +8,8 @@ import com.internshipjp.backend.entity.ApplicationStatus;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Applications.
@@ -45,6 +47,19 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
     long countByInternship_Company_Id(Long companyId);
 
     long countByInternshipId(Long internshipId);
+
+    /** How many places on this vacancy are already taken. */
+    long countByInternshipIdAndStatus(Long internshipId, ApplicationStatus status);
+
+    /**
+     * Everyone still waiting on this vacancy.
+     *
+     * Used when the last place is filled: those applications cannot
+     * succeed any more, and leaving them open would have people waiting on
+     * a decision that can no longer go their way.
+     */
+    List<Application> findByInternshipIdAndStatusNotIn(
+            Long internshipId, Collection<ApplicationStatus> statuses);
     long countByInternship_Company_IdAndStatus(Long companyId, ApplicationStatus status);
 
 }

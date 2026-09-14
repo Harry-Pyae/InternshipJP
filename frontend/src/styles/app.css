@@ -2742,16 +2742,19 @@ h4 {
   padding: 0;
   margin: 0;
   display: grid;
-  gap: 0.6rem;
+  gap: 0.7rem;
 }
 
 .ijp-notif {
   display: flex;
   align-items: flex-start;
   gap: 0.75rem;
-  padding: 0.9rem 1rem;
+  /* Roomier than it was. Three lines of text at a 0.2rem gap read as one
+     paragraph, which is why the title, the message and the timestamp all ran
+     together. */
+  padding: 1.05rem 1.15rem;
   border: 1px solid var(--ijp-border);
-  border-radius: var(--ijp-radius-sm);
+  border-radius: var(--ijp-radius);
   background-color: var(--ijp-surface-sunken);
 }
 
@@ -2778,20 +2781,46 @@ h4 {
 .ijp-notif-body {
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
   min-width: 0;
   flex: 1 1 auto;
 }
 
 .ijp-notif-title {
-  font-weight: 600;
-  font-size: 0.92rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  color: var(--ijp-ink);
+  margin-bottom: 0.3rem;
 }
 
 .ijp-notif-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
   font-size: 0.88rem;
-  line-height: 1.5;
+  line-height: 1.6;
   color: var(--ijp-ink-soft);
+  overflow-wrap: anywhere;
+}
+
+.ijp-notif-line {
+  display: block;
+}
+
+/* Somebody's own words, set apart the way a quotation is. Without this the
+   employer's note read as a continuation of the system's sentence. */
+.ijp-notif-quote {
+  display: block;
+  padding: 0.45rem 0.7rem;
+  border-left: 3px solid var(--ijp-border-strong);
+  background-color: var(--ijp-surface-sunken);
+  border-radius: 0 var(--ijp-radius-sm) var(--ijp-radius-sm) 0;
+  color: var(--ijp-ink);
+  font-style: italic;
+}
+
+.ijp-notif--unread .ijp-notif-quote {
+  background-color: var(--ijp-surface-sunken);
 }
 
 .ijp-notif--unread .ijp-notif-text {
@@ -2801,10 +2830,14 @@ h4 {
 .ijp-notif-meta {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.5rem;
   font-size: 0.75rem;
   color: var(--ijp-ink-faint);
-  margin-top: 0.15rem;
+  /* Set apart by a rule rather than by a gap. The timestamp was reading as the
+     last few words of the message. */
+  margin-top: 0.7rem;
+  padding-top: 0.55rem;
+  border-top: 1px solid var(--ijp-border);
 }
 
 .ijp-notif-type {
@@ -3507,19 +3540,21 @@ h4 {
 .ijp-bell-list > li {
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
-  padding: 0.65rem 0.9rem;
+  /* Was 0.15rem, which put the timestamp close enough to the title to read as
+     part of it. */
+  gap: 0.3rem;
+  padding: 0.8rem 0.95rem;
   border-bottom: 1px solid var(--ijp-border);
   font-size: 0.85rem;
+}
+
+.ijp-bell-list > li:last-child {
+  border-bottom: 0;
 }
 
 .ijp-bell-item--unread {
   border-left: 3px solid var(--ijp-signal);
   background-color: var(--ijp-surface-sunken);
-}
-
-.ijp-bell-text {
-  line-height: 1.4;
 }
 
 .ijp-bell-time {
@@ -3586,7 +3621,7 @@ h4 {
 .ijp-notif-hit {
   display: flex;
   align-items: flex-start;
-  gap: 0.75rem;
+  gap: 0.85rem;
   width: 100%;
   padding: 0;
   border: 0;
@@ -3610,13 +3645,11 @@ h4 {
 .ijp-notif-icon {
   display: grid;
   place-items: center;
-  width: 2rem;
-  height: 2rem;
-  flex: 0 0 2rem;
-  border-radius: 9px;
-  font-size: 0.9rem;
-  background-color: var(--ijp-surface-sunken);
-  color: var(--ijp-ink-faint);
+  width: 2.25rem;
+  height: 2.25rem;
+  flex: 0 0 2.25rem;
+  border-radius: var(--ijp-radius-sm);
+  font-size: 0.95rem;
 }
 
 .ijp-notif-icon--ok {
@@ -5309,4 +5342,103 @@ h4 {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+/* --- application journey ----------------------------------------------------
+   The stages an application passes through, with the current one marked. The
+   dropdown beside it only offers what is reachable; this says why. */
+/* Passed through. Stated rather than implied, because an employer looking at
+   a late-stage application needs to know it cannot go back. */
+/* The company a vacancy belongs to, beside its title rather than beneath it in
+   muted small text. Two companies advertise the same role with the same words,
+   and the name is what tells them apart. */
+.ijp-match-company {
+  margin: 0.1rem 0 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ijp-signal);
+  overflow-wrap: anywhere;
+}
+
+/* --- the decision on an application ----------------------------------------
+   One button per answer, each saying what choosing it means. A dropdown asked
+   the employer to open it, read a list, choose, and then find save - four
+   steps to answer one question with at most three answers. */
+.ijp-decide {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 0.5rem;
+  margin-bottom: 0.85rem;
+}
+
+.ijp-decide-option {
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.7rem 0.8rem;
+  text-align: left;
+  border: 1px solid var(--ijp-border-strong);
+  border-radius: var(--ijp-radius-sm);
+  background-color: var(--ijp-surface);
+  cursor: pointer;
+}
+
+.ijp-decide-option:hover {
+  border-color: var(--ijp-signal);
+}
+
+.ijp-decide-option--on {
+  border-color: var(--ijp-signal);
+  background-color: var(--ijp-signal-soft);
+}
+
+/* Rejecting is the one that cannot be undone, so it does not look like the
+   others until it is chosen. */
+.ijp-decide-option--no:hover {
+  border-color: var(--ijp-rejected);
+}
+
+.ijp-decide-option--no.ijp-decide-option--on {
+  border-color: var(--ijp-rejected);
+  background-color: var(--ijp-rejected-soft);
+}
+
+.ijp-decide-name {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--ijp-ink);
+}
+
+.ijp-decide-why {
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--ijp-ink-soft);
+}
+
+.ijp-decide-path {
+  margin: 0 0 0.9rem;
+  font-size: 0.78rem;
+  color: var(--ijp-ink-faint);
+}
+
+.ijp-decide-here {
+  font-weight: 700;
+  color: var(--ijp-signal);
+}
+
+.ijp-decide-arrow {
+  color: var(--ijp-border-strong);
+}
+
+.ijp-decide-note {
+  color: var(--ijp-ink-faint);
+}
+
+/* Two lines in the dropdown. The full text is on the notifications page. */
+.ijp-bell-text {
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }

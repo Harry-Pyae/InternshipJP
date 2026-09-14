@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import com.internshipjp.backend.dto.request.ApplicantMessageRequest;
+import com.internshipjp.backend.dto.response.ApiMessageResponse;
 
 /**
  * Applying to an internship, and the student's own application history.
@@ -48,6 +50,21 @@ public class StudentApplicationController {
         ApplicationSummaryResponse created =
                 applicationService.apply(currentUserService.requireUserId(), id, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    }
+
+    /**
+     * A student replying to the employer on their own application.
+     *
+     * The mirror of the employer's /applications/{id}/message. Without it an
+     * employer could ask a question and the student had nowhere to answer it.
+     */
+    @PostMapping("/api/student/applications/{id}/message")
+    @PreAuthorize("hasRole('STUDENT')")
+    public ApiMessageResponse message(@PathVariable Long id,
+                                      @Valid @RequestBody ApplicantMessageRequest request) {
+        applicationService.messageEmployer(
+                currentUserService.requireUserId(), id, request.getMessage());
+        return new ApiMessageResponse("Your reply was sent to the employer.");
     }
 
     @GetMapping("/api/student/applications")

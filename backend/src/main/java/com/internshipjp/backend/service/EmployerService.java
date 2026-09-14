@@ -120,7 +120,9 @@ private final FileStorageService fileStorageService;
     public ResponseEntity<Resource> ownCompanyLogo(Long userId) {
         Company company = requireProfile(userId).getCompany();
         if (company == null || company.getLogoPath() == null) {
-            return ResponseEntity.notFound().build();
+            // 204 rather than 404, for the same reason as a profile photo: the
+            // company exists and the request succeeded, there is just no logo.
+            return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.noStore())

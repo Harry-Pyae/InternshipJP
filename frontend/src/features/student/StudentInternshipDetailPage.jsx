@@ -99,7 +99,6 @@ export default function StudentInternshipDetailPage() {
                     <i className="bi bi-cash" aria-hidden="true" />
                     {internship.stipendAmount}
                     {internship.stipendCurrency ? ` ${internship.stipendCurrency}` : ""}
-                    {internship.stipendCurrency ? ` ${internship.stipendCurrency}` : ""}
                   </span>
                 ) : null}
               </div>

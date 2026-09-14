@@ -38,7 +38,14 @@ export const accountApi = {
       // image - which is why removing a photo appeared to do nothing. The
       // version makes the address different, so a change is always fetched.
       .get(`/api/account/photo/${userId}`, { responseType: "blob", params: { v: version } })
-      .then((response) => URL.createObjectURL(response.data))
+      // 204 with an empty body means the account has no photo. Only a real
+      // image becomes an object URL - otherwise the browser would be handed a
+      // zero-byte blob and draw a broken picture.
+      .then((response) =>
+        response.status === 204 || !response.data || response.data.size === 0
+          ? null
+          : URL.createObjectURL(response.data),
+      )
       .catch(() => null),
 
   changePassword: (data) =>

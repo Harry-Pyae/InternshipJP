@@ -31,6 +31,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import com.internshipjp.backend.entity.Company;
+import com.internshipjp.backend.repository.InternshipRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import com.internshipjp.backend.repository.EmployerProfileRepository;
 
 /**
  * Applying to internships, and reviewing applicants.
@@ -45,6 +49,8 @@ import com.internshipjp.backend.entity.Company;
  */
 @Service
 public class ApplicationService {
+
+    private static final Logger log = LoggerFactory.getLogger(ApplicationService.class);
 
     /**
      * Which status may follow which. Anything not listed is rejected, so a
@@ -64,6 +70,8 @@ public class ApplicationService {
             ApplicationStatus.WITHDRAWN, List.of());
 
     private final ApplicationRepository applicationRepository;
+    private final InternshipRepository internshipRepository;
+    private final EmployerProfileRepository employerProfileRepository;
     private final ApplicationStatusHistoryRepository historyRepository;
     private final StudentSkillRepository studentSkillRepository;
     private final StudentProfileService studentProfileService;
@@ -85,7 +93,11 @@ public class ApplicationService {
                               NotificationService notificationService,
                               ApplicationMapper applicationMapper,
                               InternshipMapper internshipMapper,
-                              StudentMapper studentMapper) {
+                              StudentMapper studentMapper,
+                              InternshipRepository internshipRepository,
+                              EmployerProfileRepository employerProfileRepository) {
+        this.employerProfileRepository = employerProfileRepository;
+        this.internshipRepository = internshipRepository;
         this.applicationRepository = applicationRepository;
         this.historyRepository = historyRepository;
         this.studentSkillRepository = studentSkillRepository;
@@ -127,6 +139,16 @@ public class ApplicationService {
         Application saved = applicationRepository.save(application);
 
         recordHistory(saved, null, ApplicationStatus.APPLIED, userId, "Application submitted");
+
+        // Every notification in the system went to a student or an
+        // administrator. An employer was never told anything - not even that
+        // somebody had applied to their own vacancy, which is the one thing
+        // they are waiting for.
+        notifyRecruiters(internship,
+                "APPLICATION_RECEIVED",
+                "A new application",
+                profile.getUser().getFullName() + " applied for \""
+                        + internship.getTitle() + "\".");
 
         return applicationMapper.toSummary(saved);
     }
@@ -214,6 +236,24 @@ public class ApplicationService {
                     "An application cannot move from " + from.name() + " to " + to.name() + ".");
         }
 
+        // A vacancy advertises a number of places. Nothing counted acceptances
+        // against it, so an employer could accept twenty people for one place
+        // and the vacancy stayed open to new applicants throughout.
+        if (to == ApplicationStatus.ACCEPTED) {
+            Internship target = application.getInternship();
+            // A primitive int, so it is 0 rather than null when never set.
+            // Treating 0 as one place stops a vacancy closing on its first
+            // acceptance because nobody typed a number.
+            int places = Math.max(1, target.getAvailablePositions());
+            long taken = applicationRepository.countByInternshipIdAndStatus(
+                    target.getId(), ApplicationStatus.ACCEPTED);
+            if (taken >= places) {
+                throw new BadRequestException(
+                        "Every place on this vacancy is already taken. Reopen it with more "
+                                + "positions if you want to accept somebody else.");
+            }
+        }
+
         application.setStatus(to);
         application.setDecidedBy(userId);
         application.setDecidedAt(LocalDateTime.now());
@@ -233,6 +273,10 @@ public class ApplicationService {
                         to,
                         employerName(application),
                         request.getNote()));
+
+        if (to == ApplicationStatus.ACCEPTED) {
+            closeIfFull(application.getInternship(), userId);
+        }
 
         return applicationMapper.toSummary(saved);
     }
@@ -260,7 +304,7 @@ public class ApplicationService {
                 student,
                 "APPLICATION_MESSAGE",
                 company + " asked about your application",
-                "Regarding \"" + application.getInternship().getTitle() + "\": " + message);
+                "Regarding \"" + application.getInternship().getTitle() + "\"\n\u201c" + message + "\u201d");
     }
 
     private Application requireOwnApplication(Long userId, Long applicationId) {
@@ -281,6 +325,114 @@ public class ApplicationService {
         historyRepository.save(history);
     }
 
+    /**
+     * Closes a vacancy once its last place is taken, and tells the rest.
+     *
+     * WHY THE OTHERS ARE DECIDED RATHER THAN LEFT OPEN
+     *   Their applications cannot succeed any more. Leaving them under review
+     *   would have people waiting on a decision that can no longer go their
+     *   way, and would leave the employer a queue with nothing left to decide.
+     *
+     * WHY THE VACANCY IS MARKED FILLED RATHER THAN DELETED
+     *   Every application points at it, and so does the history behind each
+     *   one. FILLED records what happened; removing the row would take the
+     *   record of everybody who applied with it.
+     *
+     * FILLED is not OPEN, so the vacancy leaves the browse list and apply()
+     * refuses it - both already test for OPEN, so neither needed changing.
+     */
+    private void closeIfFull(Internship internship, Long decidedBy) {
+        int places = Math.max(1, internship.getAvailablePositions());
+        long taken = applicationRepository.countByInternshipIdAndStatus(
+                internship.getId(), ApplicationStatus.ACCEPTED);
+        if (taken < places) {
+            return;
+        }
+
+        internship.setStatus(InternshipStatus.FILLED);
+        internshipRepository.save(internship);
+
+        List<Application> waiting = applicationRepository.findByInternshipIdAndStatusNotIn(
+                internship.getId(),
+                List.of(ApplicationStatus.ACCEPTED, ApplicationStatus.REJECTED));
+
+        for (Application other : waiting) {
+            ApplicationStatus before = other.getStatus();
+            other.setStatus(ApplicationStatus.REJECTED);
+            other.setDecidedBy(decidedBy);
+            other.setDecidedAt(LocalDateTime.now());
+            Application closed = applicationRepository.save(other);
+
+            recordHistory(closed, before, ApplicationStatus.REJECTED, decidedBy,
+                    "The position was filled.");
+
+            // Worded so it does not read as a judgement of the person. It was
+            // not one.
+            notificationService.create(
+                    other.getStudentProfile().getUser(),
+                    "APPLICATION_STATUS_CHANGED",
+                    "The position has been filled",
+                    "\"" + internship.getTitle() + "\" at "
+                            + internship.getCompany().getName()
+                            + " has been filled, so your application was not taken further. "
+                            + "The places ran out - it was not a decision about you.");
+        }
+
+        log.info("Vacancy {} filled: {} place(s) taken, {} other application(s) closed",
+                internship.getId(), taken, waiting.size());
+    }
+
+    /**
+     * A student replying to the employer on their own application.
+     *
+     * The mirror of messageApplicant. An employer could ask a question and the
+     * student had no way to answer it inside the system - they would have had
+     * to find an address somewhere else, which is exactly what the platform is
+     * meant to avoid.
+     *
+     * Ownership is checked from the student's side: the application must
+     * belong to the profile behind this account, so nobody can post a message
+     * onto somebody else's application by changing the number in the URL.
+     */
+    @Transactional
+    public void messageEmployer(Long userId, Long applicationId, String message) {
+        StudentProfile profile = studentProfileService.requireProfileByUserId(userId);
+        Application application = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> NotFoundException.of("Application", applicationId));
+
+        if (!application.getStudentProfile().getId().equals(profile.getId())) {
+            // The same error as a missing one, deliberately: telling somebody
+            // that an application exists but is not theirs confirms it exists.
+            throw NotFoundException.of("Application", applicationId);
+        }
+
+        notifyRecruiters(application.getInternship(),
+                "APPLICATION_MESSAGE",
+                profile.getUser().getFullName() + " replied about their application",
+                "Regarding \"" + application.getInternship().getTitle() + "\"\n\u201c" + message + "\u201d");
+    }
+
+    /**
+     * Tells everybody recruiting for this vacancy's company.
+     *
+     * The company rather than whoever posted it, for the same reason the
+     * applicant list is scoped that way: a vacancy belongs to the
+     * organisation, and if the person who posted it leaves, the applications
+     * must still reach somebody.
+     */
+    private void notifyRecruiters(Internship internship, String type,
+                                  String title, String message) {
+        if (internship.getCompany() == null) {
+            return;
+        }
+        for (EmployerProfile recruiter
+                : employerProfileRepository.findByCompanyId(internship.getCompany().getId())) {
+            if (recruiter.getUser() != null) {
+                notificationService.create(recruiter.getUser(), type, title, message);
+            }
+        }
+    }
+
     /** The company name, for attributing a note to somebody rather than nobody. */
     private String employerName(Application application) {
         return application.getInternship().getCompany().getName();
@@ -298,7 +450,14 @@ public class ApplicationService {
                 + to.name().toLowerCase().replace('_', ' ') + ".";
         String trimmed = note == null ? "" : note.trim();
         if (!trimmed.isEmpty()) {
-            message = message + " " + company + " wrote: " + trimmed;
+            // On its own line, and quoted.
+            //
+            // Run together, the two read as one sentence - "is now rejected.
+            // Demo Yangon Tech wrote: You are now rejected." - and the reader
+            // has to work out where the system stops speaking and the employer
+            // starts. They are different kinds of fact: one is what happened,
+            // the other is what a person said about it.
+            message = message + "\n" + company + " wrote: \u201c" + trimmed + "\u201d";
         }
         return message;
     }

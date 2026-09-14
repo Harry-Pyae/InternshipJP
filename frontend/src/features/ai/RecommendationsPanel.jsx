@@ -89,10 +89,16 @@ function MatchRow({ match, onDiscuss, onLearnSkill }) {
     <li className="ijp-match">
       <div className="d-flex justify-content-between align-items-start gap-3">
         <div style={{ minWidth: 0 }}>
-          <p className="ijp-match-title">{match.title}</p>
+          {/* The company sits with the title, not under it as a footnote.
+                      Two firms advertise "Software Engineering Intern" and the
+                      cards were telling them apart in muted 12px. */}
+                  <p className="ijp-match-title">{match.title}</p>
+                  <p className="ijp-match-company">
+                    <i className="bi bi-building me-1" aria-hidden="true" />
+                    {match.companyName}
+                  </p>
           <p className="ijp-muted small mb-0">
-            {match.companyName}
-            {match.location ? ` · ${match.location}` : ""} · {match.workMode.toLowerCase()}
+            {match.location} · {match.workMode.toLowerCase()}
           </p>
         </div>
         <span className={`ijp-score ijp-state--${tone} flex-shrink-0`}>{match.matchScore}%</span>

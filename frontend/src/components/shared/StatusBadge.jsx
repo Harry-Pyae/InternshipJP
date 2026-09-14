@@ -33,6 +33,9 @@ const TONES = {
   SUSPENDED: "bad",
   WITHDRAWN: "bad",
   CLOSED: "bad",
+  // A filled vacancy is a success, not a failure, so it does not get the
+  // same tone as one that was closed without taking anybody.
+  FILLED: "ok",
 };
 
 export default function StatusBadge({ value }) {
