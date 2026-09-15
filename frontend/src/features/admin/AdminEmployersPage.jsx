@@ -111,7 +111,7 @@ export default function AdminEmployersPage() {
                     row.registrationNumber ? (
                       <span className="ijp-data">{row.registrationNumber}</span>
                     ) : (
-                      <span className="ijp-muted fst-italic">Not given</span>
+                      <span className="ijp-muted fst-italic">{t("Not given")}</span>
                     ),
                 },
                 { key: "country", header: "Country", render: (row) => row.country || "—" },

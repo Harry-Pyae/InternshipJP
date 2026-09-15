@@ -12,6 +12,7 @@ import { describeApiError } from "../../api/axiosClient.js";
 import { timeAgo, exactTime } from "../../api/relativeTime.js";
 import { certificateAge } from "../../api/relativeTime.js";
 import { useLanguage } from "../../config/languageContext.jsx";
+import FilePreview from "../admin/components/FilePreview.jsx";
 
 /**
  * One applicant, in full.
@@ -66,6 +67,8 @@ const JOURNEY = ["APPLIED", "UNDER_REVIEW", "SHORTLISTED", "INTERVIEW", "ACCEPTE
 
 export default function EmployerApplicantDetailPage() {
   const { t } = useLanguage();
+  // Which certificate is open in the viewer, if any.
+  const [viewing, setViewing] = useState(null);
   const { id } = useParams();
 
   const [application, setApplication] = useState(null);
@@ -241,12 +244,41 @@ export default function EmployerApplicantDetailPage() {
                           />
                           {certificate.title}
                         </span>
-                        <span className="ijp-muted">
-                          {certificate.issuingOrganization || t("Issuer not given")}
-                          {certificate.issueDate ? ` · ${certificate.issueDate}` : ""}
-                          {certificate.issueDate ? ` · ${certificateAge(certificate.issueDate)}` : ""}
+                        {/* Each part is its own unbreakable span.
+                            As one text run it broke wherever the column ran
+                            out - "8 months" on one line and "old" on the next,
+                            which reads as a different thing entirely. It can
+                            still wrap between the parts, just never inside
+                            one. */}
+                        <span className="ijp-muted ijp-meta-row">
+                          <span className="ijp-meta-part">
+                            {certificate.issuingOrganization || t("Issuer not given")}
+                          </span>
+                          {certificate.issueDate ? (
+                            <span className="ijp-meta-part">{certificate.issueDate}</span>
+                          ) : null}
+                          {certificate.issueDate ? (
+                            <span className="ijp-meta-part">
+                              {certificateAge(certificate.issueDate)}
+                            </span>
+                          ) : null}
                         </span>
                       </span>
+
+                      {/* The document itself.
+                          CertificateFileController has always let an employer
+                          download a verified certificate belonging to one of
+                          their own applicants - the interface simply never
+                          offered it, so the whole point of verification stopped
+                          at a title and a tick. */}
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-ijp-quiet ijp-gap-action"
+                        onClick={() => setViewing(certificate)}
+                      >
+                        <i className="bi bi-file-earmark-text me-1" aria-hidden="true" />
+                        {t("Open")}
+                      </button>
                     </li>
                   ))}
                 </ul>
@@ -254,8 +286,7 @@ export default function EmployerApplicantDetailPage() {
                 <p className="ijp-muted mb-0">{t("No verified certificates.")}</p>
               )}
               <p className="ijp-field-hint mt-3 mb-0">
-                Only qualifications an administrator has checked against the original
-                document appear here. Unverified ones are never sent to employers.
+                {t("Only qualifications an administrator has checked against the original document appear here. Unverified ones are never sent to employers.")}
               </p>
             </SectionCard>
 
@@ -399,6 +430,36 @@ export default function EmployerApplicantDetailPage() {
           </div>
         </div>
       ) : null}
+      {viewing ? (
+        <div
+          className="ijp-lightbox"
+          role="dialog"
+          aria-modal="true"
+          aria-label={viewing.title}
+          onClick={() => setViewing(null)}
+        >
+          <div className="ijp-doc-panel" onClick={(event) => event.stopPropagation()}>
+            <div className="ijp-doc-head">
+              <p className="fw-semibold mb-0 text-truncate">{viewing.title}</p>
+              <button
+                type="button"
+                className="btn btn-sm btn-ijp-quiet ijp-gap-action"
+                onClick={() => setViewing(null)}
+              >
+                {t("Close")}
+              </button>
+            </div>
+            <div className="ijp-doc-body">
+            <FilePreview
+              certificateId={viewing.id}
+              fileName={viewing.originalFileName || viewing.title}
+              mimeType={viewing.mimeType}
+            />
+            </div>
+          </div>
+        </div>
+      ) : null}
+
     </>
   );
 }

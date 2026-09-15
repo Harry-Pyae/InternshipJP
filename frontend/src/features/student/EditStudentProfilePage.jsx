@@ -7,8 +7,10 @@ import SectionCard from "../../components/shared/SectionCard.jsx";
 import { describeApiError } from "../../api/axiosClient.js";
 import { studentApi } from "../../api/studentApi.js";
 import PhotoCard from "../../components/shared/PhotoCard.jsx";
+import { useLanguage } from "../../config/languageContext.jsx";
 
 export default function EditStudentProfilePage() {
+  const { t } = useLanguage();
   const [form, setForm] = useState({
     headline: "",
     dateOfBirth: "",
@@ -120,8 +122,8 @@ export default function EditStudentProfilePage() {
   return (
     <>
       <PageHeader
-        title="Edit profile"
-        subtitle="Update your personal information and internship preferences."
+        title={t("Edit profile")}
+        subtitle={t("Update your personal information and internship preferences.")}
       />
 
       {loading ? <LoadingBlock /> : null}
@@ -141,10 +143,10 @@ export default function EditStudentProfilePage() {
         </div>
 
         <form onSubmit={handleSubmit} className="d-grid gap-4">
-          <SectionCard title="Personal information">
+          <SectionCard title={t("Personal information")}>
             <div className="row g-3">
               <div className="col-12">
-                <label htmlFor="headline" className="form-label">Headline</label>
+                <label htmlFor="headline" className="form-label">{t("Headline")}</label>
                 <input
                   type="text"
                   id="headline"
@@ -157,7 +159,7 @@ export default function EditStudentProfilePage() {
               </div>
 
               <div className="col-md-6">
-                <label htmlFor="dateOfBirth" className="form-label">Date of birth</label>
+                <label htmlFor="dateOfBirth" className="form-label">{t("Date of birth")}</label>
                 <input
                   type="date"
                   id="dateOfBirth"
@@ -169,7 +171,7 @@ export default function EditStudentProfilePage() {
               </div>
 
               <div className="col-md-6">
-                <label htmlFor="country" className="form-label">Country</label>
+                <label htmlFor="country" className="form-label">{t("Country")}</label>
                 <input
                   type="text"
                   id="country"
@@ -182,7 +184,7 @@ export default function EditStudentProfilePage() {
               </div>
 
               <div className="col-md-6">
-                <label htmlFor="location" className="form-label">Location</label>
+                <label htmlFor="location" className="form-label">{t("Location")}</label>
                 <input
                   type="text"
                   id="location"
@@ -196,10 +198,10 @@ export default function EditStudentProfilePage() {
             </div>
           </SectionCard>
 
-          <SectionCard title="Education information">
+          <SectionCard title={t("Education information")}>
             <div className="row g-3">
               <div className="col-md-6">
-                <label htmlFor="university" className="form-label">University</label>
+                <label htmlFor="university" className="form-label">{t("University")}</label>
                 <input
                   type="text"
                   id="university"
@@ -212,7 +214,7 @@ export default function EditStudentProfilePage() {
               </div>
 
               <div className="col-md-6">
-                <label htmlFor="degree" className="form-label">Degree</label>
+                <label htmlFor="degree" className="form-label">{t("Degree")}</label>
                 <input
                   type="text"
                   id="degree"
@@ -225,7 +227,7 @@ export default function EditStudentProfilePage() {
               </div>
 
               <div className="col-md-6">
-                <label htmlFor="fieldOfStudy" className="form-label">Field of study</label>
+                <label htmlFor="fieldOfStudy" className="form-label">{t("Field of study")}</label>
                 <input
                   type="text"
                   id="fieldOfStudy"
@@ -238,7 +240,7 @@ export default function EditStudentProfilePage() {
               </div>
 
               <div className="col-md-6">
-                <label htmlFor="graduationYear" className="form-label">Graduation year</label>
+                <label htmlFor="graduationYear" className="form-label">{t("Graduation year")}</label>
                 <input
                   type="number"
                   id="graduationYear"
@@ -265,18 +267,16 @@ export default function EditStudentProfilePage() {
                   <label
                     className="form-check-label"
                     htmlFor="currentlyAttending"
-                  >
-                    Currently attending
-                  </label>
+                  >{t("Currently attending")}</label>
                 </div>
               </div>
             </div>
           </SectionCard>
 
-          <SectionCard title="Internship preferences">
+          <SectionCard title={t("Internship preferences")}>
             <div className="row g-3">
               <div className="col-md-4">
-                <label htmlFor="availability" className="form-label">Availability</label>
+                <label htmlFor="availability" className="form-label">{t("Availability")}</label>
                 <input
                   type="text"
                   id="availability"
@@ -289,7 +289,7 @@ export default function EditStudentProfilePage() {
               </div>
 
               <div className="col-md-4">
-                <label htmlFor="preferredWorkMode" className="form-label">Preferred work mode</label>
+                <label htmlFor="preferredWorkMode" className="form-label">{t("Preferred work mode")}</label>
                 <select
                   id="preferredWorkMode"
                   name="preferredWorkMode"
@@ -297,15 +297,15 @@ export default function EditStudentProfilePage() {
                   value={form.preferredWorkMode}
                   onChange={handleChange}
                 >
-                  <option value="">Select work mode</option>
-                  <option value="ONSITE">On-site</option>
-                  <option value="REMOTE">Remote</option>
-                  <option value="HYBRID">Hybrid</option>
+                  <option value="">{t("Select work mode")}</option>
+                  <option value="ONSITE">{t("On-site")}</option>
+                  <option value="REMOTE">{t("Remote")}</option>
+                  <option value="HYBRID">{t("Hybrid")}</option>
                 </select>
               </div>
 
               <div className="col-md-4">
-                <label htmlFor="availableFrom" className="form-label">Available from</label>
+                <label htmlFor="availableFrom" className="form-label">{t("Available from")}</label>
                 <input
                   type="date"
                   id="availableFrom"
@@ -318,8 +318,8 @@ export default function EditStudentProfilePage() {
             </div>
           </SectionCard>
 
-          <SectionCard title="About">
-            <label htmlFor="biography" className="form-label">Biography</label>
+          <SectionCard title={t("About")}>
+            <label htmlFor="biography" className="form-label">{t("Biography")}</label>
             <textarea
               id="biography"
                   name="biography"
@@ -331,10 +331,10 @@ export default function EditStudentProfilePage() {
             />
           </SectionCard>
 
-          <SectionCard title="Links">
+          <SectionCard title={t("Links")}>
             <div className="row g-3">
               <div className="col-md-4">
-                <label htmlFor="portfolioUrl" className="form-label">Portfolio</label>
+                <label htmlFor="portfolioUrl" className="form-label">{t("Portfolio")}</label>
                 <input
                   type="url"
                   id="portfolioUrl"
@@ -347,7 +347,7 @@ export default function EditStudentProfilePage() {
               </div>
 
               <div className="col-md-4">
-                <label htmlFor="linkedinUrl" className="form-label">LinkedIn</label>
+                <label htmlFor="linkedinUrl" className="form-label">{t("LinkedIn")}</label>
                 <input
                   type="url"
                   id="linkedinUrl"
@@ -360,7 +360,7 @@ export default function EditStudentProfilePage() {
               </div>
 
               <div className="col-md-4">
-                <label htmlFor="githubUrl" className="form-label">GitHub</label>
+                <label htmlFor="githubUrl" className="form-label">{t("GitHub")}</label>
                 <input
                   type="url"
                   id="githubUrl"
@@ -388,9 +388,7 @@ export default function EditStudentProfilePage() {
               className="btn btn-ijp-quiet"
               onClick={() => window.history.back()}
               disabled={saving}
-            >
-              Back to My Profile
-            </button>
+            >{t("Back to My Profile")}</button>
           </div>
         </form>
         </>

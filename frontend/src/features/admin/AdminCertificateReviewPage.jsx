@@ -10,11 +10,13 @@ import { adminApi } from "../../api/adminApi.js";
 import { describeApiError } from "../../api/axiosClient.js";
 import { appConfig } from "../../config/appConfig.js";
 import { certificateAge } from "../../api/relativeTime.js";
+import { useLanguage } from "../../config/languageContext.jsx";
 
 /**
  * Reviewing one certificate.
  */
 export default function AdminCertificateReviewPage() {
+  const { t } = useLanguage();
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -53,7 +55,7 @@ export default function AdminCertificateReviewPage() {
   }
 
   if (certificate === null && !error) {
-    return <LoadingBlock label="Loading the certificate..." />;
+    return <LoadingBlock label={t("Loading the certificate...")} />;
   }
 
   const decided = certificate && certificate.verificationStatus !== "PENDING";
@@ -70,9 +72,7 @@ export default function AdminCertificateReviewPage() {
         }
         action={
           <Link className="btn btn-sm btn-ijp-quiet" to="/admin/certificates">
-            <i className="bi bi-arrow-left me-1" aria-hidden="true" />
-            Back to queue
-          </Link>
+            <i className="bi bi-arrow-left me-1" aria-hidden="true" />{t("Back to queue")}</Link>
         }
       />
 
@@ -83,12 +83,12 @@ export default function AdminCertificateReviewPage() {
           {/* Facts first, in one line, so they do not compete with the
               document for a whole column. */}
           <div className="ijp-fact-strip">
-            <Fact label="Status">
+            <Fact label={t("Status")}>
               <StatusBadge value={certificate.verificationStatus} />
             </Fact>
-            <Fact label="Student">{certificate.studentName || "Unknown"}</Fact>
-            <Fact label="Issuer">{certificate.issuingOrganization || "Not given"}</Fact>
-            <Fact label="Issue date">
+            <Fact label={t("Student")}>{certificate.studentName || "Unknown"}</Fact>
+            <Fact label={t("Issuer")}>{certificate.issuingOrganization || "Not given"}</Fact>
+            <Fact label={t("Issue date")}>
               {certificate.issueDate ? (
                 <>
                   {certificate.issueDate}
@@ -102,10 +102,10 @@ export default function AdminCertificateReviewPage() {
                 "Not given"
               )}
             </Fact>
-            <Fact label="Uploaded">
+            <Fact label={t("Uploaded")}>
               {certificate.createdAt?.replace("T", " ").slice(0, 16) || "—"}
             </Fact>
-            <Fact label="Size">{formatSize(certificate.fileSize)}</Fact>
+            <Fact label={t("Size")}>{formatSize(certificate.fileSize)}</Fact>
           </div>
 
           <div className="ijp-review-layout">
@@ -122,28 +122,21 @@ export default function AdminCertificateReviewPage() {
               {decided ? (
                 <div className="ijp-callout">
                   <i className="bi bi-info-circle ijp-callout-icon" aria-hidden="true" />
-                  <p className="mb-0">
-                    Already reviewed. The decision cannot be changed from here.
-                  </p>
+                  <p className="mb-0">{t("Already reviewed. The decision cannot be changed from here.")}</p>
                 </div>
               ) : (
                 <div className="ijp-card p-3 p-md-4">
-                  <p className="ijp-label mb-2">Decision</p>
-                  <label className="ijp-field-label" htmlFor="reviewNote">
-                    Review note
-                  </label>
+                  <p className="ijp-label mb-2">{t("Decision")}</p>
+                  <label className="ijp-field-label" htmlFor="reviewNote">{t("Review note")}</label>
                   <textarea
                     id="reviewNote"
                     className="form-control mb-2"
                     rows={4}
                     value={note}
                     onChange={(event) => setNote(event.target.value)}
-                    placeholder="Required when rejecting. The student sees this."
+                    placeholder={t("Required when rejecting. The student sees this.")}
                   />
-                  <p className="ijp-field-hint mb-3">
-                    Verifying makes this visible to employers who receive an application
-                    from this student.
-                  </p>
+                  <p className="ijp-field-hint mb-3">{t("Verifying makes this visible to employers who receive an application from this student.")}</p>
 
                   <div className="d-grid gap-2">
                     <button
@@ -161,9 +154,7 @@ export default function AdminCertificateReviewPage() {
                       onClick={() => decide("REJECTED")}
                       disabled={busy}
                     >
-                      <i className="bi bi-x-circle me-1" aria-hidden="true" />
-                      Reject
-                    </button>
+                      <i className="bi bi-x-circle me-1" aria-hidden="true" />{t("Reject")}</button>
                   </div>
                 </div>
               )}

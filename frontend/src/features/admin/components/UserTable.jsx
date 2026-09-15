@@ -3,6 +3,7 @@ import StatusBadge from "../../../components/shared/StatusBadge.jsx";
 import StatusToggle from "./StatusToggle.jsx";
 import { timeAgo, exactTime } from "../../../api/relativeTime.js";
 import Avatar from "../../../components/shared/Avatar.jsx";
+import { useLanguage } from "../../../config/languageContext.jsx";
 
 const ROLE_LABEL = {
   STUDENT: "Student",
@@ -11,6 +12,7 @@ const ROLE_LABEL = {
 };
 
 export default function UserTable({ rows, busyId, onToggle, onDelete, onView, currentUserId }) {
+  const { t } = useLanguage();
   return (
     <DataTable
       columns={[
@@ -55,7 +57,7 @@ export default function UserTable({ rows, busyId, onToggle, onDelete, onView, cu
             row.lastLoginAt ? (
               <span title={exactTime(row.lastLoginAt)}>{timeAgo(row.lastLoginAt)}</span>
             ) : (
-              <span className="ijp-muted">Never</span>
+              <span className="ijp-muted">{t("Never")}</span>
             ),
         },
         {
@@ -77,17 +79,15 @@ export default function UserTable({ rows, busyId, onToggle, onDelete, onView, cu
               return (
                 <div className="d-flex gap-2 justify-content-end align-items-center">
                   <span className="ijp-self-row">
-                    <i className="bi bi-person-check me-1" aria-hidden="true" />
-                    This is you
-                  </span>
+                    <i className="bi bi-person-check me-1" aria-hidden="true" />{t("This is you")}</span>
                   <button
                     type="button"
                     className="btn btn-sm btn-ijp-quiet"
                     onClick={() => onView(row)}
-                    title="Account details"
+                    title={t("Account details")}
                   >
                     <i className="bi bi-eye" aria-hidden="true" />
-                    <span className="visually-hidden">Details</span>
+                    <span className="visually-hidden">{t("Details")}</span>
                   </button>
                 </div>
               );
@@ -99,10 +99,10 @@ export default function UserTable({ rows, busyId, onToggle, onDelete, onView, cu
                 type="button"
                 className="btn btn-sm btn-ijp-quiet"
                 onClick={() => onView(row)}
-                title="Account details and actions"
+                title={t("Account details and actions")}
               >
                 <i className="bi bi-eye" aria-hidden="true" />
-                <span className="visually-hidden">Details</span>
+                <span className="visually-hidden">{t("Details")}</span>
               </button>
               <StatusToggle
                 user={row}
@@ -121,10 +121,10 @@ export default function UserTable({ rows, busyId, onToggle, onDelete, onView, cu
                   className="btn btn-sm btn-ijp-quiet ijp-btn-danger"
                   onClick={() => onDelete(row)}
                   disabled={busyId === row.id}
-                  title="Delete this account permanently"
+                  title={t("Delete this account permanently")}
                 >
                   <i className="bi bi-trash" aria-hidden="true" />
-                  <span className="visually-hidden">Delete</span>
+                  <span className="visually-hidden">{t("Delete")}</span>
                 </button>
               )}
             </div>

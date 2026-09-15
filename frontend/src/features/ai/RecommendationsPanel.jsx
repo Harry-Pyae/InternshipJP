@@ -38,7 +38,7 @@ export default function RecommendationsPanel({ onDiscuss, onLearnSkill }) {
   if (matches === null) {
     return (
       <div>
-        <LoadingBlock label="Finding internships that match your skills..." />
+        <LoadingBlock label={t("Finding internships that match your skills...")} />
       </div>
     );
   }
@@ -57,7 +57,7 @@ export default function RecommendationsPanel({ onDiscuss, onLearnSkill }) {
         <EmptyState
           icon="bi-search"
           title={t("No open internships to match yet")}
-          hint="Once employers publish vacancies, they will be scored against the skills on your profile."
+          hint={t("Once employers publish vacancies, they will be scored against the skills on your profile.")}
         />
       ) : (
         <ul className="ijp-match-grid">
@@ -72,10 +72,7 @@ export default function RecommendationsPanel({ onDiscuss, onLearnSkill }) {
         </ul>
       )}
 
-      <p className="ijp-muted small mb-0 mt-3">
-        Scores are calculated by comparing your listed skills with each internship&apos;s
-        requirements. Adding skills to your profile changes them immediately.
-      </p>
+      <p className="ijp-muted small mb-0 mt-3">{t("Scores are calculated by comparing your listed skills with each internship&apos;s requirements. Adding skills to your profile changes them immediately.")}</p>
     </div>
   );
 }
@@ -162,9 +159,7 @@ function MatchRow({ match, onDiscuss, onLearnSkill }) {
       <div className="ijp-match-foot">
         {match.alreadyApplied ? (
           <span className="ijp-badge ijp-badge--ok">
-            <i className="bi bi-check2-circle me-1" aria-hidden="true" />
-            Applied
-          </span>
+            <i className="bi bi-check2-circle me-1" aria-hidden="true" />{t("Applied")}</span>
         ) : null}
         {match.applicationDeadline ? (
           <span className="ijp-muted small">

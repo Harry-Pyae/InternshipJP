@@ -222,7 +222,7 @@ h4 {
 .ijp-card,
 .ijp-card-sunken,
 .ijp-bubble {
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 
 .ijp-card {
@@ -2800,7 +2800,7 @@ h4 {
   font-size: 0.88rem;
   line-height: 1.6;
   color: var(--ijp-ink-soft);
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 
 .ijp-notif-line {
@@ -2863,13 +2863,21 @@ h4 {
   text-transform: uppercase;
   color: var(--ijp-ink-faint);
   margin-bottom: 0.2rem;
+  /* Space above each label, so one fact does not run into the next. The
+     pairs were a single line apart and a card read as one block of
+     text rather than as a set of facts. */
+  margin-top: 1.05rem;
+}
+
+.ijp-detail dt:first-of-type {
+  margin-top: 0;
 }
 
 .ijp-detail dd {
-  margin: 0;
+  margin: 0.3rem 0 0;
   font-size: 0.95rem;
   line-height: 1.5;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 
 .ijp-detail dd:empty::after,
@@ -3421,7 +3429,7 @@ h4 {
 
 .ijp-fact-value {
   font-size: 0.9rem;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 
 .ijp-review-layout {
@@ -3570,6 +3578,11 @@ h4 {
   font-weight: 600;
   color: var(--ijp-signal);
   text-decoration: none;
+  /* The timestamp at one end, the arrow at the other. */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
 }
 
 .ijp-bell-foot:hover {
@@ -4206,7 +4219,7 @@ h4 {
 .ijp-feedback-full {
   white-space: pre-line;
   line-height: 1.7;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 
 
@@ -4697,7 +4710,7 @@ h4 {
   font-size: 0.98rem;
   font-weight: 700;
   color: var(--ijp-ink);
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 
 .ijp-preview-chips {
@@ -5005,7 +5018,7 @@ h4 {
   font-size: 0.86rem;
   line-height: 1.6;
   color: var(--ijp-ink-soft);
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 
 .ijp-feedback-foot {
@@ -5161,7 +5174,7 @@ h4 {
   font-family: var(--ijp-font-data);
   font-size: 0.75rem;
   color: var(--ijp-ink-faint);
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 
 /* --- company logo ----------------------------------------------------------- */
@@ -5357,7 +5370,7 @@ h4 {
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--ijp-signal);
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 
 /* --- the decision on an application ----------------------------------------
@@ -5436,7 +5449,7 @@ h4 {
 /* Two lines in the dropdown. The full text is on the notifications page. */
 .ijp-bell-text {
   line-height: 1.55;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -5477,4 +5490,186 @@ h4 {
   background-color: #f2ebfb;
   border-color: #c9b0ea;
   color: #5b3391;
+}
+
+/* A document open over the page. Reuses the lightbox backdrop, but a document
+   needs a panel with a heading rather than a bare image. */
+.ijp-doc-panel {
+  width: min(56rem, 92vw);
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--ijp-surface);
+  border-radius: var(--ijp-radius);
+  overflow: hidden;
+  cursor: auto;
+}
+
+.ijp-doc-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--ijp-border);
+}
+
+/* The action at the end of a gap row.
+   Inside a space-between row with no shrink rule, a two-word label wrapped
+   into two lines and sat hard against the right edge - "Open" over
+   "Document" - which is what made the certificate list look broken. */
+.ijp-gap-action {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  align-self: center;
+}
+
+/* A row of small facts - issuer, date, age - separated by middots.
+   Each part holds together; the row wraps between them. */
+.ijp-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.15rem 0.45rem;
+}
+
+.ijp-meta-part {
+  white-space: nowrap;
+}
+
+.ijp-meta-part + .ijp-meta-part::before {
+  content: "\00b7";
+  margin-right: 0.45rem;
+  color: var(--ijp-border-strong);
+}
+
+/* A bell row is the whole target, so there is no small link to aim at. */
+.ijp-bell-hit {
+  display: grid;
+  gap: 0.3rem;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+}
+
+/* The document viewer needs room inside it. Without padding the text sat
+   against the border of the panel. Applied here rather than on the preview
+   component, because the same component is embedded elsewhere at full width. */
+.ijp-doc-panel .ijp-file-frame,
+.ijp-doc-panel img {
+  display: block;
+  width: 100%;
+}
+
+.ijp-doc-body {
+  padding: 1rem 1.15rem 1.25rem;
+  overflow: auto;
+}
+
+/* The country code, shown beside the field rather than typed into it. */
+.ijp-phone .form-control {
+  border-radius: 0 var(--ijp-radius-sm) var(--ijp-radius-sm) 0;
+}
+
+/* The arrow on a bell row. Quiet until the row is hovered, so a list of six
+   does not read as six buttons. */
+.ijp-bell-go {
+  margin-left: auto;
+  color: var(--ijp-ink-faint);
+  transition: transform 0.12s ease, color 0.12s ease;
+}
+
+.ijp-bell-hit:hover .ijp-bell-go {
+  color: var(--ijp-signal);
+  transform: translateX(2px);
+}
+
+.ijp-bell-time {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* The mark on a required label. */
+.ijp-required {
+  color: var(--ijp-rejected);
+}
+
+/* Text with break opportunities of its own, so it wraps at an @ or a dot
+   rather than in the middle of a word. */
+.ijp-breakable {
+  overflow-wrap: break-word;
+}
+
+/* A fixed country prefix beside a phone field.
+   The rule was enforced after the fact by a pattern; showing it means nobody
+   has to discover it by being refused. */
+.ijp-phone .form-control {
+  border-radius: 0 var(--ijp-radius-sm) var(--ijp-radius-sm) 0;
+}
+
+/* The arrow on a bell row, so a row reads as something that opens. */
+.ijp-bell-hit {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  column-gap: 0.6rem;
+}
+
+.ijp-bell-go {
+  grid-row: 1 / span 2;
+  grid-column: 2;
+  color: var(--ijp-ink-faint);
+  font-size: 0.85rem;
+}
+
+.ijp-bell-go {
+  color: var(--ijp-ink-faint);
+  font-size: 0.8rem;
+}
+
+.ijp-bell-hit:hover .ijp-bell-go {
+  color: var(--ijp-signal);
+}
+
+/* --- long values that must not break mid-word --------------------------------
+   An address broke as "...internshipjp.lo / cal", because overflow-wrap:
+   anywhere breaks between any two characters. break-word only breaks a word
+   that cannot fit on a line of its own, and these break at the dots and the @
+   first. */
+.ijp-data,
+.ijp-person-email,
+.ijp-detail dd {
+  overflow-wrap: break-word;
+  word-break: normal;
+  hyphens: none;
+}
+
+.ijp-phone .form-control {
+  border-radius: 0 var(--ijp-radius-sm) var(--ijp-radius-sm) 0;
+}
+
+/* The dialling code beside a phone field.
+   PhoneField has always rendered this and the rule was never written, so the
+   code sat as plain text against the input with nothing separating them. */
+.ijp-phone-code {
+  display: flex;
+  align-items: center;
+  padding: 0 0.7rem;
+  border: 1px solid var(--ijp-border-strong);
+  border-right: 0;
+  border-radius: var(--ijp-radius-sm) 0 0 var(--ijp-radius-sm);
+  background-color: var(--ijp-surface-sunken);
+  color: var(--ijp-ink-soft);
+  font-family: var(--ijp-font-data);
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.ijp-phone .form-control {
+  border-radius: 0 var(--ijp-radius-sm) var(--ijp-radius-sm) 0;
 }

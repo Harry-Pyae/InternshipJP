@@ -32,8 +32,8 @@ export default function EmployerDashboardPage() {
   return (
     <>
       <PageHeader
-        title="Dashboard"
-        subtitle="An overview of your hiring."
+        title={t("Dashboard")}
+        subtitle={t("An overview of your hiring.")}
         action={
           <button
             type="button"
@@ -41,9 +41,7 @@ export default function EmployerDashboardPage() {
             onClick={load}
             disabled={dashboard === null && !error}
           >
-            <i className="bi bi-arrow-clockwise me-1" aria-hidden="true" />
-            Refresh
-          </button>
+            <i className="bi bi-arrow-clockwise me-1" aria-hidden="true" />{t("Refresh")}</button>
         }
       />
 
@@ -58,44 +56,44 @@ export default function EmployerDashboardPage() {
       </div>
 
       {dashboard === null && !error ? (
-        <LoadingBlock label="Loading your figures..." />
+        <LoadingBlock label={t("Loading your figures...")} />
       ) : (
         <div className="row g-3 mb-4">
           <div className="col-6 col-xl-3">
             <StatCard
-              label="Open vacancies"
+              label={t("Open vacancies")}
               value={dashboard?.openVacancies ?? "—"}
               icon="bi-megaphone"
-              hint="Currently accepting applications"
+              hint={t("Currently accepting applications")}
             />
           </div>
           <div className="col-6 col-xl-3">
             <StatCard
-              label="Total applicants"
+              label={t("Total applicants")}
               value={dashboard?.totalApplicants ?? "—"}
               icon="bi-people"
-              hint="Applications received"
+              hint={t("Applications received")}
             />
           </div>
           <div className="col-6 col-xl-3">
             <StatCard
-              label="Accepted"
+              label={t("Accepted")}
               value={dashboard?.acceptedApplicants ?? "—"}
               icon="bi-check2-circle"
               tone="ok"
-              hint="Candidates accepted"
+              hint={t("Candidates accepted")}
             />
           </div>
           <div className="col-6 col-xl-3">
             <StatCard
-              label="Conversion"
+              label={t("Conversion")}
               value={
                 dashboard?.conversionRate != null
                   ? `${dashboard.conversionRate.toFixed(1)}%`
                   : "—"
               }
               icon="bi-graph-up"
-              hint="Applicants accepted"
+              hint={t("Applicants accepted")}
             />
           </div>
         </div>

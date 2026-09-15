@@ -6,11 +6,13 @@ import ErrorAlert from "../../components/shared/ErrorAlert.jsx";
 import LoadingBlock from "../../components/shared/LoadingBlock.jsx";
 import { studentApi } from "../../api/studentApi.js";
 import { describeApiError } from "../../api/axiosClient.js";
+import { useLanguage } from "../../config/languageContext.jsx";
 
 /**
  * One vacancy, and the button that applies to it.
  */
 export default function StudentInternshipDetailPage() {
+  const { t } = useLanguage();
   const { id } = useParams();
   const [internship, setInternship] = useState(null);
   const [coverLetter, setCoverLetter] = useState("");
@@ -49,7 +51,7 @@ export default function StudentInternshipDetailPage() {
   }
 
   if (internship === null && !error) {
-    return <LoadingBlock label="Loading the internship..." />;
+    return <LoadingBlock label={t("Loading the internship...")} />;
   }
 
   return (
@@ -68,9 +70,7 @@ export default function StudentInternshipDetailPage() {
         }
         action={
           <Link className="btn btn-sm btn-ijp-quiet" to="/student/internships">
-            <i className="bi bi-arrow-left me-1" aria-hidden="true" />
-            Back to list
-          </Link>
+            <i className="bi bi-arrow-left me-1" aria-hidden="true" />{t("Back to list")}</Link>
         }
       />
 
@@ -105,7 +105,7 @@ export default function StudentInternshipDetailPage() {
 
               {internship.requiredSkills?.length ? (
                 <div className="mb-4">
-                  <p className="ijp-label mb-2">Skills asked for</p>
+                  <p className="ijp-label mb-2">{t("Skills asked for")}</p>
                   <div className="ijp-pill-row">
                     {internship.requiredSkills.map((skill) => (
                       <span className="ijp-pill-skill ijp-pill-skill--learn" key={skill}>
@@ -116,9 +116,9 @@ export default function StudentInternshipDetailPage() {
                 </div>
               ) : null}
 
-              <Block title="Description" text={internship.description} />
-              <Block title="Responsibilities" text={internship.responsibilities} />
-              <Block title="Requirements" text={internship.requirements} />
+              <Block title={t("Description")} text={internship.description} />
+              <Block title={t("Responsibilities")} text={internship.responsibilities} />
+              <Block title={t("Requirements")} text={internship.requirements} />
             </div>
           </div>
 
@@ -131,20 +131,14 @@ export default function StudentInternshipDetailPage() {
                     style={{ fontSize: "2rem" }}
                     aria-hidden="true"
                   />
-                  <p className="fw-semibold mt-2 mb-1">Application sent</p>
-                  <p className="ijp-muted small mb-3">
-                    The employer can see it now. You can follow its progress under My
-                    applications.
-                  </p>
-                  <Link className="btn btn-ijp-quiet btn-sm" to="/student/applications">
-                    View my applications
-                  </Link>
+                  <p className="fw-semibold mt-2 mb-1">{t("Application sent")}</p>
+                  <p className="ijp-muted small mb-3">{t("The employer can see it now. You can follow its progress under My applications.")}</p>
+                  <Link className="btn btn-ijp-quiet btn-sm" to="/student/applications">{t("View my applications")}</Link>
                 </div>
               ) : (
                 <>
-                  <p className="ijp-label mb-2">Apply</p>
-                  <label className="ijp-field-label" htmlFor="coverLetter">
-                    Cover letter <span className="ijp-muted fw-normal">(optional)</span>
+                  <p className="ijp-label mb-2">{t("Apply")}</p>
+                  <label className="ijp-field-label" htmlFor="coverLetter">{t("Cover letter")}<span className="ijp-muted fw-normal">(optional)</span>
                   </label>
                   <textarea
                     id="coverLetter"
@@ -152,12 +146,9 @@ export default function StudentInternshipDetailPage() {
                     rows={6}
                     value={coverLetter}
                     onChange={(event) => setCoverLetter(event.target.value)}
-                    placeholder="Why you are a good fit for this role."
+                    placeholder={t("Why you are a good fit for this role.")}
                   />
-                  <p className="ijp-field-hint mb-3">
-                    Your profile, skills and verified certificates are sent with the
-                    application automatically.
-                  </p>
+                  <p className="ijp-field-hint mb-3">{t("Your profile, skills and verified certificates are sent with the application automatically.")}</p>
                   <button
                     type="button"
                     className="btn btn-ijp-primary w-100"

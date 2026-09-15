@@ -339,7 +339,6 @@ export default function RegisterPage() {
                 <AuthField
                   id="regContactPhone"
                   label={t("Contact phone")}
-                  placeholder="+959795123456"
                   icon="bi-telephone"
                   optional
                   value={form.contactPhone}

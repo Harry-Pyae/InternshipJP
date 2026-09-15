@@ -13,6 +13,7 @@ public class NotificationMapper {
         NotificationResponse dto = new NotificationResponse();
         dto.setId(notification.getId());
         dto.setType(notification.getType());
+        dto.setReferenceId(notification.getReferenceId());
         dto.setTitle(notification.getTitle());
         dto.setMessage(notification.getMessage());
         dto.setRead(notification.isRead());

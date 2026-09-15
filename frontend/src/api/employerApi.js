@@ -85,6 +85,13 @@ export const employerApi = {
   removeCompanyLogo: () =>
     api.delete("/api/employer/company/logo").then((response) => response.data),
 
+  /**
+   * Removes a vacancy. Deleted when nobody applied, archived when somebody
+   * did - the message that comes back says which.
+   */
+  removeInternship: (id) =>
+    api.delete(`/api/employer/internships/${id}`).then((response) => response.data),
+
   uploadCompanyLogo: (file) => {
     const form = new FormData();
     form.append("file", file);

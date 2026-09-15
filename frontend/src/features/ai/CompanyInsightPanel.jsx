@@ -36,7 +36,7 @@ export default function CompanyInsightPanel({ onAsk }) {
   if (insight === null) {
     return (
       <div>
-        <LoadingBlock label="Reviewing your listings and pipeline..." />
+        <LoadingBlock label={t("Reviewing your listings and pipeline...")} />
       </div>
     );
   }
@@ -48,18 +48,17 @@ export default function CompanyInsightPanel({ onAsk }) {
       <p className="small mb-3">{insight.summary}</p>
 
       {insight.approvalStatus !== "APPROVED" ? (
-        <div className="alert alert-warning py-2 px-3 small">
-          Your company is <strong>{insight.approvalStatus}</strong>, so students cannot see
+        <div className="alert alert-warning py-2 px-3 small">{t("Your company is")}<strong>{insight.approvalStatus}</strong>, so students cannot see
           anything you publish yet.
         </div>
       ) : null}
 
       <div className="row g-2 text-center mb-3">
-        <Stat label="Open" value={insight.openInternships} />
-        <Stat label="Drafts" value={insight.draftInternships} />
-        <Stat label="Applicants" value={insight.totalApplications} />
+        <Stat label={t("Open")} value={insight.openInternships} />
+        <Stat label={t("Drafts")} value={insight.draftInternships} />
+        <Stat label={t("Applicants")} value={insight.totalApplications} />
         <Stat
-          label="Unreviewed"
+          label={t("Unreviewed")}
           value={insight.awaitingReview}
           tone={insight.awaitingReview > 0 ? "bad" : "ok"}
         />

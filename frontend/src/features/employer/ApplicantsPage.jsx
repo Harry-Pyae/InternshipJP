@@ -11,11 +11,13 @@ import LoadingBlock from "../../components/shared/LoadingBlock.jsx";
 import { employerApi } from "../../api/employerApi.js";
 import { describeApiError } from "../../api/axiosClient.js";
 import { timeAgo, exactTime } from "../../api/relativeTime.js";
+import { useLanguage } from "../../config/languageContext.jsx";
 
 /**
  * Who applied, per vacancy.
  */
 export default function ApplicantsPage() {
+  const { t } = useLanguage();
   const [params, setParams] = useSearchParams();
   const internshipId = params.get("internshipId") ?? "";
 
@@ -56,8 +58,8 @@ export default function ApplicantsPage() {
   return (
     <>
       <PageHeader
-        title="Applicants"
-        subtitle="Everyone who applied, and where each one stands."
+        title={t("Applicants")}
+        subtitle={t("Everyone who applied, and where each one stands.")}
         action={
           <button
             type="button"
@@ -65,18 +67,14 @@ export default function ApplicantsPage() {
             onClick={load}
             disabled={rows === null}
           >
-            <i className="bi bi-arrow-clockwise me-1" aria-hidden="true" />
-            Refresh
-          </button>
+            <i className="bi bi-arrow-clockwise me-1" aria-hidden="true" />{t("Refresh")}</button>
         }
       />
 
       <ErrorAlert message={error} onRetry={load} />
 
       <div className="ijp-card p-3 p-md-4 mb-4">
-        <label className="ijp-field-label" htmlFor="internshipPicker">
-          Internship
-        </label>
+        <label className="ijp-field-label" htmlFor="internshipPicker">{t("Internship")}</label>
         <Select
           value={internshipId}
           onChange={(value) => setParams({ internshipId: value })}
@@ -97,7 +95,7 @@ export default function ApplicantsPage() {
           ]}
           placeholder={internships.length ? "All vacancies" : "No internships yet"}
           disabled={internships.length === 0}
-          ariaLabel="Which vacancy"
+          ariaLabel={t("Which vacancy")}
         />
       </div>
 
@@ -108,11 +106,11 @@ export default function ApplicantsPage() {
         {internships.length === 0 ? (
           <EmptyState
             icon="bi-megaphone"
-            title="No internships yet"
-            hint="Post a vacancy first, and applicants will appear here."
+            title={t("No internships yet")}
+            hint={t("Post a vacancy first, and applicants will appear here.")}
           />
         ) : rows === null ? (
-          <LoadingBlock label="Loading applicants..." />
+          <LoadingBlock label={t("Loading applicants...")} />
         ) : (
           <DataTable
             columns={[
@@ -151,9 +149,7 @@ export default function ApplicantsPage() {
                     <Link
                       className="btn btn-sm btn-ijp-primary"
                       to={`/employer/applications/${row.id}`}
-                    >
-                      Review
-                      <i className="bi bi-arrow-right ms-1" aria-hidden="true" />
+                    >{t("Review")}<i className="bi bi-arrow-right ms-1" aria-hidden="true" />
                     </Link>
                   </div>
                 ),

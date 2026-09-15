@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import LoadingBlock from "../../../components/shared/LoadingBlock.jsx";
 import { adminApi } from "../../../api/adminApi.js";
 import { describeApiError } from "../../../api/axiosClient.js";
+import { useLanguage } from "../../../config/languageContext.jsx";
 
 /**
  * Shows an uploaded certificate.
  */
 export default function FilePreview({ certificateId, fileName, mimeType, directUrl }) {
+  const { t } = useLanguage();
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -71,7 +73,7 @@ export default function FilePreview({ certificateId, fileName, mimeType, directU
     <>
       <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
         <div style={{ minWidth: 0 }}>
-          <p className="ijp-label mb-1">Uploaded file</p>
+          <p className="ijp-label mb-1">{t("Uploaded file")}</p>
           <p className="small mb-0 text-truncate" title={fileName}>
             {fileName || "Certificate file"}
           </p>
@@ -87,25 +89,21 @@ export default function FilePreview({ certificateId, fileName, mimeType, directU
               target="_blank"
               rel="noreferrer noopener"
             >
-              <i className="bi bi-box-arrow-up-right me-1" aria-hidden="true" />
-              Open in a tab
-            </a>
+              <i className="bi bi-box-arrow-up-right me-1" aria-hidden="true" />{t("Open in a tab")}</a>
           ) : null}
           {url ? (
             <a className="btn btn-sm btn-ijp-quiet" href={url} download={fileName}>
-              <i className="bi bi-download me-1" aria-hidden="true" />
-              Download
-            </a>
+              <i className="bi bi-download me-1" aria-hidden="true" />{t("Download")}</a>
           ) : null}
         </div>
       </div>
 
       {loading ? (
-        <LoadingBlock label="Opening the certificate..." />
+        <LoadingBlock label={t("Opening the certificate...")} />
       ) : error ? (
         <div className="ijp-file-fallback">
           <i className="bi bi-file-earmark-x" aria-hidden="true" />
-          <p className="fw-semibold mb-1">Cannot show this file here</p>
+          <p className="fw-semibold mb-1">{t("Cannot show this file here")}</p>
           <p className="ijp-muted small mb-0">{error}</p>
         </div>
       ) : isPdf ? (
@@ -115,8 +113,8 @@ export default function FilePreview({ certificateId, fileName, mimeType, directU
       ) : (
         <div className="ijp-file-fallback">
           <i className="bi bi-file-earmark-arrow-down" aria-hidden="true" />
-          <p className="fw-semibold mb-1">No preview for this file type</p>
-          <p className="ijp-muted small mb-0">Download it to check the qualification.</p>
+          <p className="fw-semibold mb-1">{t("No preview for this file type")}</p>
+          <p className="ijp-muted small mb-0">{t("Download it to check the qualification.")}</p>
         </div>
       )}
     </>

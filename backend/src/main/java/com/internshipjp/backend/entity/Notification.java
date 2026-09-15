@@ -26,6 +26,15 @@ public class Notification {
     @Column(name = "type", nullable = false, length = 50)
     private String type;
 
+    /**
+     * The record this is about, when there is one.
+     *
+     * Not a foreign key: the id points at a different table depending on
+     * the type, and a constraint can only name one of them.
+     */
+    @Column(name = "reference_id")
+    private Long referenceId;
+
     @Column(name = "title", nullable = false, length = 200)
     private String title;
 
@@ -113,4 +122,12 @@ public class Notification {
         this.createdAt = createdAt;
     }
 
+
+    public Long getReferenceId() {
+        return referenceId;
+    }
+
+    public void setReferenceId(Long referenceId) {
+        this.referenceId = referenceId;
+    }
 }

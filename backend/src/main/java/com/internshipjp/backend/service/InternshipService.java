@@ -24,6 +24,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Locale;
 import java.time.LocalDate;
+import com.internshipjp.backend.repository.ApplicationRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Internship listing (public) and internship management (employer).
@@ -37,6 +40,8 @@ import java.time.LocalDate;
 @Service
 public class InternshipService {
 
+    private static final Logger log = LoggerFactory.getLogger(InternshipService.class);
+
 
 
     /** Statuses a student is allowed to open by direct link. */
@@ -44,6 +49,7 @@ public class InternshipService {
             List.of(InternshipStatus.OPEN, InternshipStatus.CLOSED, InternshipStatus.FILLED);
 
     private final InternshipRepository internshipRepository;
+    private final ApplicationRepository applicationRepository;
     private final InternshipSkillRepository internshipSkillRepository;
     private final EmployerService employerService;
     private final InternshipMapper internshipMapper;
@@ -51,7 +57,9 @@ public class InternshipService {
     public InternshipService(InternshipRepository internshipRepository,
                              InternshipSkillRepository internshipSkillRepository,
                              EmployerService employerService,
-                             InternshipMapper internshipMapper) {
+                             InternshipMapper internshipMapper,
+                             ApplicationRepository applicationRepository) {
+        this.applicationRepository = applicationRepository;
         this.internshipRepository = internshipRepository;
         this.internshipSkillRepository = internshipSkillRepository;
         this.employerService = employerService;
@@ -144,7 +152,39 @@ public PageResponse<InternshipSummaryResponse> listForAdmin(
                 internshipSkillRepository.findByInternshipId(internshipId));
     }
 
-        /** Admin detail view - unlike getPublicDetail, this can open a DRAFT too. */
+        /**
+     * Removes a vacancy from the employer's list.
+     *
+     * WHY IT IS ARCHIVED RATHER THAN DELETED WHEN SOMEBODY HAS APPLIED
+     *   Every application points at the vacancy, and so does the status
+     *   history behind each one. Deleting the row would take the record of
+     *   everybody who applied with it - including people who were accepted,
+     *   whose placement it documents.
+     *
+     *   A vacancy nobody has applied to has no such record, so that one is
+     *   genuinely deleted. The difference is visible to the employer in what
+     *   the confirmation says, so nothing happens that they were not told
+     *   about.
+     */
+    @Transactional
+    public boolean removeOwnInternship(Long userId, Long internshipId) {
+        Internship internship = requireOwnInternship(userId, internshipId);
+        long applications = applicationRepository.countByInternshipId(internshipId);
+
+        if (applications > 0) {
+            internship.setStatus(InternshipStatus.ARCHIVED);
+            internshipRepository.save(internship);
+            log.info("Vacancy {} archived; {} application(s) keep pointing at it",
+                    internshipId, applications);
+            return false;
+        }
+
+        internshipRepository.delete(internship);
+        log.info("Vacancy {} deleted; nobody had applied", internshipId);
+        return true;
+    }
+
+    /** Admin detail view - unlike getPublicDetail, this can open a DRAFT too. */
     @Transactional(readOnly = true)
     public InternshipDetailResponse getAdminDetail(Long internshipId) {
         Internship internship = requireInternship(internshipId);

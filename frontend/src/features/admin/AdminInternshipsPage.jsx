@@ -84,8 +84,8 @@ export default function AdminInternshipsPage() {
     <>
 
       <PageHeader
-        title="Internships"
-        subtitle="View all internships created on the platform."
+        title={t("Internships")}
+        subtitle={t("View all internships created on the platform.")}
       />
 
 
@@ -111,15 +111,13 @@ export default function AdminInternshipsPage() {
       {
         loading ?
 
-        <LoadingBlock label="Loading internships..." />
+        <LoadingBlock label={t("Loading internships...")} />
 
         :
 
         rows.length === 0 ?
 
-        <p className="ijp-muted">
-          No internships found.
-        </p>
+        <p className="ijp-muted">{t("No internships found.")}</p>
 
         :
 
@@ -191,7 +189,7 @@ export default function AdminInternshipsPage() {
             pageCount={pageCount}
             total={visible.length}
             onChange={setPage}
-            noun="internship"
+            noun={t("internship")}
           />
         </>
 

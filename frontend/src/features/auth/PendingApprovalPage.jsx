@@ -3,11 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { api, describeApiError } from "../../api/axiosClient.js";
 import { useAuth } from "../../config/authContext.jsx";
 import LoadingBlock from "../../components/shared/LoadingBlock.jsx";
+import { useLanguage } from "../../config/languageContext.jsx";
 
 /**
  * Where an employer lands until an administrator approves their company.
  */
 export default function PendingApprovalPage() {
+  const { t } = useLanguage();
   const { user, signOut, refresh } = useAuth();
   const navigate = useNavigate();
 
@@ -69,13 +71,12 @@ export default function PendingApprovalPage() {
         </h1>
 
         {company === null && !error ? (
-          <LoadingBlock label="Checking your company's status..." />
+          <LoadingBlock label={t("Checking your company's status...")} />
         ) : (
           <>
             <p className="ijp-muted">
               {rejected ? (
-                <>
-                  An administrator reviewed <strong>{company?.name}</strong> and did not approve
+                <>{t("An administrator reviewed")}<strong>{company?.name}</strong> and did not approve
                   it. Nothing you publish will be visible to students.
                 </>
               ) : needsInfo ? (
@@ -94,22 +95,22 @@ export default function PendingApprovalPage() {
 
             {company?.approvalNote ? (
               <div className="ijp-pending-note">
-                <span className="ijp-label d-block mb-1">Note from the administrator</span>
+                <span className="ijp-label d-block mb-1">{t("Note from the administrator")}</span>
                 {company.approvalNote}
               </div>
             ) : null}
 
             <dl className="ijp-pending-facts">
               <div>
-                <dt>Account</dt>
+                <dt>{t("Account")}</dt>
                 <dd className="ijp-data">{user?.email}</dd>
               </div>
               <div>
-                <dt>Company</dt>
+                <dt>{t("Company")}</dt>
                 <dd>{company?.name ?? "-"}</dd>
               </div>
               <div>
-                <dt>Status</dt>
+                <dt>{t("Status")}</dt>
                 <dd>
                   <span
                     className={`ijp-badge ijp-badge--${
@@ -140,20 +141,14 @@ export default function PendingApprovalPage() {
           >
             {checking ? (
               <>
-                <span className="spinner-border spinner-border-sm me-2" aria-hidden="true" />
-                Checking...
-              </>
+                <span className="spinner-border spinner-border-sm me-2" aria-hidden="true" />{t("Checking...")}</>
             ) : (
               <>
-                <i className="bi bi-arrow-clockwise me-2" aria-hidden="true" />
-                Check again
-              </>
+                <i className="bi bi-arrow-clockwise me-2" aria-hidden="true" />{t("Check again")}</>
             )}
           </button>
           <button type="button" className="btn btn-ijp-quiet" onClick={handleSignOut}>
-            <i className="bi bi-box-arrow-right me-2" aria-hidden="true" />
-            Sign out
-          </button>
+            <i className="bi bi-box-arrow-right me-2" aria-hidden="true" />{t("Sign out")}</button>
         </div>
       </div>
     </div>

@@ -3,6 +3,9 @@ import { Link, useLocation } from "react-router-dom";
 import { notificationApi } from "../../api/accountApi.js";
 import { useLanguage } from "../../config/languageContext.jsx";
 import { timeAgo } from "../../api/relativeTime.js";
+import { destinationFor } from "../../config/notificationRoutes.js";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../config/authContext.jsx";
 
 /**
  * The unread indicator and a peek at the newest notifications.
@@ -10,6 +13,8 @@ import { timeAgo } from "../../api/relativeTime.js";
 const POLL_MS = 60000;
 
 export default function NotificationBell({ basePath }) {
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const { t } = useLanguage();
   const location = useLocation();
   const [unread, setUnread] = useState(0);
@@ -134,8 +139,32 @@ export default function NotificationBell({ basePath }) {
             <ul className="ijp-bell-list">
               {items.map((item) => (
                 <li key={item.id} className={item.read ? "" : "ijp-bell-item--unread"}>
-                  <span className="ijp-bell-text">{t(item.title) || item.message}</span>
-                  <span className="ijp-bell-time">{timeAgo(item.createdAt)}</span>
+                  {/* The row opens the thing it is about.
+                      Until now the bell only listed notifications - reading one
+                      meant closing the panel, finding the notifications page and
+                      clicking it there. It uses the same table that page does,
+                      so the same notice leads to the same place either way. */}
+                  <button
+                    type="button"
+                    className="ijp-bell-hit"
+                    onClick={() => {
+                      const target = destinationFor(item, user?.role);
+                      setOpen(false);
+                      if (!item.read) {
+                        notificationApi.markRead(item.id).catch(() => {});
+                        setUnread((n) => Math.max(0, n - 1));
+                      }
+                      if (target) navigate(target);
+                    }}
+                  >
+                    <span className="ijp-bell-text">{t(item.title) || item.message}</span>
+                    <span className="ijp-bell-foot">
+                      <span className="ijp-bell-time">{timeAgo(item.createdAt)}</span>
+                      {/* Says the row opens something. Without it a list of
+                          notices just looks like a list of notices. */}
+                      <i className="bi bi-arrow-right ijp-bell-go" aria-hidden="true" />
+                    </span>
+                  </button>
                 </li>
               ))}
             </ul>

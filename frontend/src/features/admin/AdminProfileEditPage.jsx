@@ -9,6 +9,7 @@ import { accountApi } from "../../api/accountApi.js";
 import { describeApiError } from "../../api/axiosClient.js";
 import { useLanguage } from "../../config/languageContext.jsx";
 import PhotoCard from "../../components/shared/PhotoCard.jsx";
+import PhoneField from "../../components/shared/PhoneField.jsx";
 
 /**
  * Editing an administrator's own details.
@@ -86,14 +87,11 @@ export default function AdminProfileEditPage() {
                   required
                 />
 
-                <AuthField
+                <PhoneField
                   id="adminPhone"
-                  label={t("Phone")}
-                  placeholder="+959795123456"
-                  icon="bi-telephone"
+                  label="Phone"
                   value={form.phone}
                   onChange={(value) => setForm((c) => ({ ...c, phone: value }))}
-                  hint={t("Optional. Myanmar format, for example +959795123456.")}
                 />
 
                 <div className="d-flex gap-2">

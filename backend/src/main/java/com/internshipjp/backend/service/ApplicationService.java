@@ -170,7 +170,8 @@ public class ApplicationService {
                 "APPLICATION_RECEIVED",
                 "A new application",
                 profile.getUser().getFullName() + " applied for \""
-                        + internship.getTitle() + "\".");
+                        + internship.getTitle() + "\".",
+                saved.getId());
 
         return applicationMapper.toSummary(saved);
     }
@@ -302,7 +303,8 @@ public class ApplicationService {
                 statusMessage(application.getInternship().getTitle(),
                         to,
                         employerName(application),
-                        request.getNote()));
+                        request.getNote()),
+                application.getId());
 
         if (to == ApplicationStatus.ACCEPTED) {
             closeIfFull(application.getInternship(), userId);
@@ -334,7 +336,8 @@ public class ApplicationService {
                 student,
                 "APPLICATION_MESSAGE",
                 company + " asked about your application",
-                "Regarding \"" + application.getInternship().getTitle() + "\"\n\u201c" + message + "\u201d");
+                "Regarding \"" + application.getInternship().getTitle() + "\"\n\u201c" + message + "\u201d",
+                application.getId());
     }
 
     private Application requireOwnApplication(Long userId, Long applicationId) {
@@ -405,7 +408,8 @@ public class ApplicationService {
                     "\"" + internship.getTitle() + "\" at "
                             + internship.getCompany().getName()
                             + " has been filled, so your application was not taken further. "
-                            + "The places ran out - it was not a decision about you.");
+                            + "The places ran out - it was not a decision about you.",
+                other.getId());
         }
 
         log.info("Vacancy {} filled: {} place(s) taken, {} other application(s) closed",
@@ -439,7 +443,8 @@ public class ApplicationService {
         notifyRecruiters(application.getInternship(),
                 "APPLICATION_MESSAGE",
                 profile.getUser().getFullName() + " replied about their application",
-                "Regarding \"" + application.getInternship().getTitle() + "\"\n\u201c" + message + "\u201d");
+                "Regarding \"" + application.getInternship().getTitle() + "\"\n\u201c" + message + "\u201d",
+                application.getId());
     }
 
     /**
@@ -451,14 +456,15 @@ public class ApplicationService {
      * must still reach somebody.
      */
     private void notifyRecruiters(Internship internship, String type,
-                                  String title, String message) {
+                                  String title, String message, Long referenceId) {
         if (internship.getCompany() == null) {
             return;
         }
         for (EmployerProfile recruiter
                 : employerProfileRepository.findByCompanyId(internship.getCompany().getId())) {
             if (recruiter.getUser() != null) {
-                notificationService.create(recruiter.getUser(), type, title, message);
+                notificationService.create(recruiter.getUser(), type, title, message,
+                        referenceId);
             }
         }
     }

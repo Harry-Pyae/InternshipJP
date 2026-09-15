@@ -7,6 +7,7 @@ import LoadingBlock from "../../components/shared/LoadingBlock.jsx";
 import ErrorAlert from "../../components/shared/ErrorAlert.jsx";
 import { adminApi } from "../../api/adminApi.js";
 import { describeApiError } from "../../api/axiosClient.js";
+import { useLanguage } from "../../config/languageContext.jsx";
 
 /**
  * Approving or rejecting one company.
@@ -27,6 +28,7 @@ const DETAILS = [
 ];
 
 export default function AdminEmployerReviewPage() {
+  const { t } = useLanguage();
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -73,28 +75,24 @@ export default function AdminEmployerReviewPage() {
   }
 
   if (company === null && !error) {
-    return <LoadingBlock label="Loading the company..." />;
+    return <LoadingBlock label={t("Loading the company...")} />;
   }
 
   return (
     <>
       <PageHeader
         title={company?.name ?? "Company"}
-        subtitle="Check the registration before activating this company's recruiters."
+        subtitle={t("Check the registration before activating this company's recruiters.")}
         action={
           <div className="d-flex gap-2">
             <Link
               className="btn btn-sm btn-ijp-quiet"
               to="/admin/users?role=EMPLOYER"
-              title="The recruiter accounts this decision activates"
+              title={t("The recruiter accounts this decision activates")}
             >
-              <i className="bi bi-people me-1" aria-hidden="true" />
-              Employer accounts
-            </Link>
+              <i className="bi bi-people me-1" aria-hidden="true" />{t("Employer accounts")}</Link>
             <Link className="btn btn-sm btn-ijp-quiet" to="/admin/employers">
-            <i className="bi bi-arrow-left me-1" aria-hidden="true" />
-            Back to queue
-          </Link>
+            <i className="bi bi-arrow-left me-1" aria-hidden="true" />{t("Back to queue")}</Link>
           </div>
         }
       />
@@ -103,16 +101,16 @@ export default function AdminEmployerReviewPage() {
 
       {company ? (
         <div className="ijp-fact-strip">
-          <Fact label="Status">
+          <Fact label={t("Status")}>
             <StatusBadge value={company.approvalStatus} />
           </Fact>
-          <Fact label="Company name">{company.name || "—"}</Fact>
-          <Fact label="Registration">{company.registrationNumber || "Not given"}</Fact>
-          <Fact label="Industry">{company.industry || "Not given"}</Fact>
-          <Fact label="Location">
+          <Fact label={t("Company name")}>{company.name || "—"}</Fact>
+          <Fact label={t("Registration")}>{company.registrationNumber || "Not given"}</Fact>
+          <Fact label={t("Industry")}>{company.industry || "Not given"}</Fact>
+          <Fact label={t("Location")}>
             {[company.location, company.country].filter(Boolean).join(", ") || "Not given"}
           </Fact>
-          <Fact label="Registered">
+          <Fact label={t("Registered")}>
             {company.createdAt?.replace("T", " ").slice(0, 16) || "—"}
           </Fact>
         </div>
@@ -124,16 +122,14 @@ export default function AdminEmployerReviewPage() {
             <div className="ijp-card p-3 p-md-4 mb-4">
               <div className="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
                 <div>
-                  <span className="ijp-label d-block mb-1">Registration number</span>
+                  <span className="ijp-label d-block mb-1">{t("Registration number")}</span>
                   {company.registrationNumber ? (
                     <p className="ijp-data mb-0" style={{ fontSize: "1.1rem" }}>
                       {company.registrationNumber}
                     </p>
                   ) : (
                     <p className="ijp-state--bad mb-0">
-                      <i className="bi bi-exclamation-triangle me-1" aria-hidden="true" />
-                      Not provided
-                    </p>
+                      <i className="bi bi-exclamation-triangle me-1" aria-hidden="true" />{t("Not provided")}</p>
                   )}
                 </div>
                 <StatusBadge value={company.approvalStatus} />
@@ -162,7 +158,7 @@ export default function AdminEmployerReviewPage() {
 
               {company.description ? (
                 <div className="mt-4">
-                  <span className="ijp-label d-block mb-1">Description</span>
+                  <span className="ijp-label d-block mb-1">{t("Description")}</span>
                   <p className="mb-0">{company.description}</p>
                 </div>
               ) : null}
@@ -171,22 +167,17 @@ export default function AdminEmployerReviewPage() {
 
           <div className="col-12 col-xl-4">
             <div className="ijp-card p-3 p-md-4">
-              <p className="ijp-label mb-2">Decision</p>
-              <label className="ijp-field-label" htmlFor="companyNote">
-                Review note
-              </label>
+              <p className="ijp-label mb-2">{t("Decision")}</p>
+              <label className="ijp-field-label" htmlFor="companyNote">{t("Review note")}</label>
               <textarea
                 id="companyNote"
                 className="form-control mb-2"
                 rows={4}
                 value={note}
                 onChange={(event) => setNote(event.target.value)}
-                placeholder="Required when rejecting. The employer sees this."
+                placeholder={t("Required when rejecting. The employer sees this.")}
               />
-              <p className="ijp-field-hint mb-3">
-                Approving activates this company's recruiter accounts and lets them publish
-                vacancies to students.
-              </p>
+              <p className="ijp-field-hint mb-3">{t("Approving activates this company's recruiter accounts and lets them publish vacancies to students.")}</p>
 
               <div className="d-grid gap-2">
                 <button
@@ -204,9 +195,7 @@ export default function AdminEmployerReviewPage() {
                   onClick={() => decide("REJECTED")}
                   disabled={busy}
                 >
-                  <i className="bi bi-x-circle me-1" aria-hidden="true" />
-                  Reject
-                </button>
+                  <i className="bi bi-x-circle me-1" aria-hidden="true" />{t("Reject")}</button>
               </div>
             </div>
           </div>

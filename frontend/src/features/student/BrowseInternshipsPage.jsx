@@ -7,11 +7,13 @@ import ErrorAlert from "../../components/shared/ErrorAlert.jsx";
 import LoadingBlock from "../../components/shared/LoadingBlock.jsx";
 import { studentApi } from "../../api/studentApi.js";
 import { describeApiError } from "../../api/axiosClient.js";
+import { useLanguage } from "../../config/languageContext.jsx";
 
 /**
  * Open vacancies a student can apply to.
  */
 export default function BrowseInternshipsPage() {
+  const { t } = useLanguage();
   const [items, setItems] = useState(null);
   const [keyword, setKeyword] = useState("");
   const [query, setQuery] = useState("");
@@ -35,13 +37,11 @@ export default function BrowseInternshipsPage() {
   return (
     <>
       <PageHeader
-        title="Browse internships"
-        subtitle="Every vacancy currently accepting applications."
+        title={t("Browse internships")}
+        subtitle={t("Every vacancy currently accepting applications.")}
         action={
           <button type="button" className="btn btn-sm btn-ijp-quiet" onClick={load}>
-            <i className="bi bi-arrow-clockwise me-1" aria-hidden="true" />
-            Refresh
-          </button>
+            <i className="bi bi-arrow-clockwise me-1" aria-hidden="true" />{t("Refresh")}</button>
         }
       />
 
@@ -56,19 +56,17 @@ export default function BrowseInternshipsPage() {
           className="form-control"
           value={keyword}
           onChange={(event) => setKeyword(event.target.value)}
-          placeholder="Search by title, company or location"
-          aria-label="Search internships"
+          placeholder={t("Search by title, company or location")}
+          aria-label={t("Search internships")}
         />
         <button className="btn btn-ijp-primary flex-shrink-0" type="submit">
-          <i className="bi bi-search me-1" aria-hidden="true" />
-          Search
-        </button>
+          <i className="bi bi-search me-1" aria-hidden="true" />{t("Search")}</button>
       </form>
 
       <ErrorAlert message={error} onRetry={load} />
 
       {items === null ? (
-        <LoadingBlock label="Loading open internships..." />
+        <LoadingBlock label={t("Loading open internships...")} />
       ) : items.length === 0 ? (
         <div className="ijp-card">
           <EmptyState
@@ -135,9 +133,7 @@ export default function BrowseInternshipsPage() {
                     Closes {internship.applicationDeadline}
                   </span>
                 ) : null}
-                <span className="ijp-metric-go ms-auto p-0">
-                  View and apply
-                  <i className="bi bi-arrow-right" aria-hidden="true" />
+                <span className="ijp-metric-go ms-auto p-0">{t("View and apply")}<i className="bi bi-arrow-right" aria-hidden="true" />
                 </span>
               </div>
             </Link>

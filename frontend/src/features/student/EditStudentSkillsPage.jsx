@@ -9,6 +9,7 @@ import { describeApiError } from "../../api/axiosClient.js";
 import { studentApi } from "../../api/studentApi.js";
 import Select from "../../components/shared/Select.jsx";
 import { useLanguage } from "../../config/languageContext.jsx";
+import ConfirmDialog from "../../components/shared/ConfirmDialog.jsx";
 
 /** The four types the backend accepts, in the order they are worth reading. */
 const SKILL_GROUPS = [
@@ -22,6 +23,8 @@ export default function EditStudentSkillsPage() {
   const { t } = useLanguage();
   const navigate = useNavigate();
   const [skills, setSkills] = useState([]);
+  const [confirming, setConfirming] = useState(null);
+  const [removing, setRemoving] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -112,10 +115,8 @@ export default function EditStudentSkillsPage() {
     }
   }
 
-  async function handleDelete(id) {
-    if (!window.confirm("Are you sure you want to remove this skill?")) {
-      return;
-    }
+  async function doRemove(id) {
+
 
     try {
       setSaving(true);
@@ -140,8 +141,8 @@ export default function EditStudentSkillsPage() {
   return (
     <>
       <PageHeader
-        title="Edit skills"
-        subtitle="Add, update, or remove your skills."
+        title={t("Edit skills")}
+        subtitle={t("Add, update, or remove your skills.")}
       />
 
       {error ? <ErrorAlert message={error} /> : null}
@@ -150,7 +151,7 @@ export default function EditStudentSkillsPage() {
 
       {!loading ? (
         <div className="d-grid gap-4">
-          <SectionCard title="Your skills">
+          <SectionCard title={t("Your skills")}>
             {skills.length === 0 ? (
               <p className="ijp-muted mb-0">
                 {t("No skills yet. They are what the assistant matches you to vacancies with.")}
@@ -186,7 +187,7 @@ export default function EditStudentSkillsPage() {
                           <button
                             type="button"
                             className="ijp-skill-chip-x"
-                            onClick={() => handleDelete(skill.id)}
+                            onClick={() => setConfirming(skill)}
                             aria-label={`${t("Remove")} ${skill.name}`}
                           >
                             <i className="bi bi-x" aria-hidden="true" />
@@ -204,9 +205,7 @@ export default function EditStudentSkillsPage() {
             <form onSubmit={handleSubmit}>
               <div className="row g-3">
                 <div className="col-md-6">
-                  <label htmlFor="name" className="form-label">
-                    Skill name
-                  </label>
+                  <label htmlFor="name" className="form-label">{t("Skill name")}</label>
 
                   <input
                     type="text"
@@ -221,9 +220,7 @@ export default function EditStudentSkillsPage() {
                 </div>
 
                 <div className="col-md-6">
-                  <label className="form-label">
-                    Skill type
-                  </label>
+                  <label className="form-label">{t("Skill type")}</label>
 
                   <Select
                     value={form.skillType}
@@ -256,9 +253,7 @@ export default function EditStudentSkillsPage() {
       className="btn btn-ijp-quiet"
       onClick={resetForm}
       disabled={saving}
-    >
-      Cancel
-    </button>
+    >{t("Cancel")}</button>
   ) : null}
 
   <button
@@ -266,15 +261,32 @@ export default function EditStudentSkillsPage() {
     className="btn btn-ijp-quiet"
     onClick={() => navigate("/student/profile")}
     disabled={saving}
-  >
-    Back to My Profile
-  </button>
+  >{t("Back to My Profile")}</button>
 </div>
               </div>
             </form>
           </SectionCard>
         </div>
       ) : null}
+      <ConfirmDialog
+        open={Boolean(confirming)}
+        tone="danger"
+        title={confirming ? `Remove ${confirming.name}?` : ""}
+        message={t("Matching uses your skills, so removing one changes which vacancies you are matched to.")}
+        confirmLabel={t("Remove")}
+        busy={removing}
+        onCancel={() => setConfirming(null)}
+        onConfirm={async () => {
+          setRemoving(true);
+          try {
+            await doRemove(confirming.id);
+            setConfirming(null);
+          } finally {
+            setRemoving(false);
+          }
+        }}
+      />
+
     </>
   );
 }

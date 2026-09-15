@@ -59,13 +59,11 @@ export default function StudentApplicationsPage() {
   return (
     <>
       <PageHeader
-        title="My applications"
-        subtitle="Every internship you have applied to, and where it stands."
+        title={t("My applications")}
+        subtitle={t("Every internship you have applied to, and where it stands.")}
         action={
           <button type="button" className="btn btn-sm btn-ijp-quiet" onClick={load}>
-            <i className="bi bi-arrow-clockwise me-1" aria-hidden="true" />
-            Refresh
-          </button>
+            <i className="bi bi-arrow-clockwise me-1" aria-hidden="true" />{t("Refresh")}</button>
         }
       />
 
@@ -89,7 +87,7 @@ export default function StudentApplicationsPage() {
           total={(rows ?? []).length}
         />
         {rows === null ? (
-          <LoadingBlock label="Loading your applications..." />
+          <LoadingBlock label={t("Loading your applications...")} />
         ) : (
                     <>
             <DataTable
@@ -136,17 +134,13 @@ export default function StudentApplicationsPage() {
                             setReplyTo(row);
                           }}
                         >
-                          <i className="bi bi-reply me-1" aria-hidden="true" />
-                          Reply
-                        </button>
+                          <i className="bi bi-reply me-1" aria-hidden="true" />{t("Reply")}</button>
                       )}
                       {row.internshipId ? (
                         <Link
                           className="btn btn-sm btn-ijp-quiet"
                           to={`/student/internships/${row.internshipId}`}
-                        >
-                          View
-                          <i className="bi bi-arrow-right ms-1" aria-hidden="true" />
+                        >{t("View")}<i className="bi bi-arrow-right ms-1" aria-hidden="true" />
                         </Link>
                       ) : null}
                     </div>
@@ -166,25 +160,22 @@ export default function StudentApplicationsPage() {
               pageCount={pageCount}
               total={visible.length}
               onChange={setPage}
-              noun="application"
+              noun={t("application")}
             />
           </>
         )}
       </div>
 
-      <p className="ijp-muted small mt-3 mb-0">
-        Only the employer can change an application's status. You will get a notification
-        when one of these moves.
-      </p>
+      <p className="ijp-muted small mt-3 mb-0">{t("Only the employer can change an application's status. You will get a notification when one of these moves.")}</p>
       <ConfirmDialog
         open={Boolean(replyTo)}
         tone="neutral"
         title={replyTo ? `Reply about ${replyTo.internshipTitle}` : ""}
         message={replyTo ? `Your reply goes to ${replyTo.companyName}.` : ""}
         note="They see it as a notification, the same way you see theirs."
-        confirmLabel="Send reply"
+        confirmLabel={t("Send reply")}
         requireReason
-        reasonLabel="Your reply"
+        reasonLabel={t("Your reply")}
         busy={sending}
         onCancel={() => setReplyTo(null)}
         onConfirm={async (text) => {

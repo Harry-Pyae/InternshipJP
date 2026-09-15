@@ -10,6 +10,7 @@ import { describeApiError } from "../../api/axiosClient.js";
 import SearchBox, { matches } from "../../components/shared/SearchBox.jsx";
 import { useLanguage } from "../../config/languageContext.jsx";
 import Pagination from "../../components/shared/Pagination.jsx";
+import ConfirmDialog from "../../components/shared/ConfirmDialog.jsx";
 
 /**
  * Every vacancy this employer's company owns.
@@ -20,6 +21,9 @@ export default function ManageInternshipsPage() {
   const [page, setPage] = useState(0);
   const [internships, setInternships] = useState(null);
   const [error, setError] = useState(null);
+  const [removing, setRemoving] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const [notice, setNotice] = useState("");
 
   const load = useCallback(async () => {
     setError(null);
@@ -52,15 +56,19 @@ export default function ManageInternshipsPage() {
   return (
     <>
       <PageHeader
-        title="Manage internships"
-        subtitle="Every vacancy your company owns, and where each one stands."
+        title={t("Manage internships")}
+        subtitle={t("Every vacancy your company owns, and where each one stands.")}
         action={
           <Link className="btn btn-ijp-primary btn-sm" to="/employer/internships/new">
-            <i className="bi bi-plus-lg me-1" aria-hidden="true" />
-            Post internship
-          </Link>
+            <i className="bi bi-plus-lg me-1" aria-hidden="true" />{t("Post internship")}</Link>
         }
       />
+
+      {notice ? (
+        <div className="alert alert-success" role="status">
+          {notice}
+        </div>
+      ) : null}
 
       <ErrorAlert message={error} onRetry={load} />
 
@@ -76,7 +84,7 @@ export default function ManageInternshipsPage() {
           total={(internships ?? []).length}
         />
         {internships === null ? (
-          <LoadingBlock label="Loading your internships..." />
+          <LoadingBlock label={t("Loading your internships...")} />
         ) : (
                     <>
             <DataTable
@@ -122,14 +130,26 @@ export default function ManageInternshipsPage() {
                       <Link
                         className="btn btn-sm btn-ijp-quiet"
                         to={`/employer/internships/${row.id}/edit`}
-                        title="Edit this internship"
+                        title={t("Edit this internship")}
                       >
                         <i className="bi bi-pencil" aria-hidden="true" />
                       </Link>
+                      {/* Removing a vacancy.
+                          What actually happens depends on whether anybody has
+                          applied, so the confirmation says which before it
+                          does anything rather than after. */}
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-ijp-quiet ijp-btn-danger"
+                        onClick={() => setRemoving(row)}
+                        title={t("Remove this internship")}
+                      >
+                        <i className="bi bi-trash" aria-hidden="true" />
+                      </button>
                       <Link
                         className="btn btn-sm btn-ijp-quiet"
                         to={`/employer/applications?internshipId=${row.id}`}
-                        title="View applicants"
+                        title={t("View applicants")}
                       >
                         <i className="bi bi-people" aria-hidden="true" />
                       </Link>
@@ -150,7 +170,7 @@ export default function ManageInternshipsPage() {
               pageCount={pageCount}
               total={visible.length}
               onChange={setPage}
-              noun="internship"
+              noun={t("internship")}
             />
           </>
         )}
@@ -162,16 +182,39 @@ export default function ManageInternshipsPage() {
             onClick={load}
             disabled={internships === null}
           >
-            <i className="bi bi-arrow-clockwise me-1" aria-hidden="true" />
-            Refresh
-          </button>
+            <i className="bi bi-arrow-clockwise me-1" aria-hidden="true" />{t("Refresh")}</button>
         </div>
       </div>
 
-      <p className="ijp-muted small mt-3 mb-0">
-        A draft is not visible to students. Publishing needs your company to be approved
-        by an administrator.
-      </p>
+      <p className="ijp-muted small mt-3 mb-0">{t("A draft is not visible to students. Publishing needs your company to be approved by an administrator.")}</p>
+      <ConfirmDialog
+        open={Boolean(removing)}
+        tone="danger"
+        title={removing ? `Remove "${removing.title}"?` : ""}
+        message={
+          removing && (removing.applicationCount ?? 0) > 0
+            ? t("Somebody has already applied, so this vacancy will be archived rather than deleted. It leaves your list and stops taking applications, and the applications already sent to it are kept.")
+            : t("Nobody has applied to this vacancy, so it will be deleted outright.")
+        }
+        confirmLabel={t("Remove")}
+        busy={busy}
+        onCancel={() => setRemoving(null)}
+        onConfirm={async () => {
+          setBusy(true);
+          setError(null);
+          try {
+            const result = await employerApi.removeInternship(removing.id);
+            setNotice(result?.message ?? t("Removed."));
+            setRemoving(null);
+            await load();
+          } catch (requestError) {
+            setError(describeApiError(requestError));
+          } finally {
+            setBusy(false);
+          }
+        }}
+      />
+
     </>
   );
 }

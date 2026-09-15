@@ -27,7 +27,7 @@ export default function StudentDashboardPage() {
 
   return (
     <>
-      <PageHeader title="Dashboard" subtitle="An overview of your internship search." />
+      <PageHeader title={t("Dashboard")} subtitle={t("An overview of your internship search.")} />
 
       <ErrorAlert message={error} />
 
@@ -42,12 +42,12 @@ export default function StudentDashboardPage() {
       </div>
 
       {gaps === null && !error ? (
-        <LoadingBlock label="Loading your figures..." />
+        <LoadingBlock label={t("Loading your figures...")} />
       ) : (
         <div className="row g-3 mb-4">
           <div className="col-6 col-xl-3">
             <StatCard
-              label="Profile complete"
+              label={t("Profile complete")}
               value={gaps ? `${gaps.profileCompleteness}%` : "—"}
               icon="bi-person-check"
               tone={gaps && gaps.profileCompleteness < 70 ? "warn" : "ok"}
@@ -60,27 +60,27 @@ export default function StudentDashboardPage() {
           </div>
           <div className="col-6 col-xl-3">
             <StatCard
-              label="Applications"
+              label={t("Applications")}
               value={gaps?.applicationCount ?? "—"}
               icon="bi-send"
-              hint="Internships you have applied to"
+              hint={t("Internships you have applied to")}
             />
           </div>
           <div className="col-6 col-xl-3">
             <StatCard
-              label="Verified certificates"
+              label={t("Verified certificates")}
               value={gaps?.verifiedCertificateCount ?? "—"}
               icon="bi-patch-check"
               tone={gaps && gaps.verifiedCertificateCount === 0 ? "warn" : "ok"}
-              hint="Only verified ones reach employers"
+              hint={t("Only verified ones reach employers")}
             />
           </div>
           <div className="col-6 col-xl-3">
             <StatCard
-              label="Open internships"
+              label={t("Open internships")}
               value={gaps?.openInternshipCount ?? "—"}
               icon="bi-megaphone"
-              hint="Currently accepting applications"
+              hint={t("Currently accepting applications")}
             />
           </div>
         </div>

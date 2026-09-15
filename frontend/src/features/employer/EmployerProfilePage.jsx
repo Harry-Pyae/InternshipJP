@@ -9,6 +9,7 @@ import { employerApi } from "../../api/employerApi.js";
 import { describeApiError } from "../../api/axiosClient.js";
 import { useLanguage } from "../../config/languageContext.jsx";
 import { useAuth } from "../../config/authContext.jsx";
+import Breakable from "../../components/shared/Breakable.jsx";
 
 /**
  * The employer's own profile, read-only.
@@ -87,7 +88,7 @@ export default function EmployerProfilePage() {
               <SectionCard title="Contact">
                 <dl className="ijp-detail mb-0">
                   <dt>{t("Sign-in email")}</dt>
-                  <dd className="ijp-data">{profile.email}</dd>
+                  <dd className="ijp-data"><Breakable text={profile.email} /></dd>
                   <dt>{t("Work email")}</dt>
                   <Value value={profile.workEmail} t={t} />
                   <dt>{t("Contact phone")}</dt>

@@ -11,8 +11,10 @@ import { describeApiError } from "../../api/axiosClient.js";
 import { useSearchParams } from "react-router-dom";
 import ConfirmDialog from "../../components/shared/ConfirmDialog.jsx";
 import { useAuth } from "../../config/authContext.jsx";
+import { useLanguage } from "../../config/languageContext.jsx";
 
 export default function AdminUsersPage() {
+  const { t } = useLanguage();
   const { user: authUser } = useAuth();
   const [data, setData] = useState({ content: [], totalElements: 0, totalPages: 0, page: 0 });
   // Filters start from the URL, so a link can arrive pre-filtered - the
@@ -186,8 +188,8 @@ export default function AdminUsersPage() {
   return (
     <>
       <PageHeader
-        title="Users"
-        subtitle="Manage student and employer accounts and their status."
+        title={t("Users")}
+        subtitle={t("Manage student and employer accounts and their status.")}
         action={
           <div className="d-flex align-items-center gap-3">
             <span className="ijp-muted small">{data.totalElements} account(s)</span>
@@ -199,9 +201,7 @@ export default function AdminUsersPage() {
                 setInvite({ email: "", fullName: "" });
               }}
             >
-              <i className="bi bi-person-plus me-1" aria-hidden="true" />
-              Invite administrator
-            </button>
+              <i className="bi bi-person-plus me-1" aria-hidden="true" />{t("Invite administrator")}</button>
           </div>
         }
       />
@@ -216,12 +216,8 @@ export default function AdminUsersPage() {
 
       {invite ? (
         <div className="ijp-card p-3 p-md-4 mb-4 ijp-invite">
-          <p className="ijp-label mb-1">Invite an administrator</p>
-          <p className="ijp-muted small mb-3">
-            They receive a code by email and choose their own password. Until they
-            accept, the account exists but cannot be signed into. You will never
-            see or set their password.
-          </p>
+          <p className="ijp-label mb-1">{t("Invite an administrator")}</p>
+          <p className="ijp-muted small mb-3">{t("They receive a code by email and choose their own password. Until they accept, the account exists but cannot be signed into. You will never see or set their password.")}</p>
           <form className="row g-3 align-items-end" onSubmit={sendInvite}>
             <div className="col-md-5">
               <label className="form-label" htmlFor="inviteName">Name</label>
@@ -237,7 +233,7 @@ export default function AdminUsersPage() {
               />
             </div>
             <div className="col-md-5">
-              <label className="form-label" htmlFor="inviteEmailAddr">Email</label>
+              <label className="form-label" htmlFor="inviteEmailAddr">{t("Email")}</label>
               <input
                 id="inviteEmailAddr"
                 type="email"
@@ -246,7 +242,7 @@ export default function AdminUsersPage() {
                 onChange={(event) =>
                   setInvite((current) => ({ ...current, email: event.target.value }))
                 }
-                placeholder="colleague@example.com"
+                placeholder={t("colleague@example.com")}
                 maxLength={190}
                 required
               />
@@ -260,9 +256,7 @@ export default function AdminUsersPage() {
                 className="btn btn-ijp-quiet"
                 onClick={() => setInvite(null)}
                 disabled={inviteBusy}
-              >
-                Cancel
-              </button>
+              >{t("Cancel")}</button>
             </div>
           </form>
         </div>
@@ -271,12 +265,12 @@ export default function AdminUsersPage() {
       <div className="ijp-card p-3 mb-4">
         <form className="row g-3 align-items-end" onSubmit={submitSearch}>
           <div className="col-12 col-lg-5">
-            <label className="ijp-label mb-2" htmlFor="admin-user-search">Search</label>
+            <label className="ijp-label mb-2" htmlFor="admin-user-search">{t("Search")}</label>
             <input
               id="admin-user-search"
               className="form-control"
               type="search"
-              placeholder="Name or email"
+              placeholder={t("Name or email")}
               value={searchInput}
               onChange={(event) => setSearchInput(event.target.value)}
             />
@@ -296,8 +290,8 @@ export default function AdminUsersPage() {
                     ],
                   },
                 ]}
-                placeholder="All roles"
-                ariaLabel="Filter by role"
+                placeholder={t("All roles")}
+                ariaLabel={t("Filter by role")}
               />
           </div>
           <div className="col-6 col-lg-3">
@@ -315,12 +309,12 @@ export default function AdminUsersPage() {
                     ],
                   },
                 ]}
-                placeholder="All statuses"
-                ariaLabel="Filter by status"
+                placeholder={t("All statuses")}
+                ariaLabel={t("Filter by status")}
               />
           </div>
           <div className="col-12 col-lg-1">
-            <button className="btn btn-ijp-primary w-100" type="submit" aria-label="Search users">
+            <button className="btn btn-ijp-primary w-100" type="submit" aria-label={t("Search users")}>
               <i className="bi bi-search" aria-hidden="true" />
             </button>
           </div>
@@ -328,7 +322,7 @@ export default function AdminUsersPage() {
       </div>
 
       <div className="ijp-card p-4">
-        {loading ? <LoadingBlock label="Loading users..." /> : <UserTable
+        {loading ? <LoadingBlock label={t("Loading users...")} /> : <UserTable
               currentUserId={authUser?.id}
             rows={data.content}
             busyId={busyId}
@@ -370,6 +364,7 @@ export default function AdminUsersPage() {
 }
 
 function Pagination({ page, totalPages, onChange }) {
+  const { t } = useLanguage();
   // One page needs no controls. This rendered regardless, leaving a row of
   // dead buttons under every short list - the shared Pagination component
   // has always had this guard; this local copy did not.
@@ -379,13 +374,9 @@ function Pagination({ page, totalPages, onChange }) {
 
   return (
     <div className="d-flex justify-content-between align-items-center gap-2 mt-4">
-      <button type="button" className="btn btn-sm btn-ijp-quiet" disabled={page === 0} onClick={() => onChange(page - 1)}>
-        Previous
-      </button>
+      <button type="button" className="btn btn-sm btn-ijp-quiet" disabled={page === 0} onClick={() => onChange(page - 1)}>{t("Previous")}</button>
       <span className="ijp-muted small">Page {page + 1} of {totalPages}</span>
-      <button type="button" className="btn btn-sm btn-ijp-quiet" disabled={page + 1 >= totalPages} onClick={() => onChange(page + 1)}>
-        Next
-      </button>
+      <button type="button" className="btn btn-sm btn-ijp-quiet" disabled={page + 1 >= totalPages} onClick={() => onChange(page + 1)}>{t("Next")}</button>
     </div>
   );
 }

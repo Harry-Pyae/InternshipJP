@@ -106,7 +106,7 @@ export default function AccountSettingsPage() {
   }
 
   if (account === null && !error) {
-    return <LoadingBlock label="Loading your account..." />;
+    return <LoadingBlock label={t("Loading your account...")} />;
   }
 
   // Deleting your own account. The typed confirmation is deliberate: a
@@ -149,17 +149,17 @@ export default function AccountSettingsPage() {
 
   return (
     <>
-      <PageHeader title="Settings" subtitle="Your account, password and sign-in security." />
+      <PageHeader title={t("Settings")} subtitle={t("Your account, password and sign-in security.")} />
 
       <ErrorAlert message={error} />
 
       <div className="row g-4">
         <div className="col-12 col-xl-6">
-          <SectionCard title="Account details">
+          <SectionCard title={t("Account details")}>
             <form onSubmit={saveProfile} className="d-grid gap-3">
               <AuthField
                 id="setName"
-                label="Full name"
+                label={t("Full name")}
                 icon="bi-person"
                 value={profile.fullName}
                 onChange={(value) => setProfile((c) => ({ ...c, fullName: value }))}
@@ -168,7 +168,7 @@ export default function AccountSettingsPage() {
               />
               <AuthField
                 id="setPhone"
-                label="Phone"
+                label={t("Phone")}
                 icon="bi-telephone"
                 optional
                 value={profile.phone}
@@ -177,11 +177,9 @@ export default function AccountSettingsPage() {
               />
 
               <div>
-                <span className="ijp-field-label d-block">Email</span>
+                <span className="ijp-field-label d-block">{t("Email")}</span>
                 <p className="ijp-data mb-0">{account?.email}</p>
-                <p className="ijp-field-hint">
-                  Your email is your sign-in name and cannot be changed here.
-                </p>
+                <p className="ijp-field-hint">{t("Your email is your sign-in name and cannot be changed here.")}</p>
               </div>
 
               <div className="d-flex align-items-center gap-3">
@@ -190,9 +188,7 @@ export default function AccountSettingsPage() {
                 </button>
                 {profileDone ? (
                   <span className="ijp-state--ok small">
-                    <i className="bi bi-check2-circle me-1" aria-hidden="true" />
-                    Saved
-                  </span>
+                    <i className="bi bi-check2-circle me-1" aria-hidden="true" />{t("Saved")}</span>
                 ) : null}
               </div>
             </form>
@@ -200,11 +196,11 @@ export default function AccountSettingsPage() {
         </div>
 
         <div className="col-12 col-xl-6">
-          <SectionCard title="Password">
+          <SectionCard title={t("Password")}>
             <form onSubmit={savePassword} className="d-grid gap-3">
               <AuthField
                 id="setCurrent"
-                label="Current password"
+                label={t("Current password")}
                 icon="bi-lock"
                 type="password"
                 autoComplete="current-password"
@@ -215,11 +211,11 @@ export default function AccountSettingsPage() {
               />
               <AuthField
                 id="setNew"
-                label="New password"
+                label={t("New password")}
                 icon="bi-shield-lock"
                 type="password"
                 autoComplete="new-password"
-                hint="At least 8 characters, with an uppercase letter, a lowercase letter, a digit and a symbol."
+                hint={t("At least 8 characters, with an uppercase letter, a lowercase letter, a digit and a symbol.")}
                 value={password.newPassword}
                 onChange={(value) => setPassword((c) => ({ ...c, newPassword: value }))}
                 error={passwordErrors?.newPassword}
@@ -227,7 +223,7 @@ export default function AccountSettingsPage() {
               />
               <AuthField
                 id="setConfirm"
-                label="Confirm new password"
+                label={t("Confirm new password")}
                 icon="bi-shield-check"
                 type="password"
                 autoComplete="new-password"
@@ -243,9 +239,7 @@ export default function AccountSettingsPage() {
                 </button>
                 {passwordDone ? (
                   <span className="ijp-state--ok small">
-                    <i className="bi bi-check2-circle me-1" aria-hidden="true" />
-                    Password changed
-                  </span>
+                    <i className="bi bi-check2-circle me-1" aria-hidden="true" />{t("Password changed")}</span>
                 ) : null}
               </div>
             </form>

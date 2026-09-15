@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { authApi } from "../../api/authApi.js";
 import { describeApiError, ensureCsrfToken, fieldErrorsOf } from "../../api/axiosClient.js";
 import ErrorAlert from "../../components/shared/ErrorAlert.jsx";
+import Breakable from "../../components/shared/Breakable.jsx";
 
 /**
  * Developer session tool - Member 1 (integration).
@@ -173,7 +174,7 @@ function SignedIn({ user, busy, onSignOut }) {
       <dl className="small mb-3">
         <Row label="Signed in as">{user.fullName}</Row>
         <Row label="Email">
-          <span className="ijp-data">{user.email}</span>
+          <span className="ijp-data"><Breakable text={user.email} /></span>
         </Row>
         <Row label="Role">
           <span className="badge text-bg-light border">{user.role}</span>

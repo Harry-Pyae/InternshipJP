@@ -7,10 +7,14 @@ import LoadingBlock from "../../components/shared/LoadingBlock.jsx";
 import SectionCard from "../../components/shared/SectionCard.jsx";
 import { describeApiError } from "../../api/axiosClient.js";
 import { studentEducationApi } from "../../api/studentEducationApi.js";
+import { useLanguage } from "../../config/languageContext.jsx";
+import ConfirmDialog from "../../components/shared/ConfirmDialog.jsx";
 
 export default function EditStudentEducationPage() {
+  const { t } = useLanguage();
     const navigate = useNavigate();
   const [education, setEducation] = useState([]);
+  const [confirming, setConfirming] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -127,15 +131,7 @@ export default function EditStudentEducationPage() {
     }
   }
 
-  async function handleDelete(id) {
-    if (
-      !window.confirm(
-        "Are you sure you want to remove this education record?"
-      )
-    ) {
-      return;
-    }
-
+  async function doDelete(id) {
     try {
       setSaving(true);
       setError("");
@@ -159,8 +155,8 @@ export default function EditStudentEducationPage() {
   return (
     <>
       <PageHeader
-        title="Edit education"
-        subtitle="Add, update, or remove your education records."
+        title={t("Edit education")}
+        subtitle={t("Add, update, or remove your education records.")}
       />
 
       {error ? <ErrorAlert message={error} /> : null}
@@ -169,11 +165,9 @@ export default function EditStudentEducationPage() {
 
       {!loading ? (
         <div className="d-grid gap-4">
-          <SectionCard title="Your education">
+          <SectionCard title={t("Your education")}>
             {education.length === 0 ? (
-              <div className="text-muted">
-                No education records added yet.
-              </div>
+              <div className="text-muted">{t("No education records added yet.")}</div>
             ) : (
               <div className="d-grid gap-3">
                 {education.map((item) => (
@@ -217,20 +211,16 @@ export default function EditStudentEducationPage() {
                           type="button"
                           className="btn btn-ijp-primary btn-sm"
                           onClick={() => startEdit(item)}
-                        >
-                          Edit
-                        </button>
+                        >{t("Edit")}</button>
 
                         <button
                           type="button"
                           className="btn btn-ijp-quiet ijp-btn-danger btn-sm"
                           onClick={() =>
-                            handleDelete(item.id)
+                            setConfirming(item.id)
                           }
                           disabled={saving}
-                        >
-                          Delete
-                        </button>
+                        >{t("Delete")}</button>
                       </div>
                     </div>
                   </div>
@@ -249,9 +239,7 @@ export default function EditStudentEducationPage() {
             <form onSubmit={handleSubmit}>
               <div className="row g-3">
                 <div className="col-12">
-                  <label htmlFor="institution" className="form-label">
-                    Institution
-                  </label>
+                  <label htmlFor="institution" className="form-label">{t("Institution")}</label>
 
                   <input
                     type="text"
@@ -266,9 +254,7 @@ export default function EditStudentEducationPage() {
                 </div>
 
                 <div className="col-md-6">
-                  <label htmlFor="degree" className="form-label">
-                    Degree
-                  </label>
+                  <label htmlFor="degree" className="form-label">{t("Degree")}</label>
 
                   <input
                     type="text"
@@ -278,13 +264,12 @@ export default function EditStudentEducationPage() {
                     value={form.degree}
                     onChange={handleChange}
                     maxLength={150}
-                  />
+                    required
+                    />
                 </div>
 
                 <div className="col-md-6">
-                  <label htmlFor="fieldOfStudy" className="form-label">
-                    Field of study
-                  </label>
+                  <label htmlFor="fieldOfStudy" className="form-label">{t("Field of study")}</label>
 
                   <input
                     type="text"
@@ -294,13 +279,12 @@ export default function EditStudentEducationPage() {
                     value={form.fieldOfStudy}
                     onChange={handleChange}
                     maxLength={150}
-                  />
+                    required
+                    />
                 </div>
 
                 <div className="col-md-4">
-                  <label htmlFor="startYear" className="form-label">
-                    Start year
-                  </label>
+                  <label htmlFor="startYear" className="form-label">{t("Start year")}</label>
 
                   <input
                     type="number"
@@ -311,13 +295,12 @@ export default function EditStudentEducationPage() {
                     onChange={handleChange}
                     min={1950}
                     max={2100}
-                  />
+                    required
+                    />
                 </div>
 
                 <div className="col-md-4">
-                  <label htmlFor="endYear" className="form-label">
-                    End year
-                  </label>
+                  <label htmlFor="endYear" className="form-label">{t("End year")}</label>
 
                   <input
                     type="number"
@@ -328,22 +311,25 @@ export default function EditStudentEducationPage() {
                     onChange={handleChange}
                     min={1950}
                     max={2100}
-                  />
+                    required
+                    />
                 </div>
 
                 <div className="col-md-4">
-                  <label htmlFor="grade" className="form-label">
-                    Grade
-                  </label>
+                  {/* A CGPA is a decimal - 3.33, 3.45 - so the field accepts
+                      one. As a text box it took anything at all. */}
+                  <label htmlFor="grade" className="form-label">{t("CGPA")}</label>
 
                   <input
-                    type="text"
                     id="grade"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    max="5"
                   name="grade"
                     className="form-control"
                     value={form.grade}
                     onChange={handleChange}
-                    maxLength={50}
                   />
                 </div>
 
@@ -366,9 +352,7 @@ export default function EditStudentEducationPage() {
       className="btn btn-ijp-quiet"
       onClick={resetForm}
       disabled={saving}
-    >
-      Cancel
-    </button>
+    >{t("Cancel")}</button>
   ) : null}
 
   <button
@@ -376,15 +360,27 @@ export default function EditStudentEducationPage() {
     className="btn btn-ijp-quiet"
     onClick={() => navigate("/student/profile")}
     disabled={saving}
-  >
-    Back to My Profile
-  </button>
+  >{t("Back to My Profile")}</button>
 </div>
               </div>
             </form>
           </SectionCard>
         </div>
       ) : null}
+      <ConfirmDialog
+        open={confirming !== null}
+        tone="danger"
+        title={t("Remove this education record?")}
+        message={t("It leaves your profile and stops being sent with applications. This cannot be undone.")}
+        confirmLabel={t("Remove")}
+        busy={saving}
+        onCancel={() => setConfirming(null)}
+        onConfirm={async () => {
+          await doDelete(confirming);
+          setConfirming(null);
+        }}
+      />
+
     </>
   );
 }

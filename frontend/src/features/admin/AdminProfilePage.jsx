@@ -10,6 +10,7 @@ import { describeApiError } from "../../api/axiosClient.js";
 import { timeAgo, exactTime } from "../../api/relativeTime.js";
 import { useLanguage } from "../../config/languageContext.jsx";
 import Avatar from "../../components/shared/Avatar.jsx";
+import Breakable from "../../components/shared/Breakable.jsx";
 
 /**
  * An administrator's own profile.
@@ -89,7 +90,7 @@ export default function AdminProfilePage() {
                 </div>
                 <div>
                   <dt>{t("Email")}</dt>
-                  <dd className="ijp-data">{account.email}</dd>
+                  <dd className="ijp-data"><Breakable text={account.email} /></dd>
                 </div>
                 <div>
                   <dt>{t("Phone")}</dt>

@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import com.internshipjp.backend.dto.response.ApiMessageResponse;
 
 /**
  * Internship management for the employer who owns them.
@@ -70,5 +72,21 @@ public class EmployerInternshipController {
     public InternshipDetailResponse update(@PathVariable Long id,
                                            @Valid @RequestBody InternshipRequest request) {
         return internshipService.update(currentUserService.requireUserId(), id, request);
+    }
+
+    /**
+     * Removes one of this employer's vacancies.
+     *
+     * Deleted when nobody has applied, archived when somebody has - the
+     * response says which, so the employer is told what actually happened
+     * rather than just that it worked.
+     */
+    @DeleteMapping("/{id}")
+    public ApiMessageResponse remove(@PathVariable Long id) {
+        boolean deleted = internshipService.removeOwnInternship(
+                currentUserService.requireUserId(), id);
+        return new ApiMessageResponse(deleted
+                ? "The vacancy was deleted."
+                : "The vacancy was archived. Applications already sent to it are kept.");
     }
 }

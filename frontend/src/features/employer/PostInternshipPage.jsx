@@ -387,8 +387,26 @@ export default function PostInternshipPage() {
 
               <div className="ijp-card p-3 p-md-4">
                 {message ? (
+                  /* Somewhere to go next.
+                     The form said "published successfully" and then left the
+                     employer sitting on it, with no link to the vacancy and no
+                     way to tell whether the list had it. Saying a thing worked
+                     is not the same as showing it. */
                   <div className="alert alert-success" role="status">
-                    {message}
+                    <p className="mb-2">{message}</p>
+                    <div className="d-flex flex-wrap gap-2">
+                      <Link className="btn btn-sm btn-ijp-primary" to="/employer/internships">
+                        <i className="bi bi-list-ul me-1" aria-hidden="true" />
+                        {t("See it in my vacancies")}
+                      </Link>
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-ijp-quiet"
+                        onClick={() => window.location.reload()}
+                      >
+                        {t("Post another")}
+                      </button>
+                    </div>
                   </div>
                 ) : null}
                 {error ? (

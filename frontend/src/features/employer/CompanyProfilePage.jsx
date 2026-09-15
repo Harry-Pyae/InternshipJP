@@ -140,7 +140,7 @@ export default function CompanyProfilePage() {
       {done && !editing ? (
         <div className="ijp-callout" role="status">
           <i className="bi bi-check2-circle ijp-callout-icon" aria-hidden="true" />
-          <p className="mb-0">Your changes have been saved.</p>
+          <p className="mb-0">{t("Your changes have been saved.")}</p>
         </div>
       ) : null}
 

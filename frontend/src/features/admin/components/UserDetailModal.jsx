@@ -4,6 +4,7 @@ import { useLanguage } from "../../../config/languageContext.jsx";
 import { useEffect, useState } from "react";
 import Avatar from "../../../components/shared/Avatar.jsx";
 import { adminApi } from "../../../api/adminApi.js";
+import Breakable from "../../../components/shared/Breakable.jsx";
 
 /**
  * Everything known about one account, and every action, in one place.
@@ -95,7 +96,7 @@ export default function UserDetailModal({ user, busy, onClose, onToggle, onDelet
             </div>
             <div>
               <dt>{t("Email")}</dt>
-              <dd className="ijp-data">{user.email}</dd>
+              <dd className="ijp-data"><Breakable text={user.email} /></dd>
             </div>
             <div>
               <dt>{t("Registered")}</dt>

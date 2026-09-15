@@ -256,11 +256,11 @@ export default function AdminDashboardPage() {
     return (
       <>
         <PageHeader
-          title="Dashboard"
-          subtitle="Platform overview and work waiting for review."
+          title={t("Dashboard")}
+          subtitle={t("Platform overview and work waiting for review.")}
         />
 
-        <LoadingBlock label="Loading administrator dashboard..." />
+        <LoadingBlock label={t("Loading administrator dashboard...")} />
       </>
     );
   }
@@ -269,8 +269,8 @@ export default function AdminDashboardPage() {
     return (
       <>
         <PageHeader
-          title="Dashboard"
-          subtitle="Platform overview and work waiting for review."
+          title={t("Dashboard")}
+          subtitle={t("Platform overview and work waiting for review.")}
         />
 
         <ErrorAlert
@@ -305,8 +305,8 @@ export default function AdminDashboardPage() {
   return (
     <>
       <PageHeader
-        title="Dashboard"
-        subtitle="Platform overview and work waiting for review."
+        title={t("Dashboard")}
+        subtitle={t("Platform overview and work waiting for review.")}
         action={
           <button
             type="button"
@@ -340,7 +340,7 @@ export default function AdminDashboardPage() {
       <div className="row g-4 mb-4">
         <div className="col-12 col-sm-6 col-xl-3">
           <DashboardStat
-            label="Students"
+            label={t("Students")}
             value={counts.students}
             icon="bi-mortarboard"
             description="All registered student accounts"
@@ -350,7 +350,7 @@ export default function AdminDashboardPage() {
 
         <div className="col-12 col-sm-6 col-xl-3">
           <DashboardStat
-            label="Employers"
+            label={t("Employers")}
             value={counts.employers}
             icon="bi-briefcase"
             description="All registered employer accounts"
@@ -360,7 +360,7 @@ export default function AdminDashboardPage() {
 
         <div className="col-12 col-sm-6 col-xl-3">
           <DashboardStat
-            label="Administrators"
+            label={t("Administrators")}
             value={counts.admins}
             icon="bi-shield-lock"
             description="Administrator accounts"
@@ -370,7 +370,7 @@ export default function AdminDashboardPage() {
 
         <div className="col-12 col-sm-6 col-xl-3">
           <DashboardStat
-            label="Suspended accounts"
+            label={t("Suspended accounts")}
             value={counts.suspended}
             icon="bi-person-x"
             description="Accounts currently suspended"
@@ -387,7 +387,7 @@ export default function AdminDashboardPage() {
       <div className="row g-4 mb-4">
         <div className="col-12 col-sm-6 col-xl-3">
           <DashboardStat
-            label="Pending companies"
+            label={t("Pending companies")}
             value={counts.companies}
             icon="bi-building-check"
             description="Companies waiting for approval"
@@ -398,7 +398,7 @@ export default function AdminDashboardPage() {
 
         <div className="col-12 col-sm-6 col-xl-3">
           <DashboardStat
-            label="Pending certificates"
+            label={t("Pending certificates")}
             value={counts.certificates}
             icon="bi-patch-check"
             description="Certificates waiting for verification"
@@ -409,7 +409,7 @@ export default function AdminDashboardPage() {
 
         <div className="col-12 col-sm-6 col-xl-3">
           <DashboardStat
-            label="Stalled applications"
+            label={t("Stalled applications")}
             value={stalledApplications}
             icon="bi-hourglass-split"
             description="No employer activity for 7+ days"
@@ -425,7 +425,7 @@ export default function AdminDashboardPage() {
 
         <div className="col-12 col-sm-6 col-xl-3">
           <DashboardStat
-            label="AI calls"
+            label={t("AI calls")}
             value={aiCalls}
             icon="bi-stars"
             description={
@@ -445,14 +445,12 @@ export default function AdminDashboardPage() {
       <div className="row g-4 mb-4">
         <div className="col-12 col-xl-6">
           <SectionCard
-            title="Pending company approvals"
+            title={t("Pending company approvals")}
             action={
               <Link
                 to="/admin/employers"
                 className="btn btn-sm btn-ijp-quiet"
-              >
-                View all
-              </Link>
+              >{t("View all")}</Link>
             }
           >
             <DataTable
@@ -492,14 +490,12 @@ export default function AdminDashboardPage() {
 
         <div className="col-12 col-xl-6">
           <SectionCard
-            title="Certificate verification queue"
+            title={t("Certificate verification queue")}
             action={
               <Link
                 to="/admin/certificates"
                 className="btn btn-sm btn-ijp-quiet"
-              >
-                View all
-              </Link>
+              >{t("View all")}</Link>
             }
           >
             <DataTable
@@ -541,14 +537,12 @@ export default function AdminDashboardPage() {
       <div className="row g-4 mb-4">
         <div className="col-12 col-xl-8">
           <SectionCard
-            title="Recent registrations"
+            title={t("Recent registrations")}
             action={
               <Link
                 to="/admin/users"
                 className="btn btn-sm btn-ijp-quiet"
-              >
-                User management
-              </Link>
+              >{t("User management")}</Link>
             }
           >
             <DataTable
@@ -598,14 +592,12 @@ export default function AdminDashboardPage() {
 
         <div className="col-12 col-xl-4">
           <SectionCard
-            title="AI usage"
+            title={t("AI usage")}
             action={
               <Link
                 to="/admin/reports"
                 className="btn btn-sm btn-ijp-quiet"
-              >
-                Details
-              </Link>
+              >{t("Details")}</Link>
             }
           >
             <div className="d-flex flex-column gap-3">
@@ -657,7 +649,7 @@ export default function AdminDashboardPage() {
 
       <div className="row g-4">
         <div className="col-12">
-          <SectionCard title="What needs attention">
+          <SectionCard title={t("What needs attention")}>
               {workload.summary ? (
                 <div className="ijp-callout">
                   <i className="bi bi-clock-history ijp-callout-icon" aria-hidden="true" />
@@ -667,7 +659,7 @@ export default function AdminDashboardPage() {
 
               {Array.isArray(workload.priorities) && workload.priorities.length > 0 ? (
                 <>
-                  <p className="ijp-label mb-2">Suggested order</p>
+                  <p className="ijp-label mb-2">{t("Suggested order")}</p>
                   {/*
                     The same numbered rows the AI panel uses, rather than a
                     second hand-rolled copy. Three typos lived in the old
@@ -686,9 +678,7 @@ export default function AdminDashboardPage() {
                   </ol>
                 </>
               ) : (
-                <p className="ijp-muted mb-0">
-                  Nothing is waiting for review. Both queues are clear.
-                </p>
+                <p className="ijp-muted mb-0">{t("Nothing is waiting for review. Both queues are clear.")}</p>
               )}
           </SectionCard>
         </div>

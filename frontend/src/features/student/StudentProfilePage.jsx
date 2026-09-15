@@ -9,6 +9,7 @@ import { studentApi } from "../../api/studentApi.js";
 import { studentEducationApi } from "../../api/studentEducationApi.js";
 import { describeApiError } from "../../api/axiosClient.js";
 import { useAuth } from "../../config/authContext.jsx";
+import { useLanguage } from "../../config/languageContext.jsx";
 
 /**
  * The student's profile, read-only.
@@ -21,6 +22,7 @@ const SKILL_GROUPS = [
 ];
 
 export default function StudentProfilePage() {
+  const { t } = useLanguage();
   const { user } = useAuth();
   const [profile, setProfile] = useState(null);
   const [skills, setSkills] = useState([]);
@@ -48,19 +50,17 @@ export default function StudentProfilePage() {
   }, [load]);
 
   if (profile === null && !error) {
-    return <LoadingBlock label="Loading your profile..." />;
+    return <LoadingBlock label={t("Loading your profile...")} />;
   }
 
   return (
     <>
       <PageHeader
-        title="My profile"
-        subtitle="What employers see when you apply."
+        title={t("My profile")}
+        subtitle={t("What employers see when you apply.")}
         action={
           <Link className="btn btn-sm btn-ijp-primary" to="/student/profile/edit">
-            <i className="bi bi-pencil me-1" aria-hidden="true" />
-            Edit profile
-          </Link>
+            <i className="bi bi-pencil me-1" aria-hidden="true" />{t("Edit profile")}</Link>
         }
       />
 
@@ -82,30 +82,30 @@ export default function StudentProfilePage() {
 
           <div className="row g-4">
             <div className="col-12 col-xl-6">
-              <SectionCard title="Personal information">
+              <SectionCard title={t("Personal information")}>
                 <dl className="ijp-detail-grid ijp-detail mb-0">
-                  <Row label="Email" value={profile.email} mono />
-                  <Row label="Date of birth" value={profile.dateOfBirth} mono />
-                  <Row label="Age" value={profile.age} mono />
-                  <Row label="City" value={profile.location} />
-                  <Row label="Country" value={profile.country} />
-                  <Row label="Available from" value={profile.availableFrom} mono />
-                  <Row label="Preferred work mode" value={pretty(profile.preferredWorkMode)} />
-                  <Row label="Availability" value={pretty(profile.availability)} />
+                  <Row label={t("Email")} value={profile.email} mono />
+                  <Row label={t("Date of birth")} value={profile.dateOfBirth} mono />
+                  <Row label={t("Age")} value={profile.age} mono />
+                  <Row label={t("City")} value={profile.location} />
+                  <Row label={t("Country")} value={profile.country} />
+                  <Row label={t("Available from")} value={profile.availableFrom} mono />
+                  <Row label={t("Preferred work mode")} value={pretty(profile.preferredWorkMode)} />
+                  <Row label={t("Availability")} value={pretty(profile.availability)} />
                 </dl>
               </SectionCard>
             </div>
 
             <div className="col-12 col-xl-6">
-              <SectionCard title="Links">
+              <SectionCard title={t("Links")}>
                 <dl className="ijp-detail-grid ijp-detail mb-0">
-                  <Row label="Portfolio" value={profile.portfolioUrl} link />
-                  <Row label="LinkedIn" value={profile.linkedinUrl} link />
-                  <Row label="GitHub" value={profile.githubUrl} link />
+                  <Row label={t("Portfolio")} value={profile.portfolioUrl} link />
+                  <Row label={t("LinkedIn")} value={profile.linkedinUrl} link />
+                  <Row label={t("GitHub")} value={profile.githubUrl} link />
                 </dl>
                 {profile.biography ? (
                   <div className="mt-4">
-                    <p className="ijp-label mb-1">About</p>
+                    <p className="ijp-label mb-1">{t("About")}</p>
                     <p className="mb-0" style={{ lineHeight: 1.6 }}>
                       {profile.biography}
                     </p>
@@ -116,17 +116,13 @@ export default function StudentProfilePage() {
 
             <div className="col-12">
               <SectionCard
-                title="Skills"
+                title={t("Skills")}
                 action={
-                  <Link className="btn btn-sm btn-ijp-quiet" to="/student/skills/edit">
-                    Edit skills
-                  </Link>
+                  <Link className="btn btn-sm btn-ijp-quiet" to="/student/skills/edit">{t("Edit skills")}</Link>
                 }
               >
                 {skills.length === 0 ? (
-                  <p className="ijp-muted mb-0">
-                    No skills yet. They are what the assistant matches you to vacancies with.
-                  </p>
+                  <p className="ijp-muted mb-0">{t("No skills yet. They are what the assistant matches you to vacancies with.")}</p>
                 ) : (
                   SKILL_GROUPS.map((group) => {
                     const inGroup = skills.filter((s) => s.skillType === group.type);
@@ -155,15 +151,13 @@ export default function StudentProfilePage() {
 
             <div className="col-12">
               <SectionCard
-                title="Education"
+                title={t("Education")}
                 action={
-                  <Link className="btn btn-sm btn-ijp-quiet" to="/student/education/edit">
-                    Edit education
-                  </Link>
+                  <Link className="btn btn-sm btn-ijp-quiet" to="/student/education/edit">{t("Edit education")}</Link>
                 }
               >
                 {education.length === 0 ? (
-                  <p className="ijp-muted mb-0">No education added yet.</p>
+                  <p className="ijp-muted mb-0">{t("No education added yet.")}</p>
                 ) : (
                   <ul className="ijp-gap-grid mb-0">
                     {education.map((item) => (

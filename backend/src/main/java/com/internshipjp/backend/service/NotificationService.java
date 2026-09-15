@@ -48,6 +48,20 @@ public class NotificationService {
     }
 
     @Transactional
+    /**
+     * With the record it is about, so clicking it can open that record.
+     *
+     * The four-argument form below still works and is what everything used to
+     * call. A notification without a reference opens the queue it belongs to,
+     * which is the behaviour every notification had until now.
+     */
+    public Notification create(User recipient, String type, String title, String message,
+                               Long referenceId) {
+        Notification notification = create(recipient, type, title, message);
+        notification.setReferenceId(referenceId);
+        return notificationRepository.save(notification);
+    }
+
     public Notification create(User recipient, String type, String title, String message) {
         Notification notification = new Notification();
         notification.setUser(recipient);

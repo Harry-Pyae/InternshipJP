@@ -50,14 +50,14 @@ export default function AdminReportsPage() {
   return (
     <>
       <PageHeader
-        title="Reports"
-        subtitle="Platform workload, review queues and AI operational activity."
-        action={<button type="button" className="btn btn-sm btn-ijp-quiet" onClick={load}>Refresh</button>}
+        title={t("Reports")}
+        subtitle={t("Platform workload, review queues and AI operational activity.")}
+        action={<button type="button" className="btn btn-sm btn-ijp-quiet" onClick={load}>{t("Refresh")}</button>}
       />
 
       <ErrorAlert message={error} onRetry={load} />
 
-      {loading && !workload ? <LoadingBlock label="Loading reports..." /> : null}
+      {loading && !workload ? <LoadingBlock label={t("Loading reports...")} /> : null}
 
       {workload && summary ? (
         <>
@@ -74,14 +74,14 @@ export default function AdminReportsPage() {
             </div>
             <div className="row g-3">
               <div className="col-6 col-xl-3">
-                <StatCard label="Students" value={workload.totalStudents} icon="bi-mortarboard" />
+                <StatCard label={t("Students")} value={workload.totalStudents} icon="bi-mortarboard" />
               </div>
               <div className="col-6 col-xl-3">
-                <StatCard label="Employers" value={workload.totalEmployers} icon="bi-briefcase" />
+                <StatCard label={t("Employers")} value={workload.totalEmployers} icon="bi-briefcase" />
               </div>
               <div className="col-6 col-xl-3">
                 <StatCard
-                  label="Suspended"
+                  label={t("Suspended")}
                   value={workload.suspendedAccounts}
                   icon="bi-person-x"
                   tone={workload.suspendedAccounts ? "bad" : "ok"}
@@ -89,7 +89,7 @@ export default function AdminReportsPage() {
               </div>
               <div className="col-6 col-xl-3">
                 <StatCard
-                  label="Stalled applications"
+                  label={t("Stalled applications")}
                   value={workload.applicationsStalled}
                   icon="bi-hourglass-split"
                   tone={workload.applicationsStalled ? "warn" : "ok"}
@@ -105,13 +105,13 @@ export default function AdminReportsPage() {
             </div>
             <div className="row g-4">
               <div className="col-12 col-xl-6">
-                <SectionCard title="Workload">
+                <SectionCard title={t("Workload")}>
                   <p className="mb-3">{workload.summary}</p>
                   <div className="row g-2 mb-4">
-                    <MiniStat label="Certificates pending" value={workload.certificatesPending} />
-                    <MiniStat label="Companies pending" value={workload.companiesPending} />
+                    <MiniStat label={t("Certificates pending")} value={workload.certificatesPending} />
+                    <MiniStat label={t("Companies pending")} value={workload.companiesPending} />
                   </div>
-                  <p className="ijp-label mb-2">Priorities</p>
+                  <p className="ijp-label mb-2">{t("Priorities")}</p>
                   <ol className="ijp-fix-list mb-0">
                     {workload.priorities.map((item, index) => (
                       <li className="ijp-fix" key={item}>
@@ -124,12 +124,12 @@ export default function AdminReportsPage() {
               </div>
 
               <div className="col-12 col-xl-6">
-                <SectionCard title="AI usage">
+                <SectionCard title={t("AI usage")}>
                   <div className="row g-2">
-                    <MiniStat label="Total calls" value={summary.totalCalls} />
-                    <MiniStat label="Successful" value={summary.successfulCalls} />
-                    <MiniStat label="Failed" value={summary.failedCalls} />
-                    <MiniStat label="Provider" value={summary.provider || "—"} />
+                    <MiniStat label={t("Total calls")} value={summary.totalCalls} />
+                    <MiniStat label={t("Successful")} value={summary.successfulCalls} />
+                    <MiniStat label={t("Failed")} value={summary.failedCalls} />
+                    <MiniStat label={t("Provider")} value={summary.provider || "—"} />
                   </div>
                   <p className="ijp-muted small mt-3 mb-0">
                     {summary.configured
@@ -151,7 +151,7 @@ export default function AdminReportsPage() {
 
             <div className="row g-4">
               <div className="col-lg-4">
-                <SectionCard title="Accounts by role">
+                <SectionCard title={t("Accounts by role")}>
                   <BarChart
                     data={[
                       { label: t("Students"), value: workload.totalStudents },
@@ -168,7 +168,7 @@ export default function AdminReportsPage() {
               </div>
 
               <div className="col-lg-4">
-                <SectionCard title="Waiting for a decision">
+                <SectionCard title={t("Waiting for a decision")}>
                   <BarChart
                     tone="warn"
                     data={[
@@ -185,7 +185,7 @@ export default function AdminReportsPage() {
               </div>
 
               <div className="col-lg-4">
-                <SectionCard title="AI calls">
+                <SectionCard title={t("AI calls")}>
                   <BarChart
                     data={[
                       {

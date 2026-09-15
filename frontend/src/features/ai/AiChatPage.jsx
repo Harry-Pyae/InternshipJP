@@ -259,7 +259,7 @@ export default function AiChatPage({ audience, initialTab = "chat" }) {
   // ---------------------------------------------------------------- guards
 
   if (checkingUser) {
-    return <LoadingBlock variant="page" label="Checking your session..." />;
+    return <LoadingBlock variant="page" label={t("Checking your session...")} />;
   }
 
   const title = isAdmin
@@ -276,7 +276,7 @@ export default function AiChatPage({ audience, initialTab = "chat" }) {
           <EmptyState
             icon="bi-person-lock"
             title={t("Sign in to use the assistant")}
-            hint="It only ever reads data belonging to the signed-in user, so it needs a session. The real login screen is Member 2's work; until then, use the Session panel on the Integration status page."
+            hint={t("It only ever reads data belonging to the signed-in user, so it needs a session. The real login screen is Member 2's work; until then, use the Session panel on the Integration status page.")}
           />
         </div>
       </div>
@@ -463,7 +463,7 @@ function ChatTab({
     <div className="ijp-chat-panel">
       {isEmployer ? (
         <div className="d-flex flex-wrap gap-2 align-items-center mb-3">
-          <div className="btn-group btn-group-sm" role="group" aria-label="Assistant mode">
+          <div className="btn-group btn-group-sm" role="group" aria-label={t("Assistant mode")}>
             <button
               type="button"
               className={`btn ${
@@ -471,9 +471,7 @@ function ChatTab({
               }`}
               onClick={() => setEmployerMode("candidates")}
             >
-              <i className="bi bi-people me-1" aria-hidden="true" />
-              Applicants
-            </button>
+              <i className="bi bi-people me-1" aria-hidden="true" />{t("Applicants")}</button>
             <button
               type="button"
               className={`btn ${employerMode === "company" ? "btn-ijp-primary" : "btn-ijp-quiet"}`}
@@ -488,11 +486,21 @@ function ChatTab({
               value={internshipId}
               onChange={setInternshipId}
               groups={groupByStatus(internships)}
-              placeholder="Choose an internship..."
-              ariaLabel="Which internship"
+              placeholder={t("Choose an internship...")}
+              ariaLabel={t("Which internship")}
             />
           ) : null}
         </div>
+      ) : null}
+
+      {/* Say what the mode needs.
+          Applicants mode cannot answer anything until a vacancy is chosen - it
+          has no applicants to reason about - and the only hint on screen was a
+          placeholder inside the dropdown. */}
+      {isEmployer && employerMode === "candidates" && !internshipId ? (
+        <p className="ijp-field-note mb-3">
+          {t("Choose a vacancy first. Applicant questions are answered about one vacancy at a time, so there is nothing to work from until you pick one.")}
+        </p>
       ) : null}
 
       <ErrorAlert message={error} />
@@ -501,8 +509,8 @@ function ChatTab({
         {messages.length === 0 && !sending ? (
           <EmptyState
             icon="bi-chat-dots"
-            title="Ask the assistant a question"
-            hint="Or pick one of the suggestions below to get started."
+            title={t("Ask the assistant a question")}
+            hint={t("Or pick one of the suggestions below to get started.")}
           />
         ) : (
           messages.map((message, index) => (
@@ -558,8 +566,8 @@ function ChatTab({
           className="form-control ijp-chat-input"
           value={draft}
           onChange={(event) => setDraft(event.target.value)}
-          placeholder="Ask a question"
-          aria-label="Your question"
+          placeholder={t("Ask a question")}
+          aria-label={t("Your question")}
           disabled={sending}
         />
         <button className="btn btn-ijp-primary flex-shrink-0" type="submit" disabled={sending}>
@@ -578,7 +586,7 @@ function HistoryTab({ conversations, conversationId, onOpen, onDelete }) {
       <EmptyState
         icon="bi-clock-history"
         title={t("No conversations yet")}
-        hint="Ask a question and it will be saved here."
+        hint={t("Ask a question and it will be saved here.")}
       />
     );
   }

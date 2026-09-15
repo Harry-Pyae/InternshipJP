@@ -9,6 +9,7 @@ import AuthField from "../auth/AuthField.jsx";
 import { employerApi } from "../../api/employerApi.js";
 import { describeApiError } from "../../api/axiosClient.js";
 import { useLanguage } from "../../config/languageContext.jsx";
+import PhoneField from "../../components/shared/PhoneField.jsx";
 
 const EMPTY = { jobTitle: "", department: "", workEmail: "", contactPhone: "" };
 
@@ -113,11 +114,9 @@ export default function EmployerProfileEditPage() {
                   hint={t("Optional. Your sign-in email is not changed by this.")}
                 />
 
-                <AuthField
+                <PhoneField
                   id="contactPhone"
-                  label={t("Contact phone")}
-                  placeholder="+959795123456"
-                  icon="bi-telephone"
+                  label="Contact phone"
                   value={form.contactPhone}
                   onChange={(value) => set("contactPhone", value)}
                 />

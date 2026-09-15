@@ -8,8 +8,10 @@ import StatusBadge from "../../components/shared/StatusBadge.jsx";
 
 import { adminApi } from "../../api/adminApi.js";
 import { describeApiError } from "../../api/axiosClient.js";
+import { useLanguage } from "../../config/languageContext.jsx";
 
 export default function AdminSettingsPage() {
+  const { t } = useLanguage();
   const [account, setAccount] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -35,12 +37,12 @@ export default function AdminSettingsPage() {
   }, [load]);
 
   if (loading && !account) {
-    return <><PageHeader title="Settings" subtitle="Your administrator account and security." /><LoadingBlock label="Loading account settings..." /></>;
+    return <><PageHeader title={t("Settings")} subtitle={t("Your administrator account and security.")} /><LoadingBlock label={t("Loading account settings...")} /></>;
   }
 
   return (
     <>
-      <PageHeader title="Settings" subtitle="Your administrator account and security." />
+      <PageHeader title={t("Settings")} subtitle={t("Your administrator account and security.")} />
       <ErrorAlert message={error} onRetry={load} />
       {message ? <div className="alert alert-success" role="status">{message}</div> : null}
 
@@ -59,6 +61,7 @@ export default function AdminSettingsPage() {
 }
 
 function ProfileCard({ account, onSaved, onError }) {
+  const { t } = useLanguage();
   const [fullName, setFullName] = useState(account?.fullName || "");
   const [phone, setPhone] = useState(account?.phone || "");
   const [saving, setSaving] = useState(false);
@@ -83,19 +86,19 @@ function ProfileCard({ account, onSaved, onError }) {
   }
 
   return (
-    <SectionCard title="Profile">
+    <SectionCard title={t("Profile")}>
       <form onSubmit={save}>
-        <label className="ijp-label mb-2" htmlFor="admin-full-name">Full name</label>
+        <label className="ijp-label mb-2" htmlFor="admin-full-name">{t("Full name")}</label>
         <input id="admin-full-name" className="form-control mb-3" value={fullName} onChange={(event) => setFullName(event.target.value)} required maxLength={150} />
 
-        <label className="ijp-label mb-2" htmlFor="admin-email">Email</label>
+        <label className="ijp-label mb-2" htmlFor="admin-email">{t("Email")}</label>
         <input id="admin-email" className="form-control mb-3" value={account?.email || ""} disabled />
 
-        <label className="ijp-label mb-2" htmlFor="admin-phone">Phone</label>
+        <label className="ijp-label mb-2" htmlFor="admin-phone">{t("Phone")}</label>
         <input id="admin-phone" className="form-control mb-3" value={phone} onChange={(event) => setPhone(event.target.value)} maxLength={30} />
 
         <div className="d-flex justify-content-between align-items-center gap-2 mb-3">
-          <span className="small">Role: <strong>{account?.role || "ADMIN"}</strong></span>
+          <span className="small">{t("Role:")}<strong>{account?.role || "ADMIN"}</strong></span>
           <StatusBadge value={account?.accountStatus} />
         </div>
 
@@ -106,6 +109,7 @@ function ProfileCard({ account, onSaved, onError }) {
 }
 
 function PasswordCard({ onSaved, onError }) {
+  const { t } = useLanguage();
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -141,15 +145,15 @@ function PasswordCard({ onSaved, onError }) {
   }
 
   return (
-    <SectionCard title="Change password">
+    <SectionCard title={t("Change password")}>
       <form onSubmit={save}>
-        <label className="ijp-label mb-2" htmlFor="admin-current-password">Current password</label>
+        <label className="ijp-label mb-2" htmlFor="admin-current-password">{t("Current password")}</label>
         <input id="admin-current-password" type="password" className="form-control mb-3" value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)} required />
 
-        <label className="ijp-label mb-2" htmlFor="admin-new-password">New password</label>
+        <label className="ijp-label mb-2" htmlFor="admin-new-password">{t("New password")}</label>
         <input id="admin-new-password" type="password" className="form-control mb-3" value={newPassword} onChange={(event) => setNewPassword(event.target.value)} minLength={8} maxLength={100} required />
 
-        <label className="ijp-label mb-2" htmlFor="admin-confirm-password">Confirm new password</label>
+        <label className="ijp-label mb-2" htmlFor="admin-confirm-password">{t("Confirm new password")}</label>
         <input
           id="admin-confirm-password"
           type="password"
@@ -166,7 +170,7 @@ function PasswordCard({ onSaved, onError }) {
         />
         {mismatch ? <p className="ijp-field-error mb-3">{mismatch}</p> : <div className="mb-3" />}
 
-        <p className="ijp-muted small">Use a new password that is different from your current password.</p>
+        <p className="ijp-muted small">{t("Use a new password that is different from your current password.")}</p>
         <button type="submit" className="btn btn-ijp-primary" disabled={saving}>{saving ? "Changing..." : "Change password"}</button>
       </form>
     </SectionCard>

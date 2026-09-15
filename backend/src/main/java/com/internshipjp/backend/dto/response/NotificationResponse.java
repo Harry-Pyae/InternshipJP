@@ -9,6 +9,8 @@ public class NotificationResponse {
 
     private String type;
 
+    private Long referenceId;
+
     private String title;
 
     private String message;
@@ -73,5 +75,13 @@ public class NotificationResponse {
 
     public void setReadAt(String readAt) {
         this.readAt = readAt;
+    }
+
+    public Long getReferenceId() {
+        return referenceId;
+    }
+
+    public void setReferenceId(Long referenceId) {
+        this.referenceId = referenceId;
     }
 }

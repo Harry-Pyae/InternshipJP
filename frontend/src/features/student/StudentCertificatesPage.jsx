@@ -11,6 +11,7 @@ import { describeApiError } from "../../api/axiosClient.js";
 import { timeAgo, exactTime } from "../../api/relativeTime.js";
 import { useLanguage } from "../../config/languageContext.jsx";
 import { certificateAge } from "../../api/relativeTime.js";
+import ConfirmDialog from "../../components/shared/ConfirmDialog.jsx";
 
 /**
  * Uploading qualifications, and seeing whether they have been verified.
@@ -21,6 +22,9 @@ export default function StudentCertificatesPage() {
   const [title, setTitle] = useState("");
   const [file, setFile] = useState(null);
   const [error, setError] = useState(null);
+  // Which certificate is being confirmed for deletion.
+  const [confirming, setConfirming] = useState(null);
+  const [removing, setRemoving] = useState(false);
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState("");
   const fileInput = useRef(null);
@@ -92,10 +96,8 @@ export default function StudentCertificatesPage() {
     }
   }
 
-  async function remove(row) {
-    if (!window.confirm(`Delete "${row.title}"? This cannot be undone.`)) {
-      return;
-    }
+  async function doRemove(row) {
+
     try {
       await studentApi.deleteCertificate(row.id);
       await load();
@@ -141,8 +143,8 @@ export default function StudentCertificatesPage() {
   return (
     <>
       <PageHeader
-        title="Certificates"
-        subtitle="Upload a qualification, and an administrator verifies it before employers see it."
+        title={t("Certificates")}
+        subtitle={t("Upload a qualification, and an administrator verifies it before employers see it.")}
       />
 
       <ErrorAlert message={error} />
@@ -158,7 +160,7 @@ export default function StudentCertificatesPage() {
 
       <div className="row g-4">
         <div className="col-12 col-xl-5">
-          <SectionCard title="Upload a certificate">
+          <SectionCard title={t("Upload a certificate")}>
             <form onSubmit={upload} className="d-grid gap-3">
               <div>
                 <label className="ijp-field-label" htmlFor="certTitle">{t("Certificate name")}</label>
@@ -167,7 +169,7 @@ export default function StudentCertificatesPage() {
                   className="form-control"
                   value={title}
                   onChange={(event) => setTitle(event.target.value)}
-                  placeholder="e.g. Oracle Java Foundations"
+                  placeholder={t("e.g. Oracle Java Foundations")}
                 />
               </div>
 
@@ -212,7 +214,7 @@ export default function StudentCertificatesPage() {
         </div>
 
         <div className="col-12 col-xl-7">
-          <SectionCard title="My certificates">
+          <SectionCard title={t("My certificates")}>
             {rows === null ? (
               <LoadingBlock label={t("Loading your certificates...")} />
             ) : (
@@ -252,15 +254,20 @@ export default function StudentCertificatesPage() {
                           type="button"
                           className="btn btn-sm btn-ijp-quiet"
                           onClick={() => view(row)}
-                          title="Open the uploaded file"
+                          title={t("Open the uploaded file")}
                         >
-                          <i className="bi bi-eye" aria-hidden="true" />
+                          {/* Labelled, not an icon alone.
+                              An eye on its own does not say what it opens, and
+                              this is the action a student most needs to find -
+                              checking that the right file was uploaded. */}
+                          <i className="bi bi-eye me-1" aria-hidden="true" />
+                          {t("View")}
                         </button>
                         <button
                           type="button"
                           className="btn btn-sm btn-ijp-quiet ijp-btn-danger"
-                          onClick={() => remove(row)}
-                          title="Delete this certificate"
+                          onClick={() => setConfirming(row)}
+                          title={t("Delete this certificate")}
                         >
                           <i className="bi bi-trash" aria-hidden="true" />
                         </button>
@@ -283,14 +290,14 @@ export default function StudentCertificatesPage() {
               pageCount={pageCount}
               total={rows?.length}
               onChange={setPage}
-              noun="certificate"
+              noun={t("certificate")}
             />
           </SectionCard>
         </div>
       </div>
 
       {preview ? (
-        <div className="ijp-modal" role="dialog" aria-modal="true" aria-label="Certificate preview">
+        <div className="ijp-modal" role="dialog" aria-modal="true" aria-label={t("Certificate preview")}>
           <div className="ijp-modal-card">
             <div className="d-flex justify-content-between align-items-center gap-2 mb-3">
               <p className="fw-semibold mb-0 text-truncate">{preview.row.title}</p>
@@ -309,10 +316,26 @@ export default function StudentCertificatesPage() {
         </div>
       ) : null}
 
-      <p className="ijp-muted small mt-4 mb-0">
-        A rejected certificate comes back with a note explaining why, so you can correct it
-        and upload again.
-      </p>
+      <p className="ijp-muted small mt-4 mb-0">{t("A rejected certificate comes back with a note explaining why, so you can correct it and upload again.")}</p>
+      <ConfirmDialog
+        open={Boolean(confirming)}
+        tone="danger"
+        title={confirming ? `Delete "${confirming.title}"?` : ""}
+        message={t("This removes the certificate and its file. If it was verified, employers will stop seeing it. This cannot be undone.")}
+        confirmLabel={t("Delete")}
+        busy={removing}
+        onCancel={() => setConfirming(null)}
+        onConfirm={async () => {
+          setRemoving(true);
+          try {
+            await doRemove(confirming);
+            setConfirming(null);
+          } finally {
+            setRemoving(false);
+          }
+        }}
+      />
+
     </>
   );
 }
