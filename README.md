@@ -1,37 +1,89 @@
 # InternshipJP
 
-A web platform that connects university students with internship placements,
-built around one idea: **an employer should be able to trust what a student's
-profile claims.**
+A web platform that connects students to internships, where an administrator
+verifies a student's certificates before an employer can see them.
 
-Anyone can write "IELTS 7.5" on a CV. On InternshipJP a student uploads the
-certificate, an administrator opens the file and checks it, and only then does
-any employer see it. Everything else — the matching, the AI guidance, the
-application pipeline — is built on top of that verified data.
+## About the project
 
----
+A final-year group project for **CST-6108**, Third Year, Section B, Semester
+VI, at the University of Information Technology, supervised by **Daw Htar Htar
+Aung**.
 
-## What it does
+Four members, each owning a vertical slice of the system, with one horizontal
+role holding it together:
 
-**Students** build a profile with skills, education and certificates, browse
-open internships, and apply. An assistant reads their actual profile and says
-what to learn next and which vacancies fit.
+| | Responsibility |
+| --- | --- |
+| **Member 1** | Foundation and integration - database schema and migrations, shared components, the bilingual layer, matching and analysis services, testing and tooling, and the work of making four separately built modules behave as one application |
+| **Member 2** | Authentication and the student module |
+| **Member 3** | The employer module |
+| **Member 4** | The administration module |
 
-**Employers** register a company, wait for approval, publish internships and
-review applicants. An assistant explains why a listing is not attracting people
-— missing skills, no deadline, a stipend left blank — and they can ask an
-applicant for more information.
+The migration sequence in `database/SCHEMA.md` records which member owns each
+version, so the schema history doubles as a record of who built what.
 
-**Administrators** verify certificates, approve companies, manage accounts,
-read user feedback, and see what is waiting and how long it has waited.
+### The problem it addresses
 
-### The AI assistant
+Internship platforms ask employers to trust claims they cannot check. A student
+types a qualification into a profile and an employer has no way to tell it from
+a real one. What an employer can verify is the university, the connections and
+how polished the profile looks - none of which is the qualification, and all of
+which favour applicants who were already advantaged.
+
+The project asks whether putting a person in that gap changes the outcome: an
+administrator reads the actual document before an employer ever sees it.
+
+### What it sets out to show
+
+- That verification can be a **routine step rather than a special case**, fast
+  enough that an administrator can clear a queue of them
+- That a match can be **explained in terms the applicant can act on**, rather
+  than produced by a score nobody can question
+- That a bilingual interface is achievable without a translation library, and
+  that it has to include **text the server composes**, not only the labels
+- That four people building separate modules can produce **one coherent
+  application** if the shared layer is designed first
+
+### Scope
+
+Built and demonstrated locally. It is a working system rather than a
+prototype - real file storage, real sessions, real verification - but it is
+not deployed, has no email verification at registration, and keeps its
+sign-in lockout in memory. Those limits are recorded in the report rather than
+hidden.
+
+## What the project is for
+
+Most internship platforms take a student's word for their qualifications. An
+employer reading a profile cannot tell a real certificate from a typed claim,
+so in practice they fall back on whatever they already trust: the university
+name, a shared connection, how active the profile looks.
+
+InternshipJP moves the checking to the front. A student uploads the document, a
+person reads it, and only then does it reach an employer. Everything else
+follows from that one decision:
+
+- **A missing certificate means something.** Because only verified ones are
+  ever sent, an employer can read an absence as informative rather than as
+  ambiguous.
+- **Matching uses skills and nothing else.** Institution, connections and
+  profile activity play no part, so the ranking does not quietly reward
+  advantages the applicant already had.
+- **Every score can be argued with.** A match names the skills you have and the
+  ones you lack, so a student who disagrees has something specific to correct.
+- **Exposure follows consent.** A profile reaches an employer only when the
+  student applies. No employer can search the student population.
+- **It works in two languages.** Burmese and English throughout, including text
+  the server composes, and selectable before you sign in rather than buried in
+  a setting.
+
+## The assistants
 
 Three role-aware assistants share one provider interface with two
 implementations, Groq and Google Gemini, chosen by configuration.
 
-Four of its features involve **no model call at all** — they are plain Java
-over the database, so they work with no API key and no internet:
+**Four features involve no model call at all** - plain Java over the database,
+working with no API key and no internet:
 
 | Feature | What it computes |
 | --- | --- |
@@ -40,102 +92,96 @@ over the database, so they work with no API key and no internet:
 | Company review | Why a listing is not attracting applicants |
 | Admin workload | What is waiting, how long, and who is blocked by it |
 
-Answers are colour-coded by meaning: findings amber, recommendations blue,
-strengths green — derived from the words the assistant actually writes, so a
-long answer can be skimmed.
-
-### English and Burmese
-
-The whole interface switches between English and မြန်မာ — **554 translated
-strings**, including text generated on the server. The assistant follows the
-toggle: ask with Burmese selected and the answer comes back in Burmese.
-
----
+The chat assistant is the one that calls out. Matching is offline; chat is not,
+and they are separate features.
 
 ## Built with
 
-| Layer | Technology |
-| --- | --- |
-| Backend | Java 24, Spring Boot 3.5.16, Spring Security, Spring Data JPA, Bean Validation |
-| Database | MariaDB 10.4+, schema managed by Flyway (8 migrations) |
-| Frontend | React 19.2, Vite 8, React Router 7, Bootstrap 5.3, Axios |
-| Auth | Server-side sessions with an HTTP-only cookie and CSRF protection |
-| AI | Groq or Google Gemini, behind one interface |
+```
+Backend    Java 24 · Spring Boot 3.5.16 · MariaDB · Flyway · Maven
+Frontend   React 19.2 · Vite 8.2 · React Router 7.18 · Axios · Bootstrap 5.3
+```
 
-190 Java files, 36 React pages, 77 API endpoints, 554 translated strings.
-
-**Sessions rather than JWT** is deliberate: logging out genuinely ends the
-session on the server, which a self-contained token cannot do without extra
-machinery.
-
-**No charting library.** The report charts are plain CSS with the number
-printed on every bar — a chart you have to estimate against an axis is worse
-than a table.
+Sessions rather than tokens, deliberately: signing out ends a real server
+session, which matters for a system holding identity documents.
 
 ---
 
-## Running it
+# Running it
 
-### 1. Install these first
+Three things start in order: the database, the backend, then the frontend.
 
-| | Version | Where |
-| --- | --- | --- |
-| **JDK** | 21 or newer (24 recommended) | https://adoptium.net |
-| **Node.js** | 20 or newer | https://nodejs.org |
-| **MariaDB** | 10.4 or newer | https://mariadb.org, or XAMPP which bundles it |
+## 1. The database
+
+MariaDB or MySQL on the usual port. With XAMPP, start **MySQL** from the
+control panel. As a Windows service:
 
 ```powershell
-java -version     # should print 21+
-node -v           # should print v20+
+Get-Service | Where-Object { $_.Name -like "*maria*" -or $_.Name -like "*mysql*" }
+Start-Service MariaDB          # or whatever name that prints
 ```
 
-Maven is **not** required — the project includes the Maven wrapper
-(`mvnw.cmd`), which downloads the right version itself.
-
-### 2. Create the database
+Create the database once. The tables are not made by hand - Flyway builds them
+on first start.
 
 ```sql
 CREATE DATABASE internshipjp_db
-  CHARACTER SET utf8mb4
-  COLLATE utf8mb4_unicode_ci;
+  CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 ```
 
-Nothing else. **Flyway creates every table on first start.**
+`utf8mb4` matters: Burmese text does not fit in the older `utf8`.
 
-`utf8mb4` matters — Burmese text will not store correctly without it.
-
-### 3. Configure the backend
+Check it is listening before going on:
 
 ```powershell
-cd backend
-copy application-local.example.properties application-local.properties
+Test-NetConnection localhost -Port 3306
 ```
 
-Set your database password in the copy:
+`TcpTestSucceeded : True` means you are ready.
+
+## 2. The backend
+
+Credentials live in `backend/application-local.properties`, which is not in
+version control. Copy `application-local.example.properties` beside it and fill
+in your own:
 
 ```properties
 DB_USERNAME=root
-DB_PASSWORD=your_password_here
+DB_PASSWORD=
 ```
 
-That is the minimum. This file is git-ignored, so your credentials never leave
-your machine.
+Then, from `backend/`:
 
-**To create the first administrator**, add these, start once, then set
-`enabled` back to `false`:
-
-```properties
-BOOTSTRAP_ADMIN_ENABLED=true
-BOOTSTRAP_ADMIN_EMAIL=admin@internshipjp.local
-BOOTSTRAP_ADMIN_PASSWORD=choose-a-password
+```powershell
+.\mvnw.cmd -q clean test-compile
+.\mvnw.cmd spring-boot:run
 ```
 
-There is no public admin registration endpoint, by design.
+It serves on **http://localhost:8080**.
 
-For sample data, add `DEMO_DATA_ENABLED=true`. See
-[Demo data](#demo-data) below.
+**Run `test-compile`, not `compile`.** The tests build in a separate Maven
+phase that `compile` skips, so a change that breaks them stays hidden until you
+run the application.
 
-### 4. Enable the AI (optional)
+On first start Flyway applies eight migrations and creates nineteen tables. The
+log says `Successfully validated 8 migrations`.
+
+## 3. The frontend
+
+From `frontend/`:
+
+```powershell
+npm install
+npm run dev
+```
+
+It serves on **http://localhost:5173** and expects the backend on 8080.
+
+The two run on different origins, which is why the API client sends
+`withCredentials` and `withXSRFToken`. Change the ports and you must change
+`app.frontend-origin` too, or every write will be refused.
+
+## 4. The assistants, optional
 
 Everything runs without this. The chat reports "not configured" and the four
 calculated features keep working, because they never call a provider.
@@ -155,197 +201,125 @@ $k = "your_key"
 
 Groq works the same way with `AI_PROVIDER=groq` and `GROQ_API_KEY`.
 
-### 5. Start it
-
-Two terminals.
-
-```powershell
-# Terminal 1
-cd backend
-.\mvnw.cmd -q compile      # catches import and signature errors in seconds
-.\mvnw.cmd spring-boot:run
-```
-
-```powershell
-# Terminal 2
-cd frontend
-npm install
-npm run dev
-```
-
-Open **http://localhost:5173**.
-
 ---
 
-## Checking it works
+# Demo data
 
-Visit **http://localhost:5173/integration/status**. It tests five things live
-and reports each with its latency:
+The application starts with an empty database and no way in - there is no
+public route to register an administrator. Demo data solves that for testing:
+seven accounts with realistic profiles, certificates in every verification
+state, open vacancies and applications already in progress.
 
-```
-Frontend      React rendered this page
-Backend API   Spring Boot answered the health check
-MariaDB       a real query ran against the schema
-AI provider   the key was accepted
-Session       the cookie made a round trip
-```
+## Turning it on
 
-If something is wrong, this page says which layer — far quicker than reading a
-stack trace.
-
-The link is hidden from the sidebar by default so it does not appear during a
-demo. Set `VITE_SHOW_DEV_NAV=true` in `frontend/.env` to bring it back, or just
-type the URL.
-
----
-
-## Demo data
-
-The seeder creates sample students, employers, vacancies, applications and
-certificates, so every screen has something in it before any real data exists.
-
-Everything it creates is **marked**:
-
-- accounts end **`@demo.internshipjp.local`**
-- companies start **`Demo `**
-
-Nothing outside those two patterns is ever touched.
-
-### Turn it on
+In `backend/application-local.properties`:
 
 ```properties
-DEMO_DATA_ENABLED=true
+app.demo-data.enabled=true
+app.demo-data.reset=true
 ```
 
-Start the backend once. You get:
+Start the backend once, then **set `reset` back to `false`**. Left on, it wipes
+and rebuilds the demo rows on every restart, including anything you created by
+hand while testing.
 
-| | |
-| --- | --- |
-| Accounts | 1 administrator, 2 employers, 4 students — all with the password `demo1234` |
-| Companies | Demo Yangon Tech (approved), Demo Sakura Systems (awaiting approval) |
-| Internships | 5, including one draft and one with no required skills |
-| Applications | 5, across five different statuses |
-| Certificates | 3 — two verified, one waiting for review |
+Two things worth knowing:
 
-Records are deliberately **staggered in age**, so the administrator's queues
-show a realistic spread rather than every item reporting the same day count:
+- The file lives at `backend/application-local.properties`, beside `pom.xml`,
+  **not** inside `src`. It is imported as `optional:`, so a file in the wrong
+  place produces no error at all - just no demo data.
+- Comments in `DemoDataSeeder` name the environment variables
+  (`DEMO_DATA_ENABLED`). In a properties file you want the property path shown
+  above.
+
+## The accounts
+
+Every one uses the same password:
 
 ```
-CERTIFICATES     9d  red     Intro to Databases        waiting
-COMPANIES        6d  amber   Demo Sakura Systems       waiting
-STALLED         12d  red     Min -> Intern Wanted
-
-elsewhere in the pipeline
-                 2d  green   Min -> Backend Intern     applied
-                 5d  amber   Su -> Frontend Intern     under review
-                11d  red     Thida -> Backend Intern   shortlisted
-                17d  red     Thida -> Frontend Intern  rejected
+Practice-77x
 ```
 
-Green, amber and red all appear at once, which is what those colours exist to
-distinguish.
+| Role | Email | What it is for |
+| --- | --- | --- |
+| Administrator | `admin@demo.internshipjp.local` | Verification queue, company approvals, user management |
+| Employer | `employer1@demo.internshipjp.local` | Company approved - can post and review |
+| Employer | `employer2@demo.internshipjp.local` | Company still pending - shows what an employer sees while waiting |
+| Student | `student1@demo.internshipjp.local` | Full profile, verified certificate, applications in progress |
+| Student | `student2@demo.internshipjp.local` | Data-science profile, matches different vacancies |
+| Student | `student3@demo.internshipjp.local` | Frontend profile |
+| Student | `student4@demo.internshipjp.local` | Empty on purpose - shows the empty states and a 0% profile |
 
-### Rebuild it from scratch
+The seeder prints this list to the console on every start, so you never have to
+come back here for it.
 
-Clear first, then seed — two steps, with the backend stopped for the first.
+`student4` is not an oversight. Every screen has to be legible before anybody
+has typed anything, and an account that has done nothing is the only way to
+check that.
 
-```powershell
-.\scripts\remove-demo-data.ps1
-```
+## A tour in five minutes
 
-Then set `DEMO_DATA_ENABLED=true` and start the backend. Set it back to `false`
-once the data is in.
+The shortest path through the idea the project is about:
 
-> **Do not use `DEMO_DATA_RESET=true`.** It deletes through JPA in the same
-> transaction that seeds, and fails on a stale entity reference. The script
-> above does the same job in plain SQL and is not affected. A failed reset is
-> caught and logged rather than stopping the application, but it will not have
-> cleared anything.
+1. Sign in as **student1**, upload a certificate
+2. Sign in as **admin**, find it in the verification queue, verify it
+3. Sign in as **employer1**, post a vacancy with **1 place**
+4. Back as **student1**, browse and apply
+5. As **employer1**, move the application through to **Accepted**
 
-### Remove it, for real data
+At step 5 the vacancy fills: it leaves the student browse list, refuses new
+applications, and everybody else who applied is told the position has gone.
+
+## A real administrator, without demo data
+
+On a clean database you can create the first administrator once:
 
 ```properties
-DEMO_DATA_ENABLED=false
+app.bootstrap-admin.enabled=true
+app.bootstrap-admin.email=you@example.com
+app.bootstrap-admin.password=Your-Pass1!
 ```
 
-```powershell
-.\scripts\remove-demo-data.ps1
-```
+Start the application once, then **set `enabled` back to `false`**. After that,
+administrators are created by invitation from an existing one.
 
-It prints what it will delete, asks for confirmation, and removes both the
-database rows and the uploaded certificate files. The files matter — deleting
-rows alone leaves orphaned PDFs on disk that nothing points at.
+## A note on passwords
 
-### Start completely fresh
+Eight characters or more, with an uppercase letter, a lowercase letter, a digit
+and a symbol. There is also a short denylist - `Password123!` satisfies every
+composition rule and is refused, as is anything containing your own name or
+email address.
 
-```sql
-DROP DATABASE internshipjp_db;
-CREATE DATABASE internshipjp_db
-  CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-```
-
-Start the backend and Flyway rebuilds all eight migrations from nothing.
-**This deletes real data too** — development only.
+The demo password obeys the same rule it is used to demonstrate.
 
 ---
 
-## A tour in two minutes
+# Troubleshooting
 
-With demo data loaded, this covers verification, applying and the hiring
-pipeline — the three things the platform exists to do.
+**`Socket fail to connect to localhost. Connection refused`**
+The database is not running. Start MariaDB and try again - nothing is wrong
+with the code.
 
-1. Sign in as **`student1@demo.internshipjp.local`** (`demo1234`).
-   Go to **Certificates**, upload any PDF. It appears as **Pending**.
-
-2. Sign out, sign in as **`admin@demo.internshipjp.local`**.
-   **Certificate review** shows it with the student's name. Press **Review**,
-   open the file, then **Verify**.
-
-3. Back as the student — the certificate now reads **Verified**.
-
-4. Still as the student: **Browse internships**, open one, write a line and
-   **Apply**.
-
-5. Sign in as **`employer1@demo.internshipjp.local`**.
-   **Applicants** shows the new application. Press **Review** — the profile,
-   skills and *verified* certificates are all there. Set **Shortlisted**.
-
-6. Back as the student — **My applications** shows **Shortlisted**, and the
-   notification bell has a count.
-
-Switch the **EN / မြန်မာ** toggle at any point; the interface, the FAQ and the
-assistant's answers all follow it.
-
----
-
-## Common problems
-
-**`Port 8080 was already in use`** — an earlier backend is still running.
+**`ClassNotFoundException` for a class you can see in the source**
+A stale `target/`. Maven decided nothing needed rebuilding and it was wrong:
 
 ```powershell
-Get-NetTCPConnection -LocalPort 8080 -State Listen |
-  ForEach-Object { Get-Process -Id $_.OwningProcess } |
-  Select-Object Id, ProcessName
-Stop-Process -Id <the-id>
+Remove-Item -Recurse -Force target
+.\mvnw.cmd -q clean test-compile
 ```
 
-Closing the terminal window does not always stop it. Use **Ctrl+C**.
+**Every write returns 403**
+The frontend origin does not match `app.frontend-origin`. The CSRF token is
+attached per-origin, so a mismatch fails silently on reads and loudly on
+writes.
 
-**`Access denied for user 'root'`** — the password in
-`application-local.properties` does not match MariaDB.
+**Demo data does not appear**
+Check the file is at `backend/application-local.properties` and the keys are
+`app.demo-data.enabled`, not `DEMO_DATA_ENABLED`.
 
-**`Unknown database 'internshipjp_db'`** — step 2 was skipped. Flyway creates
-tables, not the database itself.
-
-**PowerShell refuses to run the scripts:**
-
-```powershell
-Get-ChildItem .\scripts\*.ps1 | Unblock-File
-Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
-```
-
-**A page is blank** — hard-refresh with **Ctrl+Shift+R**. Vite caches modules,
-and a failed one can persist after the fix.
+**Locked out after failed sign-ins**
+Five failures lock an address for fifteen minutes. An administrator can clear
+it from the account panel, or restart the backend - the lock is held in memory.
 
 ---
 
@@ -383,28 +357,24 @@ scripts/        PowerShell helpers
 
 ---
 
-## Useful scripts
-
-```powershell
-.\scripts\start-dev.ps1                      # both servers at once
-.\scripts\list-accounts.ps1                  # every account and its role
-.\scripts\list-accounts.ps1 -ResetDemoPasswords
-.\scripts\remove-demo-data.ps1               # delete demo records only
-```
-
 ---
 
-## Notes for anyone reading the code
+# Checks
 
-- **`.\mvnw.cmd -q compile`** before running catches argument and import
-  mistakes in seconds. A clean `npm run build` does **not** mean the frontend
-  works — a missing import is valid syntax and only fails at render.
-- **Nothing calls axios directly from a component.** Every request goes through
-  a module in `frontend/src/api/`.
-- **Interface text lives in one file**, `frontend/src/config/strings.js`. A
-  string with no translation falls back to English rather than breaking.
-- **Buttons use `btn-ijp-primary` and `btn-ijp-quiet`**, never Bootstrap's own.
-  Bootstrap's blue is close enough to the project's to look like a mistake, and
-  it ignores the dark theme.
-- **Never edit V1–V8.** Flyway checksums them; a change breaks startup on every
-  machine that already ran them. Add V9 instead.
+Four scripts catch faults that have actually cost time on this project:
+
+```powershell
+cd backend\src\main\java\com\internshipjp\backend
+python ..\..\..\..\..\..\check-annotations.py     # stacked @Transactional
+python ..\..\..\..\..\..\check-lambda-capture.py  # a reassigned local in a lambda
+
+cd backend\src
+python ..\check-wiring.py                           # undeclared fields, test arity
+
+cd frontend
+python check-styles.py                               # overridden CSS, classes with no rule
+```
+
+Each catches something the compiler either cannot see or reports too late. If
+you add one of your own, **feed it a known fault before trusting a zero** -
+three of these reported success while standing on ground they never examined.

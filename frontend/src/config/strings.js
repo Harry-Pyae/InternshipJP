@@ -64,6 +64,12 @@ export const strings = {
   },
 
   my: {
+    "Programming languages": "ပရိုဂရမ်းမင်း ဘာသာစကားများ",
+    "Technical": "နည်းပညာ",
+    "Soft skills": "လူမှုဆက်ဆံရေး ကျွမ်းကျင်မှုများ",
+    "Languages": "ဘာသာစကားများ",
+    "These are the skills recorded when the application was sent. Anything added since is not shown here.": "ဤအရာများသည် လျှောက်လွှာ ပို့စဉ်က မှတ်တမ်းတင်ထားသော ကျွမ်းကျင်မှုများ ဖြစ်ပါသည်။ ထို့နောက် ထပ်ထည့်ခဲ့သည်များကို ဤနေရာတွင် မပြပါ။",
+
     "(optional)": "(ရွေးချယ်နိုင်)",
     "Changing the status notifies the student on its own. You do not need to send a message as well.": "အခြေအနေ ပြောင်းလိုက်ရုံဖြင့် ကျောင်းသားထံ အကြောင်းကြားပါမည်။ စာ သီးခြား ပို့စရာ မလိုပါ။",
 
@@ -441,10 +447,6 @@ export const strings = {
 
     "Note from the administrator": "စီမံခန့်ခွဲသူ၏ မှတ်ချက်",
 
-    "Programming languages": "ပရိုဂရမ်းမင်း ဘာသာစကားများ",
-    "Technical": "နည်းပညာဆိုင်ရာ",
-    "Soft skills": "လူမှုကျွမ်းကျင်မှုများ",
-    "Languages": "ဘာသာစကားများ",
     "Skill name": "ကျွမ်းကျင်မှု အမည်",
     "Skill type": "ကျွမ်းကျင်မှု အမျိုးအစား",
     "Add a skill": "ကျွမ်းကျင်မှု ထည့်ရန်",
@@ -532,7 +534,6 @@ export const strings = {
     "Employers only ever see certificates an administrator has checked.": "စီမံခန့်ခွဲသူ စိစစ်ပြီးသော လက်မှတ်များကိုသာ အလုပ်ရှင်များ မြင်ရပါသည်။",
     "Guidance that reads your profile": "သင့်ပရိုဖိုင်ကို ဖတ်ပြီး လမ်းညွှန်ခြင်း",
     "The assistant works from your own data - what to learn next, and what is missing.": "အကူအညီသည် သင့်ကိုယ်ပိုင် အချက်အလက်များမှ လုပ်ဆောင်ပါသည် — နောက်တစ်ဆင့် ဘာသင်ရမည်နှင့် ဘာလိုအပ်နေသည်။",
-    "(optional)": "(မဖြစ်မနေ မဟုတ်ပါ)",
     "Field of study": "ပညာရပ်နယ်ပယ်",
     "Graduation year": "ဘွဲ့ရမည့်နှစ်",
 

@@ -5442,3 +5442,39 @@ h4 {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* --- skill categories -------------------------------------------------------
+   Four kinds of skill, four colours, used identically on the student's own
+   profile and on the employer's view of an application - so a colour means the
+   same thing wherever it is seen.
+
+   Each is a tinted background with a matching border and darker text, rather
+   than a solid fill: a row of twelve saturated chips is harder to read than
+   the names it is made of. */
+.ijp-pill-skill--programming_language,
+.ijp-skill-chip--programming_language {
+  background-color: #e8f0fe;
+  border-color: #aec8f5;
+  color: #14448c;
+}
+
+.ijp-pill-skill--technical,
+.ijp-skill-chip--technical {
+  background-color: #e6f4f1;
+  border-color: #9bd3c8;
+  color: #0b5f55;
+}
+
+.ijp-pill-skill--soft,
+.ijp-skill-chip--soft {
+  background-color: #fdf0e3;
+  border-color: #f0c38e;
+  color: #8a5211;
+}
+
+.ijp-pill-skill--spoken_language,
+.ijp-skill-chip--spoken_language {
+  background-color: #f2ebfb;
+  border-color: #c9b0ea;
+  color: #5b3391;
+}

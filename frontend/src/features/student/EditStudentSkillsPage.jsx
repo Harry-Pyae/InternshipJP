@@ -170,7 +170,7 @@ export default function EditStudentSkillsPage() {
                         // x to remove. Two outline buttons per skill turned six
                         // skills into a screenful of chrome.
                         <span
-                          className={`ijp-skill-chip${
+                          className={`ijp-skill-chip ijp-skill-chip--${group.type.toLowerCase()}${
                             editingId === skill.id ? " ijp-skill-chip--editing" : ""
                           }`}
                           key={skill.id}

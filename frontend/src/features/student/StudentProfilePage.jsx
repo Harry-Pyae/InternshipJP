@@ -139,7 +139,7 @@ export default function StudentProfilePage() {
                         <div className="ijp-pill-row">
                           {inGroup.map((skill) => (
                             <span
-                              className="ijp-pill-skill ijp-pill-skill--have"
+                              className={`ijp-pill-skill ijp-pill-skill--${group.type.toLowerCase()}`}
                               key={skill.id ?? skill.name}
                             >
                               {skill.name}

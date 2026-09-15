@@ -35,6 +35,9 @@ import com.internshipjp.backend.repository.InternshipRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.internshipjp.backend.repository.EmployerProfileRepository;
+import com.internshipjp.backend.entity.ApplicationSkill;
+import com.internshipjp.backend.entity.StudentSkill;
+import com.internshipjp.backend.repository.ApplicationSkillRepository;
 
 /**
  * Applying to internships, and reviewing applicants.
@@ -74,6 +77,7 @@ public class ApplicationService {
     private final EmployerProfileRepository employerProfileRepository;
     private final ApplicationStatusHistoryRepository historyRepository;
     private final StudentSkillRepository studentSkillRepository;
+    private final ApplicationSkillRepository applicationSkillRepository;
     private final StudentProfileService studentProfileService;
     private final InternshipService internshipService;
     private final EmployerService employerService;
@@ -95,7 +99,9 @@ public class ApplicationService {
                               InternshipMapper internshipMapper,
                               StudentMapper studentMapper,
                               InternshipRepository internshipRepository,
-                              EmployerProfileRepository employerProfileRepository) {
+                              EmployerProfileRepository employerProfileRepository,
+                              ApplicationSkillRepository applicationSkillRepository) {
+        this.applicationSkillRepository = applicationSkillRepository;
         this.employerProfileRepository = employerProfileRepository;
         this.internshipRepository = internshipRepository;
         this.applicationRepository = applicationRepository;
@@ -137,6 +143,22 @@ public class ApplicationService {
         application.setResumeId(request.getResumeId());
         application.setStatus(ApplicationStatus.APPLIED);
         Application saved = applicationRepository.save(application);
+
+        // The skills as they are right now, copied onto the application.
+        //
+        // The employer's view used to read the student's current skills, so a
+        // student could apply, then add five more, and the employer would see
+        // them attached to an application that was never made with them. An
+        // application is a statement about a person at a moment.
+        for (StudentSkill skill
+                : studentSkillRepository.findByStudentProfileIdOrderByNameAsc(profile.getId())) {
+            ApplicationSkill recorded = new ApplicationSkill();
+            recorded.setApplication(saved);
+            recorded.setName(skill.getName());
+            recorded.setSkillType(skill.getSkillType());
+            recorded.setProficiency(skill.getProficiency());
+            applicationSkillRepository.save(recorded);
+        }
 
         recordHistory(saved, null, ApplicationStatus.APPLIED, userId, "Application submitted");
 
@@ -213,8 +235,16 @@ public class ApplicationService {
         dto.setUpdatedAt(application.getUpdatedAt() == null ? null : application.getUpdatedAt().toString());
         dto.setInternship(internshipMapper.toSummary(application.getInternship()));
         dto.setStudent(studentMapper.toProfile(student));
-        dto.setSkills(studentSkillRepository.findByStudentProfileIdOrderByNameAsc(student.getId())
-                .stream().map(studentMapper::toSkill).toList());
+        // What was recorded with the application, not what the profile says
+        // today. Applications made before the snapshot existed have no rows, so
+        // those fall back to the live skills - the behaviour they were created
+        // under, and the only honest thing to show for them.
+        List<ApplicationSkill> recorded =
+                applicationSkillRepository.findByApplicationIdOrderByNameAsc(application.getId());
+        dto.setSkills(recorded.isEmpty()
+                ? studentSkillRepository.findByStudentProfileIdOrderByNameAsc(student.getId())
+                        .stream().map(studentMapper::toSkill).toList()
+                : recorded.stream().map(studentMapper::toSkill).toList());
         dto.setVerifiedCertificates(certificateService.verifiedCertificatesOf(student.getId()));
         dto.setStatusHistory(historyRepository.findByApplicationIdOrderByCreatedAtAsc(application.getId())
                 .stream().map(applicationMapper::toHistory).toList());

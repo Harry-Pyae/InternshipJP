@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.Period;
+import com.internshipjp.backend.entity.ApplicationSkill;
 
 /**
  * Entity -> DTO conversion for the student module.
@@ -65,6 +66,23 @@ public class StudentMapper {
     }
 
     public StudentSkillResponse toSkill(StudentSkill skill) {
+        StudentSkillResponse dto = new StudentSkillResponse();
+
+        dto.setId(skill.getId());
+        dto.setName(skill.getName());
+        dto.setSkillType(skill.getSkillType().name());
+
+        return dto;
+    }
+
+    /**
+     * The same shape, from the copy recorded with an application.
+     *
+     * An overload rather than a shared interface: the two entities have no
+     * relationship on purpose, because a reference would follow the student as
+     * they edit their profile and break if they deleted the skill.
+     */
+    public StudentSkillResponse toSkill(ApplicationSkill skill) {
         StudentSkillResponse dto = new StudentSkillResponse();
 
         dto.setId(skill.getId());

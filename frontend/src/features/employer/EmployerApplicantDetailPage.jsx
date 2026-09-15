@@ -16,6 +16,13 @@ import { useLanguage } from "../../config/languageContext.jsx";
 /**
  * One applicant, in full.
  */
+const SKILL_GROUPS = [
+  { type: "PROGRAMMING_LANGUAGE", label: "Programming languages" },
+  { type: "TECHNICAL", label: "Technical" },
+  { type: "SOFT", label: "Soft skills" },
+  { type: "SPOKEN_LANGUAGE", label: "Languages" },
+];
+
 const LABELS = {
   APPLIED: "Applied",
   UNDER_REVIEW: "Under review",
@@ -188,16 +195,34 @@ export default function EmployerApplicantDetailPage() {
 
             <SectionCard title={t("Skills")}>
               {application.skills?.length ? (
-                <div className="ijp-pill-row">
-                  {application.skills.map((skill) => (
-                    <span
-                      className="ijp-pill-skill ijp-pill-skill--have"
-                      key={skill.id ?? skill.name}
-                    >
-                      {skill.name}
-                    </span>
-                  ))}
-                </div>
+                  <>
+                    {/* Grouped and coloured the same way the student sees them,
+                        so a category means the same thing on both sides. */}
+                    {SKILL_GROUPS.map((group) => {
+                      const inGroup = application.skills.filter(
+                        (skill) => skill.skillType === group.type,
+                      );
+                      if (inGroup.length === 0) return null;
+                      return (
+                        <div className="mb-3" key={group.type}>
+                          <p className="ijp-label mb-2">{t(group.label)}</p>
+                          <div className="ijp-pill-row">
+                            {inGroup.map((skill) => (
+                              <span
+                                className={`ijp-pill-skill ijp-pill-skill--${group.type.toLowerCase()}`}
+                                key={skill.id ?? skill.name}
+                              >
+                                {skill.name}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })}
+                    <p className="ijp-field-note mb-0">
+                      {t("These are the skills recorded when the application was sent. Anything added since is not shown here.")}
+                    </p>
+                  </>
               ) : (
                 <p className="ijp-muted mb-0">{t("This student has not listed any skills.")}</p>
               )}
