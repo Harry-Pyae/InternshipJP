@@ -8,6 +8,7 @@ import ErrorAlert from "../../components/shared/ErrorAlert.jsx";
 import { adminApi } from "../../api/adminApi.js";
 import { describeApiError } from "../../api/axiosClient.js";
 import { useLanguage } from "../../config/languageContext.jsx";
+import CharCount from "../../components/shared/CharCount.jsx";
 
 /**
  * Approving or rejecting one company.
@@ -176,7 +177,9 @@ export default function AdminEmployerReviewPage() {
                 value={note}
                 onChange={(event) => setNote(event.target.value)}
                 placeholder={t("Required when rejecting. The employer sees this.")}
+              maxLength={500}
               />
+                <CharCount value={note} max={500} />
               <p className="ijp-field-hint mb-3">{t("Approving activates this company's recruiter accounts and lets them publish vacancies to students.")}</p>
 
               <div className="d-grid gap-2">

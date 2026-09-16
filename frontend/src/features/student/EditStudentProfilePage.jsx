@@ -8,6 +8,7 @@ import { describeApiError } from "../../api/axiosClient.js";
 import { studentApi } from "../../api/studentApi.js";
 import PhotoCard from "../../components/shared/PhotoCard.jsx";
 import { useLanguage } from "../../config/languageContext.jsx";
+import CharCount from "../../components/shared/CharCount.jsx";
 
 export default function EditStudentProfilePage() {
   const { t } = useLanguage();
@@ -156,6 +157,7 @@ export default function EditStudentProfilePage() {
                   onChange={handleChange}
                   maxLength={150}
                 />
+                <CharCount value={form.headline} max={150} />
               </div>
 
               <div className="col-md-6">
@@ -181,6 +183,7 @@ export default function EditStudentProfilePage() {
                   onChange={handleChange}
                   maxLength={100}
                 />
+                <CharCount value={form.country} max={100} />
               </div>
 
               <div className="col-md-6">
@@ -194,6 +197,7 @@ export default function EditStudentProfilePage() {
                   onChange={handleChange}
                   maxLength={150}
                 />
+                <CharCount value={form.location} max={150} />
               </div>
             </div>
           </SectionCard>
@@ -211,6 +215,7 @@ export default function EditStudentProfilePage() {
                   onChange={handleChange}
                   maxLength={150}
                 />
+                <CharCount value={form.university} max={150} />
               </div>
 
               <div className="col-md-6">
@@ -224,6 +229,7 @@ export default function EditStudentProfilePage() {
                   onChange={handleChange}
                   maxLength={150}
                 />
+                <CharCount value={form.degree} max={150} />
               </div>
 
               <div className="col-md-6">
@@ -237,6 +243,7 @@ export default function EditStudentProfilePage() {
                   onChange={handleChange}
                   maxLength={150}
                 />
+                <CharCount value={form.fieldOfStudy} max={150} />
               </div>
 
               <div className="col-md-6">
@@ -286,6 +293,7 @@ export default function EditStudentProfilePage() {
                   onChange={handleChange}
                   maxLength={50}
                 />
+                <CharCount value={form.availability} max={50} />
               </div>
 
               <div className="col-md-4">
@@ -329,6 +337,7 @@ export default function EditStudentProfilePage() {
               onChange={handleChange}
               maxLength={1500}
             />
+                <CharCount value={form.biography} max={1500} />
           </SectionCard>
 
           <SectionCard title={t("Links")}>
@@ -344,6 +353,7 @@ export default function EditStudentProfilePage() {
                   onChange={handleChange}
                   maxLength={255}
                 />
+                <CharCount value={form.portfolioUrl} max={255} />
               </div>
 
               <div className="col-md-4">
@@ -357,6 +367,7 @@ export default function EditStudentProfilePage() {
                   onChange={handleChange}
                   maxLength={255}
                 />
+                <CharCount value={form.linkedinUrl} max={255} />
               </div>
 
               <div className="col-md-4">
@@ -370,6 +381,7 @@ export default function EditStudentProfilePage() {
                   onChange={handleChange}
                   maxLength={255}
                 />
+                <CharCount value={form.githubUrl} max={255} />
               </div>
             </div>
           </SectionCard>

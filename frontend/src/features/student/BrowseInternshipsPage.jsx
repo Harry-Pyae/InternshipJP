@@ -8,6 +8,7 @@ import LoadingBlock from "../../components/shared/LoadingBlock.jsx";
 import { studentApi } from "../../api/studentApi.js";
 import { describeApiError } from "../../api/axiosClient.js";
 import { useLanguage } from "../../config/languageContext.jsx";
+import CharCount from "../../components/shared/CharCount.jsx";
 
 /**
  * Open vacancies a student can apply to.
@@ -58,7 +59,10 @@ export default function BrowseInternshipsPage() {
           onChange={(event) => setKeyword(event.target.value)}
           placeholder={t("Search by title, company or location")}
           aria-label={t("Search internships")}
-        />
+        
+            maxLength={150}
+            />
+                <CharCount value={keyword} max={150} />
         <button className="btn btn-ijp-primary flex-shrink-0" type="submit">
           <i className="bi bi-search me-1" aria-hidden="true" />{t("Search")}</button>
       </form>

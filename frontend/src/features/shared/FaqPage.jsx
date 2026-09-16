@@ -12,6 +12,7 @@ import { timeAgo, exactTime } from "../../api/relativeTime.js";
 import SearchBox, { matches } from "../../components/shared/SearchBox.jsx";
 import { initialsOf } from "../../components/shared/Avatar.jsx";
 import Pagination from "../../components/shared/Pagination.jsx";
+import CharCount from "../../components/shared/CharCount.jsx";
 
 /**
  * Questions people actually ask, and a way to say something we did not answer.
@@ -264,6 +265,7 @@ function FeedbackForm() {
         onChange={(event) => setMessage(event.target.value)}
         placeholder={t("What would you change?")}
       />
+                <CharCount value={message} max={2000} />
       <div className="d-flex align-items-center gap-3">
         <button
           type="button"

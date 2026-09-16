@@ -13,6 +13,7 @@ import { timeAgo, exactTime } from "../../api/relativeTime.js";
 import { certificateAge } from "../../api/relativeTime.js";
 import { useLanguage } from "../../config/languageContext.jsx";
 import FilePreview from "../admin/components/FilePreview.jsx";
+import CharCount from "../../components/shared/CharCount.jsx";
 
 /**
  * One applicant, in full.
@@ -379,7 +380,9 @@ export default function EmployerApplicantDetailPage() {
                 value={note}
                 onChange={(event) => setNote(event.target.value)}
                 placeholder={t("Kept with the application history.")}
+              maxLength={500}
               />
+                <CharCount value={note} max={500} />
               <button
                 type="button"
                 className="btn btn-ijp-primary w-100"
@@ -407,6 +410,7 @@ export default function EmployerApplicantDetailPage() {
                 maxLength={500}
                 placeholder="e.g. Could you send your academic transcript?"
               />
+                <CharCount value={message} max={500} />
               <p className="ijp-field-hint mb-3">
                 Arrives in the student's notifications with your company name and the
                 vacancy. They cannot reply here, so ask for something they can act on.

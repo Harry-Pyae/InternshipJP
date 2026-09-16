@@ -11,6 +11,7 @@ import { describeApiError } from "../../api/axiosClient.js";
 import { appConfig } from "../../config/appConfig.js";
 import { certificateAge } from "../../api/relativeTime.js";
 import { useLanguage } from "../../config/languageContext.jsx";
+import CharCount from "../../components/shared/CharCount.jsx";
 
 /**
  * Reviewing one certificate.
@@ -135,7 +136,9 @@ export default function AdminCertificateReviewPage() {
                     value={note}
                     onChange={(event) => setNote(event.target.value)}
                     placeholder={t("Required when rejecting. The student sees this.")}
+                  maxLength={500}
                   />
+                <CharCount value={note} max={500} />
                   <p className="ijp-field-hint mb-3">{t("Verifying makes this visible to employers who receive an application from this student.")}</p>
 
                   <div className="d-grid gap-2">

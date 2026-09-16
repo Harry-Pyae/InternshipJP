@@ -1,0 +1,169 @@
+# My contribution — Member 1
+
+InternshipJP · CST-6108 · Third Year, Section B, Semester VI
+University of Information Technology · Supervisor: Daw Htar Htar Aung
+
+---
+
+## What my role was
+
+The other three members each own a vertical slice — authentication and the
+student module, the employer module, the administration module. Mine is
+horizontal. I own the parts every slice sits on, and the work of making three
+separately built modules behave as one application.
+
+That means I wrote less of any single screen than they did, and more of what
+holds the screens together. The sections below describe areas I was responsible
+for rather than lines I typed.
+
+---
+
+## 1. The database
+
+Ten Flyway migrations defining twenty tables. Every schema change in the
+project went through me, and the version history doubles as a record of who
+needed what and when.
+
+Two decisions I would defend:
+
+**Status columns are `VARCHAR`, never MariaDB `ENUM`.** A Java enum can gain a
+value with no migration; a database enum cannot. When `FILLED` finally needed
+setting, it was already in the Java enum and the column took it without a
+schema change.
+
+**An applied migration is never edited.** V9 and V10 were added late — an
+`application_skills` table and a `reference_id` column — and both are purely
+additive, so neither can fail on a database that already holds data. That is
+not an accident; it is why they were shaped that way.
+
+## 2. The shared component layer
+
+Twenty-six components under `components/shared`. The test of whether this layer
+works is whether a change made once appears everywhere, and it does: the themed
+confirmation dialog replaced the last browser `window.confirm` in the project,
+and three screens changed at once.
+
+`Avatar` is the one worth describing. It fetches a photo through the API client
+rather than an `<img src>`, because the API is a different origin in
+development and a plain image request carries no session cookie. It caches per
+user, shares a request when four rows ask for the same person in the same tick,
+and notifies every mounted copy when a photo changes, so the sidebar, the menu
+and the table row all update together.
+
+## 3. English and Burmese
+
+853 strings, no i18n library. A React context resolves `t()` through a table
+keyed on the **English source string**, so a missing translation falls back to
+readable English rather than showing `nav.faq`.
+
+Three things made this harder than a table of strings:
+
+- **A sentence with a number in it cannot be built by concatenation.** English
+  puts the number before the noun and Burmese does not, so `t()` takes
+  parameters and substitutes into placeholders, keeping the sentence whole.
+- **Text composed on the server cannot be translated in the browser.** Nine
+  Java services take a `language` parameter and compose both languages at
+  source.
+- **The language must be selectable before signing in**, so the toggle is on
+  the authentication screens too. Somebody who reads Burmese should not have to
+  get through an English login first.
+
+Certificate titles, company names and covering letters are never translated.
+They are somebody's own words.
+
+## 4. Matching and analysis
+
+Four features compute from the platform's own database and make no external
+call: recommendations, skill gaps, company insight, and the administrator
+workload report. I verified this rather than assumed it — all five analysis
+services construct zero HTTP clients.
+
+The scoring uses only the skills an employer required and the skills a student
+recorded:
+
+```java
+matched * 100 / requiredSkills.size()
+```
+
+Institution, connections, graduation year and profile activity are not weighted
+zero. **They are not parameters.** The function cannot see them. Every score
+arrives with the skills matched and the skills missing, so a student who
+disagrees has something specific to correct.
+
+## 5. Integration — the work that has no screen
+
+This is the part that is hardest to show and took the most time.
+
+**Cross-origin sessions.** React on 5173, Spring on 8080. `withCredentials`
+sends the cookie; `withXSRFToken` attaches the CSRF header, which since Axios
+1.6.2 is not automatic across origins. Without that one flag every POST, PUT
+and DELETE in the application returns 403.
+
+**Ownership on the record, not just the role.** Repository finders take the
+record id and the caller's id together — `findByIdAndStudentProfileId`. Role
+says what kind of thing you may do; ownership says which rows. A missing check
+here is not a broken page, it is somebody reading another person's documents.
+
+**Faults that crossed module boundaries.** Several came from the seams rather
+than from any one member's code: an applicant's skills read live instead of as
+sent, a notification type emitted by one module with no route in another, a
+file endpoint whose permission was written and never exposed. Finding those was
+the job.
+
+## 6. Testing and tooling
+
+97 test methods across 16 classes. The tests that matter are the ones that pin
+a decision rather than a value — `aPasswordMeetingEveryClassRuleCanStillBeRefused`
+exists so that nobody later concludes the denylist is redundant.
+
+Four check scripts, each written after a fault that had already cost a day:
+
+```
+check-annotations.py     stacked @Transactional  — a compile error, and worse,
+                         an annotation silently lost from the method below
+check-wiring.py          a field used and assigned but never declared; a test
+                         calling a constructor whose arity changed
+check-lambda-capture.py  a reassigned local captured by a lambda — valid to the
+                         parser, rejected by the compiler
+check-styles.py          a CSS declaration overridden by a later one, and a
+                         class used in markup with no rule behind it
+```
+
+**The most useful thing I learned on this project is in those scripts.** Three
+of them reported success while standing on ground they never examined — one had
+a path filter matching zero files, one compared declared fields to assignments
+so an undeclared field appeared in neither set, and none of them looked at
+`src/test` at all. Each looked correct and could not fail.
+
+The habit that catches it is simple and I now apply it every time: **feed the
+check the known bug before trusting the zero.** A check that cannot fail is
+worse than no check, because it is believed.
+
+---
+
+## What I would do differently
+
+**I would write the checks before the faults, not after.** Every one of the
+four exists because something broke first. Three of them would have caught
+their own fault on the day it was introduced rather than a week later.
+
+**I would have questioned the stored values earlier.** `availablePositions` was
+written to the database and read back for months before anything counted
+against it. The same was true of `photo_path`, of `logo_path`, and of
+`FILLED` — all present, none used. A field that nothing reads is a feature
+nobody has finished, and the schema does not say which.
+
+---
+
+## Figures
+
+```
+Backend      202 main Java files, 16 test classes, 97 test methods
+             93 endpoints, 20 repositories, 62 DTOs
+             10 Flyway migrations, 20 tables
+Frontend     93 React modules, 26 shared components, 55 routes
+Bilingual    853 Burmese strings, none missing
+Tooling      4 check scripts
+```
+
+Every figure counted from the code rather than recalled.

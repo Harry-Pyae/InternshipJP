@@ -119,6 +119,8 @@ export default function EmployerProfileEditPage() {
                   label="Contact phone"
                   value={form.contactPhone}
                   onChange={(value) => set("contactPhone", value)}
+                
+                  maxLength={16}
                 />
 
                 <div className="d-flex gap-2">

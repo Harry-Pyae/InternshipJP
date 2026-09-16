@@ -64,6 +64,9 @@ export const strings = {
   },
 
   my: {
+    "characters left": "စာလုံး ကျန်သည်",
+    "Full - no more characters fit.": "ပြည့်ပါပြီ — စာလုံး ထပ်မထည့်နိုင်တော့ပါ။",
+
     "CGPA": "CGPA",
 
     "Start with + and the country code, for example +959795123456.": "+ နှင့် နိုင်ငံကုဒ်ဖြင့် စတင်ပါ၊ ဥပမာ +959795123456။",

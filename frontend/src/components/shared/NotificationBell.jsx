@@ -157,12 +157,16 @@ export default function NotificationBell({ basePath }) {
                       if (target) navigate(target);
                     }}
                   >
-                    <span className="ijp-bell-text">{t(item.title) || item.message}</span>
-                    <span className="ijp-bell-foot">
-                      <span className="ijp-bell-time">{timeAgo(item.createdAt)}</span>
-                      {/* Says the row opens something. Without it a list of
-                          notices just looks like a list of notices. */}
-                      <i className="bi bi-arrow-right ijp-bell-go" aria-hidden="true" />
+                    {/* Two columns: what it says, and an arrow at the right.
+                        This was `ijp-bell-foot`, which is already the name of
+                        the panel's own footer - block, centred - so the arrow
+                        inherited that and sat squashed under the text. */}
+                    <span className="ijp-bell-row">
+                      <span className="ijp-bell-body">
+                        <span className="ijp-bell-text">{t(item.title) || item.message}</span>
+                        <span className="ijp-bell-time">{timeAgo(item.createdAt)}</span>
+                      </span>
+                      <i className="bi bi-chevron-right ijp-bell-go" aria-hidden="true" />
                     </span>
                   </button>
                 </li>

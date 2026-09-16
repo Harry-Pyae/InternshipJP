@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useLanguage } from "../../config/languageContext.jsx";
+import CharCount from "../../components/shared/CharCount.jsx";
 
 /**
  * A labelled input with a leading icon, and a reveal button on passwords.
@@ -50,7 +51,10 @@ export default function AuthField({
           onChange={(event) => onChange(event.target.value)}
           onBlur={onBlur}
           {...rest}
-        />
+        
+            maxLength={150}
+            />
+                <CharCount value={value} max={150} />
         {isPassword ? (
           <button
             type="button"

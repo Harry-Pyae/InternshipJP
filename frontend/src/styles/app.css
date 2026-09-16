@@ -5577,9 +5577,27 @@ h4 {
 
 /* The arrow on a bell row. Quiet until the row is hovered, so a list of six
    does not read as six buttons. */
+/* One notification row: what it says on the left, an arrow on the right.
+   Its own names, because ijp-bell-foot is the panel's footer. */
+.ijp-bell-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.ijp-bell-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
 .ijp-bell-go {
-  margin-left: auto;
+  flex: 0 0 auto;
   color: var(--ijp-ink-faint);
+  font-size: 0.85rem;
   transition: transform 0.12s ease, color 0.12s ease;
 }
 
@@ -5620,22 +5638,6 @@ h4 {
   column-gap: 0.6rem;
 }
 
-.ijp-bell-go {
-  grid-row: 1 / span 2;
-  grid-column: 2;
-  color: var(--ijp-ink-faint);
-  font-size: 0.85rem;
-}
-
-.ijp-bell-go {
-  color: var(--ijp-ink-faint);
-  font-size: 0.8rem;
-}
-
-.ijp-bell-hit:hover .ijp-bell-go {
-  color: var(--ijp-signal);
-}
-
 /* --- long values that must not break mid-word --------------------------------
    An address broke as "...internshipjp.lo / cal", because overflow-wrap:
    anywhere breaks between any two characters. break-word only breaks a word
@@ -5672,4 +5674,17 @@ h4 {
 
 .ijp-phone .form-control {
   border-radius: 0 var(--ijp-radius-sm) var(--ijp-radius-sm) 0;
+}
+
+/* How much room is left, shown only once it starts to matter. */
+.ijp-charcount {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: var(--ijp-ink-faint);
+}
+
+.ijp-charcount--full {
+  color: var(--ijp-rejected);
+  font-weight: 600;
 }

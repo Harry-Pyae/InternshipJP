@@ -21,6 +21,7 @@ const FIELDS = [
     name: "registrationNumber",
     label: "Registration number",
     hint: "What an administrator checks before approving you.",
+    maxLength: 20,
   },
   { name: "country", label: "Country" },
   { name: "location", label: "City" },
@@ -28,7 +29,7 @@ const FIELDS = [
   { name: "website", label: "Website", type: "url", placeholder: "https://example.com" },
   { name: "linkedinUrl", label: "LinkedIn", type: "url" },
   { name: "contactEmail", label: "Contact email", type: "email" },
-  { name: "contactPhone", label: "Contact phone" },
+  { name: "contactPhone", label: "Contact phone", maxLength: 16 },
 ];
 
 const EMPTY = Object.fromEntries([...FIELDS.map((f) => [f.name, ""]), ["description", ""]]);
@@ -192,7 +193,8 @@ export default function CompanyProfilePage() {
                     onChange={(event) =>
                       setForm((c) => ({ ...c, [field.name]: event.target.value }))
                     }
-                  />
+            maxLength={field.maxLength ?? 150}
+            />
                   {fieldErrors?.[field.name] ? (
                     <p className="ijp-field-error">{fieldErrors[field.name]}</p>
                   ) : field.hint ? (
@@ -211,6 +213,7 @@ export default function CompanyProfilePage() {
                   onChange={(event) =>
                     setForm((c) => ({ ...c, description: event.target.value }))
                   }
+                  maxLength={2000}
                 />
               </div>
             </div>

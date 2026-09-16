@@ -12,6 +12,7 @@ import { timeAgo, exactTime } from "../../api/relativeTime.js";
 import { useLanguage } from "../../config/languageContext.jsx";
 import { certificateAge } from "../../api/relativeTime.js";
 import ConfirmDialog from "../../components/shared/ConfirmDialog.jsx";
+import CharCount from "../../components/shared/CharCount.jsx";
 
 /**
  * Uploading qualifications, and seeing whether they have been verified.
@@ -170,7 +171,10 @@ export default function StudentCertificatesPage() {
                   value={title}
                   onChange={(event) => setTitle(event.target.value)}
                   placeholder={t("e.g. Oracle Java Foundations")}
-                />
+                
+            maxLength={150}
+            />
+                <CharCount value={title} max={150} />
               </div>
 
               <div>

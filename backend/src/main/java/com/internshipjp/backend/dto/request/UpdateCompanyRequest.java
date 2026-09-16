@@ -26,7 +26,7 @@ public class UpdateCompanyRequest {
     @Max(2100)
     private Integer foundedYear;
 
-    @Size(max = 100)
+    @Size(max = 20, message = "A registration number is at most 20 characters.")
     private String registrationNumber;
 
     @Size(max = 255)
@@ -38,18 +38,26 @@ public class UpdateCompanyRequest {
 
     @Size(max = 30)
     /**
-     * A Myanmar number, written the way it is dialled from abroad.
+     * An international number, written the way it is dialled from abroad.
      *
-     * +95 then the national number with its leading zero dropped, which is
-     * how Myanmar mobile numbers are written internationally: 09 7xx xxx xxx
-     * becomes +959 7xx xxx xxx. Seven to ten digits, because operators here
-     * issue numbers of different lengths and refusing a real one is worse
-     * than accepting a short one.
+     * NOT FIXED TO +95, AND THE REASON MATTERS
+     *   Registration asks for a country. Enforcing a Myanmar dialling code
+     *   while offering that choice contradicts it: somebody who selects
+     *   Thailand and types a Thai number would be told their own number is
+     *   wrong. The pattern follows the form rather than the other way round.
+     *
+     * A plus, then a country code that does not start with zero, then seven
+     * to fourteen digits - the E.164 shape. A Myanmar number written
+     * +959 7xx xxx xxx satisfies it, which is the common case here.
      *
      * Optional: an empty field is allowed, an ill-formed one is not.
      */
-    @Pattern(regexp = "^$|^\\+95[0-9]{7,10}$",
-             message = "Use a Myanmar number in the form +959XXXXXXXX.")
+    // E.164 allows fifteen digits after the plus, so sixteen characters is
+    // the real ceiling. A Myanmar number is thirteen of them; capping at
+    // thirteen would refuse a longer number that is perfectly valid.
+    @Size(max = 16, message = "A phone number is at most 16 characters.")
+    @Pattern(regexp = "^$|^\\+[1-9][0-9]{6,14}$",
+             message = "Use the international form, starting with + and the country code.")
     private String contactPhone;
 
     @Size(max = 255)

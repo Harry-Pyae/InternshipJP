@@ -82,7 +82,10 @@ conflicts, split = [], 0
 for (ctx, sel), items in sorted(grouped.items()):
     if len(items) < 2:
         continue
-    overlap = set(items[0][1]) & set(items[1][1])
+    # first against last, not first against second - with three blocks the
+    # overlap was taken from two of them and then indexed on a third, which
+    # raised a KeyError instead of reporting anything.
+    overlap = set(items[0][1]) & set(items[-1][1])
     where = f" inside {ctx[-1]}" if ctx else ""
     if overlap:
         for key in sorted(overlap):

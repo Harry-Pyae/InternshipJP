@@ -41,6 +41,9 @@ export default function RegisterPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
   const [fieldErrors, setFieldErrors] = useState(null);
+  // Nothing is judged until a submit has been attempted. Validating on blur
+  // told somebody a field was required before they had tried to use it.
+  const [submitted, setSubmitted] = useState(false);
 
   // Rules follow the selected role, so an employer is never asked for a
   // university and a student is never asked for a company.
@@ -75,6 +78,9 @@ export default function RegisterPage() {
   }
 
   function blur(field) {
+    if (!submitted) {
+      return;
+    }
     const found = validate(form, fieldRules);
     setFieldErrors((current) => ({ ...current, [field]: found[field] ?? null }));
   }
@@ -88,6 +94,7 @@ export default function RegisterPage() {
 
   async function submit(event) {
     event.preventDefault();
+    setSubmitted(true);
 
     const found = validate(form, fieldRules);
     if (Object.keys(found).length > 0) {
@@ -343,6 +350,8 @@ export default function RegisterPage() {
                   optional
                   value={form.contactPhone}
                   onChange={(value) => update("contactPhone", value)}
+                
+                  maxLength={16}
                 />
               </div>
 

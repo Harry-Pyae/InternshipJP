@@ -9,6 +9,7 @@ import StatusBadge from "../../components/shared/StatusBadge.jsx";
 import { adminApi } from "../../api/adminApi.js";
 import { describeApiError } from "../../api/axiosClient.js";
 import { useLanguage } from "../../config/languageContext.jsx";
+import CharCount from "../../components/shared/CharCount.jsx";
 
 export default function AdminSettingsPage() {
   const { t } = useLanguage();
@@ -90,12 +91,16 @@ function ProfileCard({ account, onSaved, onError }) {
       <form onSubmit={save}>
         <label className="ijp-label mb-2" htmlFor="admin-full-name">{t("Full name")}</label>
         <input id="admin-full-name" className="form-control mb-3" value={fullName} onChange={(event) => setFullName(event.target.value)} required maxLength={150} />
+                <CharCount value={fullName} max={150} />
 
         <label className="ijp-label mb-2" htmlFor="admin-email">{t("Email")}</label>
-        <input id="admin-email" className="form-control mb-3" value={account?.email || ""} disabled />
+        <input id="admin-email" className="form-control mb-3" value={account?.email || ""} disabled 
+            maxLength={150}
+            />
 
         <label className="ijp-label mb-2" htmlFor="admin-phone">{t("Phone")}</label>
         <input id="admin-phone" className="form-control mb-3" value={phone} onChange={(event) => setPhone(event.target.value)} maxLength={30} />
+                <CharCount value={phone} max={30} />
 
         <div className="d-flex justify-content-between align-items-center gap-2 mb-3">
           <span className="small">{t("Role:")}<strong>{account?.role || "ADMIN"}</strong></span>
@@ -148,10 +153,14 @@ function PasswordCard({ onSaved, onError }) {
     <SectionCard title={t("Change password")}>
       <form onSubmit={save}>
         <label className="ijp-label mb-2" htmlFor="admin-current-password">{t("Current password")}</label>
-        <input id="admin-current-password" type="password" className="form-control mb-3" value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)} required />
+        <input id="admin-current-password" type="password" className="form-control mb-3" value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)} required 
+            maxLength={150}
+            />
+                <CharCount value={currentPassword} max={150} />
 
         <label className="ijp-label mb-2" htmlFor="admin-new-password">{t("New password")}</label>
         <input id="admin-new-password" type="password" className="form-control mb-3" value={newPassword} onChange={(event) => setNewPassword(event.target.value)} minLength={8} maxLength={100} required />
+                <CharCount value={newPassword} max={100} />
 
         <label className="ijp-label mb-2" htmlFor="admin-confirm-password">{t("Confirm new password")}</label>
         <input
@@ -168,6 +177,7 @@ function PasswordCard({ onSaved, onError }) {
           maxLength={100}
           required
         />
+                <CharCount value={confirmPassword} max={100} />
         {mismatch ? <p className="ijp-field-error mb-3">{mismatch}</p> : <div className="mb-3" />}
 
         <p className="ijp-muted small">{t("Use a new password that is different from your current password.")}</p>

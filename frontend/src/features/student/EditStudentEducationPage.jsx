@@ -9,6 +9,7 @@ import { describeApiError } from "../../api/axiosClient.js";
 import { studentEducationApi } from "../../api/studentEducationApi.js";
 import { useLanguage } from "../../config/languageContext.jsx";
 import ConfirmDialog from "../../components/shared/ConfirmDialog.jsx";
+import CharCount from "../../components/shared/CharCount.jsx";
 
 export default function EditStudentEducationPage() {
   const { t } = useLanguage();
@@ -251,6 +252,7 @@ export default function EditStudentEducationPage() {
                     maxLength={150}
                     required
                   />
+                <CharCount value={form.institution} max={150} />
                 </div>
 
                 <div className="col-md-6">
@@ -266,6 +268,7 @@ export default function EditStudentEducationPage() {
                     maxLength={150}
                     required
                     />
+                <CharCount value={form.degree} max={150} />
                 </div>
 
                 <div className="col-md-6">
@@ -281,6 +284,7 @@ export default function EditStudentEducationPage() {
                     maxLength={150}
                     required
                     />
+                <CharCount value={form.fieldOfStudy} max={150} />
                 </div>
 
                 <div className="col-md-4">

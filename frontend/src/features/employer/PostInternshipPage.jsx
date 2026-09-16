@@ -5,6 +5,7 @@ import Select from "../../components/shared/Select.jsx";
 import PageHeader from "../../components/shared/PageHeader.jsx";
 import { employerApi } from "../../api/employerApi.js";
 import { useLanguage } from "../../config/languageContext.jsx";
+import CharCount from "../../components/shared/CharCount.jsx";
 
 const initialForm = {
   title: "",
@@ -172,6 +173,7 @@ export default function PostInternshipPage() {
                   maxLength={150}
                   required
                 />
+                <CharCount value={form.title} max={150} />
               </Field>
 
               <Field
@@ -188,6 +190,7 @@ export default function PostInternshipPage() {
                   rows="3"
                   maxLength={2000}
                 />
+                <CharCount value={form.description} max={2000} />
               </Field>
 
               <Field
@@ -204,6 +207,7 @@ export default function PostInternshipPage() {
                   rows="3"
                   maxLength={2000}
                 />
+                <CharCount value={form.responsibilities} max={2000} />
               </Field>
 
               <Field
@@ -220,6 +224,7 @@ export default function PostInternshipPage() {
                   rows="3"
                   maxLength={2000}
                 />
+                <CharCount value={form.requirements} max={2000} />
               </Field>
             </Section>
 
@@ -240,6 +245,7 @@ export default function PostInternshipPage() {
                       className="form-control"
                       maxLength={150}
                     />
+                <CharCount value={form.location} max={150} />
                   </Field>
                 </div>
                 <div className="col-md-6">
@@ -338,6 +344,7 @@ export default function PostInternshipPage() {
                       className="form-control"
                       maxLength={10}
                     />
+                <CharCount value={form.stipendCurrency} max={10} />
                   </Field>
                 </div>
                 <div className="col-md-6">

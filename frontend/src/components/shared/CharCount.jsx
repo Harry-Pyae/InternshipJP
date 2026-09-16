@@ -1,0 +1,32 @@
+import { useLanguage } from "../../config/languageContext.jsx";
+
+/**
+ * How much room is left in a field.
+ *
+ * WHY IT ONLY APPEARS NEAR THE LIMIT
+ *   A hard maxLength stops typing with no explanation, and somebody at the end
+ *   of a cover letter has no way to tell a full field from a broken keyboard.
+ *   A counter on every field at all times is noise; a counter that appears when
+ *   it starts to matter is an answer to a question the person is about to ask.
+ *
+ *   The threshold is a fifth of the limit, or eighty characters, whichever is
+ *   smaller - so a 3000-character letter warns at 2920 rather than at 2400.
+ */
+export default function CharCount({ value, max }) {
+  const { t } = useLanguage();
+  const used = String(value ?? "").length;
+  const left = max - used;
+  const threshold = Math.min(Math.round(max / 5), 80);
+
+  if (left > threshold) {
+    return null;
+  }
+
+  return (
+    <span className={`ijp-charcount${left <= 0 ? " ijp-charcount--full" : ""}`} aria-live="polite">
+      {left <= 0
+        ? t("Full - no more characters fit.")
+        : `${left} ${t("characters left")}`}
+    </span>
+  );
+}

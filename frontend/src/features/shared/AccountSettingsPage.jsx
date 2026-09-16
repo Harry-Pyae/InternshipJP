@@ -174,7 +174,9 @@ export default function AccountSettingsPage() {
                 value={profile.phone}
                 onChange={(value) => setProfile((c) => ({ ...c, phone: value }))}
                 error={profileErrors?.phone}
-              />
+              
+                  maxLength={16}
+                />
 
               <div>
                 <span className="ijp-field-label d-block">{t("Email")}</span>

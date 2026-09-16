@@ -92,6 +92,8 @@ export default function AdminProfileEditPage() {
                   label="Phone"
                   value={form.phone}
                   onChange={(value) => setForm((c) => ({ ...c, phone: value }))}
+                
+                  maxLength={16}
                 />
 
                 <div className="d-flex gap-2">

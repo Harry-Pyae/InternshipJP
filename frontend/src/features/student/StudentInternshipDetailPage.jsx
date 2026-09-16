@@ -7,6 +7,7 @@ import LoadingBlock from "../../components/shared/LoadingBlock.jsx";
 import { studentApi } from "../../api/studentApi.js";
 import { describeApiError } from "../../api/axiosClient.js";
 import { useLanguage } from "../../config/languageContext.jsx";
+import CharCount from "../../components/shared/CharCount.jsx";
 
 /**
  * One vacancy, and the button that applies to it.
@@ -147,7 +148,9 @@ export default function StudentInternshipDetailPage() {
                     value={coverLetter}
                     onChange={(event) => setCoverLetter(event.target.value)}
                     placeholder={t("Why you are a good fit for this role.")}
+                  maxLength={3000}
                   />
+                <CharCount value={coverLetter} max={3000} />
                   <p className="ijp-field-hint mb-3">{t("Your profile, skills and verified certificates are sent with the application automatically.")}</p>
                   <button
                     type="button"

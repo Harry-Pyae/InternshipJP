@@ -12,6 +12,7 @@ import { useSearchParams } from "react-router-dom";
 import ConfirmDialog from "../../components/shared/ConfirmDialog.jsx";
 import { useAuth } from "../../config/authContext.jsx";
 import { useLanguage } from "../../config/languageContext.jsx";
+import CharCount from "../../components/shared/CharCount.jsx";
 
 export default function AdminUsersPage() {
   const { t } = useLanguage();
@@ -231,6 +232,7 @@ export default function AdminUsersPage() {
                 maxLength={150}
                 required
               />
+                <CharCount value={invite.fullName} max={150} />
             </div>
             <div className="col-md-5">
               <label className="form-label" htmlFor="inviteEmailAddr">{t("Email")}</label>
@@ -246,6 +248,7 @@ export default function AdminUsersPage() {
                 maxLength={190}
                 required
               />
+                <CharCount value={invite.email} max={190} />
             </div>
             <div className="col-md-2 d-flex gap-2">
               <button type="submit" className="btn btn-ijp-primary" disabled={inviteBusy}>
@@ -273,7 +276,10 @@ export default function AdminUsersPage() {
               placeholder={t("Name or email")}
               value={searchInput}
               onChange={(event) => setSearchInput(event.target.value)}
+            
+            maxLength={150}
             />
+                <CharCount value={searchInput} max={150} />
           </div>
           <div className="col-6 col-lg-3">
               <Select

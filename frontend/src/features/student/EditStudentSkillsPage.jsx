@@ -10,6 +10,7 @@ import { studentApi } from "../../api/studentApi.js";
 import Select from "../../components/shared/Select.jsx";
 import { useLanguage } from "../../config/languageContext.jsx";
 import ConfirmDialog from "../../components/shared/ConfirmDialog.jsx";
+import CharCount from "../../components/shared/CharCount.jsx";
 
 /** The four types the backend accepts, in the order they are worth reading. */
 const SKILL_GROUPS = [
@@ -217,6 +218,7 @@ export default function EditStudentSkillsPage() {
                     maxLength={100}
                     required
                   />
+                <CharCount value={form.name} max={100} />
                 </div>
 
                 <div className="col-md-6">

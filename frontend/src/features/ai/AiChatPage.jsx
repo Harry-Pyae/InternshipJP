@@ -18,6 +18,7 @@ import AnswerBlocks from "./AnswerBlocks.jsx";
 import Select from "../../components/shared/Select.jsx";
 import { timeAgo, exactTime } from "../../api/relativeTime.js";
 import { useAuth } from "../../config/authContext.jsx";
+import CharCount from "../../components/shared/CharCount.jsx";
 
 /**
  * The AI assistant - Member 1's vertical slice.
@@ -569,7 +570,10 @@ function ChatTab({
           placeholder={t("Ask a question")}
           aria-label={t("Your question")}
           disabled={sending}
-        />
+        
+            maxLength={150}
+            />
+                <CharCount value={draft} max={150} />
         <button className="btn btn-ijp-primary flex-shrink-0" type="submit" disabled={sending}>
           <i className="bi bi-send" aria-hidden="true" />
           <span className="d-none d-sm-inline ms-2">{t("Send")}</span>

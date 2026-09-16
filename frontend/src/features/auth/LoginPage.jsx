@@ -23,6 +23,14 @@ export default function LoginPage() {
   // A field is only "touched" once you have left it. Validating while someone
   // is still typing their email shouts "invalid" at every keystroke.
   const [touched, setTouched] = useState({});
+  // Nothing is judged until a submit has been attempted.
+  //
+  // Validating on blur meant that tapping into the email box and out again -
+  // or tapping anywhere else on the page - produced "Email is required." for a
+  // field nobody had tried to use yet. After the first submit, blur checking
+  // is useful, because then the person is correcting something rather than
+  // being told off for looking.
+  const [submitted, setSubmitted] = useState(false);
 
   const FIELD_RULES = {
     email: rules.email(),
@@ -48,6 +56,10 @@ export default function LoginPage() {
   }
 
   function blur(field) {
+    if (!submitted) {
+      setTouched((current) => ({ ...current, [field]: true }));
+      return;
+    }
     setTouched((current) => ({ ...current, [field]: true }));
     const found = validate(form, FIELD_RULES);
     setFieldErrors((current) => ({ ...current, [field]: found[field] ?? null }));
@@ -55,6 +67,7 @@ export default function LoginPage() {
 
   async function submit(event) {
     event.preventDefault();
+    setSubmitted(true);
 
     // Check everything on submit, whether or not it has been touched.
     const found = validate(form, FIELD_RULES);
@@ -102,7 +115,7 @@ export default function LoginPage() {
               value={form.email}
               onChange={(value) => update("email", value)}
               onBlur={() => blur("email")}
-              error={touched.email ? fieldErrors?.email : fieldErrors?.email}
+              error={fieldErrors?.email}
               autoComplete="username"
               placeholder="you@example.com"
               required

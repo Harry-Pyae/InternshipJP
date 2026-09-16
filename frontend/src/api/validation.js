@@ -28,8 +28,11 @@ export const rules = {
     if (!value) {
       return null;
     }
-    if (!/^\+95[0-9]{7,10}$/.test(value.trim())) {
-      return "Use a Myanmar number in the form +959XXXXXXXX.";
+    // Mirrors the @Pattern on the request objects: the E.164 shape, not a
+    // Myanmar code. Registration asks for a country, and enforcing +95 while
+    // offering that choice would tell somebody their own number is wrong.
+    if (!/^\+[1-9][0-9]{6,14}$/.test(value.trim())) {
+      return "Start with + and the country code, for example +959795123456.";
     }
     return null;
   },
