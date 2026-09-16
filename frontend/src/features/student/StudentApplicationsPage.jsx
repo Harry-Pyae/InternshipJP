@@ -12,11 +12,13 @@ import SearchBox, { matches } from "../../components/shared/SearchBox.jsx";
 import { useLanguage } from "../../config/languageContext.jsx";
 import Pagination from "../../components/shared/Pagination.jsx";
 import ConfirmDialog from "../../components/shared/ConfirmDialog.jsx";
+import { useAuth } from "../../config/authContext.jsx";
 
 /**
  * Everything this student has applied to.
  */
 export default function StudentApplicationsPage() {
+  const { user } = useAuth();
   const { t } = useLanguage();
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(0);
@@ -24,6 +26,10 @@ export default function StudentApplicationsPage() {
   const [error, setError] = useState(null);
   // Which application is being replied to, and whether the send is in flight.
   const [replyTo, setReplyTo] = useState(null);
+  // The exchange about the application being replied to. Without it a student
+  // could send a reply and never see it again, and could read what the employer
+  // wrote only as a notification.
+  const [thread, setThread] = useState([]);
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState("");
 
@@ -132,6 +138,11 @@ export default function StudentApplicationsPage() {
                           onClick={() => {
                             setSent("");
                             setReplyTo(row);
+                            setThread([]);
+                            studentApi
+                              .applicationMessages(row.id)
+                              .then(setThread)
+                              .catch(() => setThread([]));
                           }}
                         >
                           <i className="bi bi-reply me-1" aria-hidden="true" />{t("Reply")}</button>
@@ -172,7 +183,27 @@ export default function StudentApplicationsPage() {
         tone="neutral"
         title={replyTo ? `Reply about ${replyTo.internshipTitle}` : ""}
         message={replyTo ? `Your reply goes to ${replyTo.companyName}.` : ""}
-        note="They see it as a notification, the same way you see theirs."
+        note={t("They see it as a notification, the same way you see theirs.")}
+        body={
+          thread.length ? (
+            <ol className="ijp-thread mb-3">
+              {thread.map((entry) => (
+                <li
+                  className={`ijp-thread-item ijp-thread-item--${
+                          entry.senderRole === user?.role ? "mine" : "theirs"
+                        }`}
+                  key={entry.id}
+                >
+                  <p className="ijp-thread-who">
+                    {entry.senderName}
+                    <span className="ijp-thread-when">{timeAgo(entry.createdAt)}</span>
+                  </p>
+                  <p className="ijp-thread-body">{entry.body}</p>
+                </li>
+              ))}
+            </ol>
+          ) : null
+        }
         confirmLabel={t("Send reply")}
         requireReason
         reasonLabel={t("Your reply")}

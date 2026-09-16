@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.internshipjp.backend.dto.request.ApplicantMessageRequest;
 import com.internshipjp.backend.dto.response.ApiMessageResponse;
+import com.internshipjp.backend.dto.response.ApplicationMessageResponse;
+import java.util.List;
 
 /**
  * Applying to an internship, and the student's own application history.
@@ -50,6 +52,19 @@ public class StudentApplicationController {
         ApplicationSummaryResponse created =
                 applicationService.apply(currentUserService.requireUserId(), id, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    }
+
+    /**
+     * The exchange about one of the student's own applications.
+     *
+     * The mirror of the employer's endpoint. Without it a student could send a
+     * reply and never see it again, and could not read what the employer wrote
+     * except as a notification.
+     */
+    @GetMapping("/api/student/applications/{id}/messages")
+    @PreAuthorize("hasRole('STUDENT')")
+    public List<ApplicationMessageResponse> messages(@PathVariable Long id) {
+        return applicationService.threadForStudent(currentUserService.requireUserId(), id);
     }
 
     /**

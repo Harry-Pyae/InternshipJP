@@ -94,7 +94,8 @@ export default function EmployerProfileEditPage() {
                   value={form.jobTitle}
                   onChange={(value) => set("jobTitle", value)}
                   hint={t("Shown beside your name to students and administrators.")}
-                />
+                maxLength={150}
+                  />
 
                 <AuthField
                   id="department"
@@ -102,7 +103,8 @@ export default function EmployerProfileEditPage() {
                   icon="bi-diagram-2"
                   value={form.department}
                   onChange={(value) => set("department", value)}
-                />
+                maxLength={150}
+                  />
 
                 <AuthField
                   id="workEmail"
@@ -112,7 +114,8 @@ export default function EmployerProfileEditPage() {
                   value={form.workEmail}
                   onChange={(value) => set("workEmail", value)}
                   hint={t("Optional. Your sign-in email is not changed by this.")}
-                />
+                maxLength={190}
+                  />
 
                 <PhoneField
                   id="contactPhone"

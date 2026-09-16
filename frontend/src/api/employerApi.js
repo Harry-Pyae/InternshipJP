@@ -130,6 +130,10 @@ export const employerApi = {
    * Ask the applicant for something. Delivered as a notification, which the
    * student already has a page for - so this needed no new delivery mechanism.
    */
+  /** Everything said about one application, oldest first. */
+  applicationMessages: (id) =>
+    api.get(`/api/employer/applications/${id}/messages`).then((response) => response.data),
+
   messageApplicant: (id, message) =>
     api
       .post(`/api/employer/applications/${id}/message`, { message })

@@ -14,6 +14,7 @@ import { certificateAge } from "../../api/relativeTime.js";
 import { useLanguage } from "../../config/languageContext.jsx";
 import FilePreview from "../admin/components/FilePreview.jsx";
 import CharCount from "../../components/shared/CharCount.jsx";
+import { useAuth } from "../../config/authContext.jsx";
 
 /**
  * One applicant, in full.
@@ -67,9 +68,20 @@ const MEANS = {
 const JOURNEY = ["APPLIED", "UNDER_REVIEW", "SHORTLISTED", "INTERVIEW", "ACCEPTED"];
 
 export default function EmployerApplicantDetailPage() {
+  const { user } = useAuth();
   const { t } = useLanguage();
   // Which certificate is open in the viewer, if any.
   const [viewing, setViewing] = useState(null);
+  // The exchange about this application. It has its own table, because a
+  // notification belongs to one recipient and an inbox therefore holds only
+  // half a conversation.
+  const [thread, setThread] = useState([]);
+  // True when the employer arrived here from a message notification. The page
+  // is long, and landing at the top with the reply three screens down is how
+  // somebody concludes the reply is not there.
+  const [cameForMessage] = useState(
+    () => typeof window !== "undefined" && window.location.hash === "#messages",
+  );
   const { id } = useParams();
 
   const [application, setApplication] = useState(null);
@@ -90,6 +102,13 @@ export default function EmployerApplicantDetailPage() {
     try {
       const data = await employerApi.getApplication(id);
       setApplication(data);
+      employerApi.applicationMessages(id).then(setThread).catch(() => setThread([]));
+      if (cameForMessage) {
+        // After the thread has rendered, not before.
+        window.setTimeout(() => {
+          document.getElementById("messages")?.scrollIntoView({ behavior: "smooth", block: "center" });
+        }, 150);
+      }
       setStatus(data.status);
     } catch (requestError) {
       setError(describeApiError(requestError));
@@ -187,6 +206,81 @@ export default function EmployerApplicantDetailPage() {
                 <Row label={t("Applied")} value={timeAgo(application.createdAt)} />
                 <Row label={t("Preferred work mode")} value={student?.preferredWorkMode} />
               </dl>
+            </div>
+
+            {/* The conversation, near the top rather than buried.
+                It sat inside the decision panel at the foot of a long page, so
+                an employer clicking a reply landed three screens above it.
+                Somewhere you have to scroll to find is somewhere you can
+                reasonably conclude is not there. */}
+            <div className="col-12" id="messages">
+              <SectionCard title={t("Conversation")}>
+                {cameForMessage ? (
+                  <p className="ijp-arrived" role="status">
+                    <i className="bi bi-chat-left-text me-2" aria-hidden="true" />
+                    {t("This is the message you were sent.")}
+                  </p>
+                ) : null}
+
+                {thread.length ? (
+                  <ol className={`ijp-thread${cameForMessage ? " ijp-thread--arrived" : ""}`}>
+                    {thread.map((entry) => (
+                      <li
+                        className={`ijp-thread-item ijp-thread-item--${
+                          entry.senderRole === user?.role ? "mine" : "theirs"
+                        }`}
+                        key={entry.id}
+                      >
+                        <p className="ijp-thread-who">
+                          {entry.senderName}
+                          <span className="ijp-thread-when">{timeAgo(entry.createdAt)}</span>
+                        </p>
+                        <p className="ijp-thread-body">{entry.body}</p>
+                      </li>
+                    ))}
+                  </ol>
+                ) : (
+                  <p className="ijp-field-note">
+                    {t("Nothing has been said about this application yet.")}
+                  </p>
+                )}
+                {/* The composer, in the conversation rather than in a card of
+                    its own further down. A message box separated from the
+                    messages is how somebody writes a reply without having read
+                    what they are replying to. */}
+                <div className="ijp-composer">
+                  <textarea
+                    aria-label={t("Write a message")}
+                    className="form-control"
+                    rows={3}
+                    value={message}
+                    onChange={(event) => setMessage(event.target.value)}
+                    maxLength={500}
+                    placeholder={t("Write a message to this applicant...")}
+                  />
+                  <CharCount value={message} max={500} />
+                  <div className="d-flex justify-content-between align-items-center mt-2">
+                    <span className="ijp-field-note mb-0">
+                      {t("Arrives in their notifications. They can reply here.")}
+                    </span>
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-ijp-primary"
+                      onClick={send}
+                      disabled={sending || !message.trim()}
+                    >
+                      <i className="bi bi-send me-1" aria-hidden="true" />
+                      {sending ? t("Sending...") : t("Send")}
+                    </button>
+                  </div>
+                  {messageDone ? (
+                    <p className="ijp-state--ok small mt-2 mb-0" role="status">
+                      <i className="bi bi-check2-circle me-1" aria-hidden="true" />
+                      {messageDone}
+                    </p>
+                  ) : null}
+                </div>
+              </SectionCard>
             </div>
 
             {application.coverLetter ? (
@@ -399,38 +493,6 @@ export default function EmployerApplicantDetailPage() {
               ) : null}
             </div>
 
-            <div className="ijp-card p-3 p-md-4">
-              <p className="ijp-label mb-2">{t("Ask for more information")}</p>
-              <textarea
-                aria-label={t("Ask for more information")}
-                className="form-control mb-2"
-                rows={4}
-                value={message}
-                onChange={(event) => setMessage(event.target.value)}
-                maxLength={500}
-                placeholder="e.g. Could you send your academic transcript?"
-              />
-                <CharCount value={message} max={500} />
-              <p className="ijp-field-hint mb-3">
-                Arrives in the student's notifications with your company name and the
-                vacancy. They cannot reply here, so ask for something they can act on.
-              </p>
-              <button
-                type="button"
-                className="btn btn-ijp-quiet w-100"
-                onClick={send}
-                disabled={sending || !message.trim()}
-              >
-                <i className="bi bi-send me-1" aria-hidden="true" />
-                {sending ? "Sending..." : t("Send to applicant")}
-              </button>
-              {messageDone ? (
-                <p className="ijp-state--ok small mt-2 mb-0" role="status">
-                  <i className="bi bi-check2-circle me-1" aria-hidden="true" />
-                  {messageDone}
-                </p>
-              ) : null}
-            </div>
           </div>
         </div>
       ) : null}

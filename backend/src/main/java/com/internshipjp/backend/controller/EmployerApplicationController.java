@@ -18,6 +18,8 @@ import com.internshipjp.backend.dto.request.ApplicantMessageRequest;
 import com.internshipjp.backend.dto.response.ApiMessageResponse;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.internshipjp.backend.dto.response.ApplicationMessageResponse;
+import java.util.List;
 
 /**
  * Applicant review for the employer.
@@ -80,6 +82,14 @@ public class EmployerApplicationController {
      * Ask the applicant for something. Delivered as a notification, which the
      * student already has a page for.
      */
+    /** The exchange about one application. Employers of that company only. */
+    @GetMapping("/applications/{id}/messages")
+    public List<ApplicationMessageResponse> messages(@PathVariable Long id) {
+        // Proves the application belongs to this employer before the thread is read.
+        applicationService.getForOwnCompany(currentUserService.requireUserId(), id);
+        return applicationService.threadOf(id);
+    }
+
     @PostMapping("/applications/{id}/message")
     public ApiMessageResponse message(@PathVariable Long id,
                                       @Valid @RequestBody ApplicantMessageRequest request) {

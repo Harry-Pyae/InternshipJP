@@ -56,11 +56,12 @@ export default function NotificationsPage() {
     if (tab === "unread") {
       return items.filter((n) => !n.read);
     }
-    if (tab === "applications") {
-      return items.filter((n) => /APPLICATION/i.test(n.type ?? ""));
-    }
-    if (tab === "system") {
-      return items.filter((n) => !/APPLICATION/i.test(n.type ?? ""));
+    // Each tab carries its own pattern, so adding one is a line in TABS rather
+    // than another branch here - and a tab can no longer exist with nothing
+    // filtering for it, which is how "System" became a bin.
+    const chosen = TABS.find((entry) => entry.key === tab);
+    if (chosen?.match) {
+      return items.filter((n) => chosen.match.test(n.type ?? ""));
     }
     return items;
   }, [items, tab]);

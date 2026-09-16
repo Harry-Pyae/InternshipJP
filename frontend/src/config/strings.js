@@ -64,6 +64,29 @@ export const strings = {
   },
 
   my: {
+    "Write a message": "စာတစ်စောင် ရေးရန်",
+    "Write a message to this applicant...": "ဤလျှောက်ထားသူထံ စာရေးပါ...",
+    "Arrives in their notifications. They can reply here.": "သူတို့၏ အကြောင်းကြားချက်များထဲ ရောက်ပါမည်။ ဤနေရာမှ ပြန်ကြားနိုင်ပါသည်။",
+    "Send": "ပို့ရန်",
+    "Sending...": "ပို့နေသည်...",
+
+    "Certificates": "လက်မှတ်များ",
+    "Companies": "ကုမ္ပဏီများ",
+    "Account": "အကောင့်",
+    "They see it as a notification, the same way you see theirs.": "သင် သူတို့၏စာကို မြင်သကဲ့သို့ သူတို့လည်း အကြောင်းကြားချက်အဖြစ် မြင်ပါမည်။",
+
+    "Delete this conversation? The questions and the answers go with it.": "ဤစကားဝိုင်းကို ဖျက်မည်လား။ မေးခွန်းများနှင့် အဖြေများ အတူပါသွားပါမည်။",
+
+    "Delete this conversation?": "ဤစကားဝိုင်းကို ဖျက်မည်လား။",
+    "The questions and the answers go with it. This cannot be undone.": "မေးခွန်းများနှင့် အဖြေများ အတူပါသွားပါမည်။ ပြန်လည်၍ မရပါ။",
+
+    "Conversation": "စကားဝိုင်း",
+    "Write a reply under Decision, below.": "အောက်ရှိ ဆုံးဖြတ်ချက် အပိုင်းတွင် ပြန်စာ ရေးပါ။",
+
+    "This is the message you were sent.": "ဤသည်မှာ သင့်ထံ ပို့ခဲ့သော စာ ဖြစ်ပါသည်။",
+
+    "Nothing has been said about this application yet.": "ဤလျှောက်လွှာနှင့် ပတ်သက်၍ ဘာမျှ မပြောရသေးပါ။",
+
     "characters left": "စာလုံး ကျန်သည်",
     "Full - no more characters fit.": "ပြည့်ပါပြီ — စာလုံး ထပ်မထည့်နိုင်တော့ပါ။",
 
@@ -554,7 +577,6 @@ export const strings = {
     "This goes to the administrators as a notification. Tell us what is confusing, broken, or missing.": "ဤအရာသည် စီမံခန့်ခွဲသူများထံ အသိပေးချက်အဖြစ် ရောက်ပါမည်။ ရှုပ်ထွေးသည်များ၊ ချွတ်ယွင်းသည်များ သို့မဟုတ် လိုအပ်သည်များကို ပြောပြပါ။",
     "What would you change?": "ဘာကို ပြောင်းလဲစေချင်ပါသလဲ။",
     "Send feedback": "အကြံပြုချက် ပို့ရန်",
-    "Sending...": "ပို့နေသည်...",
     "Ask our AI for more questions": "နောက်ထပ် မေးခွန်းများအတွက် ကျွန်ုပ်တို့၏ AI ကို မေးပါ",
     "Hide": "ဖျောက်ရန်",
 
@@ -662,10 +684,7 @@ export const strings = {
     "Already have an account?": "အကောင့် ရှိပြီးသားလား။",
 
     // --- notification types ------------------------------------------------
-    "Certificates": "လက်မှတ်များ",
     "Applications": "လျှောက်လွှာများ",
-    "Companies": "ကုမ္ပဏီများ",
-    "Account": "အကောင့်",
     "System": "စနစ်",
     "All": "အားလုံး",
     "Today": "ယနေ့",
@@ -771,7 +790,6 @@ export const strings = {
     "What to learn next": "နောက်တစ်ဆင့် ဘာသင်ယူရမလဲ",
     "My company": "ကျွန်ုပ်၏ ကုမ္ပဏီ",
     "New conversation": "စကားပြောဆိုမှု အသစ်",
-    "Send": "ပို့ရန်",
     "Refresh": "ပြန်လည်ရယူရန်",
     "Refresh recommendations": "အကြံပြုချက်များ ပြန်ရယူရန်",
     "Ask AI": "AI ကို မေးရန်",

@@ -10,6 +10,10 @@ export default function AuthField({
   label,
   icon,
   type = "text",
+  // The caller's limit, not a fixed one. This component hardcoded 150 and
+  // ignored whatever was passed, so a phone field capped at 16 still accepted
+  // 150 characters - the counter said one thing and the box did another.
+  maxLength = 150,
   value,
   onChange,
   error,
@@ -52,7 +56,7 @@ export default function AuthField({
           onBlur={onBlur}
           {...rest}
         
-            maxLength={150}
+            maxLength={maxLength}
             />
                 <CharCount value={value} max={150} />
         {isPassword ? (

@@ -38,6 +38,12 @@ import com.internshipjp.backend.repository.EmployerProfileRepository;
 import com.internshipjp.backend.entity.ApplicationSkill;
 import com.internshipjp.backend.entity.StudentSkill;
 import com.internshipjp.backend.repository.ApplicationSkillRepository;
+import com.internshipjp.backend.entity.ApplicationMessage;
+import com.internshipjp.backend.entity.Role;
+import com.internshipjp.backend.repository.ApplicationMessageRepository;
+import com.internshipjp.backend.dto.response.ApplicationMessageResponse;
+import com.internshipjp.backend.repository.UserRepository;
+import com.internshipjp.backend.util.Dates;
 
 /**
  * Applying to internships, and reviewing applicants.
@@ -78,6 +84,8 @@ public class ApplicationService {
     private final ApplicationStatusHistoryRepository historyRepository;
     private final StudentSkillRepository studentSkillRepository;
     private final ApplicationSkillRepository applicationSkillRepository;
+    private final ApplicationMessageRepository applicationMessageRepository;
+    private final UserRepository userRepository;
     private final StudentProfileService studentProfileService;
     private final InternshipService internshipService;
     private final EmployerService employerService;
@@ -100,7 +108,11 @@ public class ApplicationService {
                               StudentMapper studentMapper,
                               InternshipRepository internshipRepository,
                               EmployerProfileRepository employerProfileRepository,
-                              ApplicationSkillRepository applicationSkillRepository) {
+                              ApplicationSkillRepository applicationSkillRepository,
+                              ApplicationMessageRepository applicationMessageRepository,
+                              UserRepository userRepository) {
+        this.userRepository = userRepository;
+        this.applicationMessageRepository = applicationMessageRepository;
         this.applicationSkillRepository = applicationSkillRepository;
         this.employerProfileRepository = employerProfileRepository;
         this.internshipRepository = internshipRepository;
@@ -332,6 +344,8 @@ public class ApplicationService {
         User student = application.getStudentProfile().getUser();
         String company = application.getInternship().getCompany().getName();
 
+        recordMessage(application, application.getInternship().getCreatedBy(), Role.EMPLOYER, message);
+
         notificationService.create(
                 student,
                 "APPLICATION_MESSAGE",
@@ -440,6 +454,8 @@ public class ApplicationService {
             throw NotFoundException.of("Application", applicationId);
         }
 
+        recordMessage(application, userId, Role.STUDENT, message);
+
         notifyRecruiters(application.getInternship(),
                 "APPLICATION_MESSAGE",
                 profile.getUser().getFullName() + " replied about their application",
@@ -467,6 +483,70 @@ public class ApplicationService {
                         referenceId);
             }
         }
+    }
+
+    /**
+     * Keeps what was said, beside the application it was said about.
+     *
+     * A notification belongs to one recipient, so an inbox holds only the
+     * messages sent to that person. Storing the message here is what lets both
+     * sides read the exchange in order, and what makes the thread survive the
+     * notification being marked read or cleared.
+     */
+    private void recordMessage(Application application, Long senderId, Role senderRole,
+                               String body) {
+        User sender = userRepository.findById(senderId).orElse(null);
+        if (sender == null) {
+            return;
+        }
+        ApplicationMessage entry = new ApplicationMessage();
+        entry.setApplication(application);
+        entry.setSender(sender);
+        entry.setSenderRole(senderRole);
+        entry.setBody(body.trim());
+        applicationMessageRepository.save(entry);
+    }
+
+    /**
+     * The exchange, checked from the student's side.
+     *
+     * Ownership is proved here rather than trusted: the application must belong
+     * to the profile behind this account, and a mismatch reads as not found,
+     * because saying it exists but is not yours confirms it exists.
+     */
+    @Transactional(readOnly = true)
+    public List<ApplicationMessageResponse> threadForStudent(Long userId, Long applicationId) {
+        StudentProfile profile = studentProfileService.requireProfileByUserId(userId);
+        Application application = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> NotFoundException.of("Application", applicationId));
+        if (!application.getStudentProfile().getId().equals(profile.getId())) {
+            throw NotFoundException.of("Application", applicationId);
+        }
+        return threadOf(applicationId);
+    }
+
+    /**
+     * The exchange about one application.
+     *
+     * Ownership is checked by the caller - both the employer and the student
+     * route reach this through a finder that already proves the application is
+     * theirs.
+     */
+    @Transactional(readOnly = true)
+    public List<ApplicationMessageResponse> threadOf(Long applicationId) {
+        return applicationMessageRepository
+                .findByApplicationIdOrderByCreatedAtAsc(applicationId)
+                .stream()
+                .map(entry -> {
+                    ApplicationMessageResponse dto = new ApplicationMessageResponse();
+                    dto.setId(entry.getId());
+                    dto.setSenderName(entry.getSender().getFullName());
+                    dto.setSenderRole(entry.getSenderRole().name());
+                    dto.setBody(entry.getBody());
+                    dto.setCreatedAt(Dates.format(entry.getCreatedAt()));
+                    return dto;
+                })
+                .toList();
     }
 
     /** The company name, for attributing a note to somebody rather than nobody. */

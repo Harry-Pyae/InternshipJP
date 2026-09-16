@@ -12,7 +12,7 @@ import { useLanguage } from "../../config/languageContext.jsx";
  * The value stored is still the full +959XXXXXXXX that the server validates.
  * Only the display is split, so nothing downstream has to know about this.
  */
-export default function PhoneField({ id, label, value, onChange, hint, required }) {
+export default function PhoneField({ id, label, value, onChange, hint, required , maxLength = 16}) {
   const { t } = useLanguage();
 
   // The field shows the digits after +95; the value keeps the whole number.
@@ -33,6 +33,7 @@ export default function PhoneField({ id, label, value, onChange, hint, required 
           id={id}
           type="tel"
           inputMode="numeric"
+          maxLength={maxLength}
           className="form-control"
           value={digits}
           placeholder="9795123456"

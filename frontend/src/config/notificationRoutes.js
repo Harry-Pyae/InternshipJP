@@ -38,7 +38,9 @@ export const RECORD_ROUTES = {
     // A student's reply reaches the employer as the same type. Without this
     // line it led nowhere, which is why replying looked impossible from the
     // employer's side - the page it lands on has the message box.
-    EMPLOYER: (id) => `/employer/applications/${id}`,
+    // The hash takes the employer to the exchange rather than to the top of a
+    // long page, where the reply they clicked is three screens down.
+    EMPLOYER: (id) => `/employer/applications/${id}#messages`,
   },
   APPLICATION_RECEIVED: { EMPLOYER: (id) => `/employer/applications/${id}` },
   CERTIFICATE_VERIFICATION_REQUESTED: { ADMIN: (id) => `/admin/certificates/${id}` },
@@ -88,6 +90,8 @@ export const ROUTES = {
     STUDENT: "/student/settings",
     EMPLOYER: "/employer/settings",
     ADMIN: "/admin/settings",
+    EMPLOYER: "/employer/settings",
+    ADMIN: "/admin/settings",
   },
 };
 
@@ -97,5 +101,18 @@ export function destinationFor(item, role) {
   if (exact && item?.referenceId) {
     return exact(item.referenceId);
   }
-  return ROUTES[item?.type]?.[role] ?? null;
+  const queue = ROUTES[item?.type]?.[role];
+  if (queue) {
+    return queue;
+  }
+
+  // A row always leads somewhere.
+  //
+  // A type with no entry for this role used to produce a dead row - no arrow,
+  // no click, no explanation. Falling back to the notifications page is worse
+  // than opening the right record and far better than nothing: the person at
+  // least reaches the notice in full. It also means a type added later works
+  // before anybody remembers to add it to the table above.
+  const base = { STUDENT: "/student", EMPLOYER: "/employer", ADMIN: "/admin" }[role];
+  return base ? `${base}/notifications` : null;
 }

@@ -19,6 +19,10 @@ export default function ConfirmDialog({
   title,
   message,
   note,
+  // Anything richer than a sentence - a conversation, a list. `message` renders
+  // inside a <p>, so a block element there would be invalid HTML and React
+  // would warn about it.
+  body,
   tone = "danger",
   confirmLabel,
   requireReason = false,
@@ -74,6 +78,7 @@ export default function ConfirmDialog({
 
         <p className="ijp-confirm-message">{message}</p>
         {note ? <p className="ijp-confirm-note">{note}</p> : null}
+        {body ?? null}
 
         {requireReason ? (
           <div className="ijp-confirm-field">

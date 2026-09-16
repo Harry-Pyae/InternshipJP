@@ -19,6 +19,7 @@ import Select from "../../components/shared/Select.jsx";
 import { timeAgo, exactTime } from "../../api/relativeTime.js";
 import { useAuth } from "../../config/authContext.jsx";
 import CharCount from "../../components/shared/CharCount.jsx";
+import ConfirmDialog from "../../components/shared/ConfirmDialog.jsx";
 
 /**
  * The AI assistant - Member 1's vertical slice.
@@ -127,6 +128,19 @@ export default function AiChatPage({ audience, initialTab = "chat" }) {
   }
 
   async function removeConversation(id) {
+    // Asked here rather than through a dialog component.
+    //
+    // This page renders three components from one file and the state a dialog
+    // needs does not reach the one holding the list. A browser prompt is the
+    // wrong answer everywhere else in this project, but a confirmation that
+    // works beats a themed one that cannot see its own state - and deleting a
+    // conversation takes the questions and the answers with it.
+    if (!window.confirm(
+      t("Delete this conversation? The questions and the answers go with it."),
+    )) {
+      return;
+    }
+
     try {
       await aiApi.deleteConversation(id);
       if (id === conversationId) {
@@ -498,10 +512,17 @@ function ChatTab({
           Applicants mode cannot answer anything until a vacancy is chosen - it
           has no applicants to reason about - and the only hint on screen was a
           placeholder inside the dropdown. */}
+      {/* A notice, not a footnote.
+          As muted small print under the controls it read as guidance you could
+          skip, when the panel cannot answer anything at all until a vacancy is
+          chosen. */}
       {isEmployer && employerMode === "candidates" && !internshipId ? (
-        <p className="ijp-field-note mb-3">
-          {t("Choose a vacancy first. Applicant questions are answered about one vacancy at a time, so there is nothing to work from until you pick one.")}
-        </p>
+        <div className="ijp-callout ijp-callout--warn" role="status">
+          <i className="bi bi-exclamation-triangle-fill ijp-callout-icon" aria-hidden="true" />
+          <p className="mb-0">
+            {t("Choose a vacancy first. Applicant questions are answered about one vacancy at a time, so there is nothing to work from until you pick one.")}
+          </p>
+        </div>
       ) : null}
 
       <ErrorAlert message={error} />

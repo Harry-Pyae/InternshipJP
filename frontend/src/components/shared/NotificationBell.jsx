@@ -166,7 +166,14 @@ export default function NotificationBell({ basePath }) {
                         <span className="ijp-bell-text">{t(item.title) || item.message}</span>
                         <span className="ijp-bell-time">{timeAgo(item.createdAt)}</span>
                       </span>
-                      <i className="bi bi-chevron-right ijp-bell-go" aria-hidden="true" />
+                      {/* Only on a row that actually goes somewhere.
+                          An arrow on a row that leads nowhere is a promise the
+                          interface cannot keep, and its absence now tells you
+                          the type has no destination rather than leaving you to
+                          wonder whether the arrow is broken. */}
+                      {destinationFor(item, user?.role) ? (
+                        <i className="bi bi-chevron-right ijp-bell-go" aria-hidden="true" />
+                      ) : null}
                     </span>
                   </button>
                 </li>
