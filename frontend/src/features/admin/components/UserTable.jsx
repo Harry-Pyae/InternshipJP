@@ -11,7 +11,7 @@ const ROLE_LABEL = {
   ADMIN: "Administrator",
 };
 
-export default function UserTable({ rows, busyId, onToggle, onDelete, onView, currentUserId }) {
+export default function UserTable({ rows, busyId, onToggle, onDelete, onView, currentUserId, onMessage }) {
   const { t } = useLanguage();
   return (
     <DataTable
@@ -103,6 +103,19 @@ export default function UserTable({ rows, busyId, onToggle, onDelete, onView, cu
               >
                 <i className="bi bi-eye" aria-hidden="true" />
                 <span className="visually-hidden">{t("Details")}</span>
+              </button>
+              {/* A notice to this person.
+                  One way: it arrives as a notification and there is nothing to
+                  reply to, because an administrator writing about somebody's
+                  account is issuing a notice rather than opening a conversation. */}
+              <button
+                type="button"
+                className="btn btn-sm btn-ijp-quiet"
+                onClick={() => onMessage(row)}
+                title={t("Send a notice")}
+              >
+                <i className="bi bi-envelope" aria-hidden="true" />
+                <span className="visually-hidden">{t("Send a notice")}</span>
               </button>
               <StatusToggle
                 user={row}

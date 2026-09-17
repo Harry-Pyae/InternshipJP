@@ -37,6 +37,9 @@ export default function AdminUsersPage() {
   const [inviteBusy, setInviteBusy] = useState(false);
   const [inviteDone, setInviteDone] = useState("");
   const [detail, setDetail] = useState(null);
+  // The person being sent a notice. The subject is fixed: the notice is short,
+  // and a subject on a notification is a second title nobody reads.
+  const [noticeTo, setNoticeTo] = useState(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -335,6 +338,7 @@ export default function AdminUsersPage() {
             onToggle={toggleUser}
             onDelete={removeUser}
             onView={setDetail}
+            onMessage={setNoticeTo}
           />}
 
         {!loading && data.totalPages > 1 ? (
@@ -365,6 +369,33 @@ export default function AdminUsersPage() {
         onConfirm={runDialog}
         onCancel={() => setDialog(null)}
       />
+      <ConfirmDialog
+        open={Boolean(noticeTo)}
+        tone="neutral"
+        title={noticeTo
+          ? t("Send a notice to {name}", { name: noticeTo.fullName || noticeTo.email })
+          : ""}
+        message={t("It arrives as a notification under Account. There is no reply channel, so say what you need them to do.")}
+        confirmLabel={t("Send notice")}
+        requireReason
+        reasonLabel={t("Your notice")}
+        busy={Boolean(noticeTo) && busyId === noticeTo.id}
+        onCancel={() => setNoticeTo(null)}
+        onConfirm={async (text) => {
+          setBusyId(noticeTo.id);
+          try {
+            // Sent untranslated. Titles are translated where they are read, so
+            // the recipient sees it in their own language, not the sender's.
+            await adminApi.messageUser(noticeTo.id, "A message from an administrator", text);
+            setNoticeTo(null);
+          } catch (requestError) {
+            setError(describeApiError(requestError));
+          } finally {
+            setBusyId(null);
+          }
+        }}
+      />
+
     </>
   );
 }

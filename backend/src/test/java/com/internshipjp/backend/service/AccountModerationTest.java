@@ -138,4 +138,32 @@ class AccountModerationTest {
     void anAdministratorStillCannotDeleteThemselves() {
         assertThrows(BadRequestException.class, () -> adminService.deleteUser(1L, 1L));
     }
+
+    /**
+     * A notice is a notification and nothing more. ACCOUNT_NOTICE, not
+     * ACCOUNT_MESSAGE or anything outside the ACCOUNT_ prefix, because the
+     * prefix is what files it under the Account tab.
+     */
+    @Test
+    void aNoticeReachesThePersonAsAnAccountNotification() {
+        adminService.messageUser(1L, 2L, "  About your profile  ", "  Remove the phone number.  ");
+
+        Mockito.verify(notificationService).create(
+                student, "ACCOUNT_NOTICE", "About your profile", "Remove the phone number.");
+        Mockito.verifyNoMoreInteractions(notificationService);
+    }
+
+    @Test
+    void aBlankNoticeIsRefused() {
+        assertThrows(BadRequestException.class,
+                () -> adminService.messageUser(1L, 2L, "Subject", "   "));
+        Mockito.verifyNoInteractions(notificationService);
+    }
+
+    @Test
+    void anAdministratorCannotSendANoticeToThemselves() {
+        assertThrows(BadRequestException.class,
+                () -> adminService.messageUser(1L, 1L, "Subject", "Body"));
+        Mockito.verifyNoInteractions(notificationService);
+    }
 }

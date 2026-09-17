@@ -64,6 +64,13 @@ export const strings = {
   },
 
   my: {
+    "Send a notice": "အသိပေးစာ ပို့ရန်",
+    "Send notice": "အသိပေးစာ ပို့ရန်",
+    "Send a notice to {name}": "{name} ထံ အသိပေးစာ ပို့ရန်",
+    "Your notice": "သင့်အသိပေးစာ",
+    "It arrives as a notification under Account. There is no reply channel, so say what you need them to do.": "အကောင့် အပိုင်းအောက် အကြောင်းကြားချက်အဖြစ် ရောက်ပါမည်။ ပြန်ကြားရန် လမ်းကြောင်း မရှိသဖြင့် သူတို့ လုပ်ရမည့်အရာကို ရှင်းလင်းစွာ ဖော်ပြပါ။",
+    "A message from an administrator": "စီမံခန့်ခွဲသူထံမှ စာ",
+
     "Write a message": "စာတစ်စောင် ရေးရန်",
     "Write a message to this applicant...": "ဤလျှောက်ထားသူထံ စာရေးပါ...",
     "Arrives in their notifications. They can reply here.": "သူတို့၏ အကြောင်းကြားချက်များထဲ ရောက်ပါမည်။ ဤနေရာမှ ပြန်ကြားနိုင်ပါသည်။",

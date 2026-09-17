@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
 
 import PageHeader from "../../components/shared/PageHeader.jsx";
@@ -76,6 +76,10 @@ export default function EmployerApplicantDetailPage() {
   // notification belongs to one recipient and an inbox therefore holds only
   // half a conversation.
   const [thread, setThread] = useState([]);
+  // Opens at the newest message rather than the oldest. A conversation you
+  // have to scroll to the bottom of is showing you the part you have already
+  // read.
+  const threadEnd = useRef(null);
   // True when the employer arrived here from a message notification. The page
   // is long, and landing at the top with the reply three screens down is how
   // somebody concludes the reply is not there.
@@ -164,6 +168,12 @@ export default function EmployerApplicantDetailPage() {
   const student = application?.student;
   const certificates = application?.verifiedCertificates ?? [];
 
+  useEffect(() => {
+    if (thread.length) {
+      threadEnd.current?.scrollIntoView({ block: "nearest" });
+    }
+  }, [thread]);
+
   return (
     <>
       <PageHeader
@@ -238,6 +248,7 @@ export default function EmployerApplicantDetailPage() {
                         <p className="ijp-thread-body">{entry.body}</p>
                       </li>
                     ))}
+                    <li ref={threadEnd} aria-hidden="true" />
                   </ol>
                 ) : (
                   <p className="ijp-field-note">

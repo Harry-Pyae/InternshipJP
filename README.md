@@ -6,7 +6,7 @@ verifies a student's certificates before an employer can see them.
 ## About the project
 
 A final-year group project for **CST-6108**, Third Year, Section B, Semester
-VI, at the University of Information Technology, supervised by **Daw Htar Htar
+VI, at the University of Information Technology, supervised by **Dr. Ei Moh Moh
 Aung**.
 
 Four members, each owning a vertical slice of the system, with one horizontal
@@ -163,8 +163,8 @@ It serves on **http://localhost:8080**.
 phase that `compile` skips, so a change that breaks them stays hidden until you
 run the application.
 
-On first start Flyway applies eight migrations and creates nineteen tables. The
-log says `Successfully validated 8 migrations`.
+On first start Flyway applies eleven migrations and creates twenty-one tables. The
+log says `Successfully validated 11 migrations`.
 
 ## 3. The frontend
 

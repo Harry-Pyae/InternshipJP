@@ -3,6 +3,7 @@ package com.internshipjp.backend.controller;
 import com.internshipjp.backend.dto.response.InternshipSummaryResponse;
 import com.internshipjp.backend.dto.response.InternshipDetailResponse;
 import com.internshipjp.backend.service.InternshipService;
+import com.internshipjp.backend.dto.request.AdminMessageRequest;
 import com.internshipjp.backend.dto.request.CompanyApprovalRequest;
 import com.internshipjp.backend.dto.request.UpdateUserStatusRequest;
 import com.internshipjp.backend.dto.response.AdminUserResponse;
@@ -106,6 +107,18 @@ public class AdminController {
     public ApiMessageResponse unlockSignIn(@PathVariable Long id) {
         adminService.unlockSignIn(id);
         return new ApiMessageResponse("Sign-in was unlocked for that account.");
+    }
+
+    /**
+     * Sends one person a notice. It arrives as a notification with no reply
+     * channel - see AdminService.messageUser for why.
+     */
+    @PostMapping("/users/{id}/message")
+    public ApiMessageResponse messageUser(@PathVariable Long id,
+                                          @Valid @RequestBody AdminMessageRequest request) {
+        adminService.messageUser(currentUserService.requireUserId(), id,
+                request.getSubject(), request.getBody());
+        return new ApiMessageResponse("The notice was sent.");
     }
 
     @DeleteMapping("/users/{id}")

@@ -86,6 +86,15 @@ export const ROUTES = {
   CERTIFICATE_REJECTED: { STUDENT: "/student/certificates" },
   APPLICATION_STATUS_CHANGED: { STUDENT: "/student/applications" },
   APPLICATION_MESSAGE: { STUDENT: "/student/applications", EMPLOYER: "/employer/applications" },
+  // A notice from an administrator. The ACCOUNT_ prefix files it under the
+  // Account tab. It opens the notifications page, because the notice itself
+  // is the whole of it: there is no record behind it and no reply to write.
+  ACCOUNT_NOTICE: {
+    STUDENT: "/student/notifications",
+    EMPLOYER: "/employer/notifications",
+    ADMIN: "/admin/notifications",
+  },
+
   ACCOUNT_STATUS_CHANGED: {
     STUDENT: "/student/settings",
     EMPLOYER: "/employer/settings",

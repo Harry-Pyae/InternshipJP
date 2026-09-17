@@ -274,6 +274,35 @@ public class AdminService {
         userRepository.delete(user);
     }
 
+    /**
+     * Sends one person a notice from an administrator.
+     *
+     * One way, on purpose: it is a notification and nothing else - no thread,
+     * no reply, no application_messages row. A notice about somebody's account
+     * is an instruction, and a reply channel between somebody with authority
+     * and somebody without would need moderation this platform does not have.
+     *
+     * The ACCOUNT_ prefix is what files it under the Account tab.
+     */
+    @Transactional
+    public void messageUser(Long adminUserId, Long targetUserId, String subject, String body) {
+        if (adminUserId.equals(targetUserId)) {
+            throw new BadRequestException("You cannot send a notice to your own account.");
+        }
+        User user = userRepository.findById(targetUserId)
+                .orElseThrow(() -> NotFoundException.of("User", targetUserId));
+
+        String title = subject == null ? "" : subject.trim();
+        String message = body == null ? "" : body.trim();
+        // The request is validated already; this covers a caller that is not
+        // the controller, so a blank notice can never be stored.
+        if (title.isEmpty() || message.isEmpty()) {
+            throw new BadRequestException("A notice needs a subject and a message.");
+        }
+
+        notificationService.create(user, "ACCOUNT_NOTICE", title, message);
+    }
+
     /** Releases a temporary sign-in lock at the person's request. */
     @Transactional
     public void unlockSignIn(Long targetUserId) {

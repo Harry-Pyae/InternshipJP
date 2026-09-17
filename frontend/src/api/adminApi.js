@@ -50,6 +50,18 @@ export const adminApi = {
     api.get(`/api/admin/users/${id}`).then((response) => response.data),
 
   /**
+   * Sends one person a notice.
+   *
+   * One way: it arrives as a notification and there is no reply channel, because
+   * an administrator writing about somebody's account is issuing a notice rather
+   * than opening a conversation.
+   */
+  messageUser: (id, subject, body) =>
+    api
+      .post(`/api/admin/users/${id}/message`, { subject, body })
+      .then((response) => response.data),
+
+  /**
    * Clears a temporary sign-in lock.
    *
    * Separate from account status: a lock expires on its own after fifteen

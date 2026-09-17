@@ -1,7 +1,7 @@
 # My contribution — Member 1
 
 InternshipJP · CST-6108 · Third Year, Section B, Semester VI
-University of Information Technology · Supervisor: Daw Htar Htar Aung
+University of Information Technology · Supervisor: Dr. Ei Moh Moh Aung
 
 ---
 
@@ -20,7 +20,7 @@ for rather than lines I typed.
 
 ## 1. The database
 
-Ten Flyway migrations defining twenty tables. Every schema change in the
+Eleven Flyway migrations defining twenty-one tables. Every schema change in the
 project went through me, and the version history doubles as a record of who
 needed what and when.
 
@@ -31,14 +31,14 @@ value with no migration; a database enum cannot. When `FILLED` finally needed
 setting, it was already in the Java enum and the column took it without a
 schema change.
 
-**An applied migration is never edited.** V9 and V10 were added late — an
+**An applied migration is never edited.** V9, V10 and V11 were added late — an
 `application_skills` table and a `reference_id` column — and both are purely
 additive, so neither can fail on a database that already holds data. That is
 not an accident; it is why they were shaped that way.
 
 ## 2. The shared component layer
 
-Twenty-six components under `components/shared`. The test of whether this layer
+Twenty-seven components under `components/shared`. The test of whether this layer
 works is whether a change made once appears everywhere, and it does: the themed
 confirmation dialog replaced the last browser `window.confirm` in the project,
 and three screens changed at once.
@@ -52,7 +52,7 @@ and the table row all update together.
 
 ## 3. English and Burmese
 
-853 strings, no i18n library. A React context resolves `t()` through a table
+872 strings, no i18n library. A React context resolves `t()` through a table
 keyed on the **English source string**, so a missing translation falls back to
 readable English rather than showing `nav.faq`.
 
@@ -110,9 +110,32 @@ sent, a notification type emitted by one module with no route in another, a
 file endpoint whose permission was written and never exposed. Finding those was
 the job.
 
-## 6. Testing and tooling
+## 6. Messages, and the difference between a notice and a conversation
 
-97 test methods across 16 classes. The tests that matter are the ones that pin
+Two things that look alike and are not.
+
+**An application carries a conversation.** `application_messages` keeps what an
+employer and a student said to each other, beside the application it concerns.
+Both sides read it in order, aligned so that whoever is looking is on the right
+— the convention every chat uses.
+
+Messages were notifications before that, and a notification belongs to one
+recipient, so each side held only half the exchange and neither could read it
+back. That was the fault worth finding: the feature existed at both ends and
+the content was never stored anywhere.
+
+**An administrator issues a notice.** One way, arriving under Account with no
+reply channel — because a warning about conduct is an instruction, and giving
+it a reply channel would create a conversation between somebody with authority
+and somebody without.
+
+The distinction is deliberate and it is the answer to "why not just build
+messaging": the two need different shapes, and collapsing them would have made
+the wrong one available to the wrong people.
+
+## 7. Testing and tooling
+
+100 test methods across 16 classes. The tests that matter are the ones that pin
 a decision rather than a value — `aPasswordMeetingEveryClassRuleCanStillBeRefused`
 exists so that nobody later concludes the denylist is redundant.
 
@@ -158,11 +181,11 @@ nobody has finished, and the schema does not say which.
 ## Figures
 
 ```
-Backend      202 main Java files, 16 test classes, 97 test methods
-             93 endpoints, 20 repositories, 62 DTOs
-             10 Flyway migrations, 20 tables
-Frontend     93 React modules, 26 shared components, 55 routes
-Bilingual    853 Burmese strings, none missing
+Backend      206 main Java files, 16 test classes, 100 test methods
+             96 endpoints, 21 repositories, 64 DTOs
+             11 Flyway migrations, 21 tables
+Frontend     94 React modules, 27 shared components, 55 routes
+Bilingual    872 Burmese strings, none missing
 Tooling      4 check scripts
 ```
 

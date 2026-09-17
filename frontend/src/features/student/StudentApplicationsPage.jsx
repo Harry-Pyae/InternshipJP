@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import PageHeader from "../../components/shared/PageHeader.jsx";
 import DataTable from "../../components/shared/DataTable.jsx";
@@ -30,6 +30,10 @@ export default function StudentApplicationsPage() {
   // could send a reply and never see it again, and could read what the employer
   // wrote only as a notification.
   const [thread, setThread] = useState([]);
+  // Opens at the newest message rather than the oldest. A conversation you
+  // have to scroll to the bottom of is showing you the part you have already
+  // read.
+  const threadEnd = useRef(null);
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState("");
 
@@ -62,6 +66,12 @@ export default function StudentApplicationsPage() {
   const pageCount = Math.max(1, Math.ceil(visible.length / PER_PAGE));
   const safePage = Math.min(page, pageCount - 1);
   const pageRows = visible.slice(safePage * PER_PAGE, safePage * PER_PAGE + PER_PAGE);
+  useEffect(() => {
+    if (thread.length) {
+      threadEnd.current?.scrollIntoView({ block: "nearest" });
+    }
+  }, [thread]);
+
   return (
     <>
       <PageHeader
@@ -201,6 +211,7 @@ export default function StudentApplicationsPage() {
                   <p className="ijp-thread-body">{entry.body}</p>
                 </li>
               ))}
+              <li ref={threadEnd} aria-hidden="true" />
             </ol>
           ) : null
         }
