@@ -139,7 +139,7 @@ export default function StudentInternshipDetailPage() {
               ) : (
                 <>
                   <p className="ijp-label mb-2">{t("Apply")}</p>
-                  <label className="ijp-field-label" htmlFor="coverLetter">{t("Cover letter")}<span className="ijp-muted fw-normal">(optional)</span>
+                  <label className="ijp-field-label" htmlFor="coverLetter">{t("Cover letter")}<span className="ijp-muted fw-normal"> {t("(optional)")}</span>
                   </label>
                   <textarea
                     id="coverLetter"
@@ -158,11 +158,11 @@ export default function StudentInternshipDetailPage() {
                     onClick={apply}
                     disabled={busy || internship.status !== "OPEN"}
                   >
-                    {busy
+                    {t(busy
                       ? "Sending..."
                       : internship.status === "OPEN"
                         ? "Apply for this internship"
-                        : "Not accepting applications"}
+                        : "Not accepting applications")}
                   </button>
                 </>
               )}
@@ -170,7 +170,7 @@ export default function StudentInternshipDetailPage() {
               {internship.applicationDeadline ? (
                 <p className="ijp-muted small mt-3 mb-0">
                   <i className="bi bi-calendar-event me-1" aria-hidden="true" />
-                  Closes {internship.applicationDeadline}
+                  {t("Closes {date}", { date: internship.applicationDeadline })}
                 </p>
               ) : null}
             </div>

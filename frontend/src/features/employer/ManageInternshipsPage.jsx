@@ -93,14 +93,14 @@ export default function ManageInternshipsPage() {
                   key: "title",
                   header: "Title",
                   render: (row) => (
-                    <span className="fw-semibold">{row.title || "Untitled internship"}</span>
+                    <span className="fw-semibold">{row.title || t("Untitled internship")}</span>
                   ),
                 },
                 { key: "location", header: "Location", render: (row) => row.location || "—" },
                 {
                   key: "workMode",
                   header: "Work mode",
-                  render: (row) => formatWorkMode(row.workMode),
+                  render: (row) => t(formatWorkMode(row.workMode)),
                 },
                 {
                   key: "durationMonths",
@@ -190,7 +190,7 @@ export default function ManageInternshipsPage() {
       <ConfirmDialog
         open={Boolean(removing)}
         tone="danger"
-        title={removing ? `Remove "${removing.title}"?` : ""}
+        title={removing ? t("Remove \"{title}\"?", { title: removing.title }) : ""}
         message={
           removing && (removing.applicationCount ?? 0) > 0
             ? t("Somebody has already applied, so this vacancy will be archived rather than deleted. It leaves your list and stops taking applications, and the applications already sent to it are kept.")
@@ -219,12 +219,10 @@ export default function ManageInternshipsPage() {
   );
 }
 
+/** The label for a work mode. The enum value is ONSITE, not ON_SITE, so it is mapped rather than reformatted. */
 function formatWorkMode(workMode) {
   if (!workMode) {
     return "—";
   }
-  return workMode
-    .toLowerCase()
-    .replace("_", "-")
-    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+  return { ONSITE: "On-site", REMOTE: "Remote", HYBRID: "Hybrid" }[workMode] ?? workMode;
 }

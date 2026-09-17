@@ -66,7 +66,11 @@ class EmployerRegistrationTest {
         Mockito.when(userRepository.save(Mockito.any(User.class)))
                 .thenAnswer(i -> i.getArgument(0));
         Mockito.when(companyRepository.save(Mockito.any(Company.class)))
-                .thenAnswer(i -> i.getArgument(0));
+                .thenAnswer(i -> {
+                    Company saved = i.getArgument(0);
+                    saved.setId(9L);
+                    return saved;
+                });
     }
 
     private RegisterEmployerRequest request(String email, String registrationNumber) {
@@ -97,8 +101,11 @@ class EmployerRegistrationTest {
         authService.registerEmployer(request("first@acme.com", "SG-1234"));
 
         Mockito.verify(companyRepository).save(Mockito.any(Company.class));
+        // With the company's id, so the notification opens that company's review
+        // rather than the whole approval queue.
         Mockito.verify(notificationService).notifyAdmins(
-                Mockito.eq("COMPANY_APPROVAL_REQUESTED"), Mockito.anyString(), Mockito.anyString());
+                Mockito.eq("COMPANY_APPROVAL_REQUESTED"), Mockito.anyString(), Mockito.anyString(),
+                Mockito.eq(9L));
     }
 
     @Test
@@ -126,7 +133,7 @@ class EmployerRegistrationTest {
         authService.registerEmployer(request("second@acme.com", "SG-1234"));
 
         Mockito.verify(notificationService, Mockito.never()).notifyAdmins(
-                Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
+                Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.any());
     }
 
     /** The wait has already happened, so the account does not wait again. */

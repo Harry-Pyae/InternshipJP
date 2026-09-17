@@ -133,7 +133,7 @@ export default function EditStudentProfilePage() {
 
       {success ? (
         <div className="alert alert-success">
-          {success}
+          {t(success)}
         </div>
       ) : null}
 
@@ -392,7 +392,7 @@ export default function EditStudentProfilePage() {
               className="btn btn-ijp-primary"
               disabled={saving}
             >
-              {saving ? "Saving..." : "Save profile"}
+              {t(saving ? "Saving..." : "Save profile")}
             </button>
 
             <button

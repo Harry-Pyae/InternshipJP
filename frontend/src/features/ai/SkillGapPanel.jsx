@@ -67,7 +67,7 @@ export default function SkillGapPanel({ onAsk }) {
           aria-valuenow={gaps.profileCompleteness}
           aria-valuemin={0}
           aria-valuemax={100}
-          aria-label="Profile completeness"
+          aria-label={t("Profile completeness")}
         />
       </div>
 
@@ -85,7 +85,7 @@ export default function SkillGapPanel({ onAsk }) {
       {gaps.skillsToLearn.length > 0 ? (
         <>
           <p className="small fw-semibold mb-2">
-            Most requested skills you don&apos;t have yet
+            {t("Most requested skills you don't have yet")}
           </p>
             <ul className="ijp-gap-grid">
               {gaps.skillsToLearn.map((item) => (
@@ -111,9 +111,9 @@ export default function SkillGapPanel({ onAsk }) {
         </>
       ) : (
         <p className="ijp-muted small mb-3">
-          {gaps.openInternshipCount === 0
+          {t(gaps.openInternshipCount === 0
             ? "No employer has listed required skills yet, so there is nothing to compare against."
-            : "You already list every skill the open internships ask for."}
+            : "You already list every skill the open internships ask for.")}
         </p>
       )}
 
@@ -134,9 +134,9 @@ export default function SkillGapPanel({ onAsk }) {
 
       {gaps.skillsNotInDemand.length > 0 ? (
         <p className="ijp-muted small mb-0">
-          Not currently requested by any open internship:{" "}
-          {gaps.skillsNotInDemand.join(", ")}. Keep them — this only reflects the vacancies
-          on the platform right now.
+          {t("Not currently requested by any open internship: {skills}. Keep them - this only reflects the vacancies on the platform right now.", {
+            skills: gaps.skillsNotInDemand.join(", "),
+          })}
         </p>
       ) : null}
     </div>

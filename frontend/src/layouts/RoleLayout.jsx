@@ -96,9 +96,9 @@ export default function RoleLayout({ nav, title, settingsPath }) {
             type="button"
             className="ijp-scrim d-lg-none"
             onClick={() => setDrawerOpen(false)}
-            aria-label="Close the navigation menu"
+            aria-label={t("Close the navigation menu")}
           />
-          <aside className="ijp-drawer d-lg-none" role="dialog" aria-label="Navigation">
+          <aside className="ijp-drawer d-lg-none" role="dialog" aria-label={t("Navigation")}>
             <Sidebar nav={nav} inDrawer onNavigate={() => setDrawerOpen(false)} />
           </aside>
         </>

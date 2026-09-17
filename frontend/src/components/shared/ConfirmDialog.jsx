@@ -67,23 +67,23 @@ export default function ConfirmDialog({
   const ready = reasonReady && wordReady && !busy;
 
   return (
-    <div className="ijp-modal" role="dialog" aria-modal="true" aria-label={title}>
+    <div className="ijp-modal" role="dialog" aria-modal="true" aria-label={t(title)}>
       <div className="ijp-modal-card ijp-confirm">
         <div className={`ijp-confirm-head ijp-confirm-head--${tone}`}>
           <span className="ijp-confirm-icon" aria-hidden="true">
             <i className={`bi ${tone === "danger" ? "bi-exclamation-octagon" : "bi-question-circle"}`} />
           </span>
-          <h2 className="ijp-confirm-title">{title}</h2>
+          <h2 className="ijp-confirm-title">{t(title)}</h2>
         </div>
 
-        <p className="ijp-confirm-message">{message}</p>
-        {note ? <p className="ijp-confirm-note">{note}</p> : null}
+        <p className="ijp-confirm-message">{t(message)}</p>
+        {note ? <p className="ijp-confirm-note">{t(note)}</p> : null}
         {body ?? null}
 
         {requireReason ? (
           <div className="ijp-confirm-field">
             <label className="form-label" htmlFor="confirmReason">
-              {reasonLabel ?? t("Reason")}
+              {t(reasonLabel ?? "Reason")}
             </label>
             <textarea
               id="confirmReason"
@@ -94,7 +94,7 @@ export default function ConfirmDialog({
               value={reason}
               onChange={(event) => setReason(event.target.value)}
             />
-            {reasonHint ? <p className="ijp-field-note">{reasonHint}</p> : null}
+            {reasonHint ? <p className="ijp-field-note">{t(reasonHint)}</p> : null}
           </div>
         ) : null}
 
@@ -127,7 +127,7 @@ export default function ConfirmDialog({
             onClick={() => onConfirm(reason.trim())}
             disabled={!ready}
           >
-            {busy ? t("Working...") : confirmLabel}
+            {busy ? t("Working...") : t(confirmLabel)}
           </button>
         </div>
       </div>

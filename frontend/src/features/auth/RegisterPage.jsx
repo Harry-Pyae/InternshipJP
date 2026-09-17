@@ -166,7 +166,7 @@ export default function RegisterPage() {
             onClick={() => pickRole("STUDENT")}
           >
             <i className="bi bi-mortarboard me-2" aria-hidden="true" />
-            I&apos;m a student
+            {t("I'm a student")}
           </button>
           <button
             type="button"
@@ -174,7 +174,7 @@ export default function RegisterPage() {
             onClick={() => pickRole("EMPLOYER")}
           >
             <i className="bi bi-briefcase me-2" aria-hidden="true" />
-            I&apos;m an employer
+            {t("I'm an employer")}
           </button>
         </div>
 
@@ -417,8 +417,7 @@ export default function RegisterPage() {
                   />
               <p className="ijp-muted small mb-0">
                 <i className="bi bi-info-circle me-1" aria-hidden="true" />
-                Employer accounts are reviewed by an administrator. You can sign in straight
-                away, but your vacancies stay hidden until the company is approved.
+                {t("Employer accounts are reviewed by an administrator. You can sign in straight away, but your vacancies stay hidden until the company is approved.")}
               </p>
             </>
           )}

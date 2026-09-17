@@ -45,7 +45,7 @@ export default function AdminSettingsPage() {
     <>
       <PageHeader title={t("Settings")} subtitle={t("Your administrator account and security.")} />
       <ErrorAlert message={error} onRetry={load} />
-      {message ? <div className="alert alert-success" role="status">{message}</div> : null}
+      {message ? <div className="alert alert-success" role="status">{t(message)}</div> : null}
 
       <div className="row g-4">
         <div className="col-12 col-xl-6">
@@ -107,7 +107,7 @@ function ProfileCard({ account, onSaved, onError }) {
           <StatusBadge value={account?.accountStatus} />
         </div>
 
-        <button type="submit" className="btn btn-ijp-primary" disabled={saving}>{saving ? "Saving..." : "Save profile"}</button>
+        <button type="submit" className="btn btn-ijp-primary" disabled={saving}>{t(saving ? "Saving..." : "Save profile")}</button>
       </form>
     </SectionCard>
   );
@@ -181,7 +181,7 @@ function PasswordCard({ onSaved, onError }) {
         {mismatch ? <p className="ijp-field-error mb-3">{mismatch}</p> : <div className="mb-3" />}
 
         <p className="ijp-muted small">{t("Use a new password that is different from your current password.")}</p>
-        <button type="submit" className="btn btn-ijp-primary" disabled={saving}>{saving ? "Changing..." : "Change password"}</button>
+        <button type="submit" className="btn btn-ijp-primary" disabled={saving}>{t(saving ? "Changing..." : "Change password")}</button>
       </form>
     </SectionCard>
   );

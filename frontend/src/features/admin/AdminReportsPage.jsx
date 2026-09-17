@@ -132,9 +132,9 @@ export default function AdminReportsPage() {
                     <MiniStat label={t("Provider")} value={summary.provider || "—"} />
                   </div>
                   <p className="ijp-muted small mt-3 mb-0">
-                    {summary.configured
+                    {t(summary.configured
                       ? "The configured AI provider is available to the backend."
-                      : "The AI provider is not configured."}
+                      : "The AI provider is not configured.")}
                   </p>
                 </SectionCard>
               </div>
@@ -276,7 +276,7 @@ function Queue({ title, items = [] }) {
   const { t } = useLanguage();
   return (
     <div className="col-12 col-lg-4">
-      <p className="ijp-label mb-2">{title}</p>
+      <p className="ijp-label mb-2">{t(title)}</p>
       {items.length === 0 ? <p className="ijp-muted small mb-0">{t("Nothing waiting.")}</p> : (
         <div className="d-grid gap-2">
           {items.map((item) => (

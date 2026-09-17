@@ -64,8 +64,8 @@ export default function AuthField({
             type="button"
             className="ijp-field-action"
             onClick={() => setRevealed((current) => !current)}
-            aria-label={revealed ? "Hide password" : "Show password"}
-            title={revealed ? "Hide password" : "Show password"}
+            aria-label={t(revealed ? "Hide password" : "Show password")}
+            title={t(revealed ? "Hide password" : "Show password")}
             tabIndex={-1}
           >
             <i className={`bi ${revealed ? "bi-eye-slash" : "bi-eye"}`} aria-hidden="true" />
@@ -86,11 +86,11 @@ export default function AuthField({
         {error ? (
           <p className="ijp-field-error" id={errorId} role="alert">
             <i className="bi bi-exclamation-circle me-1" aria-hidden="true" />
-            {error}
+            {t(error)}
           </p>
         ) : hint ? (
           <p className="ijp-field-hint" id={hintId}>
-            {hint}
+            {t(hint)}
           </p>
         ) : null}
       </div>

@@ -34,8 +34,8 @@ export default function Sidebar({ nav, collapsed, onToggleCollapse, onNavigate, 
             type="button"
             className="ijp-sidebar-toggle"
             onClick={onToggleCollapse}
-            aria-label={isCollapsed ? "Expand the sidebar" : "Collapse the sidebar"}
-            title={isCollapsed ? "Expand" : "Collapse"}
+            aria-label={t(isCollapsed ? "Expand the sidebar" : "Collapse the sidebar")}
+            title={t(isCollapsed ? "Expand" : "Collapse")}
           >
             {/* One icon that rotates, not two that swap. Swapping snaps; a
                 rotation reads as the same control changing direction. */}
@@ -49,7 +49,7 @@ export default function Sidebar({ nav, collapsed, onToggleCollapse, onNavigate, 
         )}
       </div>
 
-      <nav className="ijp-sidebar-nav" aria-label="Main">
+      <nav className="ijp-sidebar-nav" aria-label={t("Main navigation")}>
         {nav.map((group, index) => (
           <div className="ijp-nav-group" key={group.section ?? `group-${index}`}>
             {group.section ? (
@@ -79,7 +79,7 @@ export default function Sidebar({ nav, collapsed, onToggleCollapse, onNavigate, 
             {isCollapsed ? null : (
               <span className="ijp-identity-text">
                 <span className="ijp-identity-name">{user.fullName}</span>
-                <span className="ijp-identity-role">{ROLE_LABEL[user.role] ?? user.role}</span>
+                <span className="ijp-identity-role">{t(ROLE_LABEL[user.role] ?? user.role)}</span>
               </span>
             )}
           </div>

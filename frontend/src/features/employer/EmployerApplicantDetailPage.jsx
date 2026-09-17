@@ -184,7 +184,7 @@ export default function EmployerApplicantDetailPage() {
         title={student?.fullName ?? "Applicant"}
         subtitle={
           application
-            ? `Applied to ${application.internship?.title ?? "an internship"}`
+            ? t("Applied to {title}", { title: application.internship?.title ?? t("an internship") })
             : ""
         }
         action={
@@ -206,7 +206,7 @@ export default function EmployerApplicantDetailPage() {
                 <div style={{ minWidth: 0 }}>
                   <p className="h6 mb-1">{student?.fullName}</p>
                   <p className="ijp-muted small mb-0">
-                    {student?.headline || "No headline"}
+                    {student?.headline || t("No headline")}
                   </p>
                 </div>
                 <StatusBadge value={application.status} />
@@ -473,7 +473,7 @@ export default function EmployerApplicantDetailPage() {
                       </span>
                     ))}
                     <span className="ijp-decide-note">
-                      {" — a stage can be skipped forward, never gone back to."}
+                      {` ${t("- a stage can be skipped forward, never gone back to.")}`}
                     </span>
                   </p>
                 </>
@@ -498,7 +498,7 @@ export default function EmployerApplicantDetailPage() {
                 onClick={saveStatus}
                 disabled={busy || status === application.status}
               >
-                {busy ? "Saving..." : "Update status"}
+                {t(busy ? "Saving..." : "Update status")}
               </button>
               {statusDone ? (
                 <p className="ijp-state--ok small mt-2 mb-0" role="status">

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import { useLanguage } from "../../config/languageContext.jsx";
 
 /**
  * A date field with our own calendar.
@@ -12,6 +13,7 @@ export default function DatePicker({
   disabled = false,
   id,
 }) {
+  const { t, language } = useLanguage();
   const [open, setOpen] = useState(false);
   const [cursor, setCursor] = useState(() => parseISO(value) ?? startOfToday());
   const rootRef = useRef(null);
@@ -142,30 +144,30 @@ export default function DatePicker({
         aria-label={ariaLabel}
       >
         <span className={selected ? "" : "ijp-select-placeholder"}>
-          {selected ? longDate(selected) : placeholder}
+          {selected ? longDate(selected, language) : t(placeholder)}
         </span>
         <i className="bi bi-calendar-event ijp-select-caret" aria-hidden="true" />
       </button>
 
       {open ? (
-        <div className="ijp-cal" role="dialog" aria-label={ariaLabel ?? "Choose a date"}>
+        <div className="ijp-cal" role="dialog" aria-label={t(ariaLabel ?? "Choose a date")}>
           <div className="ijp-cal-head">
             <button
               type="button"
               className="ijp-icon-btn"
               onClick={() => setCursor((c) => addMonths(c, -1))}
-              aria-label="Previous month"
+              aria-label={t("Previous month")}
             >
               <i className="bi bi-chevron-left" aria-hidden="true" />
             </button>
             <span className="ijp-cal-month" aria-live="polite">
-              {monthYear(cursor)}
+              {monthYear(cursor, language)}
             </span>
             <button
               type="button"
               className="ijp-icon-btn"
               onClick={() => setCursor((c) => addMonths(c, 1))}
-              aria-label="Next month"
+              aria-label={t("Next month")}
             >
               <i className="bi bi-chevron-right" aria-hidden="true" />
             </button>
@@ -173,7 +175,7 @@ export default function DatePicker({
 
           <div className="ijp-cal-grid" role="grid" ref={gridRef} onKeyDown={onKeyDown}>
             <div className="ijp-cal-row" role="row">
-              {weekdayNames().map((name) => (
+              {weekdayNames(language).map((name) => (
                 <abbr key={name.long} className="ijp-cal-weekday" title={name.long}>
                   {name.short}
                 </abbr>
@@ -198,7 +200,7 @@ export default function DatePicker({
                       tabIndex={isFocused ? 0 : -1}
                       aria-selected={isSelected || undefined}
                       aria-current={isToday ? "date" : undefined}
-                      aria-label={longDate(day)}
+                      aria-label={longDate(day, language)}
                       disabled={blocked}
                       className={[
                         "ijp-cal-day",
@@ -227,14 +229,14 @@ export default function DatePicker({
                 close();
               }}
             >
-              Clear
+              {t("Clear")}
             </button>
             <button
               type="button"
               className="btn btn-sm btn-ijp-quiet"
               onClick={() => choose(startOfToday())}
             >
-              Today
+              {t("Today")}
             </button>
           </div>
         </div>
@@ -306,14 +308,14 @@ function buildMonth(cursor) {
   return weeks;
 }
 
-/* Intl, so the names follow the browser's language rather than hard-coded
-   English. */
-function monthYear(date) {
-  return new Intl.DateTimeFormat(undefined, { month: "long", year: "numeric" }).format(date);
+/* Intl, in the interface language rather than the browser's, so a Burmese
+   interface does not show an English calendar. */
+function monthYear(date, language) {
+  return new Intl.DateTimeFormat(language, { month: "long", year: "numeric" }).format(date);
 }
 
-function longDate(date) {
-  return new Intl.DateTimeFormat(undefined, {
+function longDate(date, language) {
+  return new Intl.DateTimeFormat(language, {
     weekday: "long",
     day: "numeric",
     month: "long",
@@ -321,12 +323,18 @@ function longDate(date) {
   }).format(date);
 }
 
-function weekdayNames() {
-  const shortFmt = new Intl.DateTimeFormat(undefined, { weekday: "short" });
-  const longFmt = new Intl.DateTimeFormat(undefined, { weekday: "long" });
+// Burmese calendars abbreviate a weekday to its last syllable. Cutting the
+// full name to two characters, as for English, splits a stacked consonant and
+// makes Sunday and Monday identical.
+const MY_WEEKDAY_SHORT = ["နွေ", "လာ", "ဂါ", "ဟူး", "တေး", "ကြာ", "နေ"];
+
+function weekdayNames(language) {
+  const shortFmt = new Intl.DateTimeFormat(language, { weekday: "short" });
+  const longFmt = new Intl.DateTimeFormat(language, { weekday: "long" });
   // 4 January 1970 was a Sunday, which matches getDay() === 0.
   return Array.from({ length: 7 }, (_, i) => {
     const day = new Date(1970, 0, 4 + i);
-    return { short: shortFmt.format(day).slice(0, 2), long: longFmt.format(day) };
+    const short = language === "my" ? MY_WEEKDAY_SHORT[i] : shortFmt.format(day).slice(0, 2);
+    return { short, long: longFmt.format(day) };
   });
 }

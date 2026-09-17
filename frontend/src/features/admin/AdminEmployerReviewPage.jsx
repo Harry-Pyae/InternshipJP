@@ -106,10 +106,10 @@ export default function AdminEmployerReviewPage() {
             <StatusBadge value={company.approvalStatus} />
           </Fact>
           <Fact label={t("Company name")}>{company.name || "—"}</Fact>
-          <Fact label={t("Registration")}>{company.registrationNumber || "Not given"}</Fact>
-          <Fact label={t("Industry")}>{company.industry || "Not given"}</Fact>
+          <Fact label={t("Registration")}>{company.registrationNumber || t("Not given")}</Fact>
+          <Fact label={t("Industry")}>{company.industry || t("Not given")}</Fact>
           <Fact label={t("Location")}>
-            {[company.location, company.country].filter(Boolean).join(", ") || "Not given"}
+            {[company.location, company.country].filter(Boolean).join(", ") || t("Not given")}
           </Fact>
           <Fact label={t("Registered")}>
             {company.createdAt?.replace("T", " ").slice(0, 16) || "—"}
@@ -139,7 +139,7 @@ export default function AdminEmployerReviewPage() {
               <dl className="ijp-detail-grid ijp-detail mb-0">
                 {DETAILS.map((field) => (
                   <div key={field.key}>
-                    <dt>{field.label}</dt>
+                    <dt>{t(field.label)}</dt>
                     {company[field.key] ? (
                       field.link ? (
                         <dd>
@@ -190,7 +190,7 @@ export default function AdminEmployerReviewPage() {
                   disabled={busy}
                 >
                   <i className="bi bi-check2-circle me-1" aria-hidden="true" />
-                  {busy ? "Saving..." : "Approve company"}
+                  {t(busy ? "Saving..." : "Approve company")}
                 </button>
                 <button
                   type="button"

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useLanguage } from "../../config/languageContext.jsx";
 import {
   applyTheme,
   readStoredTheme,
@@ -21,6 +22,7 @@ const OPTIONS = [
  * Light / dark / device theme, as a single dropdown.
  */
 export default function ThemeToggle() {
+  const { t } = useLanguage();
   const [choice, setChoice] = useState(readStoredTheme);
 
   useEffect(() => {
@@ -47,7 +49,7 @@ export default function ThemeToggle() {
         type="button"
         data-bs-toggle="dropdown"
         aria-expanded="false"
-        aria-label={`Theme: ${active.label}. Change theme`}
+        aria-label={t("Theme: {theme}. Change theme", { theme: t(active.label) })}
       >
         {/* Icon only. The word "Theme" beside a sun told you nothing the sun
             did not, and the pair sat awkwardly next to the account control -
@@ -68,10 +70,10 @@ export default function ThemeToggle() {
             >
               <i className={`bi ${option.icon}`} aria-hidden="true" />
               <span className="flex-grow-1 text-start">
-                {option.label}
+                {t(option.label)}
                 {option.hint ? (
                   <span className="d-block ijp-muted" style={{ fontSize: "0.72rem" }}>
-                    {option.hint}
+                    {t(option.hint)}
                   </span>
                 ) : null}
               </span>
@@ -86,7 +88,7 @@ export default function ThemeToggle() {
         </li>
         <li>
           <span className="dropdown-item-text ijp-muted small">
-            Showing {showing}
+            {t("Showing {theme}", { theme: t(showing === "dark" ? "Dark" : "Light") })}
           </span>
         </li>
       </ul>

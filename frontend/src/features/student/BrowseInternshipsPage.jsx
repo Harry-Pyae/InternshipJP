@@ -112,7 +112,7 @@ export default function BrowseInternshipsPage() {
                 {internship.workMode ? (
                   <span className="ijp-issue">
                     <i className="bi bi-geo-alt" aria-hidden="true" />
-                    {formatWorkMode(internship.workMode)}
+                    {t(formatWorkMode(internship.workMode))}
                   </span>
                 ) : null}
                 {internship.durationMonths ? (
@@ -134,7 +134,7 @@ export default function BrowseInternshipsPage() {
                 {internship.applicationDeadline ? (
                   <span className="ijp-muted small">
                     <i className="bi bi-calendar-event me-1" aria-hidden="true" />
-                    Closes {internship.applicationDeadline}
+                    {t("Closes {date}", { date: internship.applicationDeadline })}
                   </span>
                 ) : null}
                 <span className="ijp-metric-go ms-auto p-0">{t("View and apply")}<i className="bi bi-arrow-right" aria-hidden="true" />
@@ -148,9 +148,7 @@ export default function BrowseInternshipsPage() {
   );
 }
 
+/** The label for a work mode. The enum value is ONSITE, not ON_SITE, so it is mapped rather than reformatted. */
 function formatWorkMode(mode) {
-  return mode
-    .toLowerCase()
-    .replace("_", "-")
-    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+  return { ONSITE: "On-site", REMOTE: "Remote", HYBRID: "Hybrid" }[mode] ?? mode;
 }

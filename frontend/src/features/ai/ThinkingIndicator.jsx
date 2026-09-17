@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useLanguage } from "../../config/languageContext.jsx";
 
 /**
  * What the assistant shows while it is working.
@@ -26,6 +27,7 @@ const EMPLOYER_COMPANY_STAGES = [
 ];
 
 export default function ThinkingIndicator({ mode = "student" }) {
+  const { t } = useLanguage();
   const stages =
     mode === "employer-company"
       ? EMPLOYER_COMPANY_STAGES
@@ -48,11 +50,11 @@ export default function ThinkingIndicator({ mode = "student" }) {
       className="ijp-bubble ijp-bubble--assistant"
       role="status"
       aria-live="polite"
-      aria-label="The assistant is preparing an answer"
+      aria-label={t("The assistant is preparing an answer")}
     >
       <div className="d-flex align-items-center gap-2 mb-3">
         <span className="ijp-thinking-dot" aria-hidden="true" />
-        <span className="small fw-semibold">{stages[stageIndex].text}</span>
+        <span className="small fw-semibold">{t(stages[stageIndex].text)}</span>
       </div>
 
       {/* Uneven widths, like a real paragraph. Equal bars look like a loader,

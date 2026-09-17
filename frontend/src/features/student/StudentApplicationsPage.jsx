@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useSearchParams } from "react-router-dom";
 import PageHeader from "../../components/shared/PageHeader.jsx";
 import DataTable from "../../components/shared/DataTable.jsx";
 import StatusBadge from "../../components/shared/StatusBadge.jsx";
@@ -36,6 +36,10 @@ export default function StudentApplicationsPage() {
   const threadEnd = useRef(null);
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState("");
+  // The application a notification was about, marked in the list.
+  const [params, setParams] = useSearchParams();
+  const location = useLocation();
+  const [arrived, setArrived] = useState(null);
 
   const load = useCallback(async () => {
     setRows(null);
@@ -52,6 +56,16 @@ export default function StudentApplicationsPage() {
     load();
   }, [load]);
 
+  function openConversation(row) {
+    setSent("");
+    setReplyTo(row);
+    setThread([]);
+    studentApi
+      .applicationMessages(row.id)
+      .then(setThread)
+      .catch(() => setThread([]));
+  }
+
   // Filters what is loaded, not the database. The count beside the box
 
   // says so - a search that quietly covers less than the user assumes
@@ -66,6 +80,32 @@ export default function StudentApplicationsPage() {
   const pageCount = Math.max(1, Math.ceil(visible.length / PER_PAGE));
   const safePage = Math.min(page, pageCount - 1);
   const pageRows = visible.slice(safePage * PER_PAGE, safePage * PER_PAGE + PER_PAGE);
+
+  // Arriving from a notification: ?open=<application id>. The list is paged
+  // and searchable, so the one clicked could be anywhere in it - clear the
+  // search, go to its page and mark it. A message notification (#messages)
+  // also opens the conversation, which is what the notification was about.
+  // The parameter is used once, so refreshing or closing the dialog does not
+  // bring it back.
+  useEffect(() => {
+    const openId = params.get("open");
+    if (!openId || rows === null) {
+      return;
+    }
+    setParams({}, { replace: true });
+    const index = rows.findIndex((row) => String(row.id) === openId);
+    if (index === -1) {
+      return;
+    }
+    const row = rows[index];
+    setQuery("");
+    setPage(Math.floor(index / PER_PAGE));
+    setArrived(row.id);
+    if (location.hash === "#messages" && row.status !== "REJECTED" && row.status !== "WITHDRAWN") {
+      openConversation(row);
+    }
+  }, [params, rows]);
+
   useEffect(() => {
     if (thread.length) {
       threadEnd.current?.scrollIntoView({ block: "nearest" });
@@ -145,15 +185,7 @@ export default function StudentApplicationsPage() {
                         <button
                           type="button"
                           className="btn btn-sm btn-ijp-quiet"
-                          onClick={() => {
-                            setSent("");
-                            setReplyTo(row);
-                            setThread([]);
-                            studentApi
-                              .applicationMessages(row.id)
-                              .then(setThread)
-                              .catch(() => setThread([]));
-                          }}
+                          onClick={() => openConversation(row)}
                         >
                           <i className="bi bi-reply me-1" aria-hidden="true" />{t("Reply")}</button>
                       )}
@@ -170,6 +202,7 @@ export default function StudentApplicationsPage() {
               ]}
               rows={pageRows}
               rowKey={(row) => row.id}
+              highlightKey={arrived}
               empty={{
                 icon: "bi-send",
                 title: "You have not applied to anything yet",
@@ -192,7 +225,7 @@ export default function StudentApplicationsPage() {
         open={Boolean(replyTo)}
         tone="neutral"
         title={replyTo ? `Reply about ${replyTo.internshipTitle}` : ""}
-        message={replyTo ? `Your reply goes to ${replyTo.companyName}.` : ""}
+        message={replyTo ? t("Your reply goes to {company}.", { company: replyTo.companyName }) : ""}
         note={t("They see it as a notification, the same way you see theirs.")}
         body={
           thread.length ? (

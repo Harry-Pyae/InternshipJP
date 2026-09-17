@@ -126,7 +126,7 @@ export default function AdminCertificatesPage() {
                         className="btn btn-sm btn-ijp-primary"
                         to={`/admin/certificates/${row.id}`}
                       >
-                        Review
+                        {t("Review")}
                         <i className="bi bi-arrow-right ms-1" aria-hidden="true" />
                       </Link>
                     </div>
@@ -153,8 +153,7 @@ export default function AdminCertificatesPage() {
       </div>
 
       <p className="ijp-muted small mt-3 mb-0">
-        Verifying a certificate is what makes it visible to employers. Nothing else in the
-        system can.
+        {t("Verifying a certificate is what makes it visible to employers. Nothing else in the system can.")}
       </p>
     </>
   );

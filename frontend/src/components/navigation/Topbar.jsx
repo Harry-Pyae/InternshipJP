@@ -20,7 +20,7 @@ export default function Topbar({ title, onOpenDrawer, settingsPath, basePath }) 
           type="button"
           className="ijp-icon-btn d-lg-none"
           onClick={onOpenDrawer}
-          aria-label="Open the navigation menu"
+          aria-label={t("Open the navigation menu")}
         >
           <i className="bi bi-list" aria-hidden="true" />
         </button>

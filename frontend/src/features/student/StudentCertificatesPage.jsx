@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import PageHeader from "../../components/shared/PageHeader.jsx";
 import SectionCard from "../../components/shared/SectionCard.jsx";
 import DataTable from "../../components/shared/DataTable.jsx";
@@ -31,6 +32,9 @@ export default function StudentCertificatesPage() {
   const fileInput = useRef(null);
   const [page, setPage] = useState(0);
   const [preview, setPreview] = useState(null);
+  // The certificate a notification was about, marked in the list.
+  const [params, setParams] = useSearchParams();
+  const [arrived, setArrived] = useState(null);
 
   // Paged in the browser rather than the server: a student has a handful of
   // certificates, so fetching them all once and slicing is fewer requests and
@@ -51,6 +55,22 @@ export default function StudentCertificatesPage() {
   useEffect(() => {
     load();
   }, [load]);
+
+  // Arriving from a verified or rejected notification: ?open=<certificate id>.
+  // Go to the page it is on and mark it, so the decision - and a rejection's
+  // note - is on screen rather than somewhere in the list. Used once.
+  useEffect(() => {
+    const openId = params.get("open");
+    if (!openId || rows === null) {
+      return;
+    }
+    setParams({}, { replace: true });
+    const index = rows.findIndex((row) => String(row.id) === openId);
+    if (index !== -1) {
+      setPage(Math.floor(index / PER_PAGE));
+      setArrived(rows[index].id);
+    }
+  }, [params, rows]);
 
   async function upload(event) {
     event.preventDefault();
@@ -204,13 +224,13 @@ export default function StudentCertificatesPage() {
               </div>
 
               <button className="btn btn-ijp-primary" type="submit" disabled={busy}>
-                {busy ? "Uploading..." : "Upload certificate"}
+                {t(busy ? "Uploading..." : "Upload certificate")}
               </button>
 
               {done ? (
                 <p className="ijp-state--ok small mb-0">
                   <i className="bi bi-check2-circle me-1" aria-hidden="true" />
-                  {done}
+                  {t(done)}
                 </p>
               ) : null}
             </form>
@@ -281,6 +301,7 @@ export default function StudentCertificatesPage() {
                 ]}
                 rows={shown}
                 rowKey={(row) => row.id}
+                highlightKey={arrived}
                 empty={{
                   icon: "bi-patch-check",
                   title: "No certificates yet",
@@ -324,7 +345,7 @@ export default function StudentCertificatesPage() {
       <ConfirmDialog
         open={Boolean(confirming)}
         tone="danger"
-        title={confirming ? `Delete "${confirming.title}"?` : ""}
+        title={confirming ? t("Delete \"{title}\"?", { title: confirming.title }) : ""}
         message={t("This removes the certificate and its file. If it was verified, employers will stop seeing it. This cannot be undone.")}
         confirmLabel={t("Delete")}
         busy={removing}

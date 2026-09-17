@@ -6,6 +6,7 @@ import { employerApi } from "../../api/employerApi.js";
 import { describeApiError } from "../../api/axiosClient.js";
 import PageHeader from "../../components/shared/PageHeader.jsx";
 import ErrorAlert from "../../components/shared/ErrorAlert.jsx";
+import { ROLE_LABEL } from "../../config/navigation.js";
 import EmptyState from "../../components/shared/EmptyState.jsx";
 import LoadingBlock from "../../components/shared/LoadingBlock.jsx";
 import RecommendationsPanel from "./RecommendationsPanel.jsx";
@@ -27,6 +28,7 @@ import ConfirmDialog from "../../components/shared/ConfirmDialog.jsx";
 export default function AiChatPage({ audience, initialTab = "chat" }) {
   const { t } = useLanguage();
   const { language } = useLanguage();
+  const roleName = (role) => t(ROLE_LABEL[role] ?? role);
   const isEmployer = audience === "employer";
   const isAdmin = audience === "admin";
 
@@ -160,43 +162,51 @@ export default function AiChatPage({ audience, initialTab = "chat" }) {
   /** From the skill gap tab: "how do I learn this?" */
   function askAboutSkill(item) {
     askThis(
-      `${item.skill} is required by ${item.openInternshipsRequiring} of the open internships ` +
-        `and I don't have it. How should I learn it, roughly how long will it take, and what ` +
-        `small project would prove it to an employer?`,
+      t("{skill} is required by {n} of the open internships and I don't have it. How should I learn it, roughly how long will it take, and what small project would prove it to an employer?", {
+        skill: item.skill,
+        n: item.openInternshipsRequiring,
+      }),
     );
   }
 
   /** From a "to learn" badge on a match card. */
   function askAboutMissingSkill(skill, match) {
     askThis(
-      `"${match.title}" at ${match.companyName} asks for ${skill} and I do not have it yet. ` +
-        `How do I learn it, roughly how long will it take, and what small project would ` +
-        `prove it to that employer?`,
+      t("\"{title}\" at {company} asks for {skill} and I do not have it yet. How do I learn it, roughly how long will it take, and what small project would prove it to that employer?", {
+        title: match.title,
+        company: match.companyName,
+        skill,
+      }),
     );
   }
 
   /** From the matches tab: "why this score?" */
   function discussMatch(match) {
     askThis(
-      `Tell me more about "${match.title}" at ${match.companyName}. ` +
-        `My match score is ${match.matchScore}%. What should I improve before applying?`,
+      t("Tell me more about \"{title}\" at {company}. My match score is {score}%. What should I improve before applying?", {
+        title: match.title,
+        company: match.companyName,
+        score: match.matchScore,
+      }),
     );
   }
 
   /** From one row of an admin queue. */
   function askAboutQueueItem(queue, item) {
     askThis(
-      `Under "${queue}": "${item.label}" (${item.detail}) has been waiting ` +
-        `${item.daysWaiting} days. Who is being held up by this, and what should ` +
-        `I do about it?`,
+      t("Under \"{queue}\": \"{item}\" ({detail}) has been waiting {days} days. Who is being held up by this, and what should I do about it?", {
+        queue: t(queue),
+        item: item.label,
+        detail: item.detail,
+        days: item.daysWaiting,
+      }),
     );
   }
 
   /** From the admin "Today" tab. */
   function askAboutWorkload() {
     askThis(
-      "Looking at what is waiting for review, what should I do first in this session, " +
-        "and who is being held up by each delay?",
+      t("Looking at what is waiting for review, what should I do first in this session, and who is being held up by each delay?"),
     );
   }
 
@@ -210,10 +220,10 @@ export default function AiChatPage({ audience, initialTab = "chat" }) {
     setInternshipId("");
     askThis(
       typeof recommendation === "string" && recommendation.trim()
-        ? `About this suggestion: "${recommendation}" - why does it matter, and ` +
-            `what exactly should I change?`
-        : "Based on the review of our listings and pipeline, why are we not getting the " +
-            "applicants we want, and what should we change first?",
+        ? t("About this suggestion: \"{suggestion}\" - why does it matter, and what exactly should I change?", {
+            suggestion: recommendation,
+          })
+        : t("Based on the review of our listings and pipeline, why are we not getting the applicants we want, and what should we change first?"),
     );
   }
 
@@ -291,7 +301,7 @@ export default function AiChatPage({ audience, initialTab = "chat" }) {
           <EmptyState
             icon="bi-person-lock"
             title={t("Sign in to use the assistant")}
-            hint={t("It only ever reads data belonging to the signed-in user, so it needs a session. The real login screen is Member 2's work; until then, use the Session panel on the Integration status page.")}
+            hint={t("It only ever reads data belonging to the signed-in user, so it needs you to sign in.")}
           />
         </div>
       </div>
@@ -308,7 +318,11 @@ export default function AiChatPage({ audience, initialTab = "chat" }) {
           <EmptyState
             icon="bi-shield-exclamation"
             title={t("This assistant is for a different role")}
-            hint={`You are signed in as ${user.role}. ${title} is only available to ${expectedRole.toLowerCase()} accounts.`}
+            hint={t("You are signed in as {role}. {assistant} is only available to {expected} accounts.", {
+              role: roleName(user.role),
+              assistant: t(title),
+              expected: language === "my" ? roleName(expectedRole) : roleName(expectedRole).toLowerCase(),
+            })}
           />
         </div>
       </div>
@@ -336,7 +350,9 @@ export default function AiChatPage({ audience, initialTab = "chat" }) {
         { key: "history", icon: "bi-clock-history", label: t("History"), count: conversations.length },
       ];
 
-  const starters = isAdmin
+  // Shown as buttons and put in the message box as they read, so they are
+  // translated here and the question goes to the assistant in that language.
+  const starters = (isAdmin
     ? [
         "What should I work on first today?",
         "Which reviews have been waiting too long, and who is that holding up?",
@@ -360,7 +376,7 @@ export default function AiChatPage({ audience, initialTab = "chat" }) {
         "What skills should I improve?",
         "What is missing from my profile?",
         "What should I learn next?",
-      ];
+      ]).map((question) => t(question));
 
   return (
     <div>
@@ -635,7 +651,7 @@ function HistoryTab({ conversations, conversationId, onOpen, onDelete }) {
               onClick={() => onOpen(conversation.id)}
             >
               <span className="ijp-history-title">
-                {conversation.title ?? "Conversation"}
+                {conversation.title ?? t("Conversation")}
               </span>
               <span className="ijp-history-meta" title={exactTime(stamp)}>
                 <i className="bi bi-clock" aria-hidden="true" />

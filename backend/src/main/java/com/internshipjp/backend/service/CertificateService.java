@@ -108,7 +108,8 @@ public class CertificateService {
         notificationService.notifyAdmins(
                 "CERTIFICATE_VERIFICATION_REQUESTED",
                 "Certificate waiting for verification",
-                profile.getUser().getFullName() + " uploaded \"" + saved.getTitle() + "\".");
+                profile.getUser().getFullName() + " uploaded \"" + saved.getTitle() + "\".",
+                saved.getId());
 
         return certificateMapper.toResponse(saved);
     }
@@ -162,7 +163,8 @@ public class CertificateService {
                 certificate.getStudentProfile().getUser(),
                 "CERTIFICATE_" + decision.name(),
                 "Certificate " + decision.name().toLowerCase(),
-                "\"" + certificate.getTitle() + "\" was reviewed by an administrator.");
+                "\"" + certificate.getTitle() + "\" was reviewed by an administrator.",
+                certificate.getId());
 
         return certificateMapper.toResponse(saved);
     }

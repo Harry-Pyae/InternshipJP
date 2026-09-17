@@ -9,7 +9,7 @@ import { describeApiError } from "../../api/axiosClient.js";
 import { useLanguage } from "../../config/languageContext.jsx";
 import { useAuth } from "../../config/authContext.jsx";
 import { timeAgo, exactTime } from "../../api/relativeTime.js";
-import { ROUTES, RECORD_ROUTES, destinationFor } from "../../config/notificationRoutes.js";
+import { destinationFor } from "../../config/notificationRoutes.js";
 
 const LOOKS = [
   { match: /CERTIFICATE/, icon: "bi-patch-check", tone: "ok", group: "Certificates" },
@@ -192,7 +192,7 @@ export default function NotificationsPage() {
                       key={item.id}
                       item={item}
                       onOpen={open}
-                      clickable={Boolean(RECORD_ROUTES[item.type]?.[user?.role] || ROUTES[item.type]?.[user?.role])}
+                      clickable={Boolean(destinationFor(item, user?.role))}
                     />
                   ))}
                 </ul>

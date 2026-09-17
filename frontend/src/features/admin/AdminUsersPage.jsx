@@ -87,10 +87,8 @@ export default function AdminUsersPage() {
       kind: "delete",
       user,
       title: "Delete this account permanently",
-      message: `This deletes ${user.fullName || user.email} and everything attached `
-        + `to the account: applications, certificates and notifications.`,
-      note: "The account must already be suspended. Suspending is reversible and is "
-        + "usually the better choice.",
+      message: t("This deletes {name} and everything attached to the account: applications, certificates and notifications.", { name: user.fullName || user.email }),
+      note: "The account must already be suspended. Suspending is reversible and is usually the better choice.",
       confirmLabel: "Delete permanently",
       confirmWord: "DELETE",
     });
@@ -123,21 +121,19 @@ export default function AdminUsersPage() {
             kind: "suspend",
             user,
             title: "Suspend this account",
-            message: `${who} will not be able to sign in.`,
-            note: "They are sent the reason exactly as you type it, so write it for "
-              + "them to read.",
+            message: t("{name} will not be able to sign in.", { name: who }),
+            note: "They are sent the reason exactly as you type it, so write it for them to read.",
             confirmLabel: "Suspend account",
             requireReason: true,
             reasonLabel: "Why is this account being suspended?",
-            reasonHint: "For example: inactive for 12 months, duplicate account, or "
-              + "a policy the account breached.",
+            reasonHint: "For example: inactive for 12 months, duplicate account, or a policy the account breached.",
           }
         : {
             kind: "reactivate",
             user,
             tone: "neutral",
             title: "Reactivate this account",
-            message: `${who} will be able to sign in again.`,
+            message: t("{name} will be able to sign in again.", { name: who }),
             confirmLabel: "Reactivate",
           },
     );
@@ -196,7 +192,7 @@ export default function AdminUsersPage() {
         subtitle={t("Manage student and employer accounts and their status.")}
         action={
           <div className="d-flex align-items-center gap-3">
-            <span className="ijp-muted small">{data.totalElements} account(s)</span>
+            <span className="ijp-muted small">{t("{n} account(s)", { n: data.totalElements })}</span>
             <button
               type="button"
               className="btn btn-sm btn-ijp-primary"
@@ -214,7 +210,7 @@ export default function AdminUsersPage() {
 
       {inviteDone ? (
         <div className="alert alert-success" role="status">
-          {inviteDone}
+          {t(inviteDone)}
         </div>
       ) : null}
 
@@ -224,7 +220,7 @@ export default function AdminUsersPage() {
           <p className="ijp-muted small mb-3">{t("They receive a code by email and choose their own password. Until they accept, the account exists but cannot be signed into. You will never see or set their password.")}</p>
           <form className="row g-3 align-items-end" onSubmit={sendInvite}>
             <div className="col-md-5">
-              <label className="form-label" htmlFor="inviteName">Name</label>
+              <label className="form-label" htmlFor="inviteName">{t("Name")}</label>
               <input
                 id="inviteName"
                 className="form-control"
@@ -255,7 +251,7 @@ export default function AdminUsersPage() {
             </div>
             <div className="col-md-2 d-flex gap-2">
               <button type="submit" className="btn btn-ijp-primary" disabled={inviteBusy}>
-                {inviteBusy ? "Sending..." : "Send"}
+                {t(inviteBusy ? "Sending..." : "Send")}
               </button>
               <button
                 type="button"
@@ -292,7 +288,7 @@ export default function AdminUsersPage() {
                   {
                     label: null,
                     items: [
-                      { value: "", label: "All roles" },
+                      { value: "", label: t("All roles") },
                       { value: "STUDENT", label: "Student" },
                       { value: "EMPLOYER", label: "Employer" },
                       { value: "ADMIN", label: "Administrator" },
@@ -311,7 +307,7 @@ export default function AdminUsersPage() {
                   {
                     label: null,
                     items: [
-                      { value: "", label: "All statuses" },
+                      { value: "", label: t("All statuses") },
                       { value: "ACTIVE", label: "Active" },
                       { value: "PENDING", label: "Pending" },
                       { value: "SUSPENDED", label: "Suspended" },
@@ -412,7 +408,7 @@ function Pagination({ page, totalPages, onChange }) {
   return (
     <div className="d-flex justify-content-between align-items-center gap-2 mt-4">
       <button type="button" className="btn btn-sm btn-ijp-quiet" disabled={page === 0} onClick={() => onChange(page - 1)}>{t("Previous")}</button>
-      <span className="ijp-muted small">Page {page + 1} of {totalPages}</span>
+      <span className="ijp-muted small">{t("Page {page} of {count}", { page: page + 1, count: totalPages })}</span>
       <button type="button" className="btn btn-sm btn-ijp-quiet" disabled={page + 1 >= totalPages} onClick={() => onChange(page + 1)}>{t("Next")}</button>
     </div>
   );

@@ -72,14 +72,20 @@ public class NotificationService {
         return notificationRepository.save(notification);
     }
 
-    /** Sends the same notification to every administrator. */
+    /**
+     * Sends the same notification to every administrator.
+     *
+     * The reference is the record it is about, so clicking it opens that
+     * certificate or company rather than the queue it sits in. Null when there
+     * is no record behind it.
+     */
     @Transactional
-    public void notifyAdmins(String type, String title, String message) {
+    public void notifyAdmins(String type, String title, String message, Long referenceId) {
         List<User> admins = userRepository
                 .findByRole(Role.ADMIN, PageRequest.of(0, ADMIN_FANOUT_LIMIT))
                 .getContent();
         for (User admin : admins) {
-            create(admin, type, title, message);
+            create(admin, type, title, message, referenceId);
         }
     }
 

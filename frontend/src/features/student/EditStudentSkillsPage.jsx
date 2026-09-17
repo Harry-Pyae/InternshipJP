@@ -242,11 +242,11 @@ export default function EditStudentSkillsPage() {
     className="btn btn-ijp-primary"
     disabled={saving}
   >
-    {saving
+    {t(saving
       ? "Saving..."
       : editingId
         ? "Update skill"
-        : "Add skill"}
+        : "Add skill")}
   </button>
 
   {editingId ? (

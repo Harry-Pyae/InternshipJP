@@ -85,7 +85,7 @@ export default function ApplicantsPage() {
                 // First, because "who has applied at all" is where an employer
                 // with several openings starts. The empty value is what the
                 // api module reads as "all".
-                { value: "", label: "All vacancies" },
+                { value: "", label: t("All vacancies") },
                 ...internships.map((internship) => ({
                   value: internship.id,
                   label: internship.title,
@@ -93,7 +93,7 @@ export default function ApplicantsPage() {
               ],
             },
           ]}
-          placeholder={internships.length ? "All vacancies" : "No internships yet"}
+          placeholder={t(internships.length ? "All vacancies" : "No internships yet")}
           disabled={internships.length === 0}
           ariaLabel={t("Which vacancy")}
         />

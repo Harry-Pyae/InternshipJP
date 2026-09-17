@@ -291,16 +291,16 @@ export default function AdminDashboardPage() {
   const stalledApplications =
     typeof workload.applicationsStalled === "number"
       ? workload.applicationsStalled
-      : "Unavailable";
+      : t("Unavailable");
 
   const aiCalls =
     typeof aiUsage.totalCalls === "number"
       ? aiUsage.totalCalls
-      : "Unavailable";
+      : t("Unavailable");
 
   const aiProvider =
     aiUsage.provider ||
-    (aiUsage.configured === false ? "Not configured" : "Unavailable");
+    (aiUsage.configured === false ? t("Not configured") : t("Unavailable"));
 
   return (
     <>
@@ -319,14 +319,14 @@ export default function AdminDashboardPage() {
               aria-hidden="true"
             />
 
-            {refreshing ? "Refreshing..." : "Refresh"}
+            {t(refreshing ? "Refreshing..." : "Refresh")}
           </button>
         }
       />
 
       {error ? (
         <ErrorAlert
-          message={`${error} Some dashboard sections may be unavailable.`}
+          message={`${t(error)} ${t("Some dashboard sections may be unavailable.")}`}
           onRetry={loadDashboard}
         />
       ) : null}
@@ -430,7 +430,7 @@ export default function AdminDashboardPage() {
             icon="bi-stars"
             description={
               aiUsage.successfulCalls != null
-                ? `${aiUsage.successfulCalls} successful · ${aiUsage.failedCalls ?? 0} failed`
+                ? t("{ok} successful · {failed} failed", { ok: aiUsage.successfulCalls, failed: aiUsage.failedCalls ?? 0 })
                 : "AI usage information"
             }
             href="/admin/reports"

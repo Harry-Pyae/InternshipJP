@@ -7,6 +7,9 @@
  * same place from either.
  */
 
+/** Builds a record route that only applies when the notification names its record. */
+const byReference = (build) => (item) => (item?.referenceId ? build(item.referenceId) : null);
+
 /**
  * Where to go when a notification names the record it is about.
  *
@@ -14,23 +17,46 @@
  * what somebody clicking "your application was updated" actually wants - the
  * queue only tells them to go and find it.
  *
- * A notification created before reference_id existed has none, so it falls
- * back to the queue. That is the behaviour it was created under.
+ * Each entry takes the notification and returns a path, or null to fall back
+ * to the queue. A notification created before its type carried a reference
+ * has none, so it opens the queue - the behaviour it was created under.
  */
 export const RECORD_ROUTES = {
-  APPLICATION_STATUS_CHANGED: { STUDENT: (id) => `/student/applications?open=${id}` },
+  // ?open= puts that application on screen and marks it; the list is paged,
+  // so without it the one you clicked could be on another page entirely.
+  APPLICATION_STATUS_CHANGED: {
+    STUDENT: byReference((id) => `/student/applications?open=${id}`),
+  },
   APPLICATION_MESSAGE: {
-    STUDENT: (id) => `/student/applications?open=${id}`,
+    // The hash also opens the conversation, which is what the message is.
+    STUDENT: byReference((id) => `/student/applications?open=${id}#messages`),
     // A student's reply reaches the employer as the same type. Without this
     // line it led nowhere, which is why replying looked impossible from the
     // employer's side - the page it lands on has the message box.
     // The hash takes the employer to the exchange rather than to the top of a
     // long page, where the reply they clicked is three screens down.
-    EMPLOYER: (id) => `/employer/applications/${id}#messages`,
+    EMPLOYER: byReference((id) => `/employer/applications/${id}#messages`),
   },
-  APPLICATION_RECEIVED: { EMPLOYER: (id) => `/employer/applications/${id}` },
-  CERTIFICATE_VERIFICATION_REQUESTED: { ADMIN: (id) => `/admin/certificates/${id}` },
-  COMPANY_APPROVAL_REQUESTED: { ADMIN: (id) => `/admin/employers/${id}` },
+  APPLICATION_RECEIVED: {
+    EMPLOYER: byReference((id) => `/employer/applications/${id}`),
+  },
+  CERTIFICATE_VERIFIED: {
+    STUDENT: byReference((id) => `/student/certificates?open=${id}`),
+  },
+  CERTIFICATE_REJECTED: {
+    STUDENT: byReference((id) => `/student/certificates?open=${id}`),
+  },
+  CERTIFICATE_VERIFICATION_REQUESTED: {
+    ADMIN: byReference((id) => `/admin/certificates/${id}`),
+  },
+  COMPANY_APPROVAL_REQUESTED: {
+    ADMIN: byReference((id) => `/admin/employers/${id}`),
+  },
+  // Feedback has no record behind it: the notification is the feedback, so
+  // the inbox opens it by the notification's own id. Older rows work too.
+  FEEDBACK: {
+    ADMIN: (item) => (item?.id ? `/admin/faq?feedback=${item.id}` : null),
+  },
 };
 
 /**
@@ -81,9 +107,9 @@ export const ROUTES = {
 
 /** The destination for one notification, or null when it leads nowhere. */
 export function destinationFor(item, role) {
-  const exact = RECORD_ROUTES[item?.type]?.[role];
-  if (exact && item?.referenceId) {
-    return exact(item.referenceId);
+  const exact = RECORD_ROUTES[item?.type]?.[role]?.(item);
+  if (exact) {
+    return exact;
   }
   const queue = ROUTES[item?.type]?.[role];
   if (queue) {

@@ -187,7 +187,7 @@ export default function AccountSettingsPage() {
 
               <div className="d-flex align-items-center gap-3">
                 <button className="btn btn-ijp-primary" type="submit" disabled={profileBusy}>
-                  {profileBusy ? "Saving..." : "Save changes"}
+                  {t(profileBusy ? "Saving..." : "Save changes")}
                 </button>
                 {profileDone ? (
                   <span className="ijp-state--ok small">
@@ -241,7 +241,7 @@ export default function AccountSettingsPage() {
 
               <div className="d-flex align-items-center gap-3">
                 <button className="btn btn-ijp-primary" type="submit" disabled={passwordBusy}>
-                  {passwordBusy ? "Changing..." : "Change password"}
+                  {t(passwordBusy ? "Changing..." : "Change password")}
                 </button>
                 {passwordDone ? (
                   <span className="ijp-state--ok small">

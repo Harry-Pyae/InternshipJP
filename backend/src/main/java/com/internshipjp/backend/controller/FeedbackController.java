@@ -52,7 +52,10 @@ public class FeedbackController {
                 // sentence, and the reader has to find where the report stops
                 // and the person's own words start.
                 sender.getFullName() + " (" + sender.getRole().name().toLowerCase() + ") wrote:"
-                        + "\n\u201c" + request.getMessage().trim() + "\u201d");
+                        + "\n\u201c" + request.getMessage().trim() + "\u201d",
+                // No record behind it: the notification is the feedback, and
+                // the FAQ inbox opens it by the notification's own id.
+                null);
 
         return new ApiMessageResponse("Thank you. Your feedback was sent to the team.");
     }

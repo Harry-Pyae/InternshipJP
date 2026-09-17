@@ -104,11 +104,12 @@ export default function AdminWorkloadPanel({ onAsk, onAskItem }) {
 }
 
 function Stat({ label, value }) {
+  const { t } = useLanguage();
   return (
     <div className="col-6 col-xl-3">
       <div className="ijp-card-sunken ijp-stat">
         <div className="ijp-stat-value">{value}</div>
-        <div className="ijp-stat-label">{label}</div>
+        <div className="ijp-stat-label">{t(label)}</div>
       </div>
     </div>
   );
@@ -118,9 +119,9 @@ function Queue({ title, items, emptyText, note, onAskItem }) {
   const { t } = useLanguage();
   return (
     <div className="mb-4">
-      <p className="ijp-label mb-2">{title}</p>
+      <p className="ijp-label mb-2">{t(title)}</p>
       {items.length === 0 ? (
-        <p className="ijp-muted small mb-0">{emptyText}</p>
+        <p className="ijp-muted small mb-0">{t(emptyText)}</p>
       ) : (
         <ul className="ijp-queue-grid">
           {items.map((item) => (
@@ -151,7 +152,7 @@ function Queue({ title, items, emptyText, note, onAskItem }) {
           ))}
         </ul>
       )}
-      {note ? <p className="ijp-muted small mb-0 mt-2">{note}</p> : null}
+      {note ? <p className="ijp-muted small mb-0 mt-2">{t(note)}</p> : null}
     </div>
   );
 }

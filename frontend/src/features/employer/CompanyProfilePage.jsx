@@ -154,9 +154,9 @@ export default function CompanyProfilePage() {
             <StatusBadge value={saved?.approvalStatus} />
           </div>
           <p className="ijp-muted small mb-0" style={{ maxWidth: "34rem" }}>
-            {saved?.approvalStatus === "APPROVED"
+            {t(saved?.approvalStatus === "APPROVED"
               ? "Your company is approved. You can publish internships."
-              : "Until an administrator approves your company, your internships stay as drafts and no student can see them."}
+              : "Until an administrator approves your company, your internships stay as drafts and no student can see them.")}
           </p>
         </div>
         {saved?.approvalNote ? (
@@ -181,7 +181,7 @@ export default function CompanyProfilePage() {
                   <label className="ijp-field-label" htmlFor={`co-${field.name}`}>
                     {t(field.label)}
                     {field.required ? null : (
-                      <span className="ijp-muted fw-normal"> (optional)</span>
+                      <span className="ijp-muted fw-normal"> {t("(optional)")}</span>
                     )}
                   </label>
                   <input
@@ -196,7 +196,7 @@ export default function CompanyProfilePage() {
             maxLength={field.maxLength ?? 150}
             />
                   {fieldErrors?.[field.name] ? (
-                    <p className="ijp-field-error">{fieldErrors[field.name]}</p>
+                    <p className="ijp-field-error">{t(fieldErrors[field.name])}</p>
                   ) : field.hint ? (
                     <p className="ijp-field-hint">{t(field.hint)}</p>
                   ) : null}
@@ -220,7 +220,7 @@ export default function CompanyProfilePage() {
 
             <div className="d-flex gap-2 mt-4">
               <button className="btn btn-ijp-primary" type="submit" disabled={busy}>
-                {busy ? "Saving..." : "Save changes"}
+                {t(busy ? "Saving..." : "Save changes")}
               </button>
               <button
                 type="button"

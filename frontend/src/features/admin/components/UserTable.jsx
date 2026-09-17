@@ -25,7 +25,7 @@ export default function UserTable({ rows, busyId, onToggle, onDelete, onView, cu
             <span className="ijp-person-row">
               <Avatar name={row.fullName} userId={row.id} size="sm" />
               <span className="ijp-person">
-                <span className="ijp-person-name">{row.fullName || "Unnamed account"}</span>
+                <span className="ijp-person-name">{row.fullName || t("Unnamed account")}</span>
                 <span className="ijp-person-email">{row.email}</span>
               </span>
             </span>
@@ -38,7 +38,7 @@ export default function UserTable({ rows, busyId, onToggle, onDelete, onView, cu
           // emphasis, and the colour separates the three at a glance.
           render: (row) => (
             <span className={`ijp-role ijp-role--${(row.role || "").toLowerCase()}`}>
-              {ROLE_LABEL[row.role] ?? row.role}
+              {t(ROLE_LABEL[row.role] ?? row.role)}
             </span>
           ),
         },

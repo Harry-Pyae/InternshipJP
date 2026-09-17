@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth, homeFor } from "../../config/authContext.jsx";
 import { ROLE_LABEL } from "../../config/navigation.js";
 import Avatar from "../shared/Avatar.jsx";
+import { useLanguage } from "../../config/languageContext.jsx";
 
 /**
  * The account control in the top-right.
@@ -12,12 +13,13 @@ import Avatar from "../shared/Avatar.jsx";
  */
 export default function UserMenu({ settingsPath }) {
   const { user, signOut } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   if (!user) {
     return (
       <Link className="btn btn-sm btn-ijp-primary" to="/auth/login">
-        Sign in
+        {t("Sign in")}
       </Link>
     );
   }
@@ -34,12 +36,12 @@ export default function UserMenu({ settingsPath }) {
         type="button"
         data-bs-toggle="dropdown"
         aria-expanded="false"
-        aria-label="Account menu"
+        aria-label={t("Account menu")}
       >
         <Avatar name={user.fullName} userId={user.id} size="sm" zoom={false} />
         <span className="ijp-usermenu-text d-none d-md-flex">
           <span className="ijp-usermenu-name">{user.fullName}</span>
-          <span className="ijp-usermenu-role">{ROLE_LABEL[user.role] ?? user.role}</span>
+          <span className="ijp-usermenu-role">{t(ROLE_LABEL[user.role] ?? user.role)}</span>
         </span>
         <i className="bi bi-chevron-down ijp-usermenu-caret d-none d-md-block" aria-hidden="true" />
       </button>
@@ -59,14 +61,14 @@ export default function UserMenu({ settingsPath }) {
         <li>
           <Link className="dropdown-item" to={homeFor(user.role)}>
             <i className="bi bi-grid-1x2 me-2" aria-hidden="true" />
-            My dashboard
+            {t("My dashboard")}
           </Link>
         </li>
         {settingsPath ? (
           <li>
             <Link className="dropdown-item" to={settingsPath}>
               <i className="bi bi-gear me-2" aria-hidden="true" />
-              Account settings
+              {t("Account settings")}
             </Link>
           </li>
         ) : null}
@@ -76,7 +78,7 @@ export default function UserMenu({ settingsPath }) {
         <li>
           <button className="dropdown-item text-danger" type="button" onClick={handleSignOut}>
             <i className="bi bi-box-arrow-right me-2" aria-hidden="true" />
-            Sign out
+            {t("Sign out")}
           </button>
         </li>
       </ul>

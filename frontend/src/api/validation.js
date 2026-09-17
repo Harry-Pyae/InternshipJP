@@ -1,21 +1,29 @@
+import { currentLanguage, translate } from "../config/languageContext.jsx";
+
 /**
  * Client-side validation for the auth forms.
- * @Size(min = 8)). If you change one, change the other, or the form will
+ *
+ * The rules mirror the server's (PasswordPolicy, and the @Pattern and @Size
+ * constraints on the request objects). If you change one, change the other, or
+ * the form will accept what the server then refuses.
+ *
+ * Messages are composed in the interface language, because they are shown
+ * as they are returned.
  */
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 export const rules = {
   required: (label) => (value) =>
-    value && value.trim() ? null : `${label} is required.`,
+    value && value.trim() ? null : translate("{label} is required.", { label: translate(label) }),
 
   email: () => (value) => {
     if (!value || !value.trim()) {
-      return "Email is required.";
+      return translate("Email is required.");
     }
     // Deliberately loose. Real address validity is only ever proven by
     // sending mail to it; a stricter pattern rejects valid addresses.
-    return EMAIL.test(value.trim()) ? null : "Enter a valid email address.";
+    return EMAIL.test(value.trim()) ? null : translate("Enter a valid email address.");
   },
 
   /**
@@ -32,26 +40,26 @@ export const rules = {
     // Myanmar code. Registration asks for a country, and enforcing +95 while
     // offering that choice would tell somebody their own number is wrong.
     if (!/^\+[1-9][0-9]{6,14}$/.test(value.trim())) {
-      return "Start with + and the country code, for example +959795123456.";
+      return translate("Start with + and the country code, for example +959795123456.");
     }
     return null;
   },
 
   password: () => (value) => {
     if (!value) {
-      return "Password is required.";
+      return translate("Password is required.");
     }
     // Mirrors PasswordPolicy: 8 to 72 characters, and all four classes. The
     // rest of that policy - the obvious choices, your own name, your own
     // address - is checked on the server only, because it depends on the
     // account and the browser should not be told which addresses exist.
     if (value.length < 8) {
-      return "Use at least 8 characters.";
+      return translate("Use at least 8 characters.");
     }
     // BCrypt ignores anything past 72 bytes, so a longer password is not the
     // protection it looks like.
     if (value.length > 72) {
-      return "Use at most 72 characters.";
+      return translate("Use at most 72 characters.");
     }
     // Named individually, so somebody with three of the four is told which one
     // is missing rather than having all four restated at them.
@@ -62,7 +70,10 @@ export const rules = {
     // Anything that is not a letter, a digit or a space. Defined by exclusion
     // so no password is refused for a symbol nobody thought to list.
     if (!/[^A-Za-z0-9\s]/.test(value)) missing.push("a symbol such as ! ? - or #");
-    return missing.length ? `Add ${missing.join(", ")}.` : null;
+    const separator = currentLanguage() === "my" ? "၊ " : ", ";
+    return missing.length
+      ? translate("Add {items}.", { items: missing.map((item) => translate(item)).join(separator) })
+      : null;
   },
 
   url: (label) => (value) => {
@@ -72,7 +83,7 @@ export const rules = {
     const trimmed = value.trim();
     return /^https?:\/\/.+\..+/.test(trimmed)
       ? null
-      : `${label} should start with http:// or https://`;
+      : translate("{label} should start with http:// or https://", { label: translate(label) });
   },
 };
 

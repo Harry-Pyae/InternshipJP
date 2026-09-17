@@ -109,7 +109,7 @@ function MatchRow({ match, onDiscuss, onLearnSkill }) {
         aria-valuenow={match.matchScore}
         aria-valuemin={0}
         aria-valuemax={100}
-        aria-label={`Match score for ${match.title}`}
+        aria-label={t("Match score for {title}", { title: match.title })}
       >
         <span style={{ width: `${match.matchScore}%` }} />
       </div>
@@ -164,7 +164,7 @@ function MatchRow({ match, onDiscuss, onLearnSkill }) {
         {match.applicationDeadline ? (
           <span className="ijp-muted small">
             <i className="bi bi-calendar-event me-1" aria-hidden="true" />
-            Closes {match.applicationDeadline}
+            {t("Closes {date}", { date: match.applicationDeadline })}
           </span>
         ) : null}
         <button

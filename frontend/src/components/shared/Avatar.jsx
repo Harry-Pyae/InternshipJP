@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { accountApi } from "../../api/accountApi.js";
+import { useLanguage } from "../../config/languageContext.jsx";
 
 /**
  * The signed-in user's avatar.
@@ -56,6 +57,7 @@ export function invalidatePhoto(userId) {
 }
 
 export default function Avatar({ name, userId, size = "md", className = "", zoom = true }) {
+  const { t } = useLanguage();
   const [photo, setPhoto] = useState(() =>
     userId != null && photoCache.has(userId) ? photoCache.get(userId) : null,
   );
@@ -141,7 +143,7 @@ export default function Avatar({ name, userId, size = "md", className = "", zoom
           event.stopPropagation();
           setOpen(true);
         }}
-        aria-label={name ? `View photo of ${name}` : "View photo"}
+        aria-label={name ? t("View photo of {name}", { name }) : t("View photo")}
       >
         {inner}
       </button>
@@ -151,7 +153,7 @@ export default function Avatar({ name, userId, size = "md", className = "", zoom
           className="ijp-lightbox"
           role="dialog"
           aria-modal="true"
-          aria-label={name ? `Photo of ${name}` : "Photo"}
+          aria-label={name ? t("Photo of {name}", { name }) : t("Photo")}
           onClick={() => setOpen(false)}
         >
           <img className="ijp-lightbox-img" src={photo} alt={name ?? ""} />
@@ -159,7 +161,7 @@ export default function Avatar({ name, userId, size = "md", className = "", zoom
             type="button"
             className="ijp-lightbox-close"
             onClick={() => setOpen(false)}
-            aria-label="Close"
+            aria-label={t("Close")}
           >
             <i className="bi bi-x-lg" aria-hidden="true" />
           </button>

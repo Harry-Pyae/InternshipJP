@@ -5771,6 +5771,21 @@ h4 {
   border-radius: var(--ijp-radius-sm);
 }
 
+/* The row a notification was about. Tinted cells rather than an outline,
+   because an outline on a table row does not draw in every browser. */
+.ijp-table tr.ijp-row--arrived > td {
+  background-color: var(--ijp-signal-soft);
+}
+
+.ijp-table tr.ijp-row--arrived > td:first-child {
+  box-shadow: inset 3px 0 0 var(--ijp-signal);
+}
+
+.ijp-card-sunken.ijp-row--arrived {
+  border-color: var(--ijp-signal);
+  background-color: var(--ijp-signal-soft);
+}
+
 /* The composer, inside the conversation it belongs to. */
 .ijp-composer {
   padding-top: 0.85rem;

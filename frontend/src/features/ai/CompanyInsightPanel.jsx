@@ -3,7 +3,7 @@ import { aiApi } from "../../api/aiApi.js";
 import { describeApiError } from "../../api/axiosClient.js";
 import LoadingBlock from "../../components/shared/LoadingBlock.jsx";
 import ErrorAlert from "../../components/shared/ErrorAlert.jsx";
-import { useLanguage } from "../../config/languageContext.jsx";
+import { useLanguage, withBold } from "../../config/languageContext.jsx";
 
 /**
  * "What are we missing as an employer?"
@@ -48,8 +48,8 @@ export default function CompanyInsightPanel({ onAsk }) {
       <p className="small mb-3">{insight.summary}</p>
 
       {insight.approvalStatus !== "APPROVED" ? (
-        <div className="alert alert-warning py-2 px-3 small">{t("Your company is")}<strong>{insight.approvalStatus}</strong>, so students cannot see
-          anything you publish yet.
+        <div className="alert alert-warning py-2 px-3 small">
+          {withBold(t("Your company is {status}, so students cannot see anything you publish yet."), "{status}", t(insight.approvalStatus))}
         </div>
       ) : null}
 

@@ -75,7 +75,7 @@ export default function FilePreview({ certificateId, fileName, mimeType, directU
         <div style={{ minWidth: 0 }}>
           <p className="ijp-label mb-1">{t("Uploaded file")}</p>
           <p className="small mb-0 text-truncate" title={fileName}>
-            {fileName || "Certificate file"}
+            {fileName || t("Certificate file")}
           </p>
         </div>
         <div className="d-flex gap-2 flex-shrink-0">
@@ -104,12 +104,12 @@ export default function FilePreview({ certificateId, fileName, mimeType, directU
         <div className="ijp-file-fallback">
           <i className="bi bi-file-earmark-x" aria-hidden="true" />
           <p className="fw-semibold mb-1">{t("Cannot show this file here")}</p>
-          <p className="ijp-muted small mb-0">{error}</p>
+          <p className="ijp-muted small mb-0">{t(error)}</p>
         </div>
       ) : isPdf ? (
-        <iframe className="ijp-file-frame" title={fileName || "Certificate"} src={url} />
+        <iframe className="ijp-file-frame" title={fileName || t("Certificate")} src={url} />
       ) : isImage ? (
-        <img className="ijp-file-image" alt={fileName || "Certificate"} src={url} />
+        <img className="ijp-file-image" alt={fileName || t("Certificate")} src={url} />
       ) : (
         <div className="ijp-file-fallback">
           <i className="bi bi-file-earmark-arrow-down" aria-hidden="true" />

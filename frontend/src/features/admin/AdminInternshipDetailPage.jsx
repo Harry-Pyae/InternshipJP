@@ -10,6 +10,9 @@ import { adminApi } from "../../api/adminApi.js";
 import { describeApiError } from "../../api/axiosClient.js";
 import { useLanguage } from "../../config/languageContext.jsx";
 
+/** The label for a work mode. The enum value is ONSITE, not ON_SITE, so it is mapped rather than reformatted. */
+const WORK_MODE_LABELS = { ONSITE: "On-site", REMOTE: "Remote", HYBRID: "Hybrid" };
+
 /**
  * One internship, read-only.
  *
@@ -66,8 +69,8 @@ export default function AdminInternshipDetailPage() {
               <StatusBadge value={internship.status} />
             </Fact>
             <Fact label={t("Company")}>{internship.company?.name || "—"}</Fact>
-            <Fact label={t("Location")}>{internship.location || "Not given"}</Fact>
-            <Fact label={t("Work mode")}>{internship.workMode || "Not given"}</Fact>
+            <Fact label={t("Location")}>{internship.location || t("Not given")}</Fact>
+            <Fact label={t("Work mode")}>{internship.workMode ? t(WORK_MODE_LABELS[internship.workMode] ?? internship.workMode) : t("Not given")}</Fact>
             <Fact label={t("Duration (months)")}>{internship.durationMonths ?? "—"}</Fact>
             <Fact label={t("Available positions")}>{internship.positionsAvailable ?? "—"}</Fact>
             <Fact label={t("Application deadline")}>

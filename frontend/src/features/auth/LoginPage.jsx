@@ -133,7 +133,7 @@ export default function LoginPage() {
               onBlur={() => blur("password")}
               error={fieldErrors?.password}
               autoComplete="current-password"
-              placeholder="Your password"
+              placeholder={t("Your password")}
               required
             maxLength={72}
                   />

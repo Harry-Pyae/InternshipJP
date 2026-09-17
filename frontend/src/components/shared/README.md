@@ -30,8 +30,7 @@ Adding a page is three steps:
 
 1. Build it under `src/features/<your-area>/YourPage.jsx`
 2. Add the link to `src/config/navigation.js`
-3. In `src/routes/router.jsx`, replace the matching `<FeaturePlaceholder>`
-   with your component — keep the path
+3. Add its `<Route>` in `src/routes/router.jsx`, inside the role's layout
 
 ## Copy-paste starting point
 

@@ -74,7 +74,7 @@ export default function StudentProfilePage() {
               <div style={{ minWidth: 0 }}>
                 <p className="h5 mb-1">{profile.fullName}</p>
                 <p className="ijp-muted mb-0">
-                  {profile.headline || "No headline yet"}
+                  {profile.headline || t("No headline yet")}
                 </p>
               </div>
             </div>
@@ -131,7 +131,7 @@ export default function StudentProfilePage() {
                     }
                     return (
                       <div className="mb-3" key={group.type}>
-                        <p className="ijp-label mb-2">{group.label}</p>
+                        <p className="ijp-label mb-2">{t(group.label)}</p>
                         <div className="ijp-pill-row">
                           {inGroup.map((skill) => (
                             <span
@@ -164,11 +164,11 @@ export default function StudentProfilePage() {
                       <li className="ijp-gap-row" key={item.id}>
                         <span className="ijp-gap-text">
                           <span className="ijp-gap-skill">
-                            {item.degree || "Qualification"}
+                            {item.degree || t("Qualification")}
                             {item.fieldOfStudy ? ` · ${item.fieldOfStudy}` : ""}
                           </span>
                           <span className="ijp-muted">
-                            {item.institution || "Institution not given"}
+                            {item.institution || t("Institution not given")}
                             {item.graduationYear ? ` · ${item.graduationYear}` : ""}
                           </span>
                         </span>

@@ -1,5 +1,12 @@
+import { currentLanguage, translate } from "../config/languageContext.jsx";
+
+/** The locale for dates and relative times: the interface language, not the browser's. */
+function locale() {
+  return currentLanguage() === "my" ? "my" : "en";
+}
+
 /**
- * "2 hours ago" from an ISO timestamp.
+ * "2 hours ago" from an ISO timestamp, in the interface language.
  */
 const UNITS = [
   { unit: "second", ms: 1000 },
@@ -20,13 +27,13 @@ export function timeAgo(isoString) {
 
   const elapsed = Date.now() - then.getTime();
   if (elapsed < 45 * 1000) {
-    return "just now";
+    return translate("just now");
   }
   if (elapsed > 30 * 24 * 60 * 60 * 1000) {
-    return then.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
+    return then.toLocaleDateString(locale(), { day: "numeric", month: "short", year: "numeric" });
   }
 
-  const formatter = new Intl.RelativeTimeFormat(undefined, { numeric: "auto" });
+  const formatter = new Intl.RelativeTimeFormat(locale(), { numeric: "auto" });
   let chosen = UNITS[0];
   for (const candidate of UNITS) {
     if (elapsed >= candidate.ms) {
@@ -42,7 +49,7 @@ export function exactTime(isoString) {
     return "";
   }
   const value = new Date(isoString);
-  return Number.isNaN(value.getTime()) ? "" : value.toLocaleString();
+  return Number.isNaN(value.getTime()) ? "" : value.toLocaleString(locale());
 }
 
 /**
@@ -63,9 +70,9 @@ export function certificateAge(issueDate) {
   if (Number.isNaN(issued.getTime())) return "";
 
   const months = Math.floor((Date.now() - issued.getTime()) / (30.44 * 24 * 3600 * 1000));
-  if (months < 1) return "issued this month";
-  if (months < 12) return `${months} month${months === 1 ? "" : "s"} old`;
+  if (months < 1) return translate("issued this month");
+  if (months < 12) return translate(months === 1 ? "{n} month old" : "{n} months old", { n: months });
 
   const years = Math.floor(months / 12);
-  return `${years} year${years === 1 ? "" : "s"} old`;
+  return translate(years === 1 ? "{n} year old" : "{n} years old", { n: years });
 }

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import PageHeader from "../../components/shared/PageHeader.jsx";
 import SectionCard from "../../components/shared/SectionCard.jsx";
 import ErrorAlert from "../../components/shared/ErrorAlert.jsx";
@@ -279,7 +280,7 @@ function FeedbackForm() {
         {sent ? (
           <span className="ijp-state--ok small" role="status">
             <i className="bi bi-check2-circle me-1" aria-hidden="true" />
-            {sent}
+            {t(sent)}
           </span>
         ) : null}
       </div>
@@ -333,6 +334,8 @@ function FeedbackInbox() {
   // for a page would be a round trip to reorder data we hold.
   const [page, setPage] = useState(0);
   const PER_PAGE = 9;
+  // ?feedback=<notification id>, from a feedback notification.
+  const [params, setParams] = useSearchParams();
 
   const load = useCallback(async () => {
     setError(null);
@@ -347,6 +350,34 @@ function FeedbackInbox() {
   useEffect(() => {
     load();
   }, [load]);
+
+  function openFeedback(item) {
+    setOpen(item);
+    if (!item.read) {
+      // Optimistic: opening it is reading it, and the panel
+      // should not wait on a round trip to say so.
+      setItems((current) =>
+        current.map((n) => (n.id === item.id ? { ...n, read: true } : n)),
+      );
+      notificationApi.markRead(item.id).catch(() => {});
+    }
+  }
+
+  // Arriving from a feedback notification opens that message, and moves the
+  // list to the page it is on so closing it leaves you beside it. Used once.
+  useEffect(() => {
+    const wanted = params.get("feedback");
+    if (!wanted || items === null) {
+      return;
+    }
+    setParams({}, { replace: true });
+    const index = items.findIndex((item) => String(item.id) === wanted);
+    if (index !== -1) {
+      setQuery("");
+      setPage(Math.floor(index / PER_PAGE));
+      openFeedback(items[index]);
+    }
+  }, [params, items]);
 
   const visibleFeedback = (items ?? []).filter((item) =>
     matches(item, query, ["message", "title"]),
@@ -401,17 +432,7 @@ function FeedbackInbox() {
               <button
                 type="button"
                 className="ijp-feedback-hit"
-                onClick={() => {
-                  setOpen(item);
-                  if (!item.read) {
-                    // Optimistic: opening it is reading it, and the panel
-                    // should not wait on a round trip to say so.
-                    setItems((current) =>
-                      current.map((n) => (n.id === item.id ? { ...n, read: true } : n)),
-                    );
-                    notificationApi.markRead(item.id).catch(() => {});
-                  }
-                }}
+                onClick={() => openFeedback(item)}
               >
                 <span className="ijp-feedback-avatar" aria-hidden="true">
                   {initialsOf(parseFeedback(item).name ?? "?")}

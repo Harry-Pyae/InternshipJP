@@ -201,7 +201,8 @@ public class AuthService {
         notificationService.notifyAdmins(
                 "COMPANY_APPROVAL_REQUESTED",
                 "New company waiting for approval",
-                company.getName() + " registered and is waiting for review.");
+                company.getName() + " registered and is waiting for review.",
+                company.getId());
 
         return userMapper.toAuthUser(user);
     }

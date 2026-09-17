@@ -6,6 +6,64 @@ import { strings } from "./strings.js";
  */
 const STORAGE_KEY = "internshipjp-language";
 
+/**
+ * Looks up a string in one language, and fills {placeholders} from params.
+ *
+ * Burmese puts numbers and nouns in a different order from English, so
+ * "required by 3 of 5" cannot be built by concatenating fragments - the
+ * whole sentence has to be one translatable string with holes in it.
+ */
+function lookup(language, key, params) {
+  // Anything that is not a plain string comes straight back: these
+  // components accept elements and numbers for the same props, and a
+  // lookup on a React element would return undefined and blank the page.
+  if (typeof key !== "string") {
+    return key;
+  }
+  const table = strings[language] ?? strings.en;
+  const found = table[key] ?? strings.en[key] ?? key;
+  if (!params) {
+    return found;
+  }
+  return found.replace(/\{(\w+)\}/g, (whole, name) =>
+    params[name] === undefined ? whole : String(params[name]),
+  );
+}
+
+// The language of the render in progress. Set while the provider renders, not
+// in an effect, so plain functions called during that same render - a
+// relative time, a certificate's age - already see the new language.
+let activeLanguage = "en";
+
+/** The interface language, for code that is not a component. */
+export function currentLanguage() {
+  return activeLanguage;
+}
+
+/**
+ * A translated sentence with one value set in bold where its placeholder is.
+ *
+ * withBold(t("{company} is waiting for review."), "{company}", name)
+ */
+export function withBold(sentence, token, value) {
+  const at = sentence.indexOf(token);
+  if (at === -1) {
+    return sentence;
+  }
+  return (
+    <>
+      {sentence.slice(0, at)}
+      <strong>{value}</strong>
+      {sentence.slice(at + token.length)}
+    </>
+  );
+}
+
+/** t() for code that is not a component. */
+export function translate(key, params) {
+  return lookup(activeLanguage, key, params);
+}
+
 const LanguageContext = createContext({
   language: "en",
   setLanguage: () => {},
@@ -38,32 +96,9 @@ export function LanguageProvider({ children }) {
     setLanguageState(next === "my" ? "my" : "en");
   }, []);
 
-  /**
-   * Looks up a string, and fills {placeholders} from params.
-   *
-   * Burmese puts numbers and nouns in a different order from English, so
-   * "required by 3 of 5" cannot be built by concatenating fragments - the
-   * whole sentence has to be one translatable string with holes in it.
-   */
-  const t = useCallback(
-    (key, params) => {
-      // Anything that is not a plain string comes straight back: these
-      // components accept elements and numbers for the same props, and a
-      // lookup on a React element would return undefined and blank the page.
-      if (typeof key !== "string") {
-        return key;
-      }
-      const table = strings[language] ?? strings.en;
-      const found = table[key] ?? strings.en[key] ?? key;
-      if (!params) {
-        return found;
-      }
-      return found.replace(/\{(\w+)\}/g, (whole, name) =>
-        params[name] === undefined ? whole : String(params[name]),
-      );
-    },
-    [language],
-  );
+  activeLanguage = language;
+
+  const t = useCallback((key, params) => lookup(language, key, params), [language]);
 
   const value = useMemo(() => ({ language, setLanguage, t }), [language, setLanguage, t]);
 

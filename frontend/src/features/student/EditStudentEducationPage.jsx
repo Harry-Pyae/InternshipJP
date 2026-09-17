@@ -197,12 +197,12 @@ export default function EditStudentEducationPage() {
                         <div className="text-muted mt-2">
                           {item.startYear || "?"}
                           {" - "}
-                          {item.endYear || "Present"}
+                          {item.endYear || t("Present")}
                         </div>
 
                         {item.grade ? (
                           <div className="text-muted">
-                            Grade: {item.grade}
+                            {t("Grade: {grade}", { grade: item.grade })}
                           </div>
                         ) : null}
                       </div>
@@ -343,11 +343,11 @@ export default function EditStudentEducationPage() {
     className="btn btn-ijp-primary"
     disabled={saving}
   >
-    {saving
+    {t(saving
       ? "Saving..."
       : editingId
         ? "Update education"
-        : "Add education"}
+        : "Add education")}
   </button>
 
   {editingId ? (

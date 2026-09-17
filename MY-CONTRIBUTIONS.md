@@ -52,7 +52,7 @@ and the table row all update together.
 
 ## 3. English and Burmese
 
-874 strings, no i18n library. A React context resolves `t()` through a table
+1,097 strings, no i18n library. A React context resolves `t()` through a table
 keyed on the **English source string**, so a missing translation falls back to
 readable English rather than showing `nav.faq`.
 
@@ -61,9 +61,18 @@ Three things made this harder than a table of strings:
 - **A sentence with a number in it cannot be built by concatenation.** English
   puts the number before the noun and Burmese does not, so `t()` takes
   parameters and substitutes into placeholders, keeping the sentence whole.
-- **Text composed on the server cannot be translated in the browser.** Nine
-  Java services take a `language` parameter and compose both languages at
-  source.
+- **Text composed on the server cannot be translated in the browser.** The
+  workload report, the company review and the skill-gap analysis take a
+  `language` parameter and compose Burmese at source, and the chat assistant is
+  told which language to answer in. Notification bodies and server error
+  messages are still written in English; closing that gap means composing them
+  per recipient's language, which the notification table does not record.
+- **A string can reach the screen without passing through `t()`.** Shared
+  components that display a message they are handed - the error alert, the
+  confirmation dialog, pagination - now translate it themselves, and dates and
+  relative times follow the interface language rather than the browser's. The
+  check that found the gaps parses the source rather than searching it, so a
+  label inside a ternary is traced to where it is shown.
 - **The language must be selectable before signing in**, so the toggle is on
   the authentication screens too. Somebody who reads Burmese should not have to
   get through an English login first.
@@ -184,8 +193,9 @@ nobody has finished, and the schema does not say which.
 Backend      206 main Java files, 16 test classes, 100 test methods
              96 endpoints, 21 repositories, 64 DTOs
              11 Flyway migrations, 21 tables
-Frontend     93 React modules, 27 shared components, 55 routes
-Bilingual    874 Burmese strings, none missing
+Frontend     92 React modules, 27 shared components, 55 routes
+Bilingual    1,097 Burmese strings, none missing on the user-facing pages
+             (developer diagnostics are English only)
 Tooling      4 check scripts
 ```
 

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { api, describeApiError } from "../../api/axiosClient.js";
 import { useAuth } from "../../config/authContext.jsx";
 import LoadingBlock from "../../components/shared/LoadingBlock.jsx";
-import { useLanguage } from "../../config/languageContext.jsx";
+import { useLanguage, withBold } from "../../config/languageContext.jsx";
 
 /**
  * Where an employer lands until an administrator approves their company.
@@ -63,11 +63,11 @@ export default function PendingApprovalPage() {
         </span>
 
         <h1 className="ijp-auth-title">
-          {rejected
+          {t(rejected
             ? "Your company was not approved"
             : needsInfo
               ? "An administrator needs more information"
-              : "Waiting for approval"}
+              : "Waiting for approval")}
         </h1>
 
         {company === null && !error ? (
@@ -76,19 +76,16 @@ export default function PendingApprovalPage() {
           <>
             <p className="ijp-muted">
               {rejected ? (
-                <>{t("An administrator reviewed")}<strong>{company?.name}</strong> and did not approve
-                  it. Nothing you publish will be visible to students.
+                <>
+                  {withBold(t("An administrator reviewed {company} and did not approve it. Nothing you publish will be visible to students."), "{company}", company?.name)}
                 </>
               ) : needsInfo ? (
                 <>
-                  An administrator has asked for more detail about{" "}
-                  <strong>{company?.name}</strong> before approving it.
+                  {withBold(t("An administrator has asked for more detail about {company} before approving it."), "{company}", company?.name)}
                 </>
               ) : (
                 <>
-                  <strong>{company?.name ?? "Your company"}</strong> is waiting for an
-                  administrator to review it. You can sign in, but your internships stay
-                  hidden from students until it is approved.
+                  {withBold(t("{company} is waiting for an administrator to review it. You can sign in, but your internships stay hidden from students until it is approved."), "{company}", company?.name ?? t("Your company"))}
                 </>
               )}
             </p>

@@ -68,7 +68,7 @@ export default function AdminCertificateReviewPage() {
         title={certificate?.title ?? "Certificate"}
         subtitle={
           certificate?.studentName
-            ? `Uploaded by ${certificate.studentName}`
+            ? t("Uploaded by {name}", { name: certificate.studentName })
             : "Uploaded certificate"
         }
         action={
@@ -87,8 +87,8 @@ export default function AdminCertificateReviewPage() {
             <Fact label={t("Status")}>
               <StatusBadge value={certificate.verificationStatus} />
             </Fact>
-            <Fact label={t("Student")}>{certificate.studentName || "Unknown"}</Fact>
-            <Fact label={t("Issuer")}>{certificate.issuingOrganization || "Not given"}</Fact>
+            <Fact label={t("Student")}>{certificate.studentName || t("Unknown")}</Fact>
+            <Fact label={t("Issuer")}>{certificate.issuingOrganization || t("Not given")}</Fact>
             <Fact label={t("Issue date")}>
               {certificate.issueDate ? (
                 <>
@@ -100,7 +100,7 @@ export default function AdminCertificateReviewPage() {
                   </span>
                 </>
               ) : (
-                "Not given"
+                t("Not given")
               )}
             </Fact>
             <Fact label={t("Uploaded")}>
@@ -149,7 +149,7 @@ export default function AdminCertificateReviewPage() {
                       disabled={busy}
                     >
                       <i className="bi bi-check2-circle me-1" aria-hidden="true" />
-                      {busy ? "Saving..." : "Verify certificate"}
+                      {t(busy ? "Saving..." : "Verify certificate")}
                     </button>
                     <button
                       type="button"

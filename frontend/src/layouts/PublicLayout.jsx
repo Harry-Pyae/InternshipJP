@@ -2,6 +2,7 @@ import { Link, Outlet } from "react-router-dom";
 import ThemeToggle from "../components/shared/ThemeToggle.jsx";
 import UserMenu from "../components/navigation/UserMenu.jsx";
 import { useAuth } from "../config/authContext.jsx";
+import { useLanguage } from "../config/languageContext.jsx";
 
 /**
  * The shell for pages outside a role: the landing page, sign in, sign up and
@@ -13,11 +14,12 @@ import { useAuth } from "../config/authContext.jsx";
  */
 export default function PublicLayout() {
   const { user } = useAuth();
+  const { t } = useLanguage();
 
   return (
     <div className="ijp-public">
       <a className="visually-hidden-focusable btn btn-ijp-primary m-2" href="#main">
-        Skip to content
+        {t("Skip to content")}
       </a>
 
       <header className="ijp-public-bar">
@@ -35,7 +37,7 @@ export default function PublicLayout() {
             <ThemeToggle />
             {user ? <UserMenu /> : (
               <Link className="btn btn-sm btn-ijp-primary" to="/auth/login">
-                Sign in
+                {t("Sign in")}
               </Link>
             )}
           </div>

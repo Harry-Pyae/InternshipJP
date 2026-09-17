@@ -73,9 +73,13 @@ follows from that one decision:
   ones you lack, so a student who disagrees has something specific to correct.
 - **Exposure follows consent.** A profile reaches an employer only when the
   student applies. No employer can search the student population.
-- **It works in two languages.** Burmese and English throughout, including text
-  the server composes, and selectable before you sign in rather than buried in
-  a setting.
+- **It works in two languages.** Burmese and English across every page a
+  student, employer or administrator uses - including dates and relative times,
+  and the reports the assistants compose on the server - and selectable before
+  you sign in rather than buried in a setting. Three things stay in English:
+  the body of a notification, which the server writes (its title is
+  translated when it has fixed wording); server error messages that have no
+  entry; and the developer diagnostics pages.
 
 ## The assistants
 

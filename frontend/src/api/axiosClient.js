@@ -1,5 +1,6 @@
 import axios from "axios";
 import { appConfig } from "../config/appConfig.js";
+import { translate } from "../config/languageContext.jsx";
 
 /**
  * The single Axios instance the whole application uses.
@@ -109,7 +110,11 @@ export function describeApiError(error) {
     return "The backend took too long to answer.";
   }
   if (error?.request) {
-    return `Could not reach the backend at ${appConfig.apiBaseUrl}. Is Spring Boot running?`;
+    // Composed here, in the interface language, because the address is part of
+    // the sentence and a finished sentence cannot be looked up afterwards.
+    return translate("Could not reach the backend at {url}. Is Spring Boot running?", {
+      url: appConfig.apiBaseUrl,
+    });
   }
   return "Something went wrong.";
 }

@@ -126,7 +126,7 @@ export default function AdminEmployersPage() {
                   render: (row) => (
                     <div className="d-flex justify-content-end">
                       <Link className="btn btn-sm btn-ijp-primary" to={`/admin/employers/${row.id}`}>
-                        Review
+                        {t("Review")}
                         <i className="bi bi-arrow-right ms-1" aria-hidden="true" />
                       </Link>
                     </div>
@@ -153,8 +153,7 @@ export default function AdminEmployersPage() {
       </div>
 
       <p className="ijp-muted small mt-3 mb-0">
-        Approving a company also activates its recruiter accounts and lets them publish
-        vacancies.
+        {t("Approving a company also activates its recruiter accounts and lets them publish vacancies.")}
       </p>
     </>
   );
