@@ -288,14 +288,6 @@ function FeedbackForm() {
 }
 
 /**
- * What an administrator reads.
- *
- * Feedback arrives as a notification of type FEEDBACK, so this is the existing
- * notification list filtered to that one type. No new endpoint and no table -
- * the messages were already being delivered here, they just had nowhere to be
- * read together.
- */
-/**
  * Splits a feedback notification back into its parts.
  *
  * FeedbackController writes "{name} ({role}) wrote: {text}" into one string,
@@ -322,6 +314,14 @@ function parseFeedback(item) {
   return { name: match[1], role: match[2].toUpperCase(), text };
 }
 
+/**
+ * What an administrator reads.
+ *
+ * Feedback arrives as a notification of type FEEDBACK, so this is the existing
+ * notification list filtered to that one type. No new endpoint and no table -
+ * the messages were already being delivered here, they just had nowhere to be
+ * read together.
+ */
 function FeedbackInbox() {
   const { t } = useLanguage();
   const [items, setItems] = useState(null);

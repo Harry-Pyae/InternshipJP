@@ -104,17 +104,10 @@ private final FileStorageService fileStorageService;
     }
 
     /**
-     * Editing company details does not reset the approval decision in this
-     * baseline version.
+     * The company logo, or 204 No Content when there is none.
      *
-     * Future work: decide whether changing the company name or website
-     * should send the company back to PENDING for re-review.
-     */
-    /**
-     * The company logo, or 404.
-     *
-     * A 404 rather than a placeholder image: the interface decides what to
-     * draw when there is none, and it already has a building icon for that.
+     * Not a placeholder image: the interface decides what to draw when there
+     * is none, and it already has a building icon for that.
      */
     @Transactional(readOnly = true)
     public ResponseEntity<Resource> ownCompanyLogo(Long userId) {
@@ -169,6 +162,13 @@ private final FileStorageService fileStorageService;
         return companyMapper.toCompany(saved);
     }
 
+    /**
+     * Editing company details does not reset the approval decision in this
+     * baseline version.
+     *
+     * Future work: decide whether changing the company name or website
+     * should send the company back to PENDING for re-review.
+     */
     @Transactional
     public CompanyResponse updateOwnCompany(Long userId, UpdateCompanyRequest request) {
         Company company = requireProfile(userId).getCompany();

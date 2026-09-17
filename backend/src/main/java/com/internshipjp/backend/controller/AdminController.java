@@ -90,13 +90,6 @@ public class AdminController {
     }
 
     /**
-     * Deletes an account permanently.
-     *
-     * Kept separate from suspension on purpose. Suspending is reversible and
-     * is the right answer almost always; this is for a duplicate or a test
-     * account that should not exist at all.
-     */
-    /**
      * Releases a sign-in lock so someone can try again immediately.
      *
      * Separate from account status: a lock is temporary and expires on its own,
@@ -121,6 +114,13 @@ public class AdminController {
         return new ApiMessageResponse("The notice was sent.");
     }
 
+    /**
+     * Deletes an account permanently.
+     *
+     * Kept separate from suspension on purpose. Suspending is reversible and
+     * is the right answer almost always; this is for a duplicate or a test
+     * account that should not exist at all.
+     */
     @DeleteMapping("/users/{id}")
     public ApiMessageResponse deleteUser(@PathVariable Long id) {
         adminService.deleteUser(currentUserService.requireUserId(), id);
@@ -153,6 +153,12 @@ public class AdminController {
         return Math.min(Math.max(size, 1), MAX_PAGE_SIZE);
     }
 
+    /** Everything known about one account, including its role-specific profile. */
+    @GetMapping("/users/{id}")
+    public AdminUserResponse user(@PathVariable Long id) {
+        return adminService.getUser(id);
+    }
+
     /**
      * Invites another administrator.
      *
@@ -162,15 +168,9 @@ public class AdminController {
      * the mailbox before choosing their own.
      *
      * A pending invitation is a User with role ADMIN and status PENDING, so it
-     * appears in the list below under filters that already exist. Every
+     * appears in the users list under filters that already exist. Every
      * administrator can see who was invited without a separate queue.
      */
-    /** Everything known about one account, including its role-specific profile. */
-    @GetMapping("/users/{id}")
-    public AdminUserResponse user(@PathVariable Long id) {
-        return adminService.getUser(id);
-    }
-
     @PostMapping("/invites")
     public ApiMessageResponse inviteAdmin(@Valid @RequestBody InviteAdminRequest request) {
         adminInviteService.invite(currentUserService.requireUserId(), request);

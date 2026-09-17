@@ -6,25 +6,11 @@
  * the bell in the top bar, because the same notification should lead to the
  * same place from either.
  */
-/**
- * The notification feed.
- *
- * Clicking a notification takes you to the thing it is about, rather than to a
- * page about the notification. A row carries a type, a title, a message and a
- * timestamp - all four already visible in the list - so a detail page would
- * have shown the same words in a larger font.
- *
- * The destination is derived from the type, because a notification stores no
- * reference to the record that caused it. That means you land on the right
- * queue rather than the exact row. Adding a reference_id column would fix
- * that; it is a schema change, and noted rather than done.
- */
 
-/** Icon and tone per family, so a glance is enough to sort them. */
 /**
  * Where to go when a notification names the record it is about.
  *
- * The table above opens the queue. This one opens the thing itself, which is
+ * ROUTES, below, opens the queue. This one opens the thing itself, which is
  * what somebody clicking "your application was updated" actually wants - the
  * queue only tells them to go and find it.
  *
@@ -48,17 +34,8 @@ export const RECORD_ROUTES = {
 };
 
 /**
- * The notification feed.
- *
- * Clicking a notification takes you to the thing it is about, rather than to a
- * page about the notification. A row carries a type, a title, a message and a
- * timestamp - all four already visible in the list - so a detail page would
- * have shown the same words in a larger font.
- *
- * The destination is derived from the type, because a notification stores no
- * reference to the record that caused it. That means you land on the right
- * queue rather than the exact row. Adding a reference_id column would fix
- * that; it is a schema change, and noted rather than done.
+ * The queue each notification type belongs to, per role. Used when a
+ * notification has no reference_id, or its type has no RECORD_ROUTES entry.
  */
 export const ROUTES = {
   CERTIFICATE_VERIFICATION_REQUESTED: { ADMIN: "/admin/certificates" },
@@ -97,8 +74,6 @@ export const ROUTES = {
 
   ACCOUNT_STATUS_CHANGED: {
     STUDENT: "/student/settings",
-    EMPLOYER: "/employer/settings",
-    ADMIN: "/admin/settings",
     EMPLOYER: "/employer/settings",
     ADMIN: "/admin/settings",
   },

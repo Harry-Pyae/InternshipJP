@@ -22,7 +22,6 @@ public interface CompanyRepository extends JpaRepository<Company, Long> {
     Page<Company> findByApprovalStatusOrderByCreatedAtAsc(ApprovalStatus status, Pageable pageable);
     long countByApprovalStatus(ApprovalStatus status);
 
-    /** Used by the demo-data seeder to find and remove only its own rows. */
     /**
      * The company holding this registration number, if one is already here.
      *
@@ -37,6 +36,7 @@ public interface CompanyRepository extends JpaRepository<Company, Long> {
      */
     Optional<Company> findFirstByRegistrationNumberIgnoreCase(String registrationNumber);
 
+    /** Used by the demo-data seeder to find and remove only its own rows. */
     List<Company> findByNameStartingWith(String prefix);
 
 }

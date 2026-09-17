@@ -51,11 +51,11 @@ export const accountApi = {
   changePassword: (data) =>
     api.post("/api/account/change-password", data).then((response) => response.data),
 
-  /** Feedback reaches administrators as a notification - see FeedbackController. */
   /** Deletes the caller's own account. Permanent. */
   deleteMyAccount: (password) =>
     api.delete("/api/account/me", { data: { password } }).then((response) => response.data),
 
+  /** Feedback reaches administrators as a notification - see FeedbackController. */
   sendFeedback: (message) =>
     api.post("/api/feedback", { message }).then((response) => response.data),
 };

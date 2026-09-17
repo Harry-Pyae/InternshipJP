@@ -73,7 +73,6 @@ public class RegisterEmployerRequest {
     @Size(max = 255)
     private String linkedinUrl;
 
-    @Size(max = 30)
     /**
      * An international number, written the way it is dialled from abroad.
      *

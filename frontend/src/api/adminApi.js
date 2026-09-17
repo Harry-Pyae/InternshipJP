@@ -30,15 +30,14 @@ export const adminApi = {
       })
       .then((response) => response.data),
 
-  /** Permanent. Suspension is the reversible option and is usually right. */
   /** One internship, as an administrator sees it. */
   getInternship: (id) =>
     api.get(`/api/admin/internships/${id}`).then((response) => response.data),
 
+  /** Permanent. Suspension is the reversible option and is usually right. */
   deleteUser: (id) =>
     api.delete(`/api/admin/users/${id}`).then((response) => response.data),
 
-  /** The reason is required when suspending; the user is shown what it says. */
   /** Invites another administrator. They set their own password. */
   inviteAdmin: ({ email, fullName }) =>
     api
@@ -72,6 +71,7 @@ export const adminApi = {
   unlockSignIn: (id) =>
     api.post(`/api/admin/users/${id}/unlock`).then((response) => response.data),
 
+  /** The reason is required when suspending; the user is shown what it says. */
   updateUserStatus: (id, status, reason) =>
     api
       .patch(`/api/admin/users/${id}/status`, { status, reason })
@@ -180,37 +180,14 @@ export const adminApi = {
       .post("/api/account/change-password", payload)
       .then((response) => response.data),
 
-// ---------------------------------------------------------------
-// INTERNSHIPS
-// ---------------------------------------------------------------
-
-listInternships: ({page = 0, size = 20} = {}) =>
-  api
-    .get("/api/admin/internships", {
-      params:{
-        page,
-        size
-      }
-    })
-    .then(response => response.data),
-
   // ---------------------------------------------------------------
-  // NOTIFICATIONS
+  // INTERNSHIPS
   // ---------------------------------------------------------------
 
-listNotifications: ({ page = 0, size = 30 }= {})=>
-  api
-    .get("/api/notifications", {
-     params: { page, size }, 
-     })
-    .then((response)=> response.data),
-
-markNotificationRead: (id)=>
-  api
-    .patch(`/api/notifications/${id}/read`)
-    .then((response)=> response.data) ,
-
-markAllNotificationsRead: ()=>
-  api
-    .patch("/api/notifications/read-all")
-    .then((response) => response.data)}
+  listInternships: ({ page = 0, size = 20 } = {}) =>
+    api
+      .get("/api/admin/internships", {
+        params: { page, size },
+      })
+      .then((response) => response.data),
+};

@@ -39,11 +39,6 @@ export function LanguageProvider({ children }) {
   }, []);
 
   /**
-   * Looks up a string. An unknown key returns the key itself rather than
-   * blank, so a missing translation shows up as "nav.dashboard" on screen
-   * instead of a gap nobody notices.
-   */
-  /**
    * Looks up a string, and fills {placeholders} from params.
    *
    * Burmese puts numbers and nouns in a different order from English, so

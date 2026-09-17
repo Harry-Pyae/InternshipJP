@@ -143,6 +143,7 @@ export const strings = {
     "Your company is": "သင့်ကုမ္ပဏီမှာ",
     "Your email is your sign-in name and cannot be changed here.": "သင့်အီးမေးလ်သည် ဝင်ရောက်ရန် အမည် ဖြစ်ပြီး ဤနေရာတွင် ပြောင်း၍ မရပါ။",
     "Your reply": "သင့်ပြန်ကြားချက်",
+    "Your reply was sent.": "သင့်ပြန်ကြားချက်ကို ပို့ပြီးပါပြီ။",
     "application": "လျှောက်လွှာ",
     "certificate": "လက်မှတ်",
     "e.g. Oracle Java Foundations": "ဥပမာ - Oracle Java Foundations",
@@ -699,6 +700,7 @@ export const strings = {
     "Nothing unread": "မဖတ်ရသေးသည် မရှိပါ",
     "You are up to date.": "အားလုံး ဖတ်ပြီးပါပြီ။",
     "No notifications yet": "အသိပေးချက် မရှိသေးပါ",
+    "Updates about your applications and approvals will appear here.": "သင့် လျှောက်လွှာများနှင့် အတည်ပြုချက်များဆိုင်ရာ အသိပေးချက်များ ဤနေရာတွင် ပေါ်လာပါမည်။",
 
     // --- reports page sections --------------------------------------------
     "Platform": "စနစ်",

@@ -19,11 +19,23 @@ const LOOKS = [
   { match: /FEEDBACK/, icon: "bi-chat-left-text", tone: "ok", group: "Feedback" },
 ];
 
+/**
+ * The tabs, and what each one holds.
+ *
+ * "System" used to mean "not an application", which made it a bin: a student's
+ * verified certificate - the most important thing they receive - sat under a
+ * heading that suggests housekeeping.
+ *
+ * Each tab carries its own pattern, so a tab cannot exist with nothing
+ * filtering for it, and every type matches exactly one.
+ */
 const TABS = [
-  { key: "all", label: "All" },
-  { key: "unread", label: "Unread" },
-  { key: "applications", label: "Applications" },
-  { key: "system", label: "System" },
+  { key: "all", label: "All", match: null },
+  { key: "unread", label: "Unread", match: null },
+  { key: "applications", label: "Applications", match: /^APPLICATION_/ },
+  { key: "certificates", label: "Certificates", match: /^CERTIFICATE_/ },
+  { key: "companies", label: "Companies", match: /^COMPANY_/ },
+  { key: "account", label: "Account", match: /^(ACCOUNT_|FEEDBACK)/ },
 ];
 
 export default function NotificationsPage() {
@@ -121,8 +133,12 @@ export default function NotificationsPage() {
               type="button"
               className="btn btn-sm btn-ijp-quiet"
               onClick={async () => {
-                await notificationApi.markAllRead();
-                setItems((current) => current.map((n) => ({ ...n, read: true })));
+                try {
+                  await notificationApi.markAllRead();
+                  setItems((current) => current.map((n) => ({ ...n, read: true })));
+                } catch (requestError) {
+                  setError(describeApiError(requestError));
+                }
               }}
             >
               <i className="bi bi-check2-all me-1" aria-hidden="true" />

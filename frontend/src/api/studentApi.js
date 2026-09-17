@@ -7,16 +7,16 @@ import { api } from "./axiosClient.js";
  * endpoints intentionally use /me rather than a student ID.
  */
 export const studentApi = {
+  /** Everything said about one of your applications, oldest first. */
+  applicationMessages: (id) =>
+    api.get(`/api/student/applications/${id}/messages`).then((response) => response.data),
+
   /**
    * Reply to the employer on one of your own applications.
    *
    * The mirror of employerApi.messageApplicant. Without it an employer could
    * ask a question and the student had nowhere to answer it.
    */
-  /** Everything said about one of your applications, oldest first. */
-  applicationMessages: (id) =>
-    api.get(`/api/student/applications/${id}/messages`).then((response) => response.data),
-
   replyToEmployer: (applicationId, message) =>
     api
       .post(`/api/student/applications/${applicationId}/message`, { message })

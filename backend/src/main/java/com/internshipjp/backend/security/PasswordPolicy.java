@@ -101,7 +101,12 @@ public class PasswordPolicy {
 
         String lower = value.toLowerCase(Locale.ROOT);
 
-        if (ALWAYS_REFUSED.contains(lower)) {
+        // Compared with the symbols removed. Every password that gets this far
+        // has one, and no entry in the list does, so comparing the whole string
+        // could never match: "Password123!" reached here as "password123!" and
+        // was accepted. The symbol is the "!" everybody appends to satisfy the
+        // rule above, so it is exactly what should not make a password pass.
+        if (ALWAYS_REFUSED.contains(lower.replaceAll("[^\\p{L}\\p{N}]", ""))) {
             throw new BadRequestException(
                     "That password is one of the first anybody would try. Choose "
                             + "something else.");

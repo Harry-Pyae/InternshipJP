@@ -225,7 +225,7 @@ export default function StudentApplicationsPage() {
           setError(null);
           try {
             await studentApi.replyToEmployer(replyTo.id, text);
-            setSent("Your reply was sent.");
+            setSent(t("Your reply was sent."));
             setReplyTo(null);
           } catch (requestError) {
             setError(describeApiError(requestError));

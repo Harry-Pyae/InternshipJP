@@ -34,7 +34,6 @@ export const employerApi = {
     api
       .get("/api/employer/dashboard")
       .then((response) => response.data),
-  /** List applications for one of the employer's internships. */
   /**
    * Applicants for one vacancy, or for all of them.
    *
@@ -64,8 +63,6 @@ export const employerApi = {
       .patch(`/api/employer/applications/${id}/status`, data)
       .then((response) => response.data),
 
-  /** Update the signed-in employer's company profile. */
-  /** Replaces the company logo. Multipart, like a certificate upload. */
   /** The company logo as a blob URL, or null. Same reason as profile photos. */
   fetchCompanyLogo: (version = 0) =>
     api
@@ -92,6 +89,7 @@ export const employerApi = {
   removeInternship: (id) =>
     api.delete(`/api/employer/internships/${id}`).then((response) => response.data),
 
+  /** Replaces the company logo. Multipart, like a certificate upload. */
   uploadCompanyLogo: (file) => {
     const form = new FormData();
     form.append("file", file);
@@ -126,14 +124,14 @@ export const employerApi = {
       .patch(`/api/employer/applications/${id}/status`, { status, note })
       .then((response) => response.data),
 
-  /**
-   * Ask the applicant for something. Delivered as a notification, which the
-   * student already has a page for - so this needed no new delivery mechanism.
-   */
   /** Everything said about one application, oldest first. */
   applicationMessages: (id) =>
     api.get(`/api/employer/applications/${id}/messages`).then((response) => response.data),
 
+  /**
+   * Ask the applicant for something. Stored in the application's conversation,
+   * and the student is sent a notification that opens it.
+   */
   messageApplicant: (id, message) =>
     api
       .post(`/api/employer/applications/${id}/message`, { message })

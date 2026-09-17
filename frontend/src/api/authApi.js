@@ -4,7 +4,6 @@ import { api } from "./axiosClient.js";
  * The authentication API layer.
  */
 export const authApi = {
-  /** Resolves with the user, or throws 401 when nobody is signed in. */
   /**
    * The signed-in user, or null.
    *
@@ -30,13 +29,13 @@ export const authApi = {
   forgotPassword: (email) =>
     api.post("/api/auth/forgot-password", { email }).then((response) => response.data),
 
-  /** Uses the emailed code to set a new password. */
   /** Accepting an administrator invitation. No session exists yet. */
   acceptInvite: ({ email, code, newPassword }) =>
     api
       .post("/api/auth/accept-invite", { email, code, newPassword })
       .then((response) => response.data),
 
+  /** Uses the emailed code to set a new password. */
   resetPassword: (payload) =>
     api.post("/api/auth/reset-password", payload).then((response) => response.data),
 };

@@ -18,7 +18,6 @@ public class UpdateEmployerProfileRequest {
     @Size(max = 190)
     private String workEmail;
 
-    @Size(max = 30)
     /**
      * An international number, written the way it is dialled from abroad.
      *

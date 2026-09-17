@@ -12,7 +12,6 @@ public class UpdateAccountRequest {
     @Size(max = 150)
     private String fullName;
 
-    @Size(max = 30)
     /**
      * An international number, written the way it is dialled from abroad.
      *

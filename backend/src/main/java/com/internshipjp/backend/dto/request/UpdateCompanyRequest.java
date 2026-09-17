@@ -36,7 +36,6 @@ public class UpdateCompanyRequest {
     @Size(max = 190)
     private String contactEmail;
 
-    @Size(max = 30)
     /**
      * An international number, written the way it is dialled from abroad.
      *

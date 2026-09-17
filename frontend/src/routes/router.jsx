@@ -52,12 +52,6 @@ import AdminProfileEditPage from "../features/admin/AdminProfileEditPage.jsx";
 /**
  * Every route in the application.
  */
-/** Employer paths Member 3 has built. */
-
-/** Student paths built by Member 3 (browsing vacancies is their module). */
-
-/** Admin paths that now have a real page, so no placeholder is needed. */
-
 export default function AppRoutes() {
   return (
     <Routes>

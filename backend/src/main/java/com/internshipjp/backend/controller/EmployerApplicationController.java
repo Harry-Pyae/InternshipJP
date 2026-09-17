@@ -78,10 +78,6 @@ public class EmployerApplicationController {
         return applicationService.getForOwnCompany(currentUserService.requireUserId(), id);
     }
 
-    /**
-     * Ask the applicant for something. Delivered as a notification, which the
-     * student already has a page for.
-     */
     /** The exchange about one application. Employers of that company only. */
     @GetMapping("/applications/{id}/messages")
     public List<ApplicationMessageResponse> messages(@PathVariable Long id) {
@@ -90,6 +86,10 @@ public class EmployerApplicationController {
         return applicationService.threadOf(id);
     }
 
+    /**
+     * Ask the applicant for something. Stored in the application's
+     * conversation, and the student is sent a notification that opens it.
+     */
     @PostMapping("/applications/{id}/message")
     public ApiMessageResponse message(@PathVariable Long id,
                                       @Valid @RequestBody ApplicantMessageRequest request) {

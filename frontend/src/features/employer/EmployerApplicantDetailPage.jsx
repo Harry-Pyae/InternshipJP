@@ -55,7 +55,6 @@ const NEXT = {
   WITHDRAWN: [],
 };
 
-/** The ordinary path, shown so the stage after this one is visible. */
 /** What choosing each one means, shown on the button itself. */
 const MEANS = {
   UNDER_REVIEW: "You are reading the application",
@@ -65,6 +64,7 @@ const MEANS = {
   REJECTED: "Close it, with a reason below",
 };
 
+/** The ordinary path, shown so the stage after this one is visible. */
 const JOURNEY = ["APPLIED", "UNDER_REVIEW", "SHORTLISTED", "INTERVIEW", "ACCEPTED"];
 
 export default function EmployerApplicantDetailPage() {
@@ -153,6 +153,8 @@ export default function EmployerApplicantDetailPage() {
     try {
       await employerApi.messageApplicant(id, message.trim());
       setMessage("");
+      // The conversation above the box has to show what was just sent.
+      employerApi.applicationMessages(id).then(setThread).catch(() => {});
       setMessageDone(t("Sent. It is in the student's notifications now."));
     } catch (requestError) {
       setError(describeApiError(requestError));
@@ -161,18 +163,20 @@ export default function EmployerApplicantDetailPage() {
     }
   }
 
+  // Above the early return below: a hook after it would run on some renders
+  // and not others, and React fails the page when the count changes.
+  useEffect(() => {
+    if (thread.length) {
+      threadEnd.current?.scrollIntoView({ block: "nearest" });
+    }
+  }, [thread]);
+
   if (application === null && !error) {
     return <LoadingBlock label={t("Loading the application...")} />;
   }
 
   const student = application?.student;
   const certificates = application?.verifiedCertificates ?? [];
-
-  useEffect(() => {
-    if (thread.length) {
-      threadEnd.current?.scrollIntoView({ block: "nearest" });
-    }
-  }, [thread]);
 
   return (
     <>

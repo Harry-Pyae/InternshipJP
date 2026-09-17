@@ -47,7 +47,6 @@ public class NotificationService {
         this.notificationMapper = notificationMapper;
     }
 
-    @Transactional
     /**
      * With the record it is about, so clicking it can open that record.
      *
@@ -55,6 +54,7 @@ public class NotificationService {
      * call. A notification without a reference opens the queue it belongs to,
      * which is the behaviour every notification had until now.
      */
+    @Transactional
     public Notification create(User recipient, String type, String title, String message,
                                Long referenceId) {
         Notification notification = create(recipient, type, title, message);
