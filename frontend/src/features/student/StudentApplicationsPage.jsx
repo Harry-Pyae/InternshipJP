@@ -76,7 +76,7 @@ export default function StudentApplicationsPage() {
 
   // Paging and searching both work on the same filtered list, so the
   // page count follows the search rather than ignoring it.
-  const PER_PAGE = 15;
+  const PER_PAGE = 10;
   const pageCount = Math.max(1, Math.ceil(visible.length / PER_PAGE));
   const safePage = Math.min(page, pageCount - 1);
   const pageRows = visible.slice(safePage * PER_PAGE, safePage * PER_PAGE + PER_PAGE);

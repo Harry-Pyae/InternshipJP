@@ -8,6 +8,7 @@ import Select from "../../components/shared/Select.jsx";
 import EmptyState from "../../components/shared/EmptyState.jsx";
 import ErrorAlert from "../../components/shared/ErrorAlert.jsx";
 import LoadingBlock from "../../components/shared/LoadingBlock.jsx";
+import Pagination from "../../components/shared/Pagination.jsx";
 import { employerApi } from "../../api/employerApi.js";
 import { describeApiError } from "../../api/axiosClient.js";
 import { timeAgo, exactTime } from "../../api/relativeTime.js";
@@ -24,6 +25,12 @@ export default function ApplicantsPage() {
   const [internships, setInternships] = useState([]);
   const [rows, setRows] = useState(null);
   const [error, setError] = useState(null);
+  // Paged by the server. Fetching one large page capped the list at the
+  // server's limit of 50, so a 51st applicant was never shown anywhere.
+  const PER_PAGE = 10;
+  const [page, setPage] = useState(0);
+  const [pageCount, setPageCount] = useState(0);
+  const [total, setTotal] = useState(0);
 
   useEffect(() => {
     employerApi
@@ -44,12 +51,14 @@ export default function ApplicantsPage() {
     setRows(null);
     setError(null);
     try {
-      const page = await employerApi.listApplications({ internshipId });
-      setRows(page?.content ?? []);
+      const result = await employerApi.listApplications({ internshipId, page, size: PER_PAGE });
+      setRows(result?.content ?? []);
+      setPageCount(result?.totalPages ?? 0);
+      setTotal(result?.totalElements ?? 0);
     } catch (requestError) {
       setError(describeApiError(requestError));
     }
-  }, [internshipId]);
+  }, [internshipId, page]);
 
   useEffect(() => {
     load();
@@ -77,7 +86,10 @@ export default function ApplicantsPage() {
         <label className="ijp-field-label" htmlFor="internshipPicker">{t("Internship")}</label>
         <Select
           value={internshipId}
-          onChange={(value) => setParams({ internshipId: value })}
+          onChange={(value) => {
+            setPage(0);
+            setParams({ internshipId: value });
+          }}
           groups={[
             {
               label: null,
@@ -112,6 +124,7 @@ export default function ApplicantsPage() {
         ) : rows === null ? (
           <LoadingBlock label={t("Loading applicants...")} />
         ) : (
+          <>
           <DataTable
             columns={[
               {
@@ -167,6 +180,14 @@ export default function ApplicantsPage() {
                 : "Applications to any of your vacancies will appear here.",
             }}
           />
+          <Pagination
+            page={page}
+            pageCount={pageCount}
+            total={total}
+            onChange={setPage}
+            noun="applicant"
+          />
+          </>
         )}
       </div>
     </>

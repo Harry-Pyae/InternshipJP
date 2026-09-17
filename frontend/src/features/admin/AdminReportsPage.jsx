@@ -13,6 +13,9 @@ import { aiApi } from "../../api/aiApi.js";
 import { describeApiError } from "../../api/axiosClient.js";
 import { useLanguage } from "../../config/languageContext.jsx";
 import BarChart from "../../components/shared/BarChart.jsx";
+import Pagination from "../../components/shared/Pagination.jsx";
+
+const USAGE_PER_PAGE = 10;
 
 export default function AdminReportsPage() {
   const { t, language } = useLanguage();
@@ -21,19 +24,18 @@ export default function AdminReportsPage() {
   const [usage, setUsage] = useState({ content: [], totalElements: 0, totalPages: 0, page: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [usagePage, setUsagePage] = useState(0);
 
   const load = useCallback(async () => {
     setLoading(true);
     setError("");
     try {
-      const [workloadResult, summaryResult, usageResult] = await Promise.all([
+      const [workloadResult, summaryResult] = await Promise.all([
         aiApi.adminWorkload(language),
         adminApi.getAiUsageSummary(),
-        adminApi.getAiUsage({ page: 0, size: 20 }),
       ]);
       setWorkload(workloadResult);
       setSummary(summaryResult);
-      setUsage(usageResult);
     } catch (requestError) {
       setError(describeApiError(requestError));
     } finally {
@@ -47,12 +49,26 @@ export default function AdminReportsPage() {
     load();
   }, [load]);
 
+  // Its own request, so turning a page of the usage table does not refetch
+  // the workload and summary above it.
+  const loadUsage = useCallback(async () => {
+    try {
+      setUsage(await adminApi.getAiUsage({ page: usagePage, size: USAGE_PER_PAGE }));
+    } catch (requestError) {
+      setError(describeApiError(requestError));
+    }
+  }, [usagePage]);
+
+  useEffect(() => {
+    loadUsage();
+  }, [loadUsage]);
+
   return (
     <>
       <PageHeader
         title={t("Reports")}
         subtitle={t("Platform workload, review queues and AI operational activity.")}
-        action={<button type="button" className="btn btn-sm btn-ijp-quiet" onClick={load}>{t("Refresh")}</button>}
+        action={<button type="button" className="btn btn-sm btn-ijp-quiet" onClick={() => { load(); loadUsage(); }}>{t("Refresh")}</button>}
       />
 
       <ErrorAlert message={error} onRetry={load} />
@@ -252,6 +268,13 @@ export default function AdminReportsPage() {
                   title: "No AI usage recorded",
                   hint: "Provider calls appear here once the assistants are used.",
                 }}
+              />
+              <Pagination
+                page={usagePage}
+                pageCount={usage.totalPages}
+                total={usage.totalElements}
+                onChange={setUsagePage}
+                noun="call"
               />
             </div>
           </section>

@@ -39,7 +39,7 @@ export default function StudentCertificatesPage() {
   // Paged in the browser rather than the server: a student has a handful of
   // certificates, so fetching them all once and slicing is fewer requests and
   // keeps the pending count above accurate across pages.
-  const PER_PAGE = 5;
+  const PER_PAGE = 10;
 
   const load = useCallback(async () => {
     setError(null);

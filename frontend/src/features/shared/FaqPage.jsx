@@ -333,7 +333,7 @@ function FeedbackInbox() {
   // the list is fetched once and filtered in memory, so asking the server
   // for a page would be a round trip to reorder data we hold.
   const [page, setPage] = useState(0);
-  const PER_PAGE = 9;
+  const PER_PAGE = 12;
   // ?feedback=<notification id>, from a feedback notification.
   const [params, setParams] = useSearchParams();
 

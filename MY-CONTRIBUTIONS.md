@@ -52,7 +52,7 @@ and the table row all update together.
 
 ## 3. English and Burmese
 
-1,097 strings, no i18n library. A React context resolves `t()` through a table
+1,105 strings, no i18n library. A React context resolves `t()` through a table
 keyed on the **English source string**, so a missing translation falls back to
 readable English rather than showing `nav.faq`.
 
@@ -194,7 +194,7 @@ Backend      206 main Java files, 16 test classes, 100 test methods
              96 endpoints, 21 repositories, 64 DTOs
              11 Flyway migrations, 21 tables
 Frontend     92 React modules, 27 shared components, 55 routes
-Bilingual    1,097 Burmese strings, none missing on the user-facing pages
+Bilingual    1,105 Burmese strings, none missing on the user-facing pages
              (developer diagnostics are English only)
 Tooling      4 check scripts
 ```

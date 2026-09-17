@@ -21,6 +21,7 @@ import { timeAgo, exactTime } from "../../api/relativeTime.js";
 import { useAuth } from "../../config/authContext.jsx";
 import CharCount from "../../components/shared/CharCount.jsx";
 import ConfirmDialog from "../../components/shared/ConfirmDialog.jsx";
+import Pagination from "../../components/shared/Pagination.jsx";
 
 /**
  * The AI assistant - Member 1's vertical slice.
@@ -620,8 +621,12 @@ function ChatTab({
   );
 }
 
+const HISTORY_PER_PAGE = 10;
+
 function HistoryTab({ conversations, conversationId, onOpen, onDelete }) {
   const { t } = useLanguage();
+  // Above the early return, so the hook runs on every render.
+  const [page, setPage] = useState(0);
   if (conversations.length === 0) {
     return (
       <EmptyState
@@ -632,9 +637,17 @@ function HistoryTab({ conversations, conversationId, onOpen, onDelete }) {
     );
   }
 
+  const pageCount = Math.ceil(conversations.length / HISTORY_PER_PAGE);
+  const safePage = Math.min(page, pageCount - 1);
+  const pageConversations = conversations.slice(
+    safePage * HISTORY_PER_PAGE,
+    safePage * HISTORY_PER_PAGE + HISTORY_PER_PAGE,
+  );
+
   return (
+    <>
     <ul className="ijp-history">
-      {conversations.map((conversation) => {
+      {pageConversations.map((conversation) => {
         const active = conversation.id === conversationId;
         // updatedAt, not createdAt: what matters is when you last used a
         // thread, which is also the order the list is sorted in.
@@ -677,6 +690,14 @@ function HistoryTab({ conversations, conversationId, onOpen, onDelete }) {
         );
       })}
     </ul>
+    <Pagination
+      page={safePage}
+      pageCount={pageCount}
+      total={conversations.length}
+      onChange={setPage}
+      noun="conversation"
+    />
+    </>
   );
 }
 

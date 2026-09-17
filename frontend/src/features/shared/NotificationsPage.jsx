@@ -10,6 +10,9 @@ import { useLanguage } from "../../config/languageContext.jsx";
 import { useAuth } from "../../config/authContext.jsx";
 import { timeAgo, exactTime } from "../../api/relativeTime.js";
 import { destinationFor } from "../../config/notificationRoutes.js";
+import Pagination from "../../components/shared/Pagination.jsx";
+
+const PER_PAGE = 10;
 
 const LOOKS = [
   { match: /CERTIFICATE/, icon: "bi-patch-check", tone: "ok", group: "Certificates" },
@@ -46,6 +49,7 @@ export default function NotificationsPage() {
   const [items, setItems] = useState(null);
   const [error, setError] = useState(null);
   const [tab, setTab] = useState("all");
+  const [page, setPage] = useState(0);
 
   const load = useCallback(async () => {
     setError(null);
@@ -78,6 +82,15 @@ export default function NotificationsPage() {
     return items;
   }, [items, tab]);
 
+  // Paged after filtering, because the tabs filter in the browser: paging on
+  // the server would give a page of ten with some of them hidden by the tab.
+  const pageCount = Math.max(1, Math.ceil(shown.length / PER_PAGE));
+  const safePage = Math.min(page, pageCount - 1);
+  const pageItems = useMemo(
+    () => shown.slice(safePage * PER_PAGE, safePage * PER_PAGE + PER_PAGE),
+    [shown, safePage],
+  );
+
   /**
    * Today / This week / Earlier.
    *
@@ -89,7 +102,7 @@ export default function NotificationsPage() {
     const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const weekAgo = new Date(startOfToday.getTime() - 6 * 86400000);
     const buckets = { Today: [], "This week": [], Earlier: [] };
-    for (const item of shown) {
+    for (const item of pageItems) {
       const when = item.createdAt ? new Date(item.createdAt) : null;
       if (when && when >= startOfToday) {
         buckets.Today.push(item);
@@ -100,7 +113,7 @@ export default function NotificationsPage() {
       }
     }
     return Object.entries(buckets).filter(([, list]) => list.length > 0);
-  }, [shown]);
+  }, [pageItems]);
 
   const unread = items ? items.filter((n) => !n.read).length : 0;
 
@@ -159,7 +172,10 @@ export default function NotificationsPage() {
               role="tab"
               aria-selected={tab === item.key}
               className={`ijp-tab${tab === item.key ? " ijp-tab--active" : ""}`}
-              onClick={() => setTab(item.key)}
+              onClick={() => {
+                setTab(item.key);
+                setPage(0);
+              }}
             >
               {t(item.label)}
               {item.key === "unread" && unread > 0 ? (
@@ -199,6 +215,15 @@ export default function NotificationsPage() {
               </div>
             ))
           )}
+          {items !== null && shown.length > 0 ? (
+            <Pagination
+              page={safePage}
+              pageCount={pageCount}
+              total={shown.length}
+              onChange={setPage}
+              noun="notification"
+            />
+          ) : null}
         </div>
       </div>
     </>

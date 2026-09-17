@@ -13,6 +13,7 @@ import ConfirmDialog from "../../components/shared/ConfirmDialog.jsx";
 import { useAuth } from "../../config/authContext.jsx";
 import { useLanguage } from "../../config/languageContext.jsx";
 import CharCount from "../../components/shared/CharCount.jsx";
+import Pagination from "../../components/shared/Pagination.jsx";
 
 export default function AdminUsersPage() {
   const { t } = useLanguage();
@@ -45,7 +46,7 @@ export default function AdminUsersPage() {
     setLoading(true);
     setError("");
     try {
-      const result = await adminApi.listUsers({ role, status, search, page, size: 20 });
+      const result = await adminApi.listUsers({ role, status, search, page, size: 10 });
       setData(result);
     } catch (requestError) {
       setError(describeApiError(requestError));
@@ -337,9 +338,15 @@ export default function AdminUsersPage() {
             onMessage={setNoticeTo}
           />}
 
-        {!loading && data.totalPages > 1 ? (
-          <Pagination page={data.page} totalPages={data.totalPages} onChange={setPage} />
-        ) : null}
+        {loading ? null : (
+          <Pagination
+            page={data.page}
+            pageCount={data.totalPages}
+            total={data.totalElements}
+            onChange={setPage}
+            noun="account"
+          />
+        )}
       </div>
       {detail ? (
         <UserDetailModal
@@ -393,23 +400,5 @@ export default function AdminUsersPage() {
       />
 
     </>
-  );
-}
-
-function Pagination({ page, totalPages, onChange }) {
-  const { t } = useLanguage();
-  // One page needs no controls. This rendered regardless, leaving a row of
-  // dead buttons under every short list - the shared Pagination component
-  // has always had this guard; this local copy did not.
-  if (!totalPages || totalPages <= 1) {
-    return null;
-  }
-
-  return (
-    <div className="d-flex justify-content-between align-items-center gap-2 mt-4">
-      <button type="button" className="btn btn-sm btn-ijp-quiet" disabled={page === 0} onClick={() => onChange(page - 1)}>{t("Previous")}</button>
-      <span className="ijp-muted small">{t("Page {page} of {count}", { page: page + 1, count: totalPages })}</span>
-      <button type="button" className="btn btn-sm btn-ijp-quiet" disabled={page + 1 >= totalPages} onClick={() => onChange(page + 1)}>{t("Next")}</button>
-    </div>
   );
 }

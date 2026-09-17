@@ -9,6 +9,7 @@ import { studentApi } from "../../api/studentApi.js";
 import { describeApiError } from "../../api/axiosClient.js";
 import { useLanguage } from "../../config/languageContext.jsx";
 import CharCount from "../../components/shared/CharCount.jsx";
+import Pagination from "../../components/shared/Pagination.jsx";
 
 /**
  * Open vacancies a student can apply to.
@@ -19,17 +20,25 @@ export default function BrowseInternshipsPage() {
   const [keyword, setKeyword] = useState("");
   const [query, setQuery] = useState("");
   const [error, setError] = useState(null);
+  // Paged by the server, twelve cards at a time. One page of 50 was the
+  // server's cap, so any vacancy past it could not be found by browsing.
+  const PER_PAGE = 12;
+  const [page, setPage] = useState(0);
+  const [pageCount, setPageCount] = useState(0);
+  const [total, setTotal] = useState(0);
 
   const load = useCallback(async () => {
     setItems(null);
     setError(null);
     try {
-      const page = await studentApi.listInternships({ keyword: query, size: 50 });
-      setItems(page?.content ?? []);
+      const result = await studentApi.listInternships({ keyword: query, page, size: PER_PAGE });
+      setItems(result?.content ?? []);
+      setPageCount(result?.totalPages ?? 0);
+      setTotal(result?.totalElements ?? 0);
     } catch (requestError) {
       setError(describeApiError(requestError));
     }
-  }, [query]);
+  }, [query, page]);
 
   useEffect(() => {
     load();
@@ -50,6 +59,7 @@ export default function BrowseInternshipsPage() {
         className="d-flex gap-2 mb-4"
         onSubmit={(event) => {
           event.preventDefault();
+          setPage(0);
           setQuery(keyword.trim());
         }}
       >
@@ -84,6 +94,7 @@ export default function BrowseInternshipsPage() {
           />
         </div>
       ) : (
+        <>
         <div className="ijp-match-grid">
           {items.map((internship) => (
             <Link
@@ -143,6 +154,17 @@ export default function BrowseInternshipsPage() {
             </Link>
           ))}
         </div>
+        <Pagination
+          page={page}
+          pageCount={pageCount}
+          total={total}
+          onChange={(next) => {
+            setPage(next);
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }}
+          noun="internship"
+        />
+        </>
       )}
     </>
   );

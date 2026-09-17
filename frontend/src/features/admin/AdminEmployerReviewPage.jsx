@@ -34,6 +34,9 @@ export default function AdminEmployerReviewPage() {
   const navigate = useNavigate();
 
   const [company, setCompany] = useState(null);
+  // Opened from a notification after somebody already decided. Not an error:
+  // there is simply nothing left to do here.
+  const [alreadyReviewed, setAlreadyReviewed] = useState(false);
   const [note, setNote] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -46,7 +49,7 @@ export default function AdminEmployerReviewPage() {
       const page = await adminApi.listPendingEmployers({ page: 0, size: 100 });
       const found = (page?.content ?? []).find((c) => String(c.id) === String(id));
       if (!found) {
-        setError("That company is not in the pending queue. It may already have been reviewed.");
+        setAlreadyReviewed(true);
         return;
       }
       setCompany(found);
@@ -75,7 +78,7 @@ export default function AdminEmployerReviewPage() {
     }
   }
 
-  if (company === null && !error) {
+  if (company === null && !error && !alreadyReviewed) {
     return <LoadingBlock label={t("Loading the company...")} />;
   }
 
@@ -99,6 +102,13 @@ export default function AdminEmployerReviewPage() {
       />
 
       <ErrorAlert message={error} />
+
+      {alreadyReviewed ? (
+        <div className="alert alert-info" role="status">
+          <i className="bi bi-info-circle me-2" aria-hidden="true" />
+          {t("This company has already been reviewed, so there is nothing left to decide here. Its recruiter accounts are listed under Employer accounts.")}
+        </div>
+      ) : null}
 
       {company ? (
         <div className="ijp-fact-strip">
