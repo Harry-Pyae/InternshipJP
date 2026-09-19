@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 import StatusBadge from "../../../components/shared/StatusBadge.jsx";
 import { useLanguage } from "../../../config/languageContext.jsx";
 import { useEffect, useState } from "react";
-import Avatar from "../../../components/shared/Avatar.jsx";
 import { adminApi } from "../../../api/adminApi.js";
 import Breakable from "../../../components/shared/Breakable.jsx";
 

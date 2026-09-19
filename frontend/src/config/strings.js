@@ -1284,6 +1284,7 @@ export const strings = {
     "Loading the queue...": "စာရင်း ရယူနေတယ်...",
 
     // Platform data (administrator settings)
+    "Nothing is old enough to remove yet.": "ဖယ်လောက်အောင် ဟောင်းနေတာ မရှိသေးပါဘူး။",
     "Every table and every row, as one JSON file, written parents first so it loads back in the order it gives. It holds password hashes - keep it where you keep the database.": "ဇယားတိုင်း၊ အတန်းတိုင်းကို JSON ဖိုင်တစ်ဖိုင်တည်းအဖြစ် မိဘဇယား အရင်ဖြစ်အောင် စီပြီး ထုတ်ပေးတာမို့ ဖိုင်ထဲက အစီအစဉ်အတိုင်း ပြန်သွင်းလို့ ရပါတယ်။ စကားဝှက် hash တွေ ပါတဲ့အတွက် ဒေတာဘေ့စ်ကို သိမ်းသလိုပဲ သိမ်းထားပါ။",
     "Frees space by removing spent sign-in codes, old AI telemetry, notifications already read and AI threads nobody has touched. Accounts, companies, internships, applications and certificates are never touched.": "သုံးပြီးသား ဝင်ရောက်မှုကုဒ်တွေ၊ ဟောင်းနေတဲ့ AI မှတ်တမ်းတွေ၊ ဖတ်ပြီးသား အသိပေးချက်တွေနဲ့ ဘယ်သူမှ မထိတော့တဲ့ AI စကားပြောဆိုမှုတွေကို ဖယ်ပြီး နေရာလွတ် ပြန်ရအောင် လုပ်ပေးပါတယ်။ အကောင့်၊ ကုမ္ပဏီ၊ အလုပ်သင်နေရာ၊ လျှောက်လွှာနဲ့ လက်မှတ်တွေကိုတော့ ဘယ်တော့မှ မထိပါဘူး။",
     "Keep {n} days": "{n} ရက် သိမ်းမယ်",
@@ -1292,7 +1293,6 @@ export const strings = {
     "notices": "အသိပေးချက်",
     "threads": "စကားပြောဆိုမှု",
     "rows would go": "အတန်း ဖယ်ရှားမယ်",
-    "nothing to remove": "ဖယ်ရှားစရာ မရှိပါဘူး",
     "Platform data": "စနစ်ရဲ့ ဒေတာ",
     "Download a backup": "အရန်မိတ္တူ ဒေါင်းလုဒ်လုပ်မယ်",
     "Preparing...": "ပြင်ဆင်နေတယ်...",

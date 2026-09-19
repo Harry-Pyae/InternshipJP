@@ -89,7 +89,6 @@ export default function DataMaintenanceCard() {
     setDone("");
     try {
       const result = await adminApi.compactData(Number(days));
-      setConfirming(false);
       setDone(
         result.totalRows > 0
           ? t("{n} row(s) were removed.", { n: result.totalRows })
@@ -102,6 +101,11 @@ export default function DataMaintenanceCard() {
       setError(describeApiError(requestError));
     } finally {
       setCompacting(false);
+      // Closed here rather than on the success path only. A failure left the
+      // dialog open in front of the card, and the error alert it had just
+      // written was behind it - so a compaction that did not happen looked
+      // like one that was still thinking.
+      setConfirming(false);
     }
   }
 
@@ -163,8 +167,21 @@ export default function DataMaintenanceCard() {
               {t("Frees space by removing spent sign-in codes, old AI telemetry, notifications already read and AI threads nobody has touched. Accounts, companies, internships, applications and certificates are never touched.")}
             </p>
 
-            {previewing && !preview ? (
+            {/*
+              "previewing", not "previewing && !preview". After the first load
+              a window change left the previous window's counts on screen
+              while the new ones were being fetched, so the figures were
+              labelled with a window they did not describe.
+
+              And nothing to remove is a sentence, not a row of zeroes: the
+              strip used to read "0 0 0 0 0 - 0 nothing to remove".
+            */}
+            {previewing ? (
               <p className="ijp-count-strip mb-0">{t("Counting...")}</p>
+            ) : nothingToRemove ? (
+              <p className="ijp-count-strip mb-0">
+                {t("Nothing is old enough to remove yet.")}
+              </p>
             ) : preview ? (
               <p className="ijp-count-strip mb-0">
                 {counts.map((count) => (
@@ -176,7 +193,7 @@ export default function DataMaintenanceCard() {
                 <span className="ijp-count ijp-count--total">
                   <i className="bi bi-arrow-right-short" aria-hidden="true" />
                   <span className="ijp-count-n">{preview.totalRows}</span>
-                  {t(nothingToRemove ? "nothing to remove" : "rows would go")}
+                  {t("rows would go")}
                 </span>
               </p>
             ) : null}

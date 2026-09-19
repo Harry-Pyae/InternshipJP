@@ -14,7 +14,6 @@ import com.internshipjp.backend.mapper.InternshipMapper;
 import com.internshipjp.backend.repository.InternshipRepository;
 import com.internshipjp.backend.entity.InternshipSkill;
 import com.internshipjp.backend.repository.InternshipSkillRepository;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;

@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { aiApi } from "../../api/aiApi.js";
 import { useLanguage } from "../../config/languageContext.jsx";
-import { authApi } from "../../api/authApi.js";
 import { employerApi } from "../../api/employerApi.js";
 import { describeApiError } from "../../api/axiosClient.js";
 import PageHeader from "../../components/shared/PageHeader.jsx";
@@ -20,7 +19,6 @@ import Select from "../../components/shared/Select.jsx";
 import { timeAgo, exactTime } from "../../api/relativeTime.js";
 import { useAuth } from "../../config/authContext.jsx";
 import CharCount from "../../components/shared/CharCount.jsx";
-import ConfirmDialog from "../../components/shared/ConfirmDialog.jsx";
 import Pagination from "../../components/shared/Pagination.jsx";
 
 /**
