@@ -1759,6 +1759,15 @@ h4 {
   height: 100%;
 }
 
+/* The drawer is driven with a thumb, so its retract control is a real tap
+   target rather than the 2rem square a pointer can hit exactly. 2.75rem is
+   44px, which is the smallest a finger reliably lands on. */
+.ijp-drawer .ijp-sidebar-toggle {
+  width: 2.75rem;
+  height: 2.75rem;
+  flex: 0 0 2.75rem;
+}
+
 
 /* --- employer waiting for approval --------------------------------------- */
 .ijp-pending {

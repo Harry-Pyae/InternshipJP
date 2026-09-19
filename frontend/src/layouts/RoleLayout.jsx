@@ -99,7 +99,12 @@ export default function RoleLayout({ nav, title, settingsPath }) {
             aria-label={t("Close the navigation menu")}
           />
           <aside className="ijp-drawer d-lg-none" role="dialog" aria-label={t("Navigation")}>
-            <Sidebar nav={nav} inDrawer onNavigate={() => setDrawerOpen(false)} />
+            <Sidebar
+              nav={nav}
+              inDrawer
+              onNavigate={() => setDrawerOpen(false)}
+              onClose={() => setDrawerOpen(false)}
+            />
           </aside>
         </>
       ) : null}

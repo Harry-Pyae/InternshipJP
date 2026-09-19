@@ -8,11 +8,19 @@ import { useAuth } from "../../config/authContext.jsx";
 /**
  * The application sidebar.
  */
-export default function Sidebar({ nav, collapsed, onToggleCollapse, onNavigate, inDrawer }) {
+export default function Sidebar({
+  nav,
+  collapsed,
+  onToggleCollapse,
+  onNavigate,
+  onClose,
+  inDrawer,
+}) {
   const { t } = useLanguage();
   const { user } = useAuth();
   // Inside the mobile drawer the sidebar is always full width - a collapsed
-  // rail inside a slide-over would be pointless.
+  // rail inside a slide-over would be pointless. The head still gets a
+  // retract control there; it closes the drawer rather than narrowing it.
   const isCollapsed = collapsed && !inDrawer;
 
   return (
@@ -29,7 +37,30 @@ export default function Sidebar({ nav, collapsed, onToggleCollapse, onNavigate, 
           )}
         </Link>
 
-        {inDrawer ? null : (
+        {/*
+          The same control in both shells, doing the thing each shell can do.
+
+          On a wide screen it retracts the sidebar to a rail. In the drawer it
+          retracts the drawer itself - which had no visible control at all: the
+          only ways out were tapping the dimmed area, pressing Escape on a
+          device with no keyboard, or opening a page you may not have wanted.
+          The button that opens it is underneath the drawer while the drawer is
+          over it, so there was nothing on screen to close.
+
+          One chevron, pointing the way the panel goes, rather than a hamburger
+          here and a cross there.
+        */}
+        {inDrawer ? (
+          <button
+            type="button"
+            className="ijp-sidebar-toggle"
+            onClick={onClose}
+            aria-label={t("Close the navigation menu")}
+            title={t("Close")}
+          >
+            <i className="bi bi-chevron-left ijp-toggle-icon" aria-hidden="true" />
+          </button>
+        ) : (
           <button
             type="button"
             className="ijp-sidebar-toggle"
