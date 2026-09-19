@@ -2575,6 +2575,122 @@ h4 {
   color: var(--ijp-rejected);
 }
 
+/* --- a settings action row -------------------------------------------------
+   What the operation is on the left, the control that performs it on the
+   right. The administrator's platform-data card was two tall panels side by
+   side, each three paragraphs deep for one button: a card inside a card, and
+   half a screen of height for two actions. A row states the same thing in
+   four lines and puts the button where the eye already is. */
+.ijp-action-row {
+  display: flex;
+  /* Wrapping, so a narrow card drops the controls onto their own line rather
+     than squeezing the description into a column two words wide. */
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.1rem 0;
+  border-bottom: 1px solid var(--ijp-border);
+}
+
+.ijp-action-row:first-child {
+  padding-top: 0;
+}
+
+.ijp-action-row:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.ijp-action-row-icon {
+  flex: 0 0 2.4rem;
+  width: 2.4rem;
+  height: 2.4rem;
+  display: grid;
+  place-items: center;
+  border-radius: var(--ijp-radius-sm);
+  background-color: var(--ijp-signal-soft);
+  color: var(--ijp-signal);
+  font-size: 1.05rem;
+}
+
+.ijp-action-row-main {
+  flex: 1 1 18rem;
+  min-width: 0;
+}
+
+.ijp-action-row-title {
+  margin: 0 0 0.2rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--ijp-ink);
+}
+
+.ijp-action-row-text {
+  margin: 0;
+  font-size: 0.83rem;
+  line-height: 1.6;
+  color: var(--ijp-ink-soft);
+}
+
+/* The controls, kept together at the end of the row so a window picker and
+   the button it applies to never separate across a wrap. */
+.ijp-action-row-side {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+/* Wide enough for "Keep 365 days" without the trigger truncating it. */
+.ijp-action-row-side .ijp-select {
+  width: 10.5rem;
+}
+
+/* Below this the row has no width to put a button at the end of, so the
+   controls take their own line under the text rather than squeezing it. */
+@media (max-width: 767.98px) {
+  .ijp-action-row-side {
+    width: 100%;
+    margin-left: 3.4rem;
+    justify-content: flex-start;
+  }
+}
+
+/* What a compaction would remove, on one line instead of a six-row table. */
+.ijp-count-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.15rem 0.85rem;
+  margin: 0.55rem 0 0;
+  font-size: 0.78rem;
+  color: var(--ijp-ink-faint);
+}
+
+.ijp-count {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.3rem;
+}
+
+.ijp-count-n {
+  font-family: var(--ijp-font-data);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--ijp-ink-soft);
+}
+
+.ijp-count--total {
+  color: var(--ijp-ink);
+  font-weight: 600;
+}
+
+.ijp-count--total .ijp-count-n {
+  color: var(--ijp-signal);
+}
+
 /* --- two-column lists ----------------------------------------------------- */
 /* Short rows in one tall column waste the width these panels have. Both fall
    back to a single column below their minimum. */
@@ -4478,6 +4594,23 @@ h4 {
   color: var(--ijp-ink-soft);
 }
 
+/* The briefing is reading material, so it is set in a column rather than
+   stretched across whatever the monitor is.
+
+   The cap is what fixes the layout, not only the measure. There are four
+   cards at a minimum of 24rem, so three across needs 74rem of room - more
+   than this column can ever offer - while two need 50rem and still fit. The
+   grid therefore lays out as 2x2 or a single column and can no longer produce
+   three on top with the fourth stranded underneath.
+
+   A viewport media query could not do this: the sidebar appears at 992px and
+   takes 16rem with it, so the content area is NARROWER at 992px than at 991px.
+   Anything keyed to the viewport widens the grid exactly where the space for
+   it disappears. */
+.ijp-brief-page {
+  max-width: 68rem;
+}
+
 .ijp-brief-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(24rem, 1fr));
@@ -4607,13 +4740,27 @@ h4 {
 /* --- what happens after you publish ---------------------------------------
    The employer's half of the process, so the wait for approval is expected
    rather than discovered. */
+/* Four steps, and the same rule as the briefing above: all four in a row, or
+   2x2. Never three with one stranded underneath, which is what auto-fit gave
+   between those two widths.
+
+   These are small cards - an icon, two short lines - so they are allowed to
+   narrow rather than drop a column, and the count is stated instead of
+   negotiated. Below 768px there is no sidebar, so the viewport really is the
+   width available here and the query is honest. */
 .ijp-flow {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.75rem;
+}
+
+@media (min-width: 768px) {
+  .ijp-flow {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }
 
 .ijp-flow-step {
@@ -4650,8 +4797,10 @@ h4 {
   color: var(--ijp-ink-faint);
 }
 
-/* The arrow sits in the gap between cards, and is hidden once the grid wraps
-   to one column, where it would point at nothing. */
+/* The arrow sits in the gap between cards. It is drawn only where the next
+   step really is to the right of it: the markup leaves it off the last step,
+   and these rules take it off the end of each row in the 2x2 layout and off
+   every step in one column, where it would point at nothing. */
 .ijp-flow-arrow {
   position: absolute;
   right: -0.62rem;
@@ -4661,8 +4810,12 @@ h4 {
   color: var(--ijp-ink-faint);
 }
 
-@media (max-width: 47.98rem) {
-  .ijp-flow-arrow { display: none; }
+.ijp-flow-step:nth-child(2n) .ijp-flow-arrow {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .ijp-flow-step:nth-child(2n) .ijp-flow-arrow { display: block; }
 }
 
 /* --- post-internship side rail ---------------------------------------------

@@ -20,8 +20,9 @@ import { useLanguage } from "../../config/languageContext.jsx";
  * told every role to do from here.
  *
  * `extra` is how a role adds a section without forking the page: the
- * administrator passes the platform-data card, and it is rendered full width
- * between the two forms and the danger zone.
+ * administrator passes the platform-data card, which then shares the last row
+ * with the danger zone. Nothing renders differently for a role that passes
+ * none.
  */
 export default function AccountSettingsPage({
   subtitle = "Your account, password and sign-in security.",
@@ -246,9 +247,18 @@ export default function AccountSettingsPage({
           </SectionCard>
         </div>
 
-        {extra ? <div className="col-12">{extra}</div> : null}
+        {/*
+          Placement, not just order. With an extra section the page has four
+          cards, and stacking two full-width slabs under a two-column row made
+          the danger zone the largest thing on the screen - which is backwards
+          for the one action nobody should reach by accident. Sharing the last
+          row puts the platform tools beside it and leaves both a sensible
+          size. Without an extra section - the student and employer pages -
+          this renders exactly what it rendered before.
+        */}
+        {extra ? <div className="col-12 col-xl-8">{extra}</div> : null}
 
-        <div className="col-12">
+        <div className={extra ? "col-12 col-xl-4" : "col-12"}>
           <SectionCard title={t("Delete this account")}>
             <div className="ijp-danger-zone">
               <p className="ijp-danger-title">

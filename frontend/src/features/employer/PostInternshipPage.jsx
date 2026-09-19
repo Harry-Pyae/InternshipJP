@@ -748,7 +748,13 @@ function Briefing({ t, onStart }) {
   ];
 
   return (
-    <>
+    /*
+      One column, capped. A briefing is something you read, and four cards of
+      prose stretched across a wide monitor read badly - but the cap also does
+      the layout: inside it three cards can never fit on a line, so the grid
+      is 2x2 or stacked and cannot strand the fourth on a row of its own.
+    */
+    <div className="ijp-brief-page">
       <PageHeader
         title="Post an internship"
         subtitle="Before you start, four things worth knowing."
@@ -816,6 +822,6 @@ function Briefing({ t, onStart }) {
           {t("Back to my vacancies")}
         </Link>
       </div>
-    </>
+    </div>
   );
 }

@@ -18,6 +18,12 @@ import { useLanguage } from "../../../config/languageContext.jsx";
  *   backup first. Putting the download anywhere else would mean an
  *   administrator reading about deletion with no idea a copy was available.
  *
+ * WHY THEY ARE ROWS AND NOT PANELS
+ *   Each is one button. As two tall panels side by side, three paragraphs
+ *   deep, they were a card inside a card and took half a screen to offer two
+ *   actions. A row says what the operation is and puts the control at the end
+ *   of the same line, which is where the eye already is.
+ *
  * WHAT COMPACTION REMOVES is decided on the server, in DataMaintenanceService.
  * This screen never sends a list of tables; it sends a number of days. The
  * counts shown come from the same code that does the deleting, so the figure
@@ -99,12 +105,12 @@ export default function DataMaintenanceCard() {
     }
   }
 
-  const rows = preview
+  const counts = preview
     ? [
-        { label: "Spent sign-in codes", value: preview.expiredOtpChallenges },
-        { label: "AI usage log entries", value: preview.aiUsageLogs },
-        { label: "Read notifications", value: preview.readNotifications },
-        { label: "AI conversations", value: preview.aiConversations },
+        { label: "codes", value: preview.expiredOtpChallenges },
+        { label: "AI logs", value: preview.aiUsageLogs },
+        { label: "notices", value: preview.readNotifications },
+        { label: "threads", value: preview.aiConversations },
         { label: "AI messages", value: preview.aiMessages },
       ]
     : [];
@@ -115,108 +121,95 @@ export default function DataMaintenanceCard() {
     <SectionCard title={t("Platform data")}>
       <ErrorAlert message={error} />
       {done ? (
-        <div className="alert alert-success" role="status">
+        <div className="alert alert-success py-2" role="status">
           <i className="bi bi-check2-circle me-2" aria-hidden="true" />
           {t(done)}
         </div>
       ) : null}
 
-      <div className="row g-4">
-        {/* ---------------------------------------------------------- BACKUP */}
-        <div className="col-12 col-xl-6">
-          <div className="ijp-card-sunken p-3 h-100 d-flex flex-column">
-            <p className="ijp-label mb-2">
-              <i className="bi bi-download me-2" aria-hidden="true" />
-              {t("Download a backup")}
-            </p>
-            <p className="ijp-muted small mb-2">
-              {t("Every table, every row, as one JSON file. Tables are written parents first, so the file can be loaded back in the order it gives without breaking a foreign key.")}
-            </p>
-            <p className="ijp-field-hint mb-3">
-              {t("It contains accounts and password hashes. Keep it somewhere only administrators can reach, the same as the database itself.")}
-            </p>
-            <div className="mt-auto">
-              <button
-                type="button"
-                className="btn btn-ijp-primary"
-                onClick={download}
-                disabled={downloading}
-              >
-                <i className="bi bi-download me-1" aria-hidden="true" />
-                {t(downloading ? "Preparing..." : "Download data")}
-              </button>
-            </div>
-          </div>
+      {/* ------------------------------------------------------------ BACKUP */}
+      <div className="ijp-action-row">
+        <span className="ijp-action-row-icon" aria-hidden="true">
+          <i className="bi bi-download" />
+        </span>
+        <div className="ijp-action-row-main">
+          <p className="ijp-action-row-title">{t("Download a backup")}</p>
+          <p className="ijp-action-row-text">
+            {t("Every table and every row, as one JSON file, written parents first so it loads back in the order it gives. It holds password hashes - keep it where you keep the database.")}
+          </p>
         </div>
+        <div className="ijp-action-row-side">
+          <button
+            type="button"
+            className="btn btn-sm btn-ijp-primary"
+            onClick={download}
+            disabled={downloading}
+          >
+            <i className="bi bi-download me-1" aria-hidden="true" />
+            {t(downloading ? "Preparing..." : "Download data")}
+          </button>
+        </div>
+      </div>
 
-        {/* ------------------------------------------------------- COMPACTION */}
-        <div className="col-12 col-xl-6">
-          <div className="ijp-card-sunken p-3 h-100 d-flex flex-column">
-            <p className="ijp-label mb-2">
-              <i className="bi bi-archive me-2" aria-hidden="true" />
-              {t("Compact old data")}
+      {/* -------------------------------------------------------- COMPACTION */}
+      <div className="ijp-action-row">
+        <span className="ijp-action-row-icon" aria-hidden="true">
+          <i className="bi bi-archive" />
+        </span>
+        <div className="ijp-action-row-main">
+          <p className="ijp-action-row-title">{t("Compact old data")}</p>
+          <p className="ijp-action-row-text">
+            {t("Frees space by removing spent sign-in codes, old AI telemetry, notifications already read and AI threads nobody has touched. Accounts, companies, internships, applications and certificates are never touched.")}
+          </p>
+
+          {previewing && !preview ? (
+            <p className="ijp-count-strip mb-0">{t("Counting...")}</p>
+          ) : preview ? (
+            <p className="ijp-count-strip mb-0">
+              {counts.map((count) => (
+                <span className="ijp-count" key={count.label}>
+                  <span className="ijp-count-n">{count.value}</span>
+                  {t(count.label)}
+                </span>
+              ))}
+              <span className="ijp-count ijp-count--total">
+                <i className="bi bi-arrow-right-short" aria-hidden="true" />
+                <span className="ijp-count-n">{preview.totalRows}</span>
+                {t(nothingToRemove ? "nothing to remove" : "rows would go")}
+              </span>
             </p>
-            <p className="ijp-muted small mb-3">
-              {t("Frees space by removing spent sign-in codes, old AI telemetry, notifications already read, and AI chat threads nobody has touched. Accounts, companies, internships, applications and certificates are never touched.")}
-            </p>
-
-            {/* Select draws its own control and takes no id, so the label is
-                not bound with htmlFor; ariaLabel names it instead. */}
-            <p className="ijp-label mb-2">{t("Keep history for")}</p>
-            <Select
-              className="mb-3"
-              value={days}
-              onChange={setDays}
-              ariaLabel={t("Keep history for")}
-              disabled={compacting}
-              groups={[
-                {
-                  label: null,
-                  items: RETENTION_CHOICES.map((choice) => ({
-                    value: String(choice),
-                    label: t("{n} days", { n: choice }),
-                  })),
-                },
-              ]}
-            />
-
-            {previewing && !preview ? (
-              <p className="ijp-muted small mb-3">{t("Counting...")}</p>
-            ) : preview ? (
-              <div className="mb-3">
-                {rows.map((row) => (
-                  <div className="ijp-mini-row" key={row.label}>
-                    <span className="ijp-mini-label">{t(row.label)}</span>
-                    <span className="ijp-mini-value">{row.value}</span>
-                  </div>
-                ))}
-                <div className="ijp-mini-row">
-                  <span className="ijp-mini-label fw-semibold">{t("Rows that would go")}</span>
-                  <span className="ijp-mini-value">{preview.totalRows}</span>
-                </div>
-              </div>
-            ) : null}
-
-            <div className="mt-auto">
-              <button
-                type="button"
-                className="btn btn-ijp-quiet ijp-btn-danger"
-                onClick={() => setConfirming(true)}
-                // !preview covers a failed count. Without it the button stayed
-                // live with nothing on screen, and the confirmation offered to
-                // remove "0 rows" - a number nobody had any reason to trust.
-                disabled={compacting || previewing || !preview || nothingToRemove}
-              >
-                <i className="bi bi-archive me-1" aria-hidden="true" />
-                {t("Compact now")}
-              </button>
-              {nothingToRemove ? (
-                <p className="ijp-field-hint mb-0 mt-2">
-                  {t("Nothing is old enough to remove yet.")}
-                </p>
-              ) : null}
-            </div>
-          </div>
+          ) : null}
+        </div>
+        <div className="ijp-action-row-side">
+          {/* Select draws its own control and takes no id, so it is named with
+              ariaLabel rather than a label bound by htmlFor. */}
+          <Select
+            value={days}
+            onChange={setDays}
+            ariaLabel={t("Keep history for")}
+            disabled={compacting}
+            groups={[
+              {
+                label: null,
+                items: RETENTION_CHOICES.map((choice) => ({
+                  value: String(choice),
+                  label: t("Keep {n} days", { n: choice }),
+                })),
+              },
+            ]}
+          />
+          <button
+            type="button"
+            className="btn btn-sm btn-ijp-quiet ijp-btn-danger"
+            onClick={() => setConfirming(true)}
+            // !preview covers a failed count. Without it the button stayed
+            // live with nothing on screen, and the confirmation offered to
+            // remove "0 rows" - a number nobody had any reason to trust.
+            disabled={compacting || previewing || !preview || nothingToRemove}
+          >
+            <i className="bi bi-archive me-1" aria-hidden="true" />
+            {t("Compact now")}
+          </button>
         </div>
       </div>
 
