@@ -186,7 +186,7 @@ export default function NotificationsPage() {
         </div>
 
         <div className="p-3 p-md-4">
-          {items === null ? (
+          {items === null && !error ? (
             <LoadingBlock label="Loading your notifications..." />
           ) : shown.length === 0 ? (
             <EmptyState

@@ -144,7 +144,7 @@ the wrong one available to the wrong people.
 
 ## 7. Testing and tooling
 
-102 test methods across 15 classes. The tests that matter are the ones that pin
+117 test methods across 17 classes. The tests that matter are the ones that pin
 a decision rather than a value — `aPasswordMeetingEveryClassRuleCanStillBeRefused`
 exists so that nobody later concludes the denylist is redundant.
 
@@ -232,11 +232,11 @@ was never really asked.
 ## Figures
 
 ```
-Backend      206 main Java files, 15 test classes, 102 test methods
-             97 endpoints, 21 repositories, 64 DTOs
+Backend      209 main Java files, 17 test classes, 117 test methods
+             100 endpoints, 21 repositories, 65 DTOs
              11 Flyway migrations, 21 tables
-Frontend     94 React modules, 27 shared components, 56 routes
-Bilingual    1,122 Burmese strings, none missing on the user-facing pages
+Frontend     96 React modules, 28 shared components, 56 routes
+Bilingual    1,154 Burmese strings, none missing on the user-facing pages
              (developer diagnostics are English only)
 Tooling      4 check scripts
 ```

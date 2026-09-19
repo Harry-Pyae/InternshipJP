@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
 import PageHeader from "../../components/shared/PageHeader.jsx";
+import MetricCard from "../../components/shared/MetricCard.jsx";
 import SectionCard from "../../components/shared/SectionCard.jsx";
 import DataTable from "../../components/shared/DataTable.jsx";
 import StatusBadge from "../../components/shared/StatusBadge.jsx";
@@ -59,54 +60,6 @@ function formatDate(value) {
   }
 
   return date.toLocaleString();
-}
-
-/**
- * One figure on the dashboard.
- */
-function DashboardStat({
-  label,
-  value,
-  icon,
-  description,
-  href,
-  tone = "normal",
-}) {
-  const { t } = useLanguage();
-  const toneClass =
-    tone === "warning" ? "ijp-state--warn" : tone === "danger" ? "ijp-state--bad" : "";
-
-  const content = (
-    <>
-      <div className="ijp-metric-head">
-        <span className="ijp-label">{t(label)}</span>
-        <span className={`ijp-metric-icon${toneClass ? ` ijp-metric-icon--${tone}` : ""}`}>
-          <i className={`bi ${icon}`} aria-hidden="true" />
-        </span>
-      </div>
-
-      <p className={`ijp-metric-value ${toneClass}`}>{value}</p>
-
-      <p className="ijp-metric-desc">{t(description)}</p>
-
-      {href ? (
-        <span className="ijp-metric-go">
-          {t("action.view")}
-          <i className="bi bi-arrow-right" aria-hidden="true" />
-        </span>
-      ) : null}
-    </>
-  );
-
-  if (href) {
-    return (
-      <Link to={href} className="ijp-metric ijp-metric--link">
-        {content}
-      </Link>
-    );
-  }
-
-  return <div className="ijp-metric">{content}</div>;
 }
 
 export default function AdminDashboardPage() {
@@ -331,6 +284,19 @@ export default function AdminDashboardPage() {
         />
       ) : null}
 
+      {/* The same greeting band the student and employer dashboards open
+          with. All three now read the same way down the page: hero, figures,
+          quick actions, then whatever is specific to the role. */}
+      <div className="ijp-hero">
+        <div>
+          <p className="ijp-hero-title">{t("Welcome back")}</p>
+          <p className="ijp-hero-text">
+            {workload.summary ?? t("Here is what is waiting for review today.")}
+          </p>
+        </div>
+        <i className="bi bi-shield-lock ijp-hero-art" aria-hidden="true" />
+      </div>
+
       {/* ============================================================
           ACCOUNT OVERVIEW
           These counts come directly from /api/admin/users.
@@ -339,7 +305,7 @@ export default function AdminDashboardPage() {
 
       <div className="row g-4 mb-4">
         <div className="col-12 col-sm-6 col-xl-3">
-          <DashboardStat
+          <MetricCard
             label={t("Students")}
             value={counts.students}
             icon="bi-mortarboard"
@@ -349,7 +315,7 @@ export default function AdminDashboardPage() {
         </div>
 
         <div className="col-12 col-sm-6 col-xl-3">
-          <DashboardStat
+          <MetricCard
             label={t("Employers")}
             value={counts.employers}
             icon="bi-briefcase"
@@ -359,7 +325,7 @@ export default function AdminDashboardPage() {
         </div>
 
         <div className="col-12 col-sm-6 col-xl-3">
-          <DashboardStat
+          <MetricCard
             label={t("Administrators")}
             value={counts.admins}
             icon="bi-shield-lock"
@@ -369,7 +335,7 @@ export default function AdminDashboardPage() {
         </div>
 
         <div className="col-12 col-sm-6 col-xl-3">
-          <DashboardStat
+          <MetricCard
             label={t("Suspended accounts")}
             value={counts.suspended}
             icon="bi-person-x"
@@ -386,7 +352,7 @@ export default function AdminDashboardPage() {
 
       <div className="row g-4 mb-4">
         <div className="col-12 col-sm-6 col-xl-3">
-          <DashboardStat
+          <MetricCard
             label={t("Pending companies")}
             value={counts.companies}
             icon="bi-building-check"
@@ -397,7 +363,7 @@ export default function AdminDashboardPage() {
         </div>
 
         <div className="col-12 col-sm-6 col-xl-3">
-          <DashboardStat
+          <MetricCard
             label={t("Pending certificates")}
             value={counts.certificates}
             icon="bi-patch-check"
@@ -408,7 +374,7 @@ export default function AdminDashboardPage() {
         </div>
 
         <div className="col-12 col-sm-6 col-xl-3">
-          <DashboardStat
+          <MetricCard
             label={t("Stalled applications")}
             value={stalledApplications}
             icon="bi-hourglass-split"
@@ -424,7 +390,7 @@ export default function AdminDashboardPage() {
         </div>
 
         <div className="col-12 col-sm-6 col-xl-3">
-          <DashboardStat
+          <MetricCard
             label={t("AI calls")}
             value={aiCalls}
             icon="bi-stars"
@@ -436,6 +402,46 @@ export default function AdminDashboardPage() {
             href="/admin/reports"
           />
         </div>
+      </div>
+
+      {/* ============================================================
+          QUICK ACTIONS
+          ============================================================ */}
+
+      <h2 className="ijp-label mb-2">{t("Quick actions")}</h2>
+      <div className="ijp-quick-actions mb-4">
+        <Link className="ijp-quick" to="/admin/certificates">
+          <span className="ijp-quick-icon">
+            <i className="bi bi-patch-check" aria-hidden="true" />
+          </span>
+          <span className="ijp-quick-body">
+            <span className="ijp-quick-title">{t("Verify certificates")}</span>
+            <span className="ijp-quick-text">{t("Employers only see qualifications an administrator has verified.")}</span>
+          </span>
+          <i className="bi bi-arrow-right ijp-quick-go" aria-hidden="true" />
+        </Link>
+
+        <Link className="ijp-quick" to="/admin/employers">
+          <span className="ijp-quick-icon">
+            <i className="bi bi-building-check" aria-hidden="true" />
+          </span>
+          <span className="ijp-quick-body">
+            <span className="ijp-quick-title">{t("Review companies")}</span>
+            <span className="ijp-quick-text">{t("Approving a company activates its recruiters and publishes their vacancies.")}</span>
+          </span>
+          <i className="bi bi-arrow-right ijp-quick-go" aria-hidden="true" />
+        </Link>
+
+        <Link className="ijp-quick" to="/admin/ai">
+          <span className="ijp-quick-icon">
+            <i className="bi bi-stars" aria-hidden="true" />
+          </span>
+          <span className="ijp-quick-body">
+            <span className="ijp-quick-title">{t("Ask the assistant")}</span>
+            <span className="ijp-quick-text">{t("What is waiting, how long it has waited, and what to do first.")}</span>
+          </span>
+          <i className="bi bi-arrow-right ijp-quick-go" aria-hidden="true" />
+        </Link>
       </div>
 
       {/* ============================================================

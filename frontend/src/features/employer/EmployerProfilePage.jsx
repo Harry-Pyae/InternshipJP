@@ -77,9 +77,9 @@ export default function EmployerProfilePage() {
               <SectionCard title="Recruiter details">
                 <dl className="ijp-detail mb-0">
                   <dt>{t("Job title")}</dt>
-                  <Value value={profile.jobTitle} t={t} />
+                  <Value value={profile.jobTitle} />
                   <dt>{t("Department")}</dt>
-                  <Value value={profile.department} t={t} />
+                  <Value value={profile.department} />
                 </dl>
               </SectionCard>
             </div>
@@ -90,9 +90,9 @@ export default function EmployerProfilePage() {
                   <dt>{t("Sign-in email")}</dt>
                   <dd className="ijp-data"><Breakable text={profile.email} /></dd>
                   <dt>{t("Work email")}</dt>
-                  <Value value={profile.workEmail} t={t} />
+                  <Value value={profile.workEmail} />
                   <dt>{t("Contact phone")}</dt>
-                  <Value value={profile.contactPhone} t={t} />
+                  <Value value={profile.contactPhone} />
                 </dl>
               </SectionCard>
             </div>
@@ -103,8 +103,15 @@ export default function EmployerProfilePage() {
   );
 }
 
-/** A stored value, or a visible note so a gap is obvious rather than blank. */
-function Value({ value, t }) {
+/**
+ * A stored value, or a visible note so a gap is obvious rather than blank.
+ *
+ * It reads the language itself rather than being handed a t prop, which is
+ * what the same helper on every other profile page does. Passing t down meant
+ * a new call site that forgot it rendered t is not a function.
+ */
+function Value({ value }) {
+  const { t } = useLanguage();
   if (value === null || value === undefined || value === "") {
     return (
       <dd className="ijp-muted">{t("Not set")}</dd>

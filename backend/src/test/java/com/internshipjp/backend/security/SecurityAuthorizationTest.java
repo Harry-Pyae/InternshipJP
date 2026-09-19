@@ -9,6 +9,9 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.hamcrest.Matchers.endsWith;
+import static org.hamcrest.Matchers.startsWith;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -64,5 +67,66 @@ class SecurityAuthorizationTest {
     void employerCannotReachStudentArea() throws Exception {
         mockMvc.perform(get("/api/students/me"))
                 .andExpect(status().isForbidden());
+    }
+
+    /**
+     * The backup is the whole database in one file, password hashes included.
+     * It is under /api/admin, so the rule already covers it - this is here so
+     * that a future change to the path is caught by a test rather than by
+     * somebody downloading the platform.
+     */
+    @Test
+    @WithMockUser(roles = "EMPLOYER")
+    void employerCannotDownloadTheDatabase() throws Exception {
+        mockMvc.perform(get("/api/admin/data/export"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void anonymousCallerCannotDownloadTheDatabase() throws Exception {
+        mockMvc.perform(get("/api/admin/data/export"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser(roles = "STUDENT")
+    void studentCannotCompactTheDatabase() throws Exception {
+        mockMvc.perform(get("/api/admin/data/compaction"))
+                .andExpect(status().isForbidden());
+    }
+
+    /**
+     * And an administrator really gets a file. The header is what makes the
+     * browser save it rather than render a megabyte of JSON in a tab, and it
+     * is the only place the filename is decided.
+     */
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void administratorGetsTheBackupAsAnAttachment() throws Exception {
+        mockMvc.perform(get("/api/admin/data/export"))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Disposition",
+                        startsWith("attachment; filename=\"internshipjp-backup-")))
+                .andExpect(header().string("Content-Disposition", endsWith(".json\"")))
+                .andExpect(jsonPath("$.application").value("InternshipJP"))
+                .andExpect(jsonPath("$.tables").exists());
+    }
+
+    /** The preview counts, and says out loud that it changed nothing. */
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void administratorCanPreviewACompaction() throws Exception {
+        mockMvc.perform(get("/api/admin/data/compaction?days=90"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.applied").value(false))
+                .andExpect(jsonPath("$.retentionDays").value(90));
+    }
+
+    /** Below the floor the service refuses, rather than emptying the reports. */
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void aRetentionWindowUnderAMonthIsRefused() throws Exception {
+        mockMvc.perform(get("/api/admin/data/compaction?days=1"))
+                .andExpect(status().isBadRequest());
     }
 }

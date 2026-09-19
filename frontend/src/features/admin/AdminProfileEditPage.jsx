@@ -64,11 +64,11 @@ export default function AdminProfileEditPage() {
 
       <ErrorAlert message={error} />
 
-      {form === null ? (
+      {form === null && !error ? (
         <div className="ijp-card p-4">
           <LoadingBlock label={t("Loading profile...")} />
         </div>
-      ) : (
+      ) : form ? (
         <div className="row g-4">
           <div className="col-12">
             <PhotoCard onError={setError} />
@@ -119,7 +119,7 @@ export default function AdminProfileEditPage() {
             </SectionCard>
           </div>
         </div>
-      )}
+      ) : null}
     </>
   );
 }

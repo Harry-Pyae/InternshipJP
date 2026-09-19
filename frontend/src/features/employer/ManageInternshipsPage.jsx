@@ -83,7 +83,7 @@ export default function ManageInternshipsPage() {
           shown={visible.length}
           total={(internships ?? []).length}
         />
-        {internships === null ? (
+        {internships === null && !error ? (
           <LoadingBlock label={t("Loading your internships...")} />
         ) : (
                     <>

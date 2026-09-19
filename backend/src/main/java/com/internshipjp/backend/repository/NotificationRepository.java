@@ -15,8 +15,10 @@ import org.springframework.data.repository.query.Param;
 /**
  * In-app notifications.
  *
- * Future work: filtering by type, and a delete or archive rule - a
- * notification is read or unread today and is never removed.
+ * Future work: filtering by type. Nothing removes a notification one at a
+ * time; the only thing that deletes any is the administrator's compaction,
+ * which takes read notifications past a retention window and leaves every
+ * unread one alone.
  */
 @Repository
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
@@ -29,5 +31,16 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     @Query("UPDATE Notification n SET n.read = true, n.readAt = :now "
             + "WHERE n.user.id = :userId AND n.read = false")
     int markAllRead(@Param("userId") Long userId, @Param("now") LocalDateTime now);
+
+    /**
+     * Read notifications older than the cutoff - the only ones compaction may
+     * remove. An unread notification is something the person has not seen yet,
+     * so age alone is never enough to delete it.
+     */
+    long countByReadTrueAndCreatedAtBefore(LocalDateTime cutoff);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("DELETE FROM Notification n WHERE n.read = true AND n.createdAt < :cutoff")
+    int deleteReadBefore(@Param("cutoff") LocalDateTime cutoff);
 
 }

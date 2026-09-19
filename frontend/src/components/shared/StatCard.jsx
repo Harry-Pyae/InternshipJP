@@ -1,7 +1,14 @@
+import { Link } from "react-router-dom";
+
 import { useLanguage } from "../../config/languageContext.jsx";
 
 /**
- * One number with a label. The top row of every dashboard.
+ * One number with a label, for a dense grid - the reports screen puts four of
+ * these beside two charts.
+ *
+ * The taller card with a description and a link through is MetricCard, and
+ * that is what all three dashboards use. Reach for this one when the figures
+ * are already under a heading that explains them and the space is tight.
  *
  * The value is set in the data face with tabular figures, so a row of cards
  * lines up instead of wobbling as the numbers change.
@@ -14,14 +21,17 @@ import { useLanguage } from "../../config/languageContext.jsx";
 export default function StatCard({ label, value, icon, tone, hint, to, onClick }) {
   const { t } = useLanguage();
   const interactive = Boolean(to || onClick);
-  const Tag = to ? "a" : onClick ? "button" : "div";
+  // Link, not <a href>. A bare anchor to an in-app route makes the browser
+  // fetch the whole application again and throws away the session state the
+  // router is holding, which is a slow blank flash instead of a navigation.
+  const Tag = to ? Link : onClick ? "button" : "div";
 
   return (
     <Tag
       className={`ijp-card p-3 h-100 w-100 text-start${tone ? ` ijp-rail ijp-rail--${tone}` : ""}${
         interactive ? " ijp-card-interactive" : ""
       }`}
-      href={to}
+      to={to}
       onClick={onClick}
       type={onClick ? "button" : undefined}
       style={interactive ? { cursor: "pointer" } : undefined}

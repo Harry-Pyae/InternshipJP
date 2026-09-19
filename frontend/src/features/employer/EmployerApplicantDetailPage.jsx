@@ -545,12 +545,14 @@ export default function EmployerApplicantDetailPage() {
   );
 }
 
+/** Rendered rather than drawn by CSS - see the note on CompanyProfilePage. */
 function Row({ label, value, mono }) {
+  const { t } = useLanguage();
   const empty = value === null || value === undefined || value === "";
   return (
     <div>
       <dt>{label}</dt>
-      {empty ? <dd className="ijp-detail--empty" /> : <dd className={mono ? "ijp-data" : undefined}>{String(value)}</dd>}
+      {empty ? <dd className="ijp-muted">{t("Not set")}</dd> : <dd className={mono ? "ijp-data" : undefined}>{String(value)}</dd>}
     </div>
   );
 }

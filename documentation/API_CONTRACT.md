@@ -247,9 +247,19 @@ row and notifies the student.
 | GET | `/api/admin/certificates/{id}` | ADMIN | - | `CertificateResponse` |
 | PATCH | `/api/admin/certificates/{id}/verification` | ADMIN | `CertificateVerificationRequest` | `CertificateResponse` |
 | GET | `/api/admin/users?role=&status=&search=&page=&size=` | ADMIN | - | `PageResponse<AdminUserResponse>` |
+| GET | `/api/admin/users/{id}` | ADMIN | - | `AdminUserResponse` |
 | PATCH | `/api/admin/users/{id}/status` | ADMIN | `UpdateUserStatusRequest` | `AdminUserResponse` |
+| POST | `/api/admin/users/{id}/message` | ADMIN | `AdminMessageRequest` | `ApiMessageResponse` |
+| POST | `/api/admin/users/{id}/unlock` | ADMIN | - | `ApiMessageResponse` |
+| DELETE | `/api/admin/users/{id}` | ADMIN | - | `ApiMessageResponse` |
+| POST | `/api/admin/invites` | ADMIN | `InviteAdminRequest` | `ApiMessageResponse` |
+| GET | `/api/admin/internships?keyword=&status=&page=&size=` | ADMIN | - | `PageResponse<InternshipSummaryResponse>` |
+| GET | `/api/admin/internships/{id}` | ADMIN | - | `InternshipDetailResponse` |
 | GET | `/api/admin/ai/usage?page=&size=` | ADMIN | - | `PageResponse<AiUsageLogResponse>` |
 | GET | `/api/admin/ai/usage/summary` | ADMIN | - | `AiUsageSummaryResponse` |
+| GET | `/api/admin/data/export` | ADMIN | - | JSON file (`Content-Disposition: attachment`) |
+| GET | `/api/admin/data/compaction?days=` | ADMIN | - | `DataCompactionResponse` |
+| POST | `/api/admin/data/compaction?days=` | ADMIN | - | `DataCompactionResponse` |
 
 `{id}` in the approval path is the **company** id.
 
@@ -261,6 +271,55 @@ row and notifies the student.
 
 Approving a company also flips its recruiters from `PENDING` to `ACTIVE`.
 An administrator cannot change their own account status (`400`).
+
+### Platform data
+
+Both live on the administrator's Settings screen, and both are ADMIN-only
+because either one reaches the whole database.
+
+`GET /api/admin/data/export` returns every table as one JSON document:
+
+```json
+{
+  "application": "InternshipJP",
+  "formatVersion": 1,
+  "exportedAt": "2026-09-19T15:04:11.221",
+  "database": "internshipjp_db",
+  "tableCount": 24,
+  "rowCount": 1837,
+  "tables": {
+    "users": { "columns": ["id", "email", "..."], "rows": [[1, "a@b.com", "..."]] }
+  }
+}
+```
+
+Tables are ordered parents-first, so inserting them in the order given never
+trips a foreign key. Each table names its columns once and then gives one array
+per row. `flyway_schema_history` is excluded - Flyway rebuilds it. A table past
+200,000 rows is cut off and says so with `"truncated": true` rather than
+returning a short file that looks complete.
+
+**The file contains password hashes.** It is a copy of the database and should
+be handled like one.
+
+`/api/admin/data/compaction` takes `days` (30-3650, default 90). GET counts what
+would go and deletes nothing; POST removes it and reports what it removed.
+`DataCompactionResponse`: `applied`, `retentionDays`, `cutoff`,
+`expiredOtpChallenges`, `aiUsageLogs`, `readNotifications`, `aiConversations`,
+`aiMessages`, `totalRows`.
+
+Only four things are ever removed, and both verbs use the same counting code so
+the preview cannot disagree with the run:
+
+- spent OTP challenges - used or expired, so never redeemable again
+- AI provider telemetry older than the window
+- notifications **already read** and older than the window; unread ones stay
+- AI chat threads untouched since the window, and their messages
+
+Accounts, profiles, companies, internships, applications, application messages,
+status history and certificates are never touched. Anything outside `days` is
+still a decision an administrator has to take deliberately - the endpoint has
+no schedule behind it and nothing calls it on its own.
 
 ### AI oversight (owned by Member 1, rendered by Member 4)
 

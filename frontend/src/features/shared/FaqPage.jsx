@@ -413,7 +413,7 @@ function FeedbackInbox() {
         />
       ) : null}
 
-      {items === null ? (
+      {items === null && !error ? (
         <LoadingBlock label="Loading feedback..." />
       ) : visibleFeedback.length === 0 ? (
         <EmptyState

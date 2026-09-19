@@ -154,7 +154,7 @@ export default function StudentApplicationsPage() {
           shown={visible.length}
           total={(rows ?? []).length}
         />
-        {rows === null ? (
+        {rows === null && !error ? (
           <LoadingBlock label={t("Loading your applications...")} />
         ) : (
                     <>

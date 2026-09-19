@@ -164,20 +164,39 @@ export const adminApi = {
   // ---------------------------------------------------------------
   // ACCOUNT SETTINGS
   // ---------------------------------------------------------------
+  //
+  // There are none here on purpose. /api/account/** is the same endpoint for
+  // every role, and accountApi already wraps it. This file used to carry its
+  // own getAccount, updateAccount and changePassword pointing at those exact
+  // URLs, so a change to one client silently left the administrator on the
+  // other.
 
-  getAccount: () =>
+  // ---------------------------------------------------------------
+  // PLATFORM DATA
+  // ---------------------------------------------------------------
+
+  /**
+   * The whole database as one JSON file.
+   *
+   * responseType "blob" because the body is a file, not a payload to read:
+   * asking Axios to parse a multi-megabyte backup into JavaScript objects
+   * only to serialise it straight back out would double the memory for
+   * nothing. The whole response is returned rather than response.data, so the
+   * caller can read the filename out of Content-Disposition.
+   */
+  exportData: () =>
+    api.get("/api/admin/data/export", { responseType: "blob" }),
+
+  /** What a compaction would remove. Deletes nothing. */
+  previewCompaction: (days) =>
     api
-      .get("/api/account/me")
+      .get("/api/admin/data/compaction", { params: { days } })
       .then((response) => response.data),
 
-  updateAccount: (payload) =>
+  /** Removes it, and reports what was actually removed. */
+  compactData: (days) =>
     api
-      .put("/api/account/me", payload)
-      .then((response) => response.data),
-
-  changePassword: (payload) =>
-    api
-      .post("/api/account/change-password", payload)
+      .post("/api/admin/data/compaction", null, { params: { days } })
       .then((response) => response.data),
 
   // ---------------------------------------------------------------

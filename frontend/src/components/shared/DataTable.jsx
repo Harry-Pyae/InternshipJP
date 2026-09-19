@@ -10,8 +10,12 @@ import { useLanguage } from "../../config/languageContext.jsx";
  * brings it into view, so arriving from a notification lands on that row
  * rather than on a list the person has to search.
  */
-export default function DataTable({ columns, rows = [], rowKey, empty, onRowClick, highlightKey }) {
+export default function DataTable({ columns, rows, rowKey, empty, onRowClick, highlightKey }) {
   const { t } = useLanguage();
+  // Not a default parameter: a default only fills in undefined. Half the
+  // callers hold their rows in state that starts as null and stays null when
+  // the request fails, and rows.length threw on every one of them.
+  const list = rows ?? [];
   const markedRow = useRef(null);
   const markedCard = useRef(null);
   const isMarked = (row) => highlightKey != null && String(rowKey(row)) === String(highlightKey);
@@ -26,7 +30,7 @@ export default function DataTable({ columns, rows = [], rowKey, empty, onRowClic
     target?.scrollIntoView({ behavior: "smooth", block: "center" });
   }, [highlightKey, rows]);
 
-  if (rows.length === 0) {
+  if (list.length === 0) {
     return (
       <EmptyState
         icon={empty?.icon ?? "bi-inbox"}
@@ -51,7 +55,7 @@ export default function DataTable({ columns, rows = [], rowKey, empty, onRowClic
             </tr>
           </thead>
           <tbody>
-            {rows.map((row) => (
+            {list.map((row) => (
               <tr
                 key={rowKey(row)}
                 ref={isMarked(row) ? markedRow : undefined}
@@ -85,7 +89,7 @@ export default function DataTable({ columns, rows = [], rowKey, empty, onRowClic
 
       {/* Phones: one card per row, headers become labels. */}
       <div className="d-grid gap-2 d-md-none">
-        {rows.map((row) => (
+        {list.map((row) => (
           <div
             className={`ijp-card-sunken p-3${isMarked(row) ? " ijp-row--arrived" : ""}`}
             key={rowKey(row)}

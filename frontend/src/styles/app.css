@@ -3156,6 +3156,14 @@ h4 {
 
 /* A figure that needs attention colours its icon too, so the card reads at a
    glance rather than only once the number is parsed. */
+/* A figure that is good news, so the same card can say so without a second
+   component. "Accepted" and "Verified certificates" were green on the student
+   and employer dashboards before those moved to this card. */
+.ijp-metric-icon--ok {
+  background-color: var(--ijp-verified-soft);
+  color: var(--ijp-verified);
+}
+
 .ijp-metric-icon--warning {
   background-color: var(--ijp-pending-soft);
   color: var(--ijp-pending);

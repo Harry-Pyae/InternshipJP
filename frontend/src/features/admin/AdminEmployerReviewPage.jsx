@@ -161,7 +161,7 @@ export default function AdminEmployerReviewPage() {
                         <dd>{company[field.key]}</dd>
                       )
                     ) : (
-                      <dd className="ijp-detail--empty" />
+                      <dd className="ijp-muted">{t("Not set")}</dd>
                     )}
                   </div>
                 ))}

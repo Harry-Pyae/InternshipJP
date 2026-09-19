@@ -56,75 +56,85 @@ export default function AdminProfilePage() {
 
       <ErrorAlert message={error} onRetry={load} />
 
-      {account === null ? (
+      {/* "&& !error" matters: without it a failed request leaves the spinner
+          running for ever underneath the error, because account stays null. The
+          student and employer profile pages guard it the same way. */}
+      {account === null && !error ? (
         <div className="ijp-card p-4">
           <LoadingBlock label={t("Loading profile...")} />
         </div>
-      ) : (
-        <div className="row g-4">
-          {/* The photo is shown here and changed on the edit page. A read-only
+      ) : account ? (
+        <>
+          {/* The same name-and-photo band the student and employer profiles
+              open with. The photo is changed on the edit page: a read-only
               page should not be the one place you can alter the most visible
               thing on it. */}
-          <div className="col-12">
-            <SectionCard title="Photo">
-              <div className="ijp-photo-row">
-                <Avatar name={account.fullName} userId={account.id} size="lg" />
-                <div>
-                  <p className="mb-1 fw-semibold">{account.fullName}</p>
-                  <p className="ijp-muted small mb-0">{account.email}</p>
-                </div>
+          <div className="ijp-card p-3 p-md-4 mb-4">
+            <div className="d-flex align-items-center gap-3 flex-wrap">
+              <Avatar name={account.fullName} userId={account.id} size="lg" />
+              <div style={{ minWidth: 0 }}>
+                <p className="h5 mb-1">{account.fullName}</p>
+                <p className="ijp-muted mb-0">
+                  <Breakable text={account.email} />
+                </p>
               </div>
-            </SectionCard>
+            </div>
           </div>
 
-          <div className="col-12">
-            <SectionCard title="Details">
-              <dl className="ijp-detail-grid ijp-detail mb-0">
-                <div>
-                  <dt>{t("Name")}</dt>
-                  <dd>
-                    {account.fullName || (
-                      <span className="ijp-muted">{t("Not given")}</span>
-                    )}
-                  </dd>
-                </div>
-                <div>
-                  <dt>{t("Email")}</dt>
-                  <dd className="ijp-data"><Breakable text={account.email} /></dd>
-                </div>
-                <div>
-                  <dt>{t("Phone")}</dt>
-                  <dd>
-                    {account.phone || <span className="ijp-muted">{t("Not given")}</span>}
-                  </dd>
-                </div>
-                <div>
-                  <dt>{t("Role")}</dt>
-                  <dd>{t(account.role)}</dd>
-                </div>
-                <div>
-                  <dt>{t("Status")}</dt>
-                  <dd>
-                    <StatusBadge value={account.accountStatus} />
-                  </dd>
-                </div>
-                <div>
-                  <dt>{t("Last login")}</dt>
-                  <dd>
-                    {account.lastLoginAt ? (
-                      <span title={exactTime(account.lastLoginAt)}>
-                        {timeAgo(account.lastLoginAt)}
-                      </span>
-                    ) : (
-                      <span className="ijp-muted">{t("Never signed in")}</span>
-                    )}
-                  </dd>
-                </div>
-              </dl>
-            </SectionCard>
+          <div className="row g-4">
+            <div className="col-12">
+              <SectionCard title="Details">
+                <dl className="ijp-detail-grid ijp-detail mb-0">
+                  <div>
+                    <dt>{t("Name")}</dt>
+                    <dd>
+                      {account.fullName || (
+                        <span className="ijp-muted">{t("Not set")}</span>
+                      )}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>{t("Email")}</dt>
+                    <dd className="ijp-data"><Breakable text={account.email} /></dd>
+                  </div>
+                  <div>
+                    <dt>{t("Phone")}</dt>
+                    {/* "Not set", the same words the student and employer
+                        profiles use for a gap. Three pages saying "Not given",
+                        "Not set" and nothing at all for one situation is three
+                        things for a reader to learn. */}
+                    <dd>
+                      {account.phone || <span className="ijp-muted">{t("Not set")}</span>}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>{t("Role")}</dt>
+                    <dd>{t(account.role)}</dd>
+                  </div>
+                  <div>
+                    <dt>{t("Status")}</dt>
+                    <dd>
+                      <StatusBadge value={account.accountStatus} />
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>{t("Last login")}</dt>
+                    <dd>
+                      {account.lastLoginAt ? (
+                        <span title={exactTime(account.lastLoginAt)}>
+                          {timeAgo(account.lastLoginAt)}
+                        </span>
+                      ) : (
+                        <span className="ijp-muted">{t("Never signed in")}</span>
+                      )}
+                    </dd>
+                  </div>
+                </dl>
+              </SectionCard>
+            </div>
           </div>
-        </div>
-      )}
+        </>
+      ) : null}
     </>
   );
 }

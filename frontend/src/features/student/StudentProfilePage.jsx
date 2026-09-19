@@ -185,14 +185,22 @@ export default function StudentProfilePage() {
   );
 }
 
-/** One labelled value, with a visible "Not set" rather than a blank gap. */
+/**
+ * One labelled value, with a visible "Not set" rather than a blank gap.
+ *
+ * The words are rendered, not drawn by the stylesheet. The rule behind
+ * .ijp-detail--empty sets them with content: "Not set", and CSS cannot be
+ * translated - a Burmese reader got one English phrase on a page that was
+ * otherwise entirely in Burmese.
+ */
 function Row({ label, value, mono, link }) {
+  const { t } = useLanguage();
   const empty = value === null || value === undefined || value === "";
   return (
     <div>
       <dt>{label}</dt>
       {empty ? (
-        <dd className="ijp-detail--empty" />
+        <dd className="ijp-muted">{t("Not set")}</dd>
       ) : link ? (
         <dd className="text-truncate">
           <a href={String(value)} target="_blank" rel="noreferrer noopener">

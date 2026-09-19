@@ -307,7 +307,7 @@ export default function StudentCertificatesPage() {
 
         <div className="col-12 col-xl-7">
           <SectionCard title={t("My certificates")}>
-            {rows === null ? (
+            {rows === null && !error ? (
               <LoadingBlock label={t("Loading your certificates...")} />
             ) : (
               <DataTable

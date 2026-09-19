@@ -83,9 +83,9 @@ export default function BrowseInternshipsPage() {
 
       <ErrorAlert message={error} onRetry={load} />
 
-      {items === null ? (
+      {items === null && !error ? (
         <LoadingBlock label={t("Loading open internships...")} />
-      ) : items.length === 0 ? (
+      ) : (items ?? []).length === 0 ? (
         <div className="ijp-card">
           <EmptyState
             icon="bi-search"

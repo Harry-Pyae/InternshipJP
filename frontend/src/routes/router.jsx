@@ -133,10 +133,8 @@ export default function AppRoutes() {
         <Route path="/employer/applications" element={<ApplicantsPage />} />
         <Route path="/employer/applications/:id" element={<EmployerApplicantDetailPage />} />
         <Route path="/employer/company" element={<CompanyProfilePage />} />
-        {/*
-          Not in EMPLOYER_NAV - reachable by URL only. Member 3 built the page
-          but did not add a sidebar link; left as they had it.
-        */}
+        {/* "My profile" in EMPLOYER_NAV, the same as the student and
+            administrator shells. It was reachable by URL only for a while. */}
         <Route path="/employer/profile" element={<EmployerProfilePage />} />
         <Route path="/employer/profile/edit" element={<EmployerProfileEditPage />} />
         <Route path="/employer/notifications" element={<NotificationsPage />} />

@@ -295,10 +295,17 @@ export default function CompanyProfilePage() {
   );
 }
 
-/** A stored value, or a visible "Not set" so gaps are obvious rather than blank. */
+/**
+ * A stored value, or a visible "Not set" so gaps are obvious rather than blank.
+ *
+ * Rendered, not drawn by the stylesheet: .ijp-detail--empty sets the words with
+ * content: "Not set", and CSS cannot be translated, so a Burmese reader got one
+ * English phrase in the middle of a Burmese page.
+ */
 function Value({ value, link }) {
+  const { t } = useLanguage();
   if (value === null || value === undefined || value === "") {
-    return <dd className="ijp-detail--empty" />;
+    return <dd className="ijp-muted">{t("Not set")}</dd>;
   }
   if (link) {
     return (

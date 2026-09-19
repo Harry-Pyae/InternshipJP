@@ -170,8 +170,8 @@ run the application.
 ### The tests
 
 ```powershell
-.\mvnw.cmd test                       # 90 tests, no database needed
-.\mvnw.cmd test -Dgroups=requires-db   # the other 12, against a real MariaDB
+.\mvnw.cmd test                       # 96 tests, no database needed
+.\mvnw.cmd test -Dgroups=requires-db   # the other 21, against a real MariaDB
 ```
 
 The second group starts the whole Spring context and drives the real HTTP
@@ -304,6 +304,24 @@ app.bootstrap-admin.password=Your-Pass1!
 
 Start the application once, then **set `enabled` back to `false`**. After that,
 administrators are created by invitation from an existing one.
+
+## Backing up, and making room
+
+Administrator **Settings** has both, and they are the only place either is
+reachable from.
+
+**Download data** writes the whole database to one JSON file - every table,
+every row, ordered so that inserting them back in the order given never trips a
+foreign key. It contains password hashes, so treat the file exactly as you
+would treat the database.
+
+**Compact old data** frees space without losing anything that matters. It
+removes spent sign-in codes, AI telemetry, notifications that have already been
+read, and AI chat threads nobody has touched, all past a retention window you
+choose. It never touches accounts, companies, internships, applications or
+certificates. The screen counts what would go before you confirm, using the
+same server code that does the deleting - so the number on the dialog is the
+number that will be removed.
 
 ## A note on passwords
 

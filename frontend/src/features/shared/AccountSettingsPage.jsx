@@ -12,8 +12,21 @@ import { useLanguage } from "../../config/languageContext.jsx";
 
 /**
  * Account settings, shared by all three roles.
+ *
+ * Every role reaches this same page, so the account details form, the password
+ * form and the delete-account block are identical wherever you sign in from.
+ * The administrator screen used to be a second copy of this one with its own
+ * fields, its own validation and no way to delete the account - which the FAQ
+ * told every role to do from here.
+ *
+ * `extra` is how a role adds a section without forking the page: the
+ * administrator passes the platform-data card, and it is rendered full width
+ * between the two forms and the danger zone.
  */
-export default function AccountSettingsPage() {
+export default function AccountSettingsPage({
+  subtitle = "Your account, password and sign-in security.",
+  extra = null,
+}) {
   const { t } = useLanguage();
   const { refresh } = useAuth();
 
@@ -105,57 +118,39 @@ export default function AccountSettingsPage() {
     }
   }
 
+  // Deleting your own account. The typed confirmation is deliberate: a dialog
+  // dismissed with Enter is not a decision, and this removes the profile,
+  // applications and certificates with no way back.
+  const canDelete =
+    deletePassword.length > 0 && deleteConfirm.trim().toUpperCase() === "DELETE";
+
+  async function deleteAccount() {
+    setDeleteBusy(true);
+    setDeleteError(null);
+    try {
+      await accountApi.deleteMyAccount(deletePassword);
+      // The session is already gone on the server, so reload rather than
+      // navigate: it clears every piece of cached account state.
+      window.location.assign("/auth/login");
+    } catch (requestError) {
+      setDeleteError(describeApiError(requestError));
+      setDeleteBusy(false);
+    }
+  }
+
   if (account === null && !error) {
     return <LoadingBlock label={t("Loading your account...")} />;
   }
 
-  // Deleting your own account. The typed confirmation is deliberate: a
-
-  // dialog dismissed with Enter is not a decision, and this removes the
-
-  // profile, applications and certificates with no way back.
-
-  const canDelete =
-
-    deletePassword.length > 0 && deleteConfirm.trim().toUpperCase() === "DELETE";
-
-
-  async function deleteAccount() {
-
-    setDeleteBusy(true);
-
-    setDeleteError(null);
-
-    try {
-
-      await accountApi.deleteMyAccount(deletePassword);
-
-      // The session is already gone on the server, so reload rather than
-
-      // navigate: it clears every piece of cached account state.
-
-      window.location.assign("/auth/login");
-
-    } catch (requestError) {
-
-      setDeleteError(describeApiError(requestError));
-
-      setDeleteBusy(false);
-
-    }
-
-  }
-
-
   return (
     <>
-      <PageHeader title={t("Settings")} subtitle={t("Your account, password and sign-in security.")} />
+      <PageHeader title={t("Settings")} subtitle={t(subtitle)} />
 
       <ErrorAlert message={error} />
 
       <div className="row g-4">
         <div className="col-12 col-xl-6">
-          <SectionCard title={t("Account details")}>
+          <SectionCard title={t("Account details")} fill>
             <form onSubmit={saveProfile} className="d-grid gap-3">
               <AuthField
                 id="setName"
@@ -198,7 +193,7 @@ export default function AccountSettingsPage() {
         </div>
 
         <div className="col-12 col-xl-6">
-          <SectionCard title={t("Password")}>
+          <SectionCard title={t("Password")} fill>
             <form onSubmit={savePassword} className="d-grid gap-3">
               <AuthField
                 id="setCurrent"
@@ -251,7 +246,7 @@ export default function AccountSettingsPage() {
           </SectionCard>
         </div>
 
-
+        {extra ? <div className="col-12">{extra}</div> : null}
 
         <div className="col-12">
           <SectionCard title={t("Delete this account")}>
@@ -307,7 +302,6 @@ export default function AccountSettingsPage() {
             </div>
           </SectionCard>
         </div>
-
       </div>
     </>
   );

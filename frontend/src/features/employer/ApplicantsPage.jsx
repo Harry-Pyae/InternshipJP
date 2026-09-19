@@ -121,7 +121,7 @@ export default function ApplicantsPage() {
             title={t("No internships yet")}
             hint={t("Post a vacancy first, and applicants will appear here.")}
           />
-        ) : rows === null ? (
+        ) : rows === null && !error ? (
           <LoadingBlock label={t("Loading applicants...")} />
         ) : (
           <>

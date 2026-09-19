@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import PageHeader from "../../components/shared/PageHeader.jsx";
-import StatCard from "../../components/shared/StatCard.jsx";
+import MetricCard from "../../components/shared/MetricCard.jsx";
 import ErrorAlert from "../../components/shared/ErrorAlert.jsx";
 import LoadingBlock from "../../components/shared/LoadingBlock.jsx";
 import { employerApi } from "../../api/employerApi.js";
@@ -59,33 +59,37 @@ export default function EmployerDashboardPage() {
         <LoadingBlock label={t("Loading your figures...")} />
       ) : (
         <div className="row g-3 mb-4">
-          <div className="col-6 col-xl-3">
-            <StatCard
+          <div className="col-12 col-sm-6 col-xl-3">
+            <MetricCard
               label={t("Open vacancies")}
               value={dashboard?.openVacancies ?? "—"}
               icon="bi-megaphone"
-              hint={t("Currently accepting applications")}
+              description="Currently accepting applications"
+              href="/employer/internships"
             />
           </div>
-          <div className="col-6 col-xl-3">
-            <StatCard
+          <div className="col-12 col-sm-6 col-xl-3">
+            <MetricCard
               label={t("Total applicants")}
               value={dashboard?.totalApplicants ?? "—"}
               icon="bi-people"
-              hint={t("Applications received")}
+              description="Applications received"
+              href="/employer/applications"
             />
           </div>
-          <div className="col-6 col-xl-3">
-            <StatCard
+          <div className="col-12 col-sm-6 col-xl-3">
+            <MetricCard
               label={t("Accepted")}
               value={dashboard?.acceptedApplicants ?? "—"}
               icon="bi-check2-circle"
               tone="ok"
-              hint={t("Candidates accepted")}
+              description="Candidates accepted"
+              href="/employer/applications"
             />
           </div>
-          <div className="col-6 col-xl-3">
-            <StatCard
+          <div className="col-12 col-sm-6 col-xl-3">
+            {/* No link: a rate is not a list you can open. */}
+            <MetricCard
               label={t("Conversion")}
               value={
                 dashboard?.conversionRate != null
@@ -93,7 +97,7 @@ export default function EmployerDashboardPage() {
                   : "—"
               }
               icon="bi-graph-up"
-              hint={t("Applicants accepted")}
+              description="Applicants accepted"
             />
           </div>
         </div>
