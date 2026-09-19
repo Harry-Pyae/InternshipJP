@@ -2592,11 +2592,14 @@ h4 {
   border-bottom: 1px solid var(--ijp-border);
 }
 
-.ijp-action-row:first-child {
+.ijp-action-rows > .ijp-action-row:first-child {
   padding-top: 0;
 }
 
-.ijp-action-row:last-child {
+/* Scoped to the wrapper, not to the card body. A confirmation dialog rendered
+   as a sibling would otherwise take :last-child off the final row and put its
+   divider and padding back while the dialog was open. */
+.ijp-action-rows > .ijp-action-row:last-child {
   padding-bottom: 0;
   border-bottom: 0;
 }
@@ -2625,8 +2628,12 @@ h4 {
   color: var(--ijp-ink);
 }
 
+/* Capped, because the row is full width and the controls sit at the far end
+   of it. Without this the description ran the whole way across and became a
+   single line of a hundred characters. */
 .ijp-action-row-text {
   margin: 0;
+  max-width: 46rem;
   font-size: 0.83rem;
   line-height: 1.6;
   color: var(--ijp-ink-soft);
