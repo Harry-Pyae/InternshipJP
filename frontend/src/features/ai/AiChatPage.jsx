@@ -24,6 +24,18 @@ import ConfirmDialog from "../../components/shared/ConfirmDialog.jsx";
 import Pagination from "../../components/shared/Pagination.jsx";
 
 /**
+ * What AiChatRequest accepts: @Size(max = 2000) on the message.
+ *
+ * The box was capped at 150 by the pass that added a limit to every field in
+ * the project at once. On a search box 150 is generous; on the one field where
+ * somebody describes a situation to an assistant it cut the question off
+ * mid-sentence, and the server would have taken more than thirteen times as
+ * much. Kept here as a named constant so it is obvious that it mirrors a rule
+ * the backend owns.
+ */
+const CHAT_QUESTION_MAX = 2000;
+
+/**
  * The AI assistant - Member 1's vertical slice.
  */
 export default function AiChatPage({ audience, initialTab = "chat" }) {
@@ -600,18 +612,22 @@ function ChatTab({
         </div>
       ) : null}
 
-      <form onSubmit={onSend} className="d-flex gap-2">
-        <input
-          className="form-control ijp-chat-input"
-          value={draft}
-          onChange={(event) => setDraft(event.target.value)}
-          placeholder={t("Ask a question")}
-          aria-label={t("Your question")}
-          disabled={sending}
-        
-            maxLength={150}
-            />
-                <CharCount value={draft} max={150} />
+      <form onSubmit={onSend} className="d-flex gap-2 align-items-start">
+        {/* The counter goes under the box, not beside it. As a direct child of
+            this flex row it became a third item the moment it appeared, and
+            pushed the Send button off the end of a narrow screen. */}
+        <div className="flex-grow-1">
+          <input
+            className="form-control ijp-chat-input"
+            value={draft}
+            onChange={(event) => setDraft(event.target.value)}
+            placeholder={t("Ask a question")}
+            aria-label={t("Your question")}
+            disabled={sending}
+            maxLength={CHAT_QUESTION_MAX}
+          />
+          <CharCount value={draft} max={CHAT_QUESTION_MAX} />
+        </div>
         <button className="btn btn-ijp-primary flex-shrink-0" type="submit" disabled={sending}>
           <i className="bi bi-send" aria-hidden="true" />
           <span className="d-none d-sm-inline ms-2">{t("Send")}</span>

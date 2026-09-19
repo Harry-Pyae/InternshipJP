@@ -3728,6 +3728,28 @@ h4 {
   text-decoration: underline;
 }
 
+/* A skill a vacancy asks for, rather than one a student has.
+
+   Its own colour on purpose: the green of .ijp-skill-chip means "verified"
+   everywhere else in this interface, and a requirement somebody typed into a
+   job advert has not been verified by anyone. Built from the theme tokens so
+   it follows dark mode, which the per-type chip colours below - fixed hex from
+   an earlier pass - do not. */
+.ijp-skill-chip--required {
+  border-color: var(--ijp-signal);
+  background-color: var(--ijp-signal-soft);
+  color: var(--ijp-signal);
+}
+
+/* The plain-text half of a chip that is not also a button. On the student's
+   skill editor the name opens the editor, so it is a <button>; here there is
+   nothing to open, and a button that does nothing is worse than a label. */
+.ijp-skill-chip-text {
+  padding: 0.3rem 0.3rem 0.3rem 0.75rem;
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
 .ijp-skill-chip-x {
   border: 0;
   background: none;
@@ -4820,6 +4842,19 @@ h4 {
    and a click aimed at the next control missed. */
 .ijp-field-msg {
   min-height: 1.2rem;
+  /* The message and the character counter share the one reserved line, so a
+     counter appearing near the limit does not push the rest of the form down
+     - the same reason this slot is always rendered even when it is empty. */
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.ijp-field-msg .ijp-charcount {
+  margin-top: 0.3rem;
+  margin-left: auto;
+  white-space: nowrap;
 }
 
 .ijp-field-msg > p {

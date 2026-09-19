@@ -56,23 +56,27 @@ export default function BrowseInternshipsPage() {
       />
 
       <form
-        className="d-flex gap-2 mb-4"
+        className="d-flex gap-2 mb-4 align-items-start"
         onSubmit={(event) => {
           event.preventDefault();
           setPage(0);
           setQuery(keyword.trim());
         }}
       >
-        <input
-          className="form-control"
-          value={keyword}
-          onChange={(event) => setKeyword(event.target.value)}
-          placeholder={t("Search by title, company or location")}
-          aria-label={t("Search internships")}
-        
+        {/* The counter goes under the box, not beside it. As a direct child of
+            this flex row it became a third item the moment it appeared, and
+            pushed the Search button off the end of a narrow screen. */}
+        <div className="flex-grow-1">
+          <input
+            className="form-control"
+            value={keyword}
+            onChange={(event) => setKeyword(event.target.value)}
+            placeholder={t("Search by title, company or location")}
+            aria-label={t("Search internships")}
             maxLength={150}
-            />
-                <CharCount value={keyword} max={150} />
+          />
+          <CharCount value={keyword} max={150} />
+        </div>
         <button className="btn btn-ijp-primary flex-shrink-0" type="submit">
           <i className="bi bi-search me-1" aria-hidden="true" />{t("Search")}</button>
       </form>

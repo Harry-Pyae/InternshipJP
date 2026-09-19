@@ -26,9 +26,8 @@ export default function SearchBox({ value, onChange, placeholder, shown, total }
           onChange={(event) => onChange(event.target.value)}
           placeholder={placeholder ?? t("Search")}
           aria-label={placeholder ?? t("Search")}
-        
-            maxLength={150}
-            />
+          maxLength={150}
+        />
         {value ? (
           <button
             type="button"

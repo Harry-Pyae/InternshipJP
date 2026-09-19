@@ -337,7 +337,7 @@ export default function EditStudentProfilePage() {
               onChange={handleChange}
               maxLength={1500}
             />
-                <CharCount value={form.biography} max={1500} />
+            <CharCount value={form.biography} max={1500} />
           </SectionCard>
 
           <SectionCard title={t("Links")}>

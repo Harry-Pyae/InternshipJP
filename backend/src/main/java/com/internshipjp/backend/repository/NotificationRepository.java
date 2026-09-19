@@ -15,7 +15,8 @@ import org.springframework.data.repository.query.Param;
 /**
  * In-app notifications.
  *
- * Future work: add filtering by type and a delete/archive rule.
+ * Future work: filtering by type, and a delete or archive rule - a
+ * notification is read or unread today and is never removed.
  */
 @Repository
 public interface NotificationRepository extends JpaRepository<Notification, Long> {

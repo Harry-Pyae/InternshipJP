@@ -8,10 +8,13 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 /**
  * Employer create/update payload for an internship.
- * Future work: add the required-skills list and deadline business rules.
+ *
+ * Future work: deadline business rules - closing a vacancy automatically when
+ * the date passes, rather than only refusing new applications.
  */
 public class InternshipRequest {
     @NotBlank
@@ -51,6 +54,31 @@ public class InternshipRequest {
 
     @Pattern(regexp = "DRAFT|OPEN|CLOSED|FILLED|ARCHIVED", message = "Unknown internship status")
     private String status;
+
+    /**
+     * What the vacancy asks for. This is the whole of the matching input.
+     *
+     * The score a student sees is matched * 100 / requiredSkills.size(), and
+     * the skill-gap report counts how many open vacancies ask for each name,
+     * so a vacancy with an empty list cannot be matched to anybody and
+     * contributes nothing to what the platform tells students to learn. Until
+     * this field existed, only the demo seeder could write these rows: an
+     * employer using the real form produced a vacancy that four features could
+     * not see.
+     *
+     * Twenty is a cap, not a target - the posting form asks for three to five,
+     * because a vacancy that requires twenty things matches nobody either.
+     */
+    @Size(max = 20, message = "List at most 20 required skills.")
+    private List<@Size(max = 100, message = "A skill name is at most 100 characters.") String> requiredSkills;
+
+    public List<String> getRequiredSkills() {
+        return requiredSkills;
+    }
+
+    public void setRequiredSkills(List<String> requiredSkills) {
+        this.requiredSkills = requiredSkills;
+    }
 
     public String getTitle() {
         return title;

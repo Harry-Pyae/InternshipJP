@@ -111,8 +111,7 @@ export default function ConfirmDialog({
               onChange={(event) => setTyped(event.target.value)}
               placeholder={confirmWord}
               autoComplete="off"
-            
-            maxLength={150}
+              maxLength={150}
             />
           </div>
         ) : null}

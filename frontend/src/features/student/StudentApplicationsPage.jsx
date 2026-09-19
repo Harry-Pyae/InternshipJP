@@ -15,6 +15,15 @@ import ConfirmDialog from "../../components/shared/ConfirmDialog.jsx";
 import { useAuth } from "../../config/authContext.jsx";
 
 /**
+ * The statuses a student may still withdraw from.
+ *
+ * The same four as WITHDRAWABLE in ApplicationService. The server is what
+ * decides; this only decides whether to draw the button, so that nobody is
+ * offered an action that comes back refused.
+ */
+const WITHDRAWABLE = ["APPLIED", "UNDER_REVIEW", "SHORTLISTED", "INTERVIEW"];
+
+/**
  * Everything this student has applied to.
  */
 export default function StudentApplicationsPage() {
@@ -36,6 +45,9 @@ export default function StudentApplicationsPage() {
   const threadEnd = useRef(null);
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState("");
+  // Which application is being withdrawn, and whether that call is in flight.
+  const [withdrawing, setWithdrawing] = useState(null);
+  const [withdrawBusy, setWithdrawBusy] = useState(false);
   // The application a notification was about, marked in the list.
   const [params, setParams] = useSearchParams();
   const location = useLocation();
@@ -189,6 +201,19 @@ export default function StudentApplicationsPage() {
                         >
                           <i className="bi bi-reply me-1" aria-hidden="true" />{t("Reply")}</button>
                       )}
+                      {/* Only while it is still open. Once the employer has
+                          accepted or rejected it, or it has been withdrawn
+                          already, there is nothing to take back - and the
+                          server refuses it on the same rule, so the button is
+                          hidden rather than offered and then denied. */}
+                      {WITHDRAWABLE.includes(row.status) ? (
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-ijp-quiet"
+                          onClick={() => setWithdrawing(row)}
+                        >
+                          <i className="bi bi-x-circle me-1" aria-hidden="true" />{t("Withdraw")}</button>
+                      ) : null}
                       {row.internshipId ? (
                         <Link
                           className="btn btn-sm btn-ijp-quiet"
@@ -220,7 +245,11 @@ export default function StudentApplicationsPage() {
         )}
       </div>
 
-      <p className="ijp-muted small mt-3 mb-0">{t("Only the employer can change an application's status. You will get a notification when one of these moves.")}</p>
+      {/* This used to read "Only the employer can change an application's
+          status", which stopped being true when Withdraw was added - and it
+          is the one change a student CAN make, so leaving it would have told
+          them the opposite of what the button next to it does. */}
+      <p className="ijp-muted small mt-3 mb-0">{t("Withdrawing is the only change you can make yourself; every other move is the employer's. You will get a notification when one of these moves.")}</p>
       <ConfirmDialog
         open={Boolean(replyTo)}
         tone="neutral"
@@ -268,6 +297,43 @@ export default function StudentApplicationsPage() {
         }}
       />
 
+      {/*
+        Withdrawing cannot be undone, and the reason is worth stating rather
+        than hinting at: one application per person per vacancy is a database
+        constraint, so the row cannot be replaced with a fresh one afterwards.
+        Somebody should know that before they press it, not after.
+      */}
+      <ConfirmDialog
+        open={Boolean(withdrawing)}
+        tone="danger"
+        title={t("Withdraw this application?")}
+        message={
+          withdrawing
+            ? t("{company} will be told you are no longer applying for {role}.", {
+                company: withdrawing.companyName,
+                role: withdrawing.internshipTitle,
+              })
+            : ""
+        }
+        note={t("This cannot be undone, and you cannot apply to this vacancy again.")}
+        confirmLabel={t("Withdraw application")}
+        busy={withdrawBusy}
+        onCancel={() => setWithdrawing(null)}
+        onConfirm={async () => {
+          setWithdrawBusy(true);
+          setError(null);
+          try {
+            await studentApi.withdrawApplication(withdrawing.id);
+            setSent(t("Your application was withdrawn."));
+            setWithdrawing(null);
+            await load();
+          } catch (requestError) {
+            setError(describeApiError(requestError));
+          } finally {
+            setWithdrawBusy(false);
+          }
+        }}
+      />
     </>
   );
 }

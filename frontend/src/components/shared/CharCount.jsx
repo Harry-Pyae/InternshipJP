@@ -11,9 +11,26 @@ import { useLanguage } from "../../config/languageContext.jsx";
  *
  *   The threshold is a fifth of the limit, or eighty characters, whichever is
  *   smaller - so a 3000-character letter warns at 2920 rather than at 2400.
+ *
+ * WHY SHORT FIELDS NEVER GET ONE
+ *   A fifth of a small limit is a tiny number, so a phone box capped at 16
+ *   started counting down at 13 and a four-digit year at 3 - warning people
+ *   about a limit they could see the end of anyway, on the fields where they
+ *   are typing something whose length they already know. Below the floor the
+ *   field speaks for itself and the counter is only noise.
  */
+const SHORT_FIELD = 25;
+
 export default function CharCount({ value, max }) {
   const { t } = useLanguage();
+
+  // A caller with no limit to report. Without this the arithmetic below is
+  // NaN, and NaN is never greater than the threshold, so the component
+  // rendered "NaN characters left" rather than nothing.
+  if (!max || max <= SHORT_FIELD) {
+    return null;
+  }
+
   const used = String(value ?? "").length;
   const left = max - used;
   const threshold = Math.min(Math.round(max / 5), 80);

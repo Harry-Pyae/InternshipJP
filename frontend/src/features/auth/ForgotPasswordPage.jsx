@@ -100,8 +100,8 @@ export default function ForgotPasswordPage() {
         value={email}
         onChange={setEmail}
         disabled={step === "reset"}
-      maxLength={190}
-                  />
+        maxLength={190}
+      />
 
       {step === "reset" ? (
         <>
@@ -113,8 +113,8 @@ export default function ForgotPasswordPage() {
             onChange={setCode}
             placeholder="123456"
             inputMode="numeric"
-          maxLength={150}
-                  />
+            maxLength={150}
+          />
           <AuthField
             id="forgotNewPassword"
             type="password"
@@ -123,8 +123,8 @@ export default function ForgotPasswordPage() {
             value={newPassword}
             onChange={setNewPassword}
             hint={t("At least 8 characters, with an uppercase letter, a lowercase letter, a digit and a symbol.")}
-          maxLength={72}
-                  />
+            maxLength={72}
+          />
         </>
       ) : null}
 

@@ -9,7 +9,9 @@ import jakarta.validation.constraints.Pattern;
 
 /**
  * Employer edit of their own company.
- * Future work: the edit form for these fields is not yet built.
+ *
+ * The form for these fields is features/employer/CompanyProfilePage, and every
+ * limit below is mirrored there so the box stops where the server does.
  */
 public class UpdateCompanyRequest {
     @NotBlank

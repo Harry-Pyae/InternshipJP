@@ -20,7 +20,19 @@ const initialForm = {
   availablePositions: "1",
   applicationDeadline: "",
   status: "DRAFT",
+  requiredSkills: [],
 };
+
+/**
+ * What the server accepts: InternshipRequest is @Size(max = 20) on the list
+ * and @Size(max = 100) on each name.
+ *
+ * The guidance beside the field asks for three to five, which is advice rather
+ * than a rule - a vacancy requiring twenty things matches nobody, but that is
+ * the employer's call to make.
+ */
+const MAX_SKILLS = 20;
+const MAX_SKILL_LENGTH = 100;
 
 /**
  * Create or edit a vacancy.
@@ -41,6 +53,9 @@ export default function PostInternshipPage() {
   const [error, setError] = useState("");
   // The briefing is for someone creating a vacancy; an editor has read it.
   const [briefed, setBriefed] = useState(isEdit);
+  // What is typed in the skill box before it becomes a chip.
+  const [skillDraft, setSkillDraft] = useState("");
+  const [skillError, setSkillError] = useState("");
 
   useEffect(() => {
     if (!isEdit) return;
@@ -63,6 +78,7 @@ export default function PostInternshipPage() {
           availablePositions: data.availablePositions ?? "",
           applicationDeadline: data.applicationDeadline ?? "",
           status: data.status ?? current.status,
+          requiredSkills: data.requiredSkills ?? [],
         })),
       )
       .catch(() => setError("Could not load this internship."));
@@ -70,6 +86,43 @@ export default function PostInternshipPage() {
 
   function set(name, value) {
     setForm((current) => ({ ...current, [name]: value }));
+  }
+
+  /**
+   * Turns what is typed into a required skill.
+   *
+   * The three rules here are the server's, said before the request rather
+   * than after it: the list is capped, each name is capped, and the same name
+   * twice is one skill. The last is a database constraint -
+   * uk_internship_skill is UNIQUE (internship_id, name) - so a duplicate is
+   * not a preference, it is a failed insert; refusing it here means the
+   * employer is told which word was already on the list instead of reading a
+   * constraint name.
+   */
+  function addSkill() {
+    const name = skillDraft.trim();
+    if (!name) {
+      return;
+    }
+    if (form.requiredSkills.length >= MAX_SKILLS) {
+      setSkillError(t("You can list at most {n} skills.", { n: MAX_SKILLS }));
+      return;
+    }
+    const already = form.requiredSkills.some(
+      (existing) => existing.toLowerCase() === name.toLowerCase(),
+    );
+    if (already) {
+      setSkillError(t("{skill} is already on the list.", { skill: name }));
+      return;
+    }
+    setSkillError("");
+    setSkillDraft("");
+    set("requiredSkills", [...form.requiredSkills, name]);
+  }
+
+  function removeSkill(name) {
+    setSkillError("");
+    set("requiredSkills", form.requiredSkills.filter((existing) => existing !== name));
   }
 
   function handleChange(event) {
@@ -226,6 +279,87 @@ export default function PostInternshipPage() {
                 />
                 <CharCount value={form.requirements} max={2000} />
               </Field>
+
+              {/*
+                The one field the matching actually reads.
+
+                Requirements above is prose for a person; this is the list the
+                score is computed from - matched * 100 / requiredSkills.length
+                - and the same list the skill-gap report counts across every
+                open vacancy. A vacancy with none of these is invisible to all
+                four of the calculated features, which is why the briefing on
+                this page has always said to fill it in. Until now there was
+                nothing here to fill in: only the demo seeder could write
+                these rows.
+              */}
+              <Field
+                htmlFor="requiredSkill"
+                label={t("Required skills")}
+                note={t("Three to five works best. Students are matched on these, and a vacancy with none cannot be matched to anybody.")}
+              >
+                <div className="d-flex gap-2 align-items-start">
+                  <div className="flex-grow-1">
+                    <input
+                      id="requiredSkill"
+                      className="form-control"
+                      value={skillDraft}
+                      onChange={(event) => {
+                        setSkillDraft(event.target.value);
+                        if (skillError) setSkillError("");
+                      }}
+                      onKeyDown={(event) => {
+                        // Enter adds the skill rather than submitting the
+                        // whole form, which is what a single-input row inside
+                        // a <form> does by default - and posting a vacancy by
+                        // pressing Enter after typing "React" is not what
+                        // anybody means by it.
+                        if (event.key === "Enter") {
+                          event.preventDefault();
+                          addSkill();
+                        }
+                      }}
+                      placeholder={t("e.g. React, SQL, Spring Boot")}
+                      maxLength={MAX_SKILL_LENGTH}
+                      aria-describedby="requiredSkillError"
+                    />
+                    <CharCount value={skillDraft} max={MAX_SKILL_LENGTH} />
+                  </div>
+                  <button
+                    type="button"
+                    className="btn btn-ijp-quiet flex-shrink-0"
+                    onClick={addSkill}
+                    disabled={!skillDraft.trim()}
+                  >
+                    <i className="bi bi-plus-lg me-1" aria-hidden="true" />{t("Add")}</button>
+                </div>
+
+                <p className="ijp-field-error" id="requiredSkillError" role="alert">
+                  {skillError}
+                </p>
+
+                {form.requiredSkills.length ? (
+                  <div className="ijp-pill-row">
+                    {form.requiredSkills.map((skill) => (
+                      <span className="ijp-skill-chip ijp-skill-chip--required" key={skill}>
+                        <span className="ijp-skill-chip-text">{skill}</span>
+                        <button
+                          type="button"
+                          className="ijp-skill-chip-x"
+                          onClick={() => removeSkill(skill)}
+                          aria-label={`${t("Remove")} ${skill}`}
+                        >
+                          <i className="bi bi-x" aria-hidden="true" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="ijp-field-note ijp-state--warn">
+                    <i className="bi bi-exclamation-triangle me-1" aria-hidden="true" />
+                    {t("No skills listed yet. This vacancy will not appear in any student's matches.")}
+                  </p>
+                )}
+              </Field>
             </Section>
 
             <Section
@@ -245,7 +379,7 @@ export default function PostInternshipPage() {
                       className="form-control"
                       maxLength={150}
                     />
-                <CharCount value={form.location} max={150} />
+                    <CharCount value={form.location} max={150} />
                   </Field>
                 </div>
                 <div className="col-md-6">
@@ -344,7 +478,7 @@ export default function PostInternshipPage() {
                       className="form-control"
                       maxLength={10}
                     />
-                <CharCount value={form.stipendCurrency} max={10} />
+                    <CharCount value={form.stipendCurrency} max={10} />
                   </Field>
                 </div>
                 <div className="col-md-6">

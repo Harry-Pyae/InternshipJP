@@ -82,6 +82,20 @@ public class StudentApplicationController {
         return new ApiMessageResponse("Your reply was sent to the employer.");
     }
 
+    /**
+     * The student taking their own application out of the running.
+     *
+     * A POST rather than a PATCH on the status endpoint, because this is not
+     * the employer's decision path with a different value in it: only the
+     * applicant may do it, and only to their own row. ApplicationService
+     * proves both.
+     */
+    @PostMapping("/api/student/applications/{id}/withdraw")
+    @PreAuthorize("hasRole('STUDENT')")
+    public ApplicationSummaryResponse withdraw(@PathVariable Long id) {
+        return applicationService.withdraw(currentUserService.requireUserId(), id);
+    }
+
     @GetMapping("/api/student/applications")
     public PageResponse<ApplicationSummaryResponse> myApplications(
             @RequestParam(defaultValue = "0") int page,

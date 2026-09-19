@@ -327,9 +327,19 @@ public class AuthService {
         user.setLastLoginAt(LocalDateTime.now());
         userRepository.save(user);
 
-        // Future work: if 2FA is enabled for this user, do not return a full
-        // session here. Return a "challenge required" response instead and only
-        // save the SecurityContext once the code has been verified.
+        // Future work, and the half that makes two-factor authentication real.
+        //
+        // Enrolment is built and tested (/api/account/2fa/**, TotpService,
+        // user_two_factor_settings). This line is where it is NOT enforced: a
+        // user with a stored secret still gets a full session here without
+        // ever being asked for a code.
+        //
+        // Finishing it means returning a "challenge required" answer instead
+        // of an authenticated user, holding the pending identity somewhere the
+        // browser cannot forge, and saving the SecurityContext only once the
+        // code has been verified. Until that exists there is deliberately no
+        // enrolment screen, because a switch that changes nothing at sign-in
+        // would promise a protection this line does not provide.
         return userMapper.toAuthUser(user);
     }
 

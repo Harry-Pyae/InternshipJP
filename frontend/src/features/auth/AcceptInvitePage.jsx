@@ -101,8 +101,8 @@ export default function AcceptInvitePage() {
           placeholder="you@example.com"
           autoComplete="username"
           required
-        maxLength={190}
-                  />
+          maxLength={190}
+        />
 
         <AuthField
           id="inviteCode"
@@ -114,8 +114,8 @@ export default function AcceptInvitePage() {
           hint={t("Six digits, from the email. It expires 72 hours after it was sent.")}
           autoComplete="one-time-code"
           required
-        maxLength={150}
-                  />
+          maxLength={150}
+        />
 
         <AuthField
           id="invitePassword"
@@ -127,8 +127,8 @@ export default function AcceptInvitePage() {
           hint={t("At least 8 characters, with an uppercase letter, a lowercase letter, a digit and a symbol.")}
           autoComplete="new-password"
           required
-        maxLength={150}
-                  />
+          maxLength={150}
+        />
 
         <AuthField
           id="inviteConfirm"
@@ -139,8 +139,8 @@ export default function AcceptInvitePage() {
           onChange={(value) => set("confirm", value)}
           autoComplete="new-password"
           required
-        maxLength={150}
-                  />
+          maxLength={150}
+        />
 
         <button className="btn btn-ijp-primary ijp-auth-submit" type="submit" disabled={busy}>
           {busy ? t("Setting up...") : t("Activate my account")}

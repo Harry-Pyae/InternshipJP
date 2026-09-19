@@ -14,6 +14,7 @@ import { useLanguage } from "../../config/languageContext.jsx";
 import { certificateAge } from "../../api/relativeTime.js";
 import ConfirmDialog from "../../components/shared/ConfirmDialog.jsx";
 import CharCount from "../../components/shared/CharCount.jsx";
+import DatePicker, { todayISO } from "../../components/shared/DatePicker.jsx";
 
 /**
  * Uploading qualifications, and seeing whether they have been verified.
@@ -22,6 +23,25 @@ export default function StudentCertificatesPage() {
   const { t } = useLanguage();
   const [rows, setRows] = useState(null);
   const [title, setTitle] = useState("");
+  // Who awarded it.
+  //
+  // CertificateUploadRequest has always accepted this, the column has always
+  // been there, and four screens read it - the student's own list, the
+  // employer's applicant view, and both administrator screens, one of which
+  // has a whole column for it and lets you search on it. Nothing ever
+  // collected it, so every one of those read an empty value and printed
+  // "Issuer not given" for every certificate ever uploaded.
+  //
+  // It matters most to the person the platform is built around: an
+  // administrator deciding whether a document is genuine is checking it
+  // against an issuer, and the queue was not telling them who that was.
+  const [issuer, setIssuer] = useState("");
+  // When it was awarded. The same story as the issuer: accepted by the
+  // request, stored in the column, and read by three screens - the admin
+  // review page even works out how old the document is with certificateAge(),
+  // a helper written for this one value. Nothing collected it, so on anything
+  // but demo data that helper had nothing to work on.
+  const [issueDate, setIssueDate] = useState("");
   const [file, setFile] = useState(null);
   const [error, setError] = useState(null);
   // Which certificate is being confirmed for deletion.
@@ -90,14 +110,26 @@ export default function StudentCertificatesPage() {
       // the server returned an error rather than saving anything. The Blob
       // wrapper is what makes the browser label that part application/json;
       // a plain string would arrive as text/plain and fail to bind.
-      const metadata = new Blob([JSON.stringify({ title: title.trim() })], {
-        type: "application/json",
-      });
+      const metadata = new Blob(
+        [
+          JSON.stringify({
+            title: title.trim(),
+            // Omitted rather than sent empty, so a certificate without an
+            // issuer keeps a null column instead of a blank string - the
+            // screens that read it already distinguish the two.
+            issuingOrganization: issuer.trim() || null,
+            issueDate: issueDate || null,
+          }),
+        ],
+        { type: "application/json" },
+      );
       const form = new FormData();
       form.append("metadata", metadata);
       form.append("file", file);
       await studentApi.uploadCertificate(form);
       setTitle("");
+      setIssuer("");
+      setIssueDate("");
       setFile(null);
       if (fileInput.current) {
         fileInput.current.value = "";
@@ -191,10 +223,46 @@ export default function StudentCertificatesPage() {
                   value={title}
                   onChange={(event) => setTitle(event.target.value)}
                   placeholder={t("e.g. Oracle Java Foundations")}
-                
-            maxLength={150}
-            />
-                <CharCount value={title} max={150} />
+                  maxLength={200}
+                />
+                <CharCount value={title} max={200} />
+              </div>
+
+              <div>
+                <label className="ijp-field-label" htmlFor="certIssuer">
+                  {t("Issued by")}
+                  <span className="ijp-muted fw-normal"> {t("(optional)")}</span>
+                </label>
+                <input
+                  id="certIssuer"
+                  className="form-control"
+                  value={issuer}
+                  onChange={(event) => setIssuer(event.target.value)}
+                  placeholder={t("e.g. Oracle, Coursera, University of Yangon")}
+                  maxLength={200}
+                />
+                <CharCount value={issuer} max={200} />
+                <p className="ijp-field-hint">
+                  {t("The administrator checking this document looks for the organisation that awarded it.")}
+                </p>
+              </div>
+
+              <div>
+                <label className="ijp-field-label" htmlFor="certIssueDate">
+                  {t("Issued on")}
+                  <span className="ijp-muted fw-normal"> {t("(optional)")}</span>
+                </label>
+                {/* Capped at today. A certificate is awarded before it is
+                    uploaded, so a future date is not a preference, it is
+                    wrong. */}
+                <DatePicker
+                  id="certIssueDate"
+                  value={issueDate}
+                  onChange={setIssueDate}
+                  max={todayISO()}
+                  placeholder="Choose a date"
+                  ariaLabel={t("Certificate issue date")}
+                />
               </div>
 
               <div>

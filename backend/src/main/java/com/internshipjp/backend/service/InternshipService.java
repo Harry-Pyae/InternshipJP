@@ -12,6 +12,7 @@ import com.internshipjp.backend.entity.WorkMode;
 import com.internshipjp.backend.exception.NotFoundException;
 import com.internshipjp.backend.mapper.InternshipMapper;
 import com.internshipjp.backend.repository.InternshipRepository;
+import com.internshipjp.backend.entity.InternshipSkill;
 import com.internshipjp.backend.repository.InternshipSkillRepository;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Page;
@@ -22,7 +23,9 @@ import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Locale;
+import java.util.Set;
 import java.time.LocalDate;
 import com.internshipjp.backend.repository.ApplicationRepository;
 import org.slf4j.Logger;
@@ -31,11 +34,15 @@ import org.slf4j.LoggerFactory;
 /**
  * Internship listing (public) and internship management (employer).
  *
- * Future work. This is deliberately the simple version. Still to add:
- *   - filtering by work mode, location, stipend range and required skills
- *   - the required-skills editor (internship_skills table + repository exist)
- *   - closing an internship automatically when the deadline passes
- *   - "positions filled" logic once enough applications are ACCEPTED
+ * Future work. Still to add:
+ *   - filtering by work mode, location and stipend range on the public list
+ *     (it searches title, company and location by keyword today)
+ *   - closing an internship automatically when the deadline passes; the
+ *     deadline is enforced when somebody applies, but the vacancy stays OPEN
+ *
+ * Two items that used to head this list are done: the required-skills editor
+ * is replaceSkills() below, and "positions filled" is
+ * ApplicationService.closeIfFull().
  */
 @Service
 public class InternshipService {
@@ -224,7 +231,12 @@ public PageResponse<InternshipSummaryResponse> listForAdmin(
         internship.setCreatedBy(userId);
         apply(internship, request, status);
 
-        return internshipMapper.toDetail(internshipRepository.save(internship), List.of());
+        Internship saved = internshipRepository.save(internship);
+        // After the save, because a skill row needs the internship's id.
+        replaceSkills(saved, request.getRequiredSkills());
+
+        return internshipMapper.toDetail(saved,
+                internshipSkillRepository.findByInternshipId(saved.getId()));
     }
 
     @Transactional
@@ -237,8 +249,11 @@ public PageResponse<InternshipSummaryResponse> listForAdmin(
         }
         apply(internship, request, status);
 
-        return internshipMapper.toDetail(internshipRepository.save(internship),
-                internshipSkillRepository.findByInternshipId(internship.getId()));
+        Internship saved = internshipRepository.save(internship);
+        replaceSkills(saved, request.getRequiredSkills());
+
+        return internshipMapper.toDetail(saved,
+                internshipSkillRepository.findByInternshipId(saved.getId()));
     }
 
     // ---------------------------------------------------------------- helpers
@@ -276,6 +291,57 @@ public PageResponse<InternshipSummaryResponse> listForAdmin(
             internship.setPublishedAt(LocalDateTime.now());
         }
         internship.setStatus(status);
+    }
+
+    /**
+     * Rewrites an internship's required skills to exactly what was sent.
+     *
+     * REPLACE RATHER THAN MERGE
+     *   The form edits the whole list at once, so "what was sent" is the
+     *   complete answer. Merging would make removing a skill impossible
+     *   through the only interface that sets them.
+     *
+     * NULL MEANS "NOT SENT", EMPTY MEANS "NONE"
+     *   A caller that does not know about this field - an older client, or a
+     *   partial update written later - must not silently wipe the list. An
+     *   empty list is a deliberate statement and does clear it.
+     *
+     * WHY IT DEDUPLICATES AND TRIMS
+     *   uk_internship_skill is UNIQUE (internship_id, name), so two entries
+     *   differing only by a trailing space would be two rows, while the same
+     *   name twice would fail the insert outright. Comparing case-insensitively
+     *   while storing what was typed keeps "React" and "react" from both
+     *   counting towards a score the student is meant to be able to argue with.
+     */
+    private void replaceSkills(Internship internship, List<String> requested) {
+        if (requested == null) {
+            return;
+        }
+
+        internshipSkillRepository.deleteByInternshipId(internship.getId());
+        // The delete has to reach the database before the inserts, or the
+        // unique constraint sees the old rows and rejects the new ones.
+        internshipSkillRepository.flush();
+
+        Set<String> seen = new LinkedHashSet<>();
+        for (String raw : requested) {
+            if (!StringUtils.hasText(raw)) {
+                continue;
+            }
+            String name = raw.trim();
+            if (!seen.add(name.toLowerCase(Locale.ROOT))) {
+                continue;
+            }
+            InternshipSkill skill = new InternshipSkill();
+            skill.setInternship(internship);
+            skill.setName(name);
+            // Every skill on the form is a requirement. The column carries a
+            // "nice to have" flag the interface has never offered, so setting
+            // it true here says plainly that nothing produces the other value
+            // yet, rather than leaving the default to decide.
+            skill.setRequired(true);
+            internshipSkillRepository.save(skill);
+        }
     }
 
     private InternshipStatus parseStatus(String value, InternshipStatus fallback) {

@@ -120,8 +120,8 @@ export default function LoginPage() {
               placeholder="you@example.com"
               required
               autoFocus
-            maxLength={190}
-                  />
+              maxLength={190}
+            />
 
             <AuthField
               id="loginPassword"
@@ -135,8 +135,8 @@ export default function LoginPage() {
               autoComplete="current-password"
               placeholder={t("Your password")}
               required
-            maxLength={72}
-                  />
+              maxLength={72}
+            />
 
             <p className="ijp-auth-forgot">
 

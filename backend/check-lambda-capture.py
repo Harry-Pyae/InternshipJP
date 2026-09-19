@@ -20,7 +20,20 @@ cannot fail, so it was thrown away rather than tuned.
 import glob
 import sys
 
-import javalang
+try:
+    import javalang
+except ModuleNotFoundError:
+    # The only dependency any of these four checks has, and the failure it
+    # used to produce was a raw ModuleNotFoundError traceback - which reads
+    # like the check itself is broken rather than like a package is missing.
+    # A reader who skims that and moves on has learned nothing about the
+    # code, so the check quietly stops being run. Say what to install.
+    sys.exit(
+        "check-lambda-capture needs the javalang package:\n"
+        "    python -m pip install javalang\n\n"
+        "It walks the real Java AST on purpose: the regular-expression\n"
+        "version of this check reported 36 findings on code that compiles\n"
+        "cleanly, so guessing is not an acceptable fallback here.")
 
 
 def names_in(node):

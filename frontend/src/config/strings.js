@@ -355,7 +355,15 @@ export const strings = {
     "Your changes have been saved.": "သင့်ပြောင်းလဲမှုတွေကို သိမ်းဆည်းပြီးပါပြီ။",
 
     "A draft is not visible to students. Publishing needs your company to be approved by an administrator.": "မူကြမ်းကို ကျောင်းသားတွေ မမြင်ရပါဘူး။ ကြေညာဖို့ သင့်ကုမ္ပဏီကို စီမံခန့်ခွဲသူက အတည်ပြုဖို့ လိုအပ်ပါတယ်။",
-    "Only the employer can change an application's status. You will get a notification when one of these moves.": "လျှောက်လွှာရဲ့ အခြေအနေကို အလုပ်ရှင်ပဲ ပြောင်းနိုင်ပါတယ်။ ပြောင်းလဲမှု ရှိတဲ့အခါ သင့်ဆီ အကြောင်းကြားပါမယ်။",
+    "Withdrawing is the only change you can make yourself; every other move is the employer's. You will get a notification when one of these moves.": "ကိုယ်တိုင် ပြောင်းလို့ ရတာက လျှောက်လွှာ ရုပ်သိမ်းတာ တစ်ခုပဲ၊ ကျန်တာတွေကတော့ အလုပ်ရှင်ရဲ့ ဆုံးဖြတ်ချက် ဖြစ်ပါတယ်။ ပြောင်းလဲမှု ရှိတဲ့အခါ သင့်ဆီ အကြောင်းကြားပါမယ်။",
+
+    // withdrawing an application
+    "Withdraw": "ရုပ်သိမ်းမယ်",
+    "Withdraw this application?": "ဒီလျှောက်လွှာကို ရုပ်သိမ်းမလား။",
+    "Withdraw application": "လျှောက်လွှာ ရုပ်သိမ်းမယ်",
+    "{company} will be told you are no longer applying for {role}.": "{role} အတွက် ဆက်မလျှောက်တော့ဘူးဆိုတာ {company} ကို အကြောင်းကြားပါမယ်။",
+    "This cannot be undone, and you cannot apply to this vacancy again.": "ဒါကို ပြန်ပြင်လို့ မရပါဘူး၊ ဒီနေရာကိုလည်း ထပ်လျှောက်လို့ မရတော့ပါဘူး။",
+    "Your application was withdrawn.": "သင့်လျှောက်လွှာကို ရုပ်သိမ်းပြီးပါပြီ။",
     "Scores are calculated by comparing your listed skills with each internship&apos;s requirements. Adding skills to your profile changes them immediately.": "အမှတ်တွေကို သင်ဖော်ပြထားတဲ့ ကျွမ်းကျင်မှုတွေနဲ့ အလုပ်သင်နေရာ တစ်ခုစီရဲ့ လိုအပ်ချက်တွေ နှိုင်းယှဉ်ပြီး တွက်ချက်ပါတယ်။ ပရိုဖိုင်မှာ ကျွမ်းကျင်မှု ထပ်ထည့်ရင် ချက်ချင်း ပြောင်းလဲပါမယ်။",
 
     "A draft is not visible to students. Publishing needs your company to be approved.": "မူကြမ်းကို ကျောင်းသားတွေ မမြင်ရပါဘူး။ ကြေညာဖို့ သင့်ကုမ္ပဏီ အတည်ပြုခံရဖို့ လိုအပ်ပါတယ်။",
@@ -885,6 +893,11 @@ export const strings = {
 
     // certificates
     "Certificate name": "လက်မှတ် အမည်",
+    "Issued by": "ထုတ်ပေးတဲ့ အဖွဲ့အစည်း",
+    "e.g. Oracle, Coursera, University of Yangon": "ဥပမာ Oracle, Coursera, ရန်ကုန်တက္ကသိုလ်",
+    "The administrator checking this document looks for the organisation that awarded it.": "ဒီစာရွက်စာတမ်းကို စိစစ်တဲ့ စီမံခန့်ခွဲသူက ဘယ်အဖွဲ့အစည်းက ထုတ်ပေးထားလဲဆိုတာ ကြည့်ပါတယ်။",
+    "Issued on": "ထုတ်ပေးတဲ့ ရက်စွဲ",
+    "Certificate issue date": "လက်မှတ် ထုတ်ပေးတဲ့ ရက်စွဲ",
     "Certificate file": "လက်မှတ် ဖိုင်",
     "Choose file": "ဖိုင် ရွေးမယ်",
     "No file chosen": "ဖိုင် မရွေးရသေးပါဘူး",
@@ -1235,6 +1248,14 @@ export const strings = {
     "Description": "ဖော်ပြချက်",
     "Requirements": "လိုအပ်ချက်တွေ",
     "Responsibilities": "တာဝန်တွေ",
+
+    // the required-skills editor on the posting form
+    "Add": "ထည့်မယ်",
+    "e.g. React, SQL, Spring Boot": "ဥပမာ React, SQL, Spring Boot",
+    "Three to five works best. Students are matched on these, and a vacancy with none cannot be matched to anybody.": "သုံးခုကနေ ငါးခုလောက် အသင့်တော်ဆုံးပါ။ ကျောင်းသားတွေကို ဒါတွေနဲ့ တိုက်ဆိုင်စစ်ပါတယ်၊ တစ်ခုမှ မထည့်ထားရင် ဘယ်သူနဲ့မှ တိုက်ဆိုင်မှာ မဟုတ်ပါဘူး။",
+    "No skills listed yet. This vacancy will not appear in any student's matches.": "ကျွမ်းကျင်မှု တစ်ခုမှ မထည့်ရသေးပါဘူး။ ဒီနေရာဟာ ဘယ်ကျောင်းသားရဲ့ တိုက်ဆိုင်မှုစာရင်းမှာမှ ပေါ်မှာ မဟုတ်ပါဘူး။",
+    "You can list at most {n} skills.": "ကျွမ်းကျင်မှု အများဆုံး {n} ခု ထည့်နိုင်ပါတယ်။",
+    "{skill} is already on the list.": "{skill} ကို စာရင်းထဲမှာ ထည့်ပြီးသားပါ။",
     "Issuer": "ထုတ်ပေးသူ",
     "Issue date": "ထုတ်ပေးတဲ့ရက်",
     "Uploaded": "တင်ပြီးတဲ့အချိန်",

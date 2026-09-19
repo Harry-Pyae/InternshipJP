@@ -214,7 +214,7 @@ export default function UserDetailModal({ user, busy, onClose, onToggle, onDelet
             {/* Same rule as the table: an administrator cannot be deleted here. */}
 
             {user.role === "ADMIN" ? null : (
-  
+
               <button
                 type="button"
                 className="btn btn-ijp-quiet ijp-btn-danger"

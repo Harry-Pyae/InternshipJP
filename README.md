@@ -167,6 +167,24 @@ It serves on **http://localhost:8080**.
 phase that `compile` skips, so a change that breaks them stays hidden until you
 run the application.
 
+### The tests
+
+```powershell
+.\mvnw.cmd test                       # 90 tests, no database needed
+.\mvnw.cmd test -Dgroups=requires-db   # the other 12, against a real MariaDB
+```
+
+The second group starts the whole Spring context and drives the real HTTP
+layer, so it needs `internshipjp_db` to exist. Each test rolls back what it
+writes, so running them does not leave test rows behind.
+
+**That second command used to run nothing at all.** Surefire applies includes
+and excludes together, and the build excluded `requires-db` unconditionally, so
+asking for the tag gave the intersection of the two - no tests - and still
+printed `BUILD SUCCESS`. Selecting a group now clears the exclusion, through
+the `db-tests` profile in `pom.xml`. Two of those twelve tests had been failing
+the whole time they were unreachable.
+
 On first start Flyway applies eleven migrations and creates twenty-one tables. The
 log says `Successfully validated 11 migrations`.
 
@@ -193,7 +211,7 @@ calculated features keep working, because they never call a provider.
 ```properties
 AI_PROVIDER=gemini
 GEMINI_API_KEY=your_key
-GEMINI_MODEL=gemini-2.5-flash
+GEMINI_MODEL=gemini-3.6-flash
 ```
 
 Providers retire models often, so confirm the name against your own key:
@@ -343,7 +361,7 @@ backend/
     service/      business rules
   src/main/resources/
     application.yml
-    db/migration/ Flyway V1-V8
+    db/migration/ Flyway V1-V11
 
 frontend/src/
   api/          one module per area, no axios calls in components
@@ -366,6 +384,12 @@ scripts/        PowerShell helpers
 # Checks
 
 Four scripts catch faults that have actually cost time on this project:
+
+One of them needs a package, and says so plainly if it is missing:
+
+```powershell
+python -m pip install javalang
+```
 
 ```powershell
 cd backend\src\main\java\com\internshipjp\backend

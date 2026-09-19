@@ -218,7 +218,7 @@ export default function EditStudentSkillsPage() {
                     maxLength={100}
                     required
                   />
-                <CharCount value={form.name} max={100} />
+                  <CharCount value={form.name} max={100} />
                 </div>
 
                 <div className="col-md-6">

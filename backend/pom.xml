@@ -37,6 +37,16 @@
         -->
         <java.version>24</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!--
+            Tests tagged "requires-db" need a running MariaDB, so a plain
+            `mvn test` leaves them out. The value is a property rather than a
+            literal in the surefire block so that the "db-tests" profile below
+            can clear it; a literal there wins over -DexcludedGroups= on the
+            command line, which is how `mvn test -Dgroups=requires-db` used to
+            report "Tests run: 0" and BUILD SUCCESS without running anything.
+        -->
+        <surefire.excluded-groups>requires-db</surefire.excluded-groups>
     </properties>
 
     <dependencies>
@@ -122,10 +132,32 @@
                         "requires-db" and are skipped by a plain `mvn test`.
                         Run them with:  mvn test -Dgroups=requires-db
                     -->
-                    <excludedGroups>requires-db</excludedGroups>
+                    <excludedGroups>${surefire.excluded-groups}</excludedGroups>
                 </configuration>
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <!--
+            Activated automatically by `mvn test -Dgroups=...`. Surefire applies
+            includes and excludes together, so as long as "requires-db" stayed
+            in excludedGroups, asking for that group on the command line gave
+            the intersection of the two: nothing. A run that tests nothing and
+            still prints BUILD SUCCESS is the worst kind of check, so selecting
+            a group now clears the exclusion instead.
+        -->
+        <profile>
+            <id>db-tests</id>
+            <activation>
+                <property>
+                    <name>groups</name>
+                </property>
+            </activation>
+            <properties>
+                <surefire.excluded-groups/>
+            </properties>
+        </profile>
+    </profiles>
 
 </project>

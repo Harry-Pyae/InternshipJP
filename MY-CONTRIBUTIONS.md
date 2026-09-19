@@ -52,7 +52,7 @@ and the table row all update together.
 
 ## 3. English and Burmese
 
-1,105 strings, no i18n library. A React context resolves `t()` through a table
+1,122 strings, no i18n library. A React context resolves `t()` through a table
 keyed on the **English source string**, so a missing translation falls back to
 readable English rather than showing `nav.faq`.
 
@@ -144,9 +144,23 @@ the wrong one available to the wrong people.
 
 ## 7. Testing and tooling
 
-100 test methods across 16 classes. The tests that matter are the ones that pin
+102 test methods across 15 classes. The tests that matter are the ones that pin
 a decision rather than a value — `aPasswordMeetingEveryClassRuleCanStillBeRefused`
 exists so that nobody later concludes the denylist is redundant.
+
+**And the worst one I found was the twelve that never ran.** The tests needing a
+real database are tagged `requires-db`, and the build excluded that tag in the
+surefire block. Surefire applies includes and excludes together, so
+`mvn test -Dgroups=requires-db` - the command written at the top of every one of
+those files - asked for the intersection of an include and an exclude, ran
+nothing, and printed `Tests run: 0` followed by `BUILD SUCCESS`. Selecting a
+group now clears the exclusion. Two of the twelve failed the moment they could
+run: they registered with `password123`, which the denylist had started refusing
+by name months earlier.
+
+That is the same fault as the three check scripts below, arriving by a different
+route, and it is the reason the habit is worth more than any one of them: **a
+green result means nothing until you have watched it go red.**
 
 Four check scripts, each written after a fault that had already cost a day:
 
@@ -185,18 +199,47 @@ against it. The same was true of `photo_path`, of `logo_path`, and of
 `FILLED` — all present, none used. A field that nothing reads is a feature
 nobody has finished, and the schema does not say which.
 
+The final pass found four more of exactly this shape, and the last one is the
+one I should have caught first:
+
+- **`issuing_organization`** was read on four screens and written by nothing.
+  The administrator's certificate queue had a column for it, and a search that
+  matched on it, and it said “not given” for every certificate ever
+  uploaded, because the upload form had no box for it. The one fact an
+  administrator checks a document against was the fact we never asked for.
+- **`issue_date`** the same, down to a helper written for it alone,
+  `certificateAge()`, which had nothing to work on outside demo data.
+- **`WITHDRAWN`** was in the enum, in the column comment, in the status badge
+  and in the employer's transition table. No code path could produce it, so a
+  student who took another offer could only leave the application sitting in
+  somebody's queue.
+- **`internship_skills`** was written by the demo seeder and by nothing else.
+  This is the one that matters, because it is not a field on a form: it is the
+  whole input to the matching. The score is `matched * 100 /
+  requiredSkills.size()`, the skill-gap report counts demand across it, and
+  the company review reads it. Four features, all of them the ones this
+  project is about, worked on seeded rows and would have returned nothing for
+  a real employer — whose own posting form told them to list three to five
+  skills and then gave them nowhere to type one.
+
+The demo data is what hid it. Every screen was checked against a database the
+seeder had filled, so the seeder was quietly standing in for a feature. That is
+the same failure as a check that cannot fail: something was green because it
+was never really asked.
+
 ---
 
 ## Figures
 
 ```
-Backend      206 main Java files, 16 test classes, 100 test methods
-             96 endpoints, 21 repositories, 64 DTOs
+Backend      206 main Java files, 15 test classes, 102 test methods
+             97 endpoints, 21 repositories, 64 DTOs
              11 Flyway migrations, 21 tables
-Frontend     92 React modules, 27 shared components, 55 routes
-Bilingual    1,105 Burmese strings, none missing on the user-facing pages
+Frontend     94 React modules, 27 shared components, 56 routes
+Bilingual    1,122 Burmese strings, none missing on the user-facing pages
              (developer diagnostics are English only)
 Tooling      4 check scripts
 ```
 
-Every figure counted from the code rather than recalled.
+Every figure counted from the code rather than recalled - which is how the
+test count moved. It was 100, and twelve of those could not be run.

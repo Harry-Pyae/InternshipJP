@@ -1,6 +1,9 @@
 package com.internshipjp.backend.integration;
 
 import com.internshipjp.backend.entity.AccountStatus;
+import com.internshipjp.backend.entity.Application;
+import com.internshipjp.backend.entity.ApplicationStatus;
+import com.internshipjp.backend.entity.StudentProfile;
 import com.internshipjp.backend.entity.ApprovalStatus;
 import com.internshipjp.backend.entity.Company;
 import com.internshipjp.backend.entity.EmployerProfile;
@@ -11,8 +14,11 @@ import com.internshipjp.backend.entity.User;
 import com.internshipjp.backend.entity.WorkMode;
 import com.internshipjp.backend.repository.CompanyRepository;
 import com.internshipjp.backend.repository.EmployerProfileRepository;
+import com.internshipjp.backend.repository.ApplicationRepository;
 import com.internshipjp.backend.repository.InternshipRepository;
+import com.internshipjp.backend.repository.StudentProfileRepository;
 import com.internshipjp.backend.repository.UserRepository;
+import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -27,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -62,6 +69,21 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Tag("requires-db")
 class EndToEndFlowTest {
 
+    /**
+     * One password for every account this test creates, and it has to satisfy
+     * PasswordPolicy in full.
+     *
+     * It used to be "password123", which is on the policy's denylist by name,
+     * so registration answered 400 and the journey never started. That went
+     * unnoticed because the surefire block excluded the "requires-db" tag
+     * unconditionally: asking for the tag on the command line produced the
+     * intersection of an include and an exclude, which is nothing, and the run
+     * still printed BUILD SUCCESS. The pom now clears the exclusion when a
+     * group is selected, so this file runs again - and failed the moment it
+     * did.
+     */
+    private static final String PASSWORD = "E2e-Journey7";
+
     @Autowired
     private MockMvc mockMvc;
     @Autowired
@@ -72,6 +94,10 @@ class EndToEndFlowTest {
     private EmployerProfileRepository employerProfileRepository;
     @Autowired
     private InternshipRepository internshipRepository;
+    @Autowired
+    private ApplicationRepository applicationRepository;
+    @Autowired
+    private StudentProfileRepository studentProfileRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
 
@@ -95,7 +121,7 @@ class EndToEndFlowTest {
     private Long seedOpenInternship() {
         User employer = new User();
         employer.setEmail("e2e-employer-" + UUID.randomUUID().toString().substring(0, 8) + "@test.local");
-        employer.setPasswordHash(passwordEncoder.encode("password123"));
+        employer.setPasswordHash(passwordEncoder.encode(PASSWORD));
         employer.setFullName("E2E Employer");
         employer.setRole(Role.EMPLOYER);
         employer.setAccountStatus(AccountStatus.ACTIVE);
@@ -132,7 +158,7 @@ class EndToEndFlowTest {
         mockMvc.perform(post("/api/auth/register/student").with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json("{\"email\":\"" + studentEmail + "\","
-                                + "\"password\":\"password123\","
+                                + "\"password\":\"" + PASSWORD + "\","
                                 + "\"fullName\":\"E2E Student\","
                                 + "\"university\":\"Test University\"}")))
                 .andExpect(status().isCreated())
@@ -146,7 +172,7 @@ class EndToEndFlowTest {
         mockMvc.perform(post("/api/auth/register/student").with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json("{\"email\":\"" + studentEmail + "\","
-                                + "\"password\":\"password123\",\"fullName\":\"Impostor\"}")))
+                                + "\"password\":\"" + PASSWORD + "\",\"fullName\":\"Impostor\"}")))
                 .andExpect(status().isConflict());
 
         // 3. Before signing in, protected endpoints must refuse.
@@ -156,7 +182,7 @@ class EndToEndFlowTest {
         // 4. Sign in. Everything after this reuses the same session.
         mockMvc.perform(post("/api/auth/login").with(csrf()).session(session)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(json("{\"email\":\"" + studentEmail + "\",\"password\":\"password123\"}")))
+                        .content(json("{\"email\":\"" + studentEmail + "\",\"password\":\"" + PASSWORD + "\"}")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.role").value("STUDENT"));
 
@@ -226,11 +252,11 @@ class EndToEndFlowTest {
         mockMvc.perform(post("/api/auth/register/student").with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json("{\"email\":\"" + studentEmail + "\","
-                                + "\"password\":\"password123\",\"fullName\":\"E2E Student\"}")))
+                                + "\"password\":\"" + PASSWORD + "\",\"fullName\":\"E2E Student\"}")))
                 .andExpect(status().isCreated());
         mockMvc.perform(post("/api/auth/login").with(csrf()).session(session)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(json("{\"email\":\"" + studentEmail + "\",\"password\":\"password123\"}")))
+                        .content(json("{\"email\":\"" + studentEmail + "\",\"password\":\"" + PASSWORD + "\"}")))
                 .andExpect(status().isOk());
 
         // A draft is invisible to students...
@@ -245,6 +271,103 @@ class EndToEndFlowTest {
                 .andExpect(status().isBadRequest());
     }
 
+    /**
+     * The applicant's own way out.
+     *
+     * WITHDRAWN sat in the enum, in the column comment, in the status badge
+     * and in the employer's transition table, and nothing in the system could
+     * produce it. This pins the three rules that make it safe: the student
+     * owns the row, it is final, and an application that belongs to somebody
+     * else reads as missing rather than as forbidden.
+     */
+    @Test
+    void aStudentCanWithdrawTheirOwnApplicationOnceAndOnlyOnce() throws Exception {
+        mockMvc.perform(post("/api/auth/register/student").with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json("{\"email\":\"" + studentEmail + "\","
+                                + "\"password\":\"" + PASSWORD + "\",\"fullName\":\"E2E Student\"}")))
+                .andExpect(status().isCreated());
+        mockMvc.perform(post("/api/auth/login").with(csrf()).session(session)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json("{\"email\":\"" + studentEmail + "\",\"password\":\"" + PASSWORD + "\"}")))
+                .andExpect(status().isOk());
+
+        String created = mockMvc.perform(
+                        post("/api/internships/" + openInternshipId + "/applications")
+                                .with(csrf()).session(session)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(json("{\"coverLetter\":\"I would like to apply.\"}")))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        long applicationId = JsonPath.parse(created).read("$.id", Integer.class);
+
+        mockMvc.perform(post("/api/student/applications/" + applicationId + "/withdraw")
+                        .with(csrf()).session(session))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("WITHDRAWN"));
+
+        // Final: a second attempt is refused rather than silently repeated.
+        mockMvc.perform(post("/api/student/applications/" + applicationId + "/withdraw")
+                        .with(csrf()).session(session))
+                .andExpect(status().isBadRequest());
+
+        // And the history records who ended it, not just that it ended.
+        mockMvc.perform(get("/api/student/applications").session(session))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].status").value("WITHDRAWN"));
+    }
+
+    /**
+     * Somebody else's application is not found, not forbidden.
+     *
+     * Answering 403 would confirm that the id exists, which is the whole
+     * reason the service throws NotFound on an ownership mismatch.
+     */
+    @Test
+    void aStudentCannotWithdrawAnApplicationThatIsNotTheirs() throws Exception {
+        Application other = someoneElsesApplication();
+
+        mockMvc.perform(post("/api/auth/register/student").with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json("{\"email\":\"" + studentEmail + "\","
+                                + "\"password\":\"" + PASSWORD + "\",\"fullName\":\"E2E Student\"}")))
+                .andExpect(status().isCreated());
+        mockMvc.perform(post("/api/auth/login").with(csrf()).session(session)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json("{\"email\":\"" + studentEmail + "\",\"password\":\"" + PASSWORD + "\"}")))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(post("/api/student/applications/" + other.getId() + "/withdraw")
+                        .with(csrf()).session(session))
+                .andExpect(status().isNotFound());
+
+        // Still APPLIED: the refusal did not half-apply.
+        assertEquals(ApplicationStatus.APPLIED,
+                applicationRepository.findById(other.getId()).orElseThrow().getStatus(),
+                "a refused withdrawal must leave the other student's application alone");
+    }
+
+    /** An application belonging to a different student, built directly. */
+    private Application someoneElsesApplication() {
+        User owner = new User();
+        owner.setEmail("e2e-other-" + UUID.randomUUID().toString().substring(0, 8) + "@test.local");
+        owner.setPasswordHash(passwordEncoder.encode(PASSWORD));
+        owner.setFullName("E2E Other Student");
+        owner.setRole(Role.STUDENT);
+        owner.setAccountStatus(AccountStatus.ACTIVE);
+        owner = userRepository.save(owner);
+
+        StudentProfile profile = new StudentProfile();
+        profile.setUser(owner);
+        profile = studentProfileRepository.save(profile);
+
+        Application application = new Application();
+        application.setInternship(internshipRepository.findById(openInternshipId).orElseThrow());
+        application.setStudentProfile(profile);
+        application.setStatus(ApplicationStatus.APPLIED);
+        return applicationRepository.save(application);
+    }
+
     @Test
     void writeRequestsAreRejectedWithoutACsrfToken() throws Exception {
         // Same request as step 1, minus .with(csrf()). This is the test that
@@ -253,7 +376,7 @@ class EndToEndFlowTest {
         mockMvc.perform(post("/api/auth/register/student")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json("{\"email\":\"" + studentEmail + "\","
-                                + "\"password\":\"password123\",\"fullName\":\"E2E Student\"}")))
+                                + "\"password\":\"" + PASSWORD + "\",\"fullName\":\"E2E Student\"}")))
                 .andExpect(status().isForbidden());
     }
 

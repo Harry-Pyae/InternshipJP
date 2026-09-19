@@ -66,16 +66,27 @@ export const studentApi = {
     api
       .delete(`/api/students/me/education/${id}`)
       .then((response) => response.data),
-  
-    // Applications
+
+  // Applications
   listApplications: ({ page = 0, size = 10 } = {}) =>
     api
       .get("/api/student/applications", {
         params: { page, size },
       })
       .then((response) => response.data),
-  
-    getCertificates() {
+
+  /**
+   * Take one of your own applications out of the running.
+   *
+   * Only the applicant can do this, and only before a decision has been made.
+   * The server settles both; this is only the call.
+   */
+  withdrawApplication: (id) =>
+    api
+      .post(`/api/student/applications/${id}/withdraw`)
+      .then((response) => response.data),
+
+  getCertificates() {
     return api.get("/api/students/me/certificates");
   },
 

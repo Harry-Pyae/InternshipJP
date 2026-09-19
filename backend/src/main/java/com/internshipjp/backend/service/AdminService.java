@@ -32,8 +32,9 @@ import com.internshipjp.backend.repository.StudentProfileRepository;
 /**
  * Administrator operations: approving companies and managing accounts.
  *
- * Future work: platform reports, activity monitoring, an
- * audit log of admin actions, and the admin React screens.
+ * Future work: an audit log of administrator actions - who suspended whom and
+ * when. Company and certificate decisions already record their note and their
+ * author; ordinary account actions do not.
  */
 @Service
 public class AdminService {

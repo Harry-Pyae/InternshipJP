@@ -252,7 +252,7 @@ export default function EditStudentEducationPage() {
                     maxLength={150}
                     required
                   />
-                <CharCount value={form.institution} max={150} />
+                  <CharCount value={form.institution} max={150} />
                 </div>
 
                 <div className="col-md-6">
@@ -267,8 +267,8 @@ export default function EditStudentEducationPage() {
                     onChange={handleChange}
                     maxLength={150}
                     required
-                    />
-                <CharCount value={form.degree} max={150} />
+                  />
+                    <CharCount value={form.degree} max={150} />
                 </div>
 
                 <div className="col-md-6">
@@ -283,8 +283,8 @@ export default function EditStudentEducationPage() {
                     onChange={handleChange}
                     maxLength={150}
                     required
-                    />
-                <CharCount value={form.fieldOfStudy} max={150} />
+                  />
+                    <CharCount value={form.fieldOfStudy} max={150} />
                 </div>
 
                 <div className="col-md-4">
@@ -300,7 +300,7 @@ export default function EditStudentEducationPage() {
                     min={1950}
                     max={2100}
                     required
-                    />
+                  />
                 </div>
 
                 <div className="col-md-4">
@@ -316,7 +316,7 @@ export default function EditStudentEducationPage() {
                     min={1950}
                     max={2100}
                     required
-                    />
+                  />
                 </div>
 
                 <div className="col-md-4">

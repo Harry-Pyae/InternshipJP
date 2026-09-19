@@ -18,8 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * Only OPEN internships are listed. Drafts stay invisible.
  *
- * Future work: add the real filters (work mode, location, stipend range,
- * required skills) as extra optional request parameters here.
+ * Future work: work mode and stipend range as extra optional parameters.
+ * Location is already covered by the keyword search, which spans the title,
+ * the company name and the location.
  *
  * Owner: Member 3.
  */

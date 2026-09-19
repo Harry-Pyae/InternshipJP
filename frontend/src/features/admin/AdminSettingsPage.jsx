@@ -54,8 +54,6 @@ export default function AdminSettingsPage() {
         <div className="col-12 col-xl-6">
           <PasswordCard onSaved={setMessage} onError={setError} />
         </div>
-        <div className="col-12">
-        </div>
       </div>
     </>
   );
@@ -91,16 +89,19 @@ function ProfileCard({ account, onSaved, onError }) {
       <form onSubmit={save}>
         <label className="ijp-label mb-2" htmlFor="admin-full-name">{t("Full name")}</label>
         <input id="admin-full-name" className="form-control mb-3" value={fullName} onChange={(event) => setFullName(event.target.value)} required maxLength={150} />
-                <CharCount value={fullName} max={150} />
+        <CharCount value={fullName} max={150} />
 
+        {/* Read-only: the address is the sign-in name. No limit to state,
+            because nothing here can be typed into it. */}
         <label className="ijp-label mb-2" htmlFor="admin-email">{t("Email")}</label>
-        <input id="admin-email" className="form-control mb-3" value={account?.email || ""} disabled 
-            maxLength={150}
-            />
+        <input id="admin-email" className="form-control mb-3" value={account?.email || ""} disabled />
 
+        {/* UpdateAccountRequest: @Size(max = 16) on phone, the same number the
+            other two settings pages use. 30 here meant an administrator could
+            fill the box and be refused by the server for doing so. */}
         <label className="ijp-label mb-2" htmlFor="admin-phone">{t("Phone")}</label>
-        <input id="admin-phone" className="form-control mb-3" value={phone} onChange={(event) => setPhone(event.target.value)} maxLength={30} />
-                <CharCount value={phone} max={30} />
+        <input id="admin-phone" className="form-control mb-3" value={phone} onChange={(event) => setPhone(event.target.value)} maxLength={16} />
+        <CharCount value={phone} max={16} />
 
         <div className="d-flex justify-content-between align-items-center gap-2 mb-3">
           <span className="small">{t("Role:")}<strong>{account?.role || "ADMIN"}</strong></span>
@@ -153,14 +154,17 @@ function PasswordCard({ onSaved, onError }) {
     <SectionCard title={t("Change password")}>
       <form onSubmit={save}>
         <label className="ijp-label mb-2" htmlFor="admin-current-password">{t("Current password")}</label>
-        <input id="admin-current-password" type="password" className="form-control mb-3" value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)} required 
-            maxLength={150}
-            />
-                <CharCount value={currentPassword} max={150} />
+        {/* 72, not 100 or 150. ChangePasswordRequest is @Size(min = 8, max = 72)
+            and that number is not arbitrary: BCrypt ignores everything past 72
+            bytes, so a longer password is not the protection it looks like.
+            PasswordPolicy refuses one rather than truncating it quietly, and
+            the form should not invite what the server will refuse. */}
+        <input id="admin-current-password" type="password" className="form-control mb-3" value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)} required maxLength={72} />
+        <CharCount value={currentPassword} max={72} />
 
         <label className="ijp-label mb-2" htmlFor="admin-new-password">{t("New password")}</label>
-        <input id="admin-new-password" type="password" className="form-control mb-3" value={newPassword} onChange={(event) => setNewPassword(event.target.value)} minLength={8} maxLength={100} required />
-                <CharCount value={newPassword} max={100} />
+        <input id="admin-new-password" type="password" className="form-control mb-3" value={newPassword} onChange={(event) => setNewPassword(event.target.value)} minLength={8} maxLength={72} required />
+        <CharCount value={newPassword} max={72} />
 
         <label className="ijp-label mb-2" htmlFor="admin-confirm-password">{t("Confirm new password")}</label>
         <input
@@ -174,10 +178,10 @@ function PasswordCard({ onSaved, onError }) {
           }}
           autoComplete="new-password"
           minLength={8}
-          maxLength={100}
+          maxLength={72}
           required
         />
-                <CharCount value={confirmPassword} max={100} />
+        <CharCount value={confirmPassword} max={72} />
         {mismatch ? <p className="ijp-field-error mb-3">{mismatch}</p> : <div className="mb-3" />}
 
         <p className="ijp-muted small">{t("Use a new password that is different from your current password.")}</p>

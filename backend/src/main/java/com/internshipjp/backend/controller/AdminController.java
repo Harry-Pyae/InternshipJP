@@ -35,8 +35,10 @@ import com.internshipjp.backend.service.AdminInviteService;
  * "employers/pending" lists companies waiting for approval: approving a
  * company is what activates its recruiter accounts.
  *
- * Future work: add reports, activity monitoring and an audit log of admin
- * actions, plus the admin React screens.
+ * Future work: an audit log of administrator actions. The reports screen and
+ * the admin React screens this note used to ask for are built - see
+ * AdminReportsPage and the eleven other pages under features/admin - and AI
+ * usage oversight lives in AdminAiUsageController.
  *
  * Owner: Member 4.
  */

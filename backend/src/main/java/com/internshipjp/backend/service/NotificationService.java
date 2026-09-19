@@ -25,9 +25,15 @@ import java.util.List;
  *   - employer registration notifies the administrators
  *   - an application status change notifies the student
  *
- * Future work: extend this with notification preferences, grouping by type,
- * and the React notification centre. The backend contract below is stable, so
- * you can build the UI against it immediately.
+ * Future work: notification preferences, and grouping by type. The React
+ * notification centre this note used to ask for is built, and the bell in the
+ * top bar reads unreadCount() below.
+ *
+ * One limit worth stating plainly: a body is composed here, in English, and
+ * stored. Titles with fixed wording are translated when they are displayed,
+ * but a body cannot be, because nothing records which language its recipient
+ * reads. Closing that gap means composing per recipient, which the table does
+ * not support.
  */
 @Service
 public class NotificationService {

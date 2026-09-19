@@ -26,6 +26,11 @@ export const RECORD_ROUTES = {
   // so without it the one you clicked could be on another page entirely.
   APPLICATION_STATUS_CHANGED: {
     STUDENT: byReference((id) => `/student/applications?open=${id}`),
+    // An employer receives this type too, since a student withdrawing is a
+    // status change they are waiting on. Without this line it fell through to
+    // the employer's notification list - not a dead row, but it left them to
+    // go and find the application the notice was about.
+    EMPLOYER: byReference((id) => `/employer/applications/${id}`),
   },
   APPLICATION_MESSAGE: {
     // The hash also opens the conversation, which is what the message is.
@@ -87,7 +92,10 @@ export const ROUTES = {
   FEEDBACK: { ADMIN: "/admin/faq" },
   CERTIFICATE_VERIFIED: { STUDENT: "/student/certificates" },
   CERTIFICATE_REJECTED: { STUDENT: "/student/certificates" },
-  APPLICATION_STATUS_CHANGED: { STUDENT: "/student/applications" },
+  APPLICATION_STATUS_CHANGED: {
+    STUDENT: "/student/applications",
+    EMPLOYER: "/employer/applications",
+  },
   APPLICATION_MESSAGE: { STUDENT: "/student/applications", EMPLOYER: "/employer/applications" },
   // A notice from an administrator. The ACCOUNT_ prefix files it under the
   // Account tab. It opens the notifications page, because the notice itself

@@ -16,7 +16,10 @@ import java.time.LocalDate;
 /**
  * Internships.
  *
- * Future work: add filtering by work mode, location and required skills.
+ * Future work: filtering by work mode and stipend range. Location is already
+ * part of the keyword search below; required skills are matched in
+ * ai/StudentRecommendationService rather than filtered here, because a
+ * near-miss a student can act on is more use than a vacancy hidden from them.
  */
 @Repository
 public interface InternshipRepository extends JpaRepository<Internship, Long> {

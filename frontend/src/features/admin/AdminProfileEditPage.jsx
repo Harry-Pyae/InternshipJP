@@ -85,15 +85,14 @@ export default function AdminProfileEditPage() {
                   onChange={(value) => setForm((c) => ({ ...c, fullName: value }))}
                   hint={t("Shown beside your photo in the users list.")}
                   required
-                maxLength={150}
-                  />
+                  maxLength={150}
+                />
 
                 <PhoneField
                   id="adminPhone"
                   label="Phone"
                   value={form.phone}
                   onChange={(value) => setForm((c) => ({ ...c, phone: value }))}
-                
                   maxLength={16}
                 />
 

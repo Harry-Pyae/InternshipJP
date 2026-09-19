@@ -165,8 +165,8 @@ export default function AccountSettingsPage() {
                 onChange={(value) => setProfile((c) => ({ ...c, fullName: value }))}
                 error={profileErrors?.fullName}
                 required
-              maxLength={150}
-                  />
+                maxLength={150}
+              />
               <AuthField
                 id="setPhone"
                 label={t("Phone")}
@@ -175,9 +175,8 @@ export default function AccountSettingsPage() {
                 value={profile.phone}
                 onChange={(value) => setProfile((c) => ({ ...c, phone: value }))}
                 error={profileErrors?.phone}
-              
-                  maxLength={16}
-                />
+                maxLength={16}
+              />
 
               <div>
                 <span className="ijp-field-label d-block">{t("Email")}</span>
@@ -211,8 +210,8 @@ export default function AccountSettingsPage() {
                 onChange={(value) => setPassword((c) => ({ ...c, currentPassword: value }))}
                 error={passwordErrors?.currentPassword}
                 required
-              maxLength={150}
-                  />
+                maxLength={72}
+              />
               <AuthField
                 id="setNew"
                 label={t("New password")}
@@ -224,8 +223,8 @@ export default function AccountSettingsPage() {
                 onChange={(value) => setPassword((c) => ({ ...c, newPassword: value }))}
                 error={passwordErrors?.newPassword}
                 required
-              maxLength={72}
-                  />
+                maxLength={72}
+              />
               <AuthField
                 id="setConfirm"
                 label={t("Confirm new password")}
@@ -236,8 +235,8 @@ export default function AccountSettingsPage() {
                 onChange={(value) => setPassword((c) => ({ ...c, confirmPassword: value }))}
                 error={passwordErrors?.confirmPassword}
                 required
-              maxLength={150}
-                  />
+                maxLength={72}
+              />
 
               <div className="d-flex align-items-center gap-3">
                 <button className="btn btn-ijp-primary" type="submit" disabled={passwordBusy}>
@@ -279,8 +278,8 @@ export default function AccountSettingsPage() {
                   value={deletePassword}
                   onChange={setDeletePassword}
                   hint={t("Required, because deletion is permanent.")}
-                maxLength={150}
-                  />
+                  maxLength={150}
+                />
                 <AuthField
                   id="deleteAccountConfirm"
                   label={t("Type DELETE to confirm")}
@@ -288,8 +287,8 @@ export default function AccountSettingsPage() {
                   value={deleteConfirm}
                   onChange={setDeleteConfirm}
                   placeholder="DELETE"
-                maxLength={150}
-                  />
+                  maxLength={150}
+                />
 
                 <ErrorAlert message={deleteError} />
 

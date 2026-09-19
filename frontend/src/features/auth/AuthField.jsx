@@ -55,10 +55,8 @@ export default function AuthField({
           onChange={(event) => onChange(event.target.value)}
           onBlur={onBlur}
           {...rest}
-        
-            maxLength={maxLength}
-            />
-                <CharCount value={value} max={150} />
+          maxLength={maxLength}
+        />
         {isPassword ? (
           <button
             type="button"
@@ -93,6 +91,20 @@ export default function AuthField({
             {t(hint)}
           </p>
         ) : null}
+        {/*
+          The counter belongs in this slot, not beside the input.
+
+          It used to sit inside .ijp-field-wrap, which is a flex row, so the
+          moment it appeared it became a second item on that row and squeezed
+          the box the person was still typing into. Here it uses the line this
+          slot already reserves, which is the same reason the slot exists.
+
+          And it counts against the field's own limit. The max was written as
+          150 while the input honoured the maxLength prop, so a field capped at
+          16 was counted down from 150 - the counter and the box disagreeing,
+          which is the fault the prop was added to fix.
+        */}
+        <CharCount value={value} max={maxLength} />
       </div>
     </div>
   );

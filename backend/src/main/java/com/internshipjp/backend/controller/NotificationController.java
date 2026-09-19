@@ -21,8 +21,9 @@ import org.springframework.web.bind.annotation.RestController;
  * endpoint for creating one: notifications are produced by the services when
  * something actually happens.
  *
- * Future work: add the unread badge count endpoint if you want the bell to
- * poll something cheaper than the full list, plus the React notification centre.
+ * Future work: notification preferences, and grouping by type. The two items
+ * this note used to ask for exist: /unread-count is below, and the React
+ * notification centre is features/shared/NotificationsPage.
  *
  * Owner: Member 4.
  */

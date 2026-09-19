@@ -10,6 +10,12 @@ export default function DatePicker({
   placeholder = "Choose a date",
   ariaLabel,
   min,
+  // The other end of the same rule. min existed on its own because the first
+  // field to need this was an application deadline, which has no upper bound.
+  // A certificate issue date has no LOWER bound and must not be in the future:
+  // without max the calendar happily offered 2099 for a document that has
+  // already been awarded.
+  max,
   disabled = false,
   id,
 }) {
@@ -23,6 +29,7 @@ export default function DatePicker({
 
   const selected = parseISO(value);
   const minDate = parseISO(min);
+  const maxDate = parseISO(max);
 
   // Rebuild the grid only when the visible month changes.
   const weeks = useMemo(() => buildMonth(cursor), [cursor]);
@@ -65,8 +72,13 @@ export default function DatePicker({
     setOpen(true);
   }
 
+  /** Outside whichever ends the caller set. Either may be absent. */
+  function outOfRange(date) {
+    return isBefore(date, minDate) || isAfter(date, maxDate);
+  }
+
   function choose(date) {
-    if (isBefore(date, minDate)) {
+    if (outOfRange(date)) {
       return;
     }
     onChange(toISO(date));
@@ -189,7 +201,7 @@ export default function DatePicker({
                   const isSelected = selected && sameDay(day, selected);
                   const isToday = sameDay(day, startOfToday());
                   const isFocused = sameDay(day, cursor);
-                  const blocked = isBefore(day, minDate);
+                  const blocked = outOfRange(day);
                   return (
                     <button
                       type="button"
@@ -255,6 +267,18 @@ function startOfToday() {
   return new Date(now.getFullYear(), now.getMonth(), now.getDate());
 }
 
+/**
+ * Today, in the format this component's value and bounds use.
+ *
+ * Exported so a caller bounding a field at today does not reimplement it.
+ * Deliberately NOT toISOString().slice(0, 10): that converts to UTC first, so
+ * anywhere east of Greenwich - Myanmar is UTC+6:30 - it returns yesterday for
+ * most of the morning, and a max of yesterday hides today from the calendar.
+ */
+export function todayISO() {
+  return toISO(startOfToday());
+}
+
 function parseISO(text) {
   if (!text) {
     return null;
@@ -292,6 +316,10 @@ function sameDay(a, b) {
 
 function isBefore(date, limit) {
   return limit ? date < limit : false;
+}
+
+function isAfter(date, limit) {
+  return limit ? date > limit : false;
 }
 
 function buildMonth(cursor) {

@@ -266,7 +266,7 @@ function FeedbackForm() {
         onChange={(event) => setMessage(event.target.value)}
         placeholder={t("What would you change?")}
       />
-                <CharCount value={message} max={2000} />
+      <CharCount value={message} max={2000} />
       <div className="d-flex align-items-center gap-3">
         <button
           type="button"

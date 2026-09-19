@@ -187,9 +187,9 @@ export default function AdminEmployerReviewPage() {
                 value={note}
                 onChange={(event) => setNote(event.target.value)}
                 placeholder={t("Required when rejecting. The employer sees this.")}
-              maxLength={500}
+                maxLength={500}
               />
-                <CharCount value={note} max={500} />
+              <CharCount value={note} max={500} />
               <p className="ijp-field-hint mb-3">{t("Approving activates this company's recruiter accounts and lets them publish vacancies to students.")}</p>
 
               <div className="d-grid gap-2">

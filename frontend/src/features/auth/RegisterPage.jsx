@@ -195,8 +195,8 @@ export default function RegisterPage() {
             onBlur={() => blur("fullName")}
             error={fieldErrors?.fullName}
             required
-          maxLength={150}
-                  />
+            maxLength={150}
+          />
           <AuthField
             id="regEmail"
             label={t("Email")}
@@ -208,8 +208,8 @@ export default function RegisterPage() {
             error={fieldErrors?.email}
             autoComplete="username"
             required
-          maxLength={190}
-                  />
+            maxLength={190}
+          />
           <AuthField
             id="regPassword"
             label={t("Password")}
@@ -222,8 +222,8 @@ export default function RegisterPage() {
             hint="At least 8 characters, with an uppercase letter, a lowercase letter, a digit and a symbol."
             autoComplete="new-password"
             required
-          maxLength={72}
-                  />
+            maxLength={72}
+          />
 
           {isStudent ? (
             <div className="ijp-auth-row">
@@ -234,8 +234,8 @@ export default function RegisterPage() {
                 optional
                 value={form.university}
                 onChange={(value) => update("university", value)}
-              maxLength={150}
-                  />
+                maxLength={150}
+              />
               <AuthField
                 id="regDegree"
                 label={t("Degree")}
@@ -243,8 +243,8 @@ export default function RegisterPage() {
                 optional
                 value={form.degree}
                 onChange={(value) => update("degree", value)}
-              maxLength={150}
-                  />
+                maxLength={150}
+              />
             </div>
           ) : (
             <>
@@ -257,8 +257,8 @@ export default function RegisterPage() {
                 onBlur={() => blur("companyName")}
                 error={fieldErrors?.companyName}
                 required
-              maxLength={150}
-                  />
+                maxLength={150}
+              />
               <AuthField
                 id="regWebsite"
                 label={t("Company website")}
@@ -269,8 +269,8 @@ export default function RegisterPage() {
                 onChange={(value) => update("companyWebsite", value)}
                 onBlur={() => blur("companyWebsite")}
                 error={fieldErrors?.companyWebsite}
-              maxLength={150}
-                  />
+                maxLength={255}
+              />
               <div className="ijp-auth-row">
                 <AuthField
                   id="regIndustry"
@@ -279,8 +279,8 @@ export default function RegisterPage() {
                   optional
                   value={form.industry}
                   onChange={(value) => update("industry", value)}
-                maxLength={150}
-                  />
+                  maxLength={100}
+                />
                 <AuthField
                   id="regJobTitle"
                   label={t("Your job title")}
@@ -288,8 +288,8 @@ export default function RegisterPage() {
                   optional
                   value={form.jobTitle}
                   onChange={(value) => update("jobTitle", value)}
-                maxLength={150}
-                  />
+                  maxLength={120}
+                />
               </div>
 
               {/* An administrator has to approve a real business. Without these
@@ -306,8 +306,8 @@ export default function RegisterPage() {
                   error={fieldErrors?.registrationNumber}
                   required
                   hint={t("An administrator checks this before approving you.")}
-                maxLength={150}
-                  />
+                  maxLength={20}
+                />
                 <AuthField
                   id="regContactEmail"
                   type="email"
@@ -318,8 +318,8 @@ export default function RegisterPage() {
                   onBlur={() => blur("contactEmail")}
                   error={fieldErrors?.contactEmail}
                   required
-                maxLength={150}
-                  />
+                  maxLength={190}
+                />
               </div>
 
               <div className="ijp-auth-row">
@@ -332,8 +332,8 @@ export default function RegisterPage() {
                   onBlur={() => blur("country")}
                   error={fieldErrors?.country}
                   required
-                maxLength={100}
-                  />
+                  maxLength={100}
+                />
                 <AuthField
                   id="regCity"
                   label={t("City")}
@@ -343,8 +343,8 @@ export default function RegisterPage() {
                   onBlur={() => blur("location")}
                   error={fieldErrors?.location}
                   required
-                maxLength={150}
-                  />
+                  maxLength={120}
+                />
               </div>
 
               <div className="ijp-auth-row">
@@ -355,8 +355,8 @@ export default function RegisterPage() {
                   optional
                   value={form.address}
                   onChange={(value) => update("address", value)}
-                maxLength={150}
-                  />
+                  maxLength={255}
+                />
                 <AuthField
                   id="regContactPhone"
                   label={t("Contact phone")}
@@ -364,7 +364,6 @@ export default function RegisterPage() {
                   optional
                   value={form.contactPhone}
                   onChange={(value) => update("contactPhone", value)}
-                
                   maxLength={16}
                 />
               </div>
@@ -378,8 +377,8 @@ export default function RegisterPage() {
                   placeholder="e.g. 11-50"
                   value={form.companySize}
                   onChange={(value) => update("companySize", value)}
-                maxLength={150}
-                  />
+                  maxLength={30}
+                />
                 <AuthField
                   id="regLinkedin"
                   label={t("LinkedIn")}
@@ -388,8 +387,8 @@ export default function RegisterPage() {
                   placeholder="https://linkedin.com/company/..."
                   value={form.linkedinUrl}
                   onChange={(value) => update("linkedinUrl", value)}
-                maxLength={150}
-                  />
+                  maxLength={255}
+                />
               </div>
 
               <div className="ijp-auth-row">
@@ -401,8 +400,8 @@ export default function RegisterPage() {
                   placeholder="e.g. 2019"
                   value={form.foundedYear}
                   onChange={(value) => update("foundedYear", value)}
-                maxLength={150}
-                  />
+                  maxLength={4}
+                />
               </div>
 
               <AuthField
@@ -413,8 +412,8 @@ export default function RegisterPage() {
                 value={form.description}
                 onChange={(value) => update("description", value)}
                 hint={t("Students read this before deciding whether to apply.")}
-              maxLength={150}
-                  />
+                maxLength={1500}
+              />
               <p className="ijp-muted small mb-0">
                 <i className="bi bi-info-circle me-1" aria-hidden="true" />
                 {t("Employer accounts are reviewed by an administrator. You can sign in straight away, but your vacancies stay hidden until the company is approved.")}

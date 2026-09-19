@@ -111,13 +111,28 @@ export default function FoundationHomePage() {
             <ul className="list-unstyled d-grid gap-2 mb-0">
               <Ready>Session sign-in with BCrypt, CSRF and CORS</Ready>
               <Ready>
-                MariaDB schema owned by Flyway — <span className="ijp-data">19 tables</span>
+                MariaDB schema owned by Flyway — <span className="ijp-data">21 tables</span>
               </Ready>
-              <Ready>Account settings and two-factor endpoints</Ready>
+              <Ready>Account settings, including changing a password and closing an account</Ready>
               <Ready>Certificate upload, with employers restricted to verified ones</Ready>
               <Ready>Skill matching and gap analysis, calculated without the AI provider</Ready>
               <Ready>AI assistants for students and employers, with saved history</Ready>
             </ul>
+
+            {/*
+              Two-factor authentication used to be listed above as working.
+              The endpoints are real and tested, but nothing reaches them: no
+              screen imports twoFactorApi, and sign-in does not present a
+              challenge even when a secret is stored. Listing it as done on the
+              page whose whole job is to say what works was the one place that
+              could not be allowed to overstate it.
+            */}
+            <p className="ijp-muted small mt-3 mb-0">
+              Two-factor authentication is built on the server —{" "}
+              <span className="ijp-data">/api/account/2fa/**</span>, TOTP and email
+              — but no screen reaches it yet and sign-in does not challenge for a
+              code, so it is not in the list above.
+            </p>
           </section>
         </div>
 

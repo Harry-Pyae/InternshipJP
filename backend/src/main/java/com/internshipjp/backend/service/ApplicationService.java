@@ -53,8 +53,9 @@ import com.internshipjp.backend.util.Dates;
  *   - in the database (uk_application_once), so a double-click or a second
  *     server instance still cannot create two rows.
  *
- * Future work: withdrawing an application, interview
- * scheduling, bulk shortlisting, and the "positions filled" rule.
+ * Future work: interview scheduling and bulk shortlisting. The two items that
+ * used to head this list are done - the "positions filled" rule is
+ * closeIfFull() below, and withdrawing is withdraw().
  */
 @Service
 public class ApplicationService {
@@ -77,6 +78,26 @@ public class ApplicationService {
             ApplicationStatus.ACCEPTED, List.of(),
             ApplicationStatus.REJECTED, List.of(),
             ApplicationStatus.WITHDRAWN, List.of());
+
+    /**
+     * The statuses a student may withdraw from.
+     *
+     * Kept apart from ALLOWED_TRANSITIONS rather than folded into it, because
+     * that map answers a different question: which moves an EMPLOYER may make.
+     * Adding WITHDRAWN as a target there would have handed the employer the
+     * power to withdraw somebody else's application, which is not what the
+     * word means.
+     *
+     * The three that are missing are the three that are already settled.
+     * ACCEPTED and REJECTED are decisions that have been made and told to
+     * people; letting either be taken back afterwards would make a decision
+     * somebody has acted on reversible without them knowing.
+     */
+    private static final List<ApplicationStatus> WITHDRAWABLE = List.of(
+            ApplicationStatus.APPLIED,
+            ApplicationStatus.UNDER_REVIEW,
+            ApplicationStatus.SHORTLISTED,
+            ApplicationStatus.INTERVIEW);
 
     private final ApplicationRepository applicationRepository;
     private final InternshipRepository internshipRepository;
@@ -194,6 +215,73 @@ public class ApplicationService {
         return PageResponse.from(
                 applicationRepository.findByStudentProfileIdOrderByCreatedAtDesc(profile.getId(), pageable),
                 applicationMapper::toSummary);
+    }
+
+    /**
+     * A student taking their own application out of the running.
+     *
+     * WHY THIS EXISTS
+     *   WITHDRAWN has been in the enum, in the column comment and in the
+     *   status badge since the schema was written, and the employer's screen
+     *   already knows the word and already knows there is nothing to do with
+     *   one. Nothing could produce it. A student who took another offer, or
+     *   applied by mistake, could only leave the application sitting in
+     *   somebody's queue - which wastes the employer's time as much as the
+     *   student's.
+     *
+     * WHY IT IS NOT AN EMPLOYER TRANSITION
+     *   See WITHDRAWABLE. The employer's map answers which moves the employer
+     *   may make; withdrawing is the applicant's own act and belongs to them.
+     *
+     * WHY IT IS FINAL
+     *   uk_application_once means one row per student per vacancy, so a
+     *   withdrawn application cannot be replaced by a fresh one. The
+     *   confirmation in the interface says so before anybody presses it,
+     *   rather than letting them find out afterwards.
+     *
+     * The employer is told, for the same reason the student is told when the
+     * employer moves an application: the other side is waiting on it.
+     */
+    @Transactional
+    public ApplicationSummaryResponse withdraw(Long userId, Long applicationId) {
+        StudentProfile profile = studentProfileService.requireProfileByUserId(userId);
+        Application application = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> NotFoundException.of("Application", applicationId));
+
+        // Not found rather than forbidden, deliberately, as everywhere else a
+        // student reaches an application by id: saying it exists but is not
+        // yours confirms it exists.
+        if (!application.getStudentProfile().getId().equals(profile.getId())) {
+            throw NotFoundException.of("Application", applicationId);
+        }
+
+        ApplicationStatus from = application.getStatus();
+        if (from == ApplicationStatus.WITHDRAWN) {
+            throw new BadRequestException("You have already withdrawn this application.");
+        }
+        if (!WITHDRAWABLE.contains(from)) {
+            throw new BadRequestException(
+                    "This application has already been decided, so it cannot be withdrawn.");
+        }
+
+        application.setStatus(ApplicationStatus.WITHDRAWN);
+        // decidedBy is the student here, which is the point: the row records
+        // who ended it, and this time it was not the employer.
+        application.setDecidedBy(userId);
+        application.setDecidedAt(LocalDateTime.now());
+        Application saved = applicationRepository.save(application);
+
+        recordHistory(saved, from, ApplicationStatus.WITHDRAWN, userId,
+                "Withdrawn by the applicant");
+
+        notifyRecruiters(application.getInternship(),
+                "APPLICATION_STATUS_CHANGED",
+                "An application was withdrawn",
+                profile.getUser().getFullName() + " withdrew their application for \""
+                        + application.getInternship().getTitle() + "\".",
+                saved.getId());
+
+        return applicationMapper.toSummary(saved);
     }
 
     // --------------------------------------------------------------- employer
@@ -344,7 +432,16 @@ public class ApplicationService {
         User student = application.getStudentProfile().getUser();
         String company = application.getInternship().getCompany().getName();
 
-        recordMessage(application, application.getInternship().getCreatedBy(), Role.EMPLOYER, message);
+        // The sender is whoever is signed in, not whoever posted the vacancy.
+        //
+        // This used to record internship.getCreatedBy(), which is a different
+        // person as soon as a second recruiter at the same company answers an
+        // applicant - the thread then credited the message to a colleague who
+        // never wrote it. Worse, recordMessage gives up when it cannot find
+        // the sender, and a vacancy outlives the account that posted it by
+        // design (see notifyRecruiters), so the message could be dropped
+        // entirely while the student was still notified about it.
+        recordMessage(application, userId, Role.EMPLOYER, message);
 
         notificationService.create(
                 student,
@@ -399,9 +496,16 @@ public class ApplicationService {
         internship.setStatus(InternshipStatus.FILLED);
         internshipRepository.save(internship);
 
+        // WITHDRAWN belongs in this list beside the other two settled states.
+        // Without it, somebody who had already taken themselves out of the
+        // running would be flipped to REJECTED and sent a notification saying
+        // the position had been filled - a decision about an application they
+        // had ended themselves.
         List<Application> waiting = applicationRepository.findByInternshipIdAndStatusNotIn(
                 internship.getId(),
-                List.of(ApplicationStatus.ACCEPTED, ApplicationStatus.REJECTED));
+                List.of(ApplicationStatus.ACCEPTED,
+                        ApplicationStatus.REJECTED,
+                        ApplicationStatus.WITHDRAWN));
 
         for (Application other : waiting) {
             ApplicationStatus before = other.getStatus();
@@ -495,8 +599,15 @@ public class ApplicationService {
      */
     private void recordMessage(Application application, Long senderId, Role senderRole,
                                String body) {
-        User sender = userRepository.findById(senderId).orElse(null);
+        User sender = senderId == null ? null : userRepository.findById(senderId).orElse(null);
         if (sender == null) {
+            // Both callers pass the id of the account that is signed in, so
+            // this cannot happen without something being very wrong. It used
+            // to return in silence, which meant a message could vanish while
+            // its notification was delivered - the hardest kind of fault to
+            // report, because the sender sees it worked.
+            log.warn("Message on application {} not stored: sender {} no longer exists",
+                    application.getId(), senderId);
             return;
         }
         ApplicationMessage entry = new ApplicationMessage();

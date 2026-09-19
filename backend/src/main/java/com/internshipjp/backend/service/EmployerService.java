@@ -35,8 +35,11 @@ import java.time.Duration;
  * of the employer module builds on - they turn "the signed-in user" into
  * "the company this request is allowed to touch".
  *
- * Future work: add company logo upload (FileStorageService already supports
- * it), multiple recruiters per company, and employer dashboard statistics.
+ * Future work: employer dashboard statistics. Logo upload is built -
+ * EmployerController has the three endpoints and CompanyLogoCard the
+ * interface - and several recruiters can already share a company, which is
+ * why applications and notifications are scoped to the organisation rather
+ * than to whoever posted the vacancy.
  */
 @Service
 public class EmployerService {

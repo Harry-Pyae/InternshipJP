@@ -11,7 +11,9 @@ import java.time.LocalDate;
  *
  * Note what is NOT here: age. The client sends dateOfBirth and the server
  * derives the age, so it can never go stale.
- * Future work: extend with education entries and richer validation.
+ * Education entries are deliberately not here: they are a list, with their
+ * own dates and their own validation, so they are their own resource -
+ * StudentEducationRequest and /api/students/me/education.
  */
 public class UpdateStudentProfileRequest {
     @Size(max = 150)

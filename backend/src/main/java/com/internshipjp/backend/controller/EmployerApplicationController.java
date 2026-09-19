@@ -28,8 +28,8 @@ import java.util.List;
  * That filtering happens in CertificateService, so it cannot be bypassed by
  * calling this endpoint directly.
  *
- * Future work: add filtering and sorting of the applicant list (by status,
- * by match score), and bulk shortlisting.
+ * Future work: filtering and sorting the applicant list by status and by
+ * match score, and bulk shortlisting.
  *
  * Owner: Member 3.
  */
@@ -59,8 +59,14 @@ public class EmployerApplicationController {
     public PageResponse<ApplicationSummaryResponse> listForCompany(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
+        // Clamped like every other paged endpoint in the project. This one was
+        // handing page and size straight to PageRequest.of, which throws on a
+        // negative page or a size of zero - so ?page=-1 answered 500 rather
+        // than the first page, and a size of 100000 was honoured.
+        int safeSize = Math.min(Math.max(size, 1), MAX_PAGE_SIZE);
         return applicationService.listForOwnCompany(
-                currentUserService.requireUserId(), PageRequest.of(page, size));
+                currentUserService.requireUserId(),
+                PageRequest.of(Math.max(page, 0), safeSize));
     }
 
     @GetMapping("/internships/{id}/applications")

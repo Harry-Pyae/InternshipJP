@@ -8,32 +8,55 @@ import { employerApi } from "../../api/employerApi.js";
 import { describeApiError, fieldErrorsOf } from "../../api/axiosClient.js";
 import { useLanguage } from "../../config/languageContext.jsx";
 import CompanyLogoCard from "../../components/shared/CompanyLogoCard.jsx";
+import CharCount from "../../components/shared/CharCount.jsx";
 
 /**
- * The company profile: a page you read, and a form you open.
+ * Every limit here is the one UpdateCompanyRequest enforces.
+ *
+ * Only two were written down, so the rest fell back to 150 - which is not a
+ * neutral default. It is longer than the server accepts for an industry, a
+ * company size or a country, so the form let somebody finish typing and then
+ * answered 400; and it is shorter than the server accepts for a website, an
+ * address or a LinkedIn URL, so it cut a valid value off with no explanation.
  */
 const FIELDS = [
-  { name: "name", label: "Company name", required: true },
-  { name: "industry", label: "Industry" },
-  { name: "companySize", label: "Company size", hint: "e.g. 11-50" },
-  { name: "foundedYear", label: "Founded year", type: "number" },
+  { name: "name", label: "Company name", required: true, maxLength: 150 },
+  { name: "industry", label: "Industry", maxLength: 100 },
+  { name: "companySize", label: "Company size", hint: "e.g. 11-50", maxLength: 30 },
+  // A number input, so min/max rather than maxLength: browsers ignore
+  // maxLength on type="number" entirely, and a character counter on a year is
+  // counting the wrong thing. The bounds are @Min(1800)/@Max(2100) on the
+  // request.
+  { name: "foundedYear", label: "Founded year", type: "number", min: 1800, max: 2100 },
   {
     name: "registrationNumber",
     label: "Registration number",
     hint: "What an administrator checks before approving you.",
     maxLength: 20,
   },
-  { name: "country", label: "Country" },
-  { name: "location", label: "City" },
-  { name: "address", label: "Address" },
-  { name: "website", label: "Website", type: "url", placeholder: "https://example.com" },
-  { name: "linkedinUrl", label: "LinkedIn", type: "url" },
-  { name: "contactEmail", label: "Contact email", type: "email" },
+  { name: "country", label: "Country", maxLength: 100 },
+  { name: "location", label: "City", maxLength: 150 },
+  { name: "address", label: "Address", maxLength: 255 },
+  {
+    name: "website",
+    label: "Website",
+    type: "url",
+    placeholder: "https://example.com",
+    maxLength: 255,
+  },
+  { name: "linkedinUrl", label: "LinkedIn", type: "url", maxLength: 255 },
+  { name: "contactEmail", label: "Contact email", type: "email", maxLength: 190 },
   { name: "contactPhone", label: "Contact phone", maxLength: 16 },
 ];
 
+/** UpdateCompanyRequest: @Size(max = 1500) on description. */
+const DESCRIPTION_MAX = 1500;
+
 const EMPTY = Object.fromEntries([...FIELDS.map((f) => [f.name, ""]), ["description", ""]]);
 
+/**
+ * The company profile: a page you read, and a form you open.
+ */
 export default function CompanyProfilePage() {
   const { t } = useLanguage();
   const [saved, setSaved] = useState(null);
@@ -193,8 +216,13 @@ export default function CompanyProfilePage() {
                     onChange={(event) =>
                       setForm((c) => ({ ...c, [field.name]: event.target.value }))
                     }
-            maxLength={field.maxLength ?? 150}
-            />
+                    maxLength={field.maxLength}
+                    min={field.min}
+                    max={field.max}
+                  />
+                  {field.maxLength ? (
+                    <CharCount value={form[field.name] ?? ""} max={field.maxLength} />
+                  ) : null}
                   {fieldErrors?.[field.name] ? (
                     <p className="ijp-field-error">{t(fieldErrors[field.name])}</p>
                   ) : field.hint ? (
@@ -213,8 +241,9 @@ export default function CompanyProfilePage() {
                   onChange={(event) =>
                     setForm((c) => ({ ...c, description: event.target.value }))
                   }
-                  maxLength={2000}
+                  maxLength={DESCRIPTION_MAX}
                 />
+                <CharCount value={form.description ?? ""} max={DESCRIPTION_MAX} />
               </div>
             </div>
 

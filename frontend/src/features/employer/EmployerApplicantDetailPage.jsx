@@ -489,9 +489,9 @@ export default function EmployerApplicantDetailPage() {
                 value={note}
                 onChange={(event) => setNote(event.target.value)}
                 placeholder={t("Kept with the application history.")}
-              maxLength={500}
+                maxLength={500}
               />
-                <CharCount value={note} max={500} />
+              <CharCount value={note} max={500} />
               <button
                 type="button"
                 className="btn btn-ijp-primary w-100"

@@ -156,11 +156,25 @@ Only `OPEN` internships are listed. Drafts return `404`.
 | --- | --- | --- | --- | --- |
 | POST | `/api/internships/{id}/applications` | STUDENT | `CreateApplicationRequest` | `201 ApplicationSummaryResponse` |
 | GET | `/api/student/applications` | STUDENT | - | `PageResponse<ApplicationSummaryResponse>` |
+| POST | `/api/student/applications/{id}/withdraw` | STUDENT | - | `ApplicationSummaryResponse` |
+| GET | `/api/student/applications/{id}/messages` | STUDENT | - | `ApplicationMessageResponse[]` |
+| POST | `/api/student/applications/{id}/message` | STUDENT | `ApplicantMessageRequest` | `ApiMessageResponse` |
 
 `CreateApplicationRequest`: `coverLetter?` (max 3000), `resumeId?`
 
 Refused with `400` if the internship is not `OPEN` or the deadline has passed,
 and with `409` if you have already applied.
+
+**Withdrawing** is the applicant's own act, which is why it is a POST of its own
+rather than a value on the employer's status endpoint. Allowed only from
+`APPLIED`, `UNDER_REVIEW`, `SHORTLISTED` and `INTERVIEW`; a decided application
+answers `400`, and so does a second attempt. An application belonging to another
+student answers `404`, not `403` — saying it exists but is not yours
+confirms it exists.
+
+It is final. `uk_application_once` allows one application per student per
+vacancy, so a withdrawn one cannot be replaced by a fresh one, and the
+confirmation in the interface says so before anybody presses it.
 
 ---
 
@@ -182,7 +196,25 @@ and with `409` if you have already applied.
 
 `InternshipRequest`: `title`, `description?`, `responsibilities?`, `requirements?`,
 `location?`, `workMode?`, `durationMonths?`, `stipendAmount?`, `stipendCurrency?`,
-`availablePositions?`, `applicationDeadline?` (`YYYY-MM-DD`), `status?`
+`availablePositions?`, `applicationDeadline?` (`YYYY-MM-DD`), `status?`,
+`requiredSkills?` (up to 20 names, each up to 100 characters)
+
+**`requiredSkills` is the whole input to the matching.** The score a student
+sees is `matched * 100 / requiredSkills.size()`, and the skill-gap report counts
+demand across every open vacancy, so a vacancy that sends none cannot be matched
+to anybody and contributes nothing to what students are told to learn.
+
+Three rules the server applies to the list:
+
+| Sent | Result |
+| --- | --- |
+| omitted / `null` | the existing skills are **left alone** |
+| `[]` | the skills are **cleared** |
+| `["React", "  react  ", ""]` | one skill, `React` — trimmed, blanks dropped, and compared case-insensitively because `uk_internship_skill` is `UNIQUE (internship_id, name)` |
+
+The distinction between omitted and empty is deliberate: a client that does not
+know about the field must not silently wipe a vacancy's skills, while an empty
+list is somebody saying so on purpose.
 
 Saving a `DRAFT` always works. `status: "OPEN"` returns **403** until an
 administrator approves the company.

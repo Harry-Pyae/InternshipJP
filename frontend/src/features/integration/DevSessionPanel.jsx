@@ -261,10 +261,9 @@ function SignedOut({ mode, setMode, role, setRole, form, update, busy, onSubmit 
           onChange={(event) => update("email", event.target.value)}
           autoComplete="username"
           required
-        
-            maxLength={150}
-            />
-                <CharCount value={form.email} max={150} />
+          maxLength={150}
+        />
+        <CharCount value={form.email} max={150} />
       </div>
 
       <div>
@@ -279,10 +278,9 @@ function SignedOut({ mode, setMode, role, setRole, form, update, busy, onSubmit 
           onChange={(event) => update("password", event.target.value)}
           autoComplete={registering ? "new-password" : "current-password"}
           required
-        
-            maxLength={150}
-            />
-                <CharCount value={form.password} max={150} />
+          maxLength={72}
+        />
+        <CharCount value={form.password} max={72} />
         {registering ? (
           <p className="ijp-muted small mb-0 mt-1">At least 8 characters, with an uppercase letter, a lowercase letter, a digit and a symbol.</p>
         ) : null}
@@ -300,10 +298,9 @@ function SignedOut({ mode, setMode, role, setRole, form, update, busy, onSubmit 
               value={form.fullName}
               onChange={(event) => update("fullName", event.target.value)}
               required
-            
-            maxLength={150}
+              maxLength={150}
             />
-                <CharCount value={form.fullName} max={150} />
+            <CharCount value={form.fullName} max={150} />
           </div>
 
           {role === "STUDENT" ? (
@@ -316,10 +313,9 @@ function SignedOut({ mode, setMode, role, setRole, form, update, busy, onSubmit 
                 className="form-control form-control-sm"
                 value={form.university}
                 onChange={(event) => update("university", event.target.value)}
-              
-            maxLength={150}
-            />
-                <CharCount value={form.university} max={150} />
+                maxLength={150}
+              />
+              <CharCount value={form.university} max={150} />
             </div>
           ) : (
             <div>
@@ -332,10 +328,9 @@ function SignedOut({ mode, setMode, role, setRole, form, update, busy, onSubmit 
                 value={form.companyName}
                 onChange={(event) => update("companyName", event.target.value)}
                 required
-              
-            maxLength={150}
-            />
-                <CharCount value={form.companyName} max={150} />
+                maxLength={150}
+              />
+              <CharCount value={form.companyName} max={150} />
             </div>
           )}
         </>
